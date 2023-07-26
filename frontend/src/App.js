@@ -1,22 +1,45 @@
-import logo from './logo.svg';
+import {Button, Card, CardMedia} from "@mui/material"
 import './App.css';
+import axios from 'axios'
+import { useState } from 'react';
+
 
 function App() {
+
+  const [image, setImage] = useState();
+
+  const tester = () => {
+    axios.get('http://localhost:8000/test')
+      .then(res => {
+
+      })
+      .catch(err => {
+
+      })
+  }
+
+  const generate = async () => {
+    axios.get('http://localhost:8000/generate')
+      .then(res => {
+        const data = res.data;
+        setImage(res.data);
+
+      })
+      .catch(err => {
+        console.log(err);
+      })
+
+  }
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+      <Button variant="contained" onClick={generate}>Generate Image</Button>
+      <Card>
+      <CardMedia 
+        component="img"
+        height="320"
+        image={`data:image/png;base64,${image}`} />
+      </Card>
       </header>
     </div>
   );
