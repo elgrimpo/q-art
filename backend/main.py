@@ -27,7 +27,7 @@ async def test():
     print('success')
 
 @app.get('/generate')
-async def generate(prompt: str):
+async def generate(prompt: str, website: str):
     device = torch.device("mps")
     model_id = "runwayml/stable-diffusion-v1-5"
     pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16)

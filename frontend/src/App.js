@@ -6,10 +6,22 @@ import { useState } from "react";
 function App() {
   const [image, setImage] = useState();
   const [prompt, updatePrompt] = useState();
+  const [formValues, setFormValues] = useState({
+    website: "",
+    prompt: "",
+  });
 
-  const generate = async (prompt) => {
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormValues({
+      ...formValues,
+      [name]: value,
+    });
+  };
+
+  const generate = async (formValues) => {
     axios
-      .get(`http://localhost:8000/generate/?prompt=${prompt}`)
+      .get(`http://localhost:8000/generate/`, {params : formValues})
       .then((res) => {
         const data = res.data;
         setImage(res.data);
@@ -25,12 +37,22 @@ function App() {
         <Box className="sidebar">
           <Stack spacing={2}>
           <TextField
-            id="prompt"
-            label="Prompt"
-            onChange={(e) => updatePrompt(e.target.value)}
+            id="website"
+            label="Website"
+            name="website"
+            value= {formValues.website}
+            onChange={handleInputChange}
             variant="outlined"
           />
-          <Button variant="contained" onClick={(e) => generate(prompt)}>
+          <TextField
+            id="prompt"
+            label="Prompt"
+            name="prompt"
+            value= {formValues.prompt}
+            onChange={handleInputChange}
+            variant="outlined"
+          />
+          <Button variant="contained" onClick={(e) => generate(formValues)}>
             Generate Image
           </Button>
           </Stack>
