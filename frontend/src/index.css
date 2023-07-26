@@ -5,9 +5,48 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  box-sizing: border-box; 
 }
+
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+
+.app {
+width: 100%
+}
+
+/* Header */
+.header {
+  background-color: #3f51b5; 
+  color: #fff;
+  padding: 1rem;
+}
+
+/* Two column layout */
+.body {
+  display: flex;
+}
+
+.sidebar {
+  flex: 1; /* Takes up 1/4 width */
+  padding: 1rem; 
+  display: flex; 
+  flex-direction: column;
+}
+
+.image-container {
+  flex: 3; /* Takes up 3/4 width */
+  padding: 1rem; 
+  display: flex;
+  align-items: center; 
+  justify-content: center;
+}
+
+/* Card styling */
+.card {
+  margin: 0 auto; 
 }
