@@ -1,10 +1,11 @@
 from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
-from diffusers import StableDiffusionPipeline
+from diffusers import (StableDiffusionPipeline)
 import torch
 from io import BytesIO
 import base64
+import qrcode
 
 
 app = FastAPI()
@@ -17,17 +18,10 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-@app.get('/')
-def read_root():
-    return{'Test'}  
-
-
-@app.get('/test') 
-async def test():
-    print('success')
-
 @app.get('/generate')
 async def generate(prompt: str, website: str):
+    qr_image = qrcode.make(website)
+    qr_image.save("qrcode.png")
     device = torch.device("mps")
     model_id = "runwayml/stable-diffusion-v1-5"
     pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16)
