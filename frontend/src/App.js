@@ -2,9 +2,11 @@ import { Button, Card, CardMedia, TextField, Box, Stack } from "@mui/material";
 import "./App.css";
 import axios from "axios";
 import { useState } from "react";
+import placeholderImage from './placeholder_image.png';
+
 
 function App() {
-  const [image, setImage] = useState();
+  const [image, setImage] = useState(placeholderImage);
   const [prompt, updatePrompt] = useState();
   const [formValues, setFormValues] = useState({
     website: "",
@@ -24,7 +26,7 @@ function App() {
       .get(`http://localhost:8000/generate/`, {params : formValues})
       .then((res) => {
         const data = res.data;
-        setImage(res.data);
+        setImage(`data:image/png;base64,${res.data}`);
       })
       .catch((err) => {
         console.log(err);
@@ -61,7 +63,7 @@ function App() {
           <Card>
             <CardMedia
               component="img"
-              image={`data:image/png;base64,${image}`}
+              image={image}
             />
           </Card>
         </div>
