@@ -1,73 +1,75 @@
-import { Button, Card, CardMedia, TextField, Box, Stack } from "@mui/material";
+import {
+  Avatar,
+  AppBar,
+  Button,
+  Card,
+  CardMedia,
+  Container,
+  IconButton,
+  Menu,
+  MenuItem,
+  TextField,
+  Tab,
+  Tabs,
+  Toolbar,
+  Tooltip,
+  Typography,
+  Box,
+  Stack,
+} from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
 import "./App.css";
 import axios from "axios";
 import { useState } from "react";
-import placeholderImage from './placeholder_image.png';
+import placeholderImage from "./placeholder_image.png";
+import Generate from "./Generate";
+import logo from "./logo.png";
+import * as React from "react";
 
+const pages = ["Products", "Pricing", "Blog"];
+const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
 function App() {
-  const [image, setImage] = useState(placeholderImage);
-  const [prompt, updatePrompt] = useState();
-  const [formValues, setFormValues] = useState({
-    website: "",
-    prompt: "",
-  });
+  const [anchorElNav, setAnchorElNav] = React.useState(null);
+  const [anchorElUser, setAnchorElUser] = React.useState(null);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormValues({
-      ...formValues,
-      [name]: value,
-    });
+  const handleOpenNavMenu = (event) => {
+    setAnchorElNav(event.currentTarget);
+  };
+  const handleOpenUserMenu = (event) => {
+    setAnchorElUser(event.currentTarget);
   };
 
-  const generate = async (formValues) => {
-    axios
-      .get(`http://localhost:8000/generate/`, {params : formValues})
-      .then((res) => {
-        const data = res.data;
-        setImage(`data:image/png;base64,${res.data}`);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+  const handleCloseNavMenu = () => {
+    setAnchorElNav(null);
   };
+
+  const handleCloseUserMenu = () => {
+    setAnchorElUser(null);
+  };
+
+  const [value, setValue] = React.useState(0);
+
+  const handleChange = (event, newValue) => {
+    setValue(newValue)};
+
   return (
     <div className="app">
-      <header className="header">QR Code Generator</header>
-      <div className="body">
-        <Box className="sidebar">
-          <Stack spacing={2}>
-          <TextField
-            id="website"
-            label="Website"
-            name="website"
-            value= {formValues.website}
-            onChange={handleInputChange}
-            variant="outlined"
-          />
-          <TextField
-            id="prompt"
-            label="Prompt"
-            name="prompt"
-            value= {formValues.prompt}
-            onChange={handleInputChange}
-            variant="outlined"
-          />
-          <Button variant="contained" onClick={(e) => generate(formValues)}>
-            Generate Image
-          </Button>
-          </Stack>
-        </Box>
-        <div className="image-container">
-          <Card>
-            <CardMedia
-              component="img"
-              image={image}
-            />
-          </Card>
-        </div>
-      </div>
+
+        <Toolbar 
+        display='flex'>
+          <img src={logo} alt="Logo" />
+          <Box sx={{display: 'flex', justifyContent: 'space-between', margin: 'auto'}}>
+          <Tabs value={value} onChange={handleChange} centered>
+        <Tab label="Generate" />
+        <Tab label="My codes" />
+        <Tab label="Explore" />
+      </Tabs>
+    </Box>
+          <Avatar></Avatar>
+        </Toolbar>
+<div className='body1'><Generate /></div>
+      
     </div>
   );
 }
