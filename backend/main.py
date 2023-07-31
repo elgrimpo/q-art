@@ -1,14 +1,13 @@
 from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
-from diffusers import (StableDiffusionControlNetImg2ImgPipeline, ControlNetModel)
-import torch
-from io import BytesIO
 import base64
 import qrcode
-import numpy as np
-from PIL import Image, ImageOps
+from dotenv import load_dotenv
+import requests as requests
+import cv2
+from payload_config import payloadConfig
 
+webui_url = "http://127.0.0.1:7860"
 
 app = FastAPI()
 origins = ["http://localhost:3000"]
@@ -17,58 +16,35 @@ app.add_middleware(
     allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"]
+    allow_headers=["*"],
 )
 
-# load models
-device = torch.device("mps")
-model_id = "runwayml/stable-diffusion-v1-5"
-control_net = ControlNetModel.from_pretrained('DionTimmer/controlnet_qrcode-control_v1p_sd15').to(device)
-pipe = StableDiffusionControlNetImg2ImgPipeline.from_pretrained(
-    model_id, 
-    controlnet=control_net,
-    # torch_dtype=torch.float16
-    ).to(device)
-
-#Resize image to meet condition
-def resize_for_condition_image(input_image: Image.Image, resolution: int = 512):
-    input_image = input_image.convert("RGB")
-    W, H = input_image.size
-    k = float(resolution) / min(H, W)
-    H *= k
-    W *= k
-    H = int(round(H / 32.0)) * 32
-    W = int(round(W / 32.0)) * 32
-    img = input_image.resize((W, H), resample=Image.LANCZOS)
-    return img
+def readImage(path):
+    img = cv2.imread(path)
+    retval, buffer = cv2.imencode('.jpg', img)
+    b64img = base64.b64encode(buffer).decode("utf-8")
+    return b64img
 
 
-@app.get('/generate')
-async def generate(prompt: str, website: str):
-    
-    #Prepare QR Image
+@app.get("/generate")
+async def predict(prompt, website, negative_prompt=None):
+
+    # Initial Payload
+    payload = payloadConfig
+    payload['prompt'] = prompt
+
+    # Prepare QR Code Image
     qr_image = qrcode.make(website)
     qr_image.save("qrcode.png")
-    image = Image.open("qrcode.png")
-    qr_array = np.array(image)
+    image_base64_str = readImage("qrcode.png")
+    payload['alwayson_scripts']['ControlNet']['args'][0]['image'] = image_base64_str
+    payload['alwayson_scripts']['ControlNet']['args'][1]['image'] = image_base64_str
 
-    #Resize image
-    qr_image = resize_for_condition_image(qr_image, 512)
+    # Initiate Request
+    response = requests.post(url=f"{webui_url}/sdapi/v1/txt2img", json=payload)
+    api_response = response.json()
 
-    image = pipe(
-        prompt,
-        image= qr_image,
-        control_image=qr_image,
-        width=512,  # type: ignore
-        height=512,  # type: ignore
-        # guidance_scale=float(guidance_scale),
-        # controlnet_conditioning_scale=float(controlnet_conditioning_scale),  # type: ignore
-        generator=torch.Generator(),
-        strength=float(0.8),
-        num_inference_steps=25,
-        ).images[0]  
-    image.save("astronaut_rides_horse.png")
-    buffer = BytesIO()
-    image.save(buffer, format="PNG")
-    imgstr = base64.b64encode(buffer.getvalue())
-    return Response(content=imgstr, media_type='image/png')
+    # Send image to client
+    generated_image_str = api_response['images'][0]
+    return Response(content=generated_image_str, media_type="image/png")
+    

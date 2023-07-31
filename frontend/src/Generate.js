@@ -37,7 +37,11 @@ function Generate() {
 
   const generate = async (formValues) => {
     axios
-      .get(`http://localhost:8000/generate/`, { params: formValues })
+      .get(`http://localhost:8000/generate/`, 
+      { 
+      params: formValues, 
+      withCredentials: true,
+    })
       .then((res) => {
         const data = res.data;
         setImage(`data:image/png;base64,${res.data}`);
