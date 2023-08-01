@@ -1,3 +1,5 @@
+/*--------- Global --------*/
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -17,42 +19,46 @@ html {
   height: 100%;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
-
-
+/*-------- App.js --------*/
 .app {
   margin: 0 2rem;
   height: 100%;
-  max-width: 1500px;
-  margin: auto 
+  max-width: 1600px;
+  margin: auto;
+  box-sizing: border-box;
 }
 
-/* Header */
 .header {
-  background-color: #3f51b5;
-  color: #fff;
-  padding: 1rem;
+  box-sizing: border-box;
+  padding-top: 8px
 }
 
-/* Two column layout */
+.menu-container {
+  display: flex;
+  justify-content: space-between;
+  margin: auto;
+}
+
 .body {
+  box-sizing: border-box;
+  height: calc(100% - 100px);
+  background-color: #F5F5F5;
+  padding: 8px;
+  border-radius: 16px;
+  margin: 8px 24px 24px 24px;
+}
+
+/*-------- Generate Page ---------*/
+
+.generate-page {
   display: flex;
   box-sizing: border-box;
   height: 100%;
   align-items: center;
 }
 
-.body1 {
-  box-sizing: border-box;
-  height: calc(100% - 84px);
-}
-
 .sidebar {
   flex: 1;
-  /* Takes up 1/4 width */
   padding: 1rem 2rem;
   display: flex;
   flex-direction: column;
@@ -60,16 +66,13 @@ code {
 
 .image-container {
   flex: 2;
-  /* Takes up 3/4 width */
-  padding: 1rem;
-  display: flex;
+  padding: 3rem 3rem 0 3rem;
   align-items: center;
-  height: 100%;
   box-sizing: border-box;
 
-}
-
-/* Card styling */
-.card {
-  margin: 0 auto;
+  width: 100%;
+  background-color: #70E195;
+  border-radius: 16px;
+  text-align: center;
+  margin: 1rem;
 }

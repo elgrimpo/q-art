@@ -1,4 +1,5 @@
 import {
+  Fab,
   Button,
   Card,
   CardHeader,
@@ -15,9 +16,10 @@ import "./App.css";
 import axios from "axios";
 import { useState } from "react";
 import placeholderImage from "./placeholder_image.png";
-import ShareTwoToneIcon from '@mui/icons-material/ShareTwoTone';
-import FacebookTwoToneIcon from '@mui/icons-material/FacebookTwoTone';
-import CreateTwoToneIcon from '@mui/icons-material/CreateTwoTone';
+import ShareTwoToneIcon from "@mui/icons-material/ShareTwoTone";
+import FacebookTwoToneIcon from "@mui/icons-material/FacebookTwoTone";
+import CreateTwoToneIcon from "@mui/icons-material/CreateTwoTone";
+import AutoFixHighTwoToneIcon from "@mui/icons-material/AutoFixHighTwoTone";
 
 function Generate() {
   const [image, setImage] = useState(placeholderImage);
@@ -37,11 +39,10 @@ function Generate() {
 
   const generate = async (formValues) => {
     axios
-      .get(`http://localhost:8000/generate/`, 
-      { 
-      params: formValues, 
-      withCredentials: true,
-    })
+      .get(`http://localhost:8000/generate/`, {
+        params: formValues,
+        withCredentials: true,
+      })
       .then((res) => {
         const data = res.data;
         setImage(`data:image/png;base64,${res.data}`);
@@ -51,12 +52,12 @@ function Generate() {
       });
   };
   return (
-    <div className="body">
+    <div className="generate-page">
       {/*------ Generate Image Form ------*/}
 
       <Box className="sidebar">
         <Stack spacing={2}>
-          <Typography variant="h5">Generate new QR code</Typography>
+          <Typography variant="h5">Generate QR Art</Typography>
           <TextField
             id="website"
             label="Website"
@@ -72,49 +73,47 @@ function Generate() {
             value={formValues.prompt}
             onChange={handleInputChange}
             variant="outlined"
+            multiline
+            rows={4}
           />
-          {/* TODO: remove styling */}
-          <Button variant="contained" onClick={(e) => generate(formValues)} sx={{backgroundColor: '#70E195', fontColor: '000000'}}>
-            Generate Image
-          </Button>
+          <Fab
+            variant="extended"
+            size="medium"
+            color="primary"
+            aria-label="add"
+          >
+            <AutoFixHighTwoToneIcon sx={{ mr: 1 }} />
+            Generate
+          </Fab>
         </Stack>
       </Box>
 
       {/*------ QR Image ------*/}
-      <div className="image-container">
-        <Paper
-          elevation={5}
-          sx={{
-            height: "100%",
-            width: "100%",
-            backgroundColor: "#70E195",
-            borderRadius: "16px",
-          }}
+        <div className="image-container"
+          elevation={0}
         >
-          <Typography variant="h5" sx={{ margin: "1rem" }} align="center">
-            My QR Code
-          </Typography>
-          <CardMedia component="img" image={image} />
-          <CardActionArea
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
+          <CardMedia
+            component="img"
+            image={image}
+            sx={{ borderRadius: "12px" }}
+          />
+
+          <Fab
+            variant="extended"
+            size="medium"
+            color="secondary"
+            sx={{ margin: "24px" }}
+            aria-label="share"
           >
-            {" "}
-            {/* TODO: remove styling */}
-            <Button variant="contained" sx={{ margin: "24px", backgroundColor: '#000000' }}>
-              Download Image
-            </Button>
-          </CardActionArea>
-        </Paper>
-      </div>
+            Download Image
+          </Fab>
+        </div>
+
 
       {/*------ Metadata ------*/}
       <Box className="sidebar">
         {/*TODO: map from an object*/}
-        <Typography variant="h6" sx={{ margin: "1rem" }} align="center">
+        <Typography variant="h5" sx={{ margin: "1rem" }} align="center">
           My QR Code
         </Typography>
         <Typography variant="subtitle2" align="center">
@@ -137,20 +136,21 @@ function Generate() {
         </Typography>
 
         {/*------ Additional Actions ------*/}
-        <Stack direction="row"
-  justifyContent="center"
-  alignItems="center"
-  spacing={3}>
-
-            <IconButton>
-<ShareTwoToneIcon/>
-            </IconButton>
-            <IconButton>
-<FacebookTwoToneIcon/>
-            </IconButton>
-            <IconButton>
-<CreateTwoToneIcon/>
-            </IconButton>
+        <Stack
+          direction="row"
+          justifyContent="center"
+          alignItems="center"
+          spacing={3}
+        >
+          <IconButton>
+            <ShareTwoToneIcon />
+          </IconButton>
+          <IconButton>
+            <FacebookTwoToneIcon />
+          </IconButton>
+          <IconButton>
+            <CreateTwoToneIcon />
+          </IconButton>
         </Stack>
       </Box>
     </div>
