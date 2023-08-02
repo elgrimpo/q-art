@@ -1,16 +1,11 @@
 import {
   Fab,
-  Button,
-  Card,
-  CardHeader,
   CardMedia,
   CircularProgress,
   TextField,
   Box,
   Stack,
-  CardActionArea,
   Typography,
-  Paper,
   IconButton,
 } from "@mui/material";
 import "./App.css";
@@ -21,7 +16,7 @@ import ShareTwoToneIcon from "@mui/icons-material/ShareTwoTone";
 import FacebookTwoToneIcon from "@mui/icons-material/FacebookTwoTone";
 import CreateTwoToneIcon from "@mui/icons-material/CreateTwoTone";
 import AutoFixHighTwoToneIcon from "@mui/icons-material/AutoFixHighTwoTone";
-import theme from "./mui-theme";
+
 
 function Generate() {
   const [image, setImage] = useState(placeholderImage);
@@ -47,8 +42,9 @@ function Generate() {
         withCredentials: true,
       })
       .then((res) => {
-        const data = res.data;
-        setImage(`data:image/png;base64,${res.data}`);
+        const data = res;
+        console.log(data)
+        setImage(`data:image/png;base64,${res.data.image}`);
         setIsLoading(false);
       })
       .catch((err) => {

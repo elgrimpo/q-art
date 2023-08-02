@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import requests as requests
 import cv2
 from payload_config import payloadConfig
+import json
 
 webui_url = "http://127.0.0.1:7860"
 
@@ -39,12 +40,15 @@ async def predict(prompt, website, negative_prompt=None):
     image_base64_str = readImage("qrcode.png")
     payload['alwayson_scripts']['ControlNet']['args'][0]['image'] = image_base64_str
     payload['alwayson_scripts']['ControlNet']['args'][1]['image'] = image_base64_str
-
+    
     # Initiate Request
     response = requests.post(url=f"{webui_url}/sdapi/v1/txt2img", json=payload)
     api_response = response.json()
+    print("API RESPONSE")
+    info = json.loads(api_response['info'])
+    image = api_response['images'][0]
+    response = {"image": image, "info": info}
 
-    # Send image to client
-    generated_image_str = api_response['images'][0]
-    return Response(content=generated_image_str, media_type="image/png")
+    # Send response to client
+    return response
     
