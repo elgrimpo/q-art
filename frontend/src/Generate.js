@@ -4,6 +4,7 @@ import {
   Card,
   CardHeader,
   CardMedia,
+  CircularProgress,
   TextField,
   Box,
   Stack,
@@ -20,10 +21,11 @@ import ShareTwoToneIcon from "@mui/icons-material/ShareTwoTone";
 import FacebookTwoToneIcon from "@mui/icons-material/FacebookTwoTone";
 import CreateTwoToneIcon from "@mui/icons-material/CreateTwoTone";
 import AutoFixHighTwoToneIcon from "@mui/icons-material/AutoFixHighTwoTone";
+import theme from "./mui-theme";
 
 function Generate() {
   const [image, setImage] = useState(placeholderImage);
-  const [prompt, updatePrompt] = useState();
+  const [isLoading, setIsLoading] = useState(false);
   const [formValues, setFormValues] = useState({
     website: "",
     prompt: "",
@@ -38,6 +40,7 @@ function Generate() {
   };
 
   const generate = async (formValues) => {
+    setIsLoading(true);
     axios
       .get(`http://localhost:8000/generate/`, {
         params: formValues,
@@ -46,8 +49,10 @@ function Generate() {
       .then((res) => {
         const data = res.data;
         setImage(`data:image/png;base64,${res.data}`);
+        setIsLoading(false);
       })
       .catch((err) => {
+        setIsLoading(false);
         console.log(err);
       });
   };
@@ -80,9 +85,10 @@ function Generate() {
             variant="extended"
             size="medium"
             color="primary"
-            aria-label="add"
-          >
-            <AutoFixHighTwoToneIcon sx={{ mr: 1 }} />
+            aria-label="generate"
+            onClick={(e) => generate(formValues)} >
+          
+            <AutoFixHighTwoToneIcon sx={{ mr: 1}} />
             Generate
           </Fab>
         </Stack>
@@ -92,11 +98,18 @@ function Generate() {
         <div className="image-container"
           elevation={0}
         >
-          <CardMedia
-            component="img"
-            image={image}
-            sx={{ borderRadius: "12px" }}
-          />
+        
+        {isLoading ? (
+      <Box className="loading-box">
+      <CircularProgress color='secondary' />
+    </Box> 
+    ) : (
+      <CardMedia
+        component="img"
+        image={image}
+        sx={{ borderRadius: "12px" }}
+      />
+    )}
 
           <Fab
             variant="extended"

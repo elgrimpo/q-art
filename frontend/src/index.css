@@ -1,3 +1,5 @@
+
+
 /*--------- Global --------*/
 
 body {
@@ -75,4 +77,13 @@ html {
   border-radius: 16px;
   text-align: center;
   margin: 1rem;
+}
+
+.loading-box {
+  display: flex;
+  background-color: #c5f2d2; 
+  aspect-ratio: 1/1; 
+  justify-content: center;
+  align-items: center; 
+  border-radius: 16px 
 }
