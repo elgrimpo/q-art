@@ -12,7 +12,7 @@ import json
 import os
 
 load_dotenv()
-mongo_url = os.environ['MONGO_URL']
+mongo_url = os.environ["MONGO_URL"]
 webui_url = "http://127.0.0.1:7860"
 
 
@@ -45,6 +45,8 @@ async def predict(prompt, website, negative_prompt=None):
     payload = payloadConfig
     payload["prompt"] = prompt
 
+    #TODO: add Negative prompt to payload
+
     # Prepare QR Code Image
     qr_image = qrcode.make(website)
     qr_image.save("qrcode.png")
@@ -64,7 +66,7 @@ async def predict(prompt, website, negative_prompt=None):
         "user_id": "64cacd9a2dd6a86ac819705b",
         "created_at": datetime.datetime.utcnow(),
         "image_str": image,
-        "prompt": info["prompt"],
+        "prompt": payload["prompt"],
         "neg_prompt": "",
         "content": website,
         "presets": [""],
@@ -73,6 +75,43 @@ async def predict(prompt, website, negative_prompt=None):
         "width": "512",
         "height": "512",
         "query_type": "txt2img",
+        "steps": payload["steps"],
+        "cfg_scale": payload["cfg_scale"], 
+        "sampler_name": payload["sampler_name"],
+        "controlnet0": {
+            "control_mode": payload["alwayson_scripts"]["ControlNet"]["args"][0][
+                "control_mode"
+            ],
+            "model": payload["alwayson_scripts"]["ControlNet"]["args"][0]["model"],
+            "module": payload["alwayson_scripts"]["ControlNet"]["args"][0]["module"],
+            "weight": payload["alwayson_scripts"]["ControlNet"]["args"][0]["weight"],
+            "guidance_start": payload["alwayson_scripts"]["ControlNet"]["args"][0][
+                "guidance_start"
+            ],
+            "guidance_end": payload["alwayson_scripts"]["ControlNet"]["args"][0][
+                "guidance_end"
+            ],
+            "resize_mode": payload["alwayson_scripts"]["ControlNet"]["args"][0][
+                "resize_mode"
+            ],
+        },
+        "controlnet1": {
+            "control_mode": payload["alwayson_scripts"]["ControlNet"]["args"][1][
+                "control_mode"
+            ],
+            "model": payload["alwayson_scripts"]["ControlNet"]["args"][1]["model"],
+            "module": payload["alwayson_scripts"]["ControlNet"]["args"][1]["module"],
+            "weight": payload["alwayson_scripts"]["ControlNet"]["args"][1]["weight"],
+            "guidance_start": payload["alwayson_scripts"]["ControlNet"]["args"][1][
+                "guidance_start"
+            ],
+            "guidance_end": payload["alwayson_scripts"]["ControlNet"]["args"][1][
+                "guidance_end"
+            ],
+            "resize_mode": payload["alwayson_scripts"]["ControlNet"]["args"][1][
+                "resize_mode"
+            ],
+        },
     }
 
     try:
@@ -89,6 +128,7 @@ async def predict(prompt, website, negative_prompt=None):
     # Error handling
     except Exception as e:
         raise HTTPException(status_code=409, detail=str(e))
+
 
 @app.get("/images/get")
 async def get_images():
