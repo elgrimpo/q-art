@@ -16,10 +16,17 @@ import ShareTwoToneIcon from "@mui/icons-material/ShareTwoTone";
 import FacebookTwoToneIcon from "@mui/icons-material/FacebookTwoTone";
 import CreateTwoToneIcon from "@mui/icons-material/CreateTwoTone";
 import AutoFixHighTwoToneIcon from "@mui/icons-material/AutoFixHighTwoTone";
+import dayjs from 'dayjs';
+
 
 
 function Generate() {
   const [image, setImage] = useState(placeholderImage);
+  const [metadata, setMetadata] = useState({
+    created_at: "-",
+    content: "-",
+    prompt: "-"
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [formValues, setFormValues] = useState({
     website: "",
@@ -42,9 +49,12 @@ function Generate() {
         withCredentials: true,
       })
       .then((res) => {
-        const data = res;
-        console.log(data)
-        setImage(`data:image/png;base64,${res.data.image}`);
+        setImage(`data:image/png;base64,${res.data.image_str}`);
+        setMetadata({
+          created_at: dayjs(res.data.created_at).format("MMMM D, YYYY"),
+          content: res.data.content,
+          prompt: res.data.prompt
+        });
         setIsLoading(false);
       })
       .catch((err) => {
@@ -129,19 +139,19 @@ function Generate() {
           Date created
         </Typography>
         <Typography variant="body" align="center" sx={{ mb: "1rem" }}>
-          October 12 2023
+          {metadata.created_at}
         </Typography>
         <Typography variant="subtitle2" align="center">
           QR Content
         </Typography>
         <Typography variant="body" align="center" sx={{ mb: "1rem" }}>
-          christophbiedermann.com
+          {metadata.content}
         </Typography>
         <Typography variant="subtitle2" align="center">
           Prompts used
         </Typography>
         <Typography variant="body" align="center" sx={{ mb: "1rem" }}>
-          Switzerland, mountains, nature, blue sky, castle, medieval
+          {metadata.prompt}
         </Typography>
 
         {/*------ Additional Actions ------*/}
