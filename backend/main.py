@@ -9,9 +9,7 @@ from payload_config import payloadConfig
 from pymongo import MongoClient
 import datetime
 import json
-import bson
 import os
-
 
 load_dotenv()
 mongo_url = os.environ['MONGO_URL']
@@ -41,18 +39,6 @@ def readImage(path):
     return b64img
 
 
-class MyJsonEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, datetime.datetime):
-            return obj.isoformat()  # Format dates as ISO strings
-        elif isinstance(obj, bson.Binary) and obj.subtype == bson.binary.UUID_SUBTYPE:
-            return obj.as_uuid()  # Format binary data as UUIDs
-        elif hasattr(obj, "__str__"):
-            return str(obj)  # This will handle ObjectIds
-
-        return super(MyJsonEncoder, self).default(obj)
-
-
 @app.get("/generate")
 async def predict(prompt, website, negative_prompt=None):
     # Initial Payload
@@ -73,6 +59,7 @@ async def predict(prompt, website, negative_prompt=None):
     image = api_response["images"][0]
 
     # Create database entry
+    # TODO: make user_id as part of input parameter
     doc = {
         "user_id": "64cacd9a2dd6a86ac819705b",
         "created_at": datetime.datetime.utcnow(),
@@ -103,3 +90,22 @@ async def predict(prompt, website, negative_prompt=None):
     except Exception as e:
         raise HTTPException(status_code=409, detail=str(e))
 
+@app.get("/images/get")
+async def get_images():
+    # TODO: make user_id input parameter
+    user_id = "64cacd9a2dd6a86ac819705b"
+    try:
+        # Get all images for the given user_id
+        images = db["images"].find({"user_id": user_id}).sort("created_at", -1)
+
+        # Convert the images to a list
+        images = list(images)
+
+        # Convert ObjectIds to strings
+        for image in images:
+            image["_id"] = str(image["_id"])
+
+        return images
+
+    except Exception as e:
+        raise HTTPException(status_code=409, detail=str(e))
