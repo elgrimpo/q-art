@@ -31,6 +31,7 @@ function MyCodes() {
 
   useEffect(() => {
     getImages();
+    console.log(images)
   }, []);
 
   const downloadImage = (image) => {
@@ -38,8 +39,19 @@ function MyCodes() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = "image.png";
+    link.download = "my_qr_art.png";
     link.click();
+  };
+
+  const deleteImage = (id) => {
+    axios
+      .delete(`http://localhost:8000/images/delete/${id}`)
+      .then(() => {
+        getImages();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   return (
@@ -89,7 +101,7 @@ function MyCodes() {
           <IconButton>
             <ShareTwoToneIcon />
           </IconButton>
-          <IconButton>
+          <IconButton onClick={()=>deleteImage(item._id)}>
             <DeleteForeverTwoToneIcon />
           </IconButton>
         </Stack>

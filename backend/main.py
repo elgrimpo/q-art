@@ -10,6 +10,8 @@ from pymongo import MongoClient
 import datetime
 import json
 import os
+from bson import ObjectId
+
 
 load_dotenv()
 mongo_url = os.environ["MONGO_URL"]
@@ -149,3 +151,16 @@ async def get_images():
 
     except Exception as e:
         raise HTTPException(status_code=409, detail=str(e))
+
+@app.delete("/images/delete/{id}")
+async def delete_image(id: str):
+    # Convert id to ObjectId
+  object_id = ObjectId(id)
+
+  # Delete image 
+  result = db["images"].delete_one({"_id": object_id})
+
+  if result.deleted_count == 0:
+    raise HTTPException(status_code=404, detail=f"Image with id {id} not found")
+
+  return {"deleted": True}
