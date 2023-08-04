@@ -11,21 +11,21 @@ import {
 import "./App.css";
 import axios from "axios";
 import { useState } from "react";
-import placeholderImage from "./placeholder_image.png";
 import ShareTwoToneIcon from "@mui/icons-material/ShareTwoTone";
 import FacebookTwoToneIcon from "@mui/icons-material/FacebookTwoTone";
 import CreateTwoToneIcon from "@mui/icons-material/CreateTwoTone";
 import AutoFixHighTwoToneIcon from "@mui/icons-material/AutoFixHighTwoTone";
-import dayjs from 'dayjs';
-
-
+import dayjs from "dayjs";
+import base64ToBlob from 'b64-to-blob';
+import { placeholder_image_str } from "./placeholder_image";
 
 function Generate() {
-  const [image, setImage] = useState(placeholderImage);
-  const [metadata, setMetadata] = useState({
+
+  const [image, setImage] = useState({
     created_at: "-",
     content: "-",
-    prompt: "-"
+    prompt: "-",
+    image_str: placeholder_image_str
   });
   const [isLoading, setIsLoading] = useState(false);
   const [formValues, setFormValues] = useState({
@@ -49,12 +49,12 @@ function Generate() {
         withCredentials: true,
       })
       .then((res) => {
-        setImage(`data:image/png;base64,${res.data.image_str}`);
-        setMetadata({
+        setImage({
+          image_str: res.data.image_str,
           created_at: dayjs(res.data.created_at).format("MMMM D, YYYY"),
           content: res.data.content,
-          prompt: res.data.prompt
-        });
+          prompt: res.data.prompt,
+          });
         setIsLoading(false);
       })
       .catch((err) => {
@@ -62,6 +62,18 @@ function Generate() {
         console.log(err);
       });
   };
+
+  const downloadImage = (image) => {
+    const blob = base64ToBlob(image.image_str);
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "image.png";
+    link.click();
+  };
+  console.log(placeholder_image_str)
+
+
   return (
     <div className="generate-page">
       {/*------ Generate Image Form ------*/}
@@ -92,46 +104,42 @@ function Generate() {
             size="medium"
             color="primary"
             aria-label="generate"
-            onClick={(e) => generate(formValues)} >
-          
-            <AutoFixHighTwoToneIcon sx={{ mr: 1}} />
+            onClick={(e) => generate(formValues)}
+          >
+            <AutoFixHighTwoToneIcon sx={{ mr: 1 }} />
             Generate
           </Fab>
         </Stack>
       </Box>
 
       {/*------ QR Image ------*/}
-        <div className="image-container"
-          elevation={0}
-        >
-        
+      <div className="image-container" elevation={0}>
         {isLoading ? (
-      <Box className="loading-box">
-      <CircularProgress color='secondary' />
-    </Box> 
-    ) : (
-      <CardMedia
-        component="img"
-        image={image}
-        sx={{ borderRadius: "12px" }}
-      />
-    )}
+          <Box className="loading-box">
+            <CircularProgress color="secondary" />
+          </Box>
+        ) : (
+          <CardMedia
+            component="img"
+            image={`data:image/png;base64,${image.image_str}`}
+            sx={{ borderRadius: "12px" }}
+          />
+        )}
 
-          <Fab
-            variant="extended"
-            size="medium"
-            color="secondary"
-            sx={{ margin: "24px" }}
-            aria-label="share"
-          >
-            Download Image
-          </Fab>
-        </div>
-
+        <Fab
+          variant="extended"
+          size="medium"
+          color="secondary"
+          sx={{ margin: "24px" }}
+          aria-label="share"
+          onClick={() => downloadImage(image)}
+        >
+          Download Image
+        </Fab>
+      </div>
 
       {/*------ Metadata ------*/}
       <Box className="sidebar">
-        {/*TODO: map from an object*/}
         <Typography variant="h5" sx={{ margin: "1rem" }} align="center">
           My QR Code
         </Typography>
@@ -139,19 +147,19 @@ function Generate() {
           Date created
         </Typography>
         <Typography variant="body" align="center" sx={{ mb: "1rem" }}>
-          {metadata.created_at}
+          {image.created_at}
         </Typography>
         <Typography variant="subtitle2" align="center">
           QR Content
         </Typography>
         <Typography variant="body" align="center" sx={{ mb: "1rem" }}>
-          {metadata.content}
+          {image.content}
         </Typography>
         <Typography variant="subtitle2" align="center">
           Prompts used
         </Typography>
         <Typography variant="body" align="center" sx={{ mb: "1rem" }}>
-          {metadata.prompt}
+          {image.prompt}
         </Typography>
 
         {/*------ Additional Actions ------*/}
