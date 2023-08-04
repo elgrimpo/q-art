@@ -49,12 +49,7 @@ function Generate() {
         withCredentials: true,
       })
       .then((res) => {
-        setImage({
-          image_str: res.data.image_str,
-          created_at: dayjs(res.data.created_at).format("MMMM D, YYYY"),
-          content: res.data.content,
-          prompt: res.data.prompt,
-          });
+        setImage(res.data);
         setIsLoading(false);
       })
       .catch((err) => {
@@ -68,7 +63,7 @@ function Generate() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = "image.png";
+    link.download = "my_qr_art.png";
     link.click();
   };
   console.log(placeholder_image_str)
@@ -147,7 +142,7 @@ function Generate() {
           Date created
         </Typography>
         <Typography variant="body" align="center" sx={{ mb: "1rem" }}>
-          {image.created_at}
+          {image.created_at != "-" ? dayjs(image.created_at).format("MMMM D, YYYY") : "-"}
         </Typography>
         <Typography variant="subtitle2" align="center">
           QR Content

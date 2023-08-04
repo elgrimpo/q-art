@@ -48,6 +48,7 @@ html {
   padding: 8px;
   border-radius: 16px;
   margin: 8px 24px 24px 24px;
+  overflow: scroll;
 }
 
 /*-------- Generate Page ---------*/
