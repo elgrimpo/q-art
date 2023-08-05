@@ -11,6 +11,8 @@ import datetime
 import json
 import os
 from bson import ObjectId
+import copy
+
 
 
 load_dotenv()
@@ -42,12 +44,40 @@ def readImage(path):
 
 
 @app.get("/generate")
-async def predict(prompt, website, negative_prompt=None):
+async def predict(prompt, website, negative_prompt, seed, image_quality, qr_weight):
     # Initial Payload
-    payload = payloadConfig
+    payload = copy.deepcopy(payloadConfig)
     payload["prompt"] = prompt
+    payload["negative_prompt"] = negative_prompt
+    payload["seed"] = int(seed)
+    
+    if image_quality == "low":
+        payload["steps"] = 10
+    elif image_quality == "medium":
+        payload["steps"] = 20  
+    elif image_quality == "high":
+        payload["steps"] = 30
 
-    #TODO: add Negative prompt to payload
+    
+    qr_weight_fl = float(qr_weight)
+    payload["alwayson_scripts"]["ControlNet"]["args"][1]["guidance_start"] -= qr_weight_fl * 0.05
+    payload["alwayson_scripts"]["ControlNet"]["args"][1]["guidance_end"] += qr_weight_fl * 0.05
+    payload["alwayson_scripts"]["ControlNet"]["args"][1]["weight"] += qr_weight_fl * 0.1
+
+    # print("inputs:")
+    # print("Seed:")
+    # print({payload["seed"]})
+    # print("QR Weight:")
+    # print(qr_weight)
+    # print("Guidance Start:")
+    # print(payload["alwayson_scripts"]["ControlNet"]["args"][1]["guidance_start"])
+    # print("Guidance End:")
+    # print(payload["alwayson_scripts"]["ControlNet"]["args"][1]["guidance_end"])
+    # print("weight:")
+    # print(payload["alwayson_scripts"]["ControlNet"]["args"][1]["weight"])
+    # print("Image quality:")
+    # print(image_quality)
+
 
     # Prepare QR Code Image
     # Create QR code instance
@@ -81,11 +111,12 @@ async def predict(prompt, website, negative_prompt=None):
         "created_at": datetime.datetime.utcnow(),
         "image_str": image,
         "prompt": payload["prompt"],
-        "neg_prompt": "",
+        "negative_prompt": payload["negative_prompt"],
         "content": website,
         "presets": [""],
         "seed": info["seed"],
-        "fidelity": "low",
+        "image_quality": image_quality,
+        "qr_weight": qr_weight,
         "width": "512",
         "height": "512",
         "query_type": "txt2img",
@@ -150,7 +181,7 @@ async def get_images():
     user_id = "64cacd9a2dd6a86ac819705b"
     try:
         # Get all images for the given user_id
-        images = db["images"].find({"user_id": user_id}).sort("created_at", -1)
+        images = db["images"].find({"user_id": user_id}).sort("created_at", -1).limit(20)
 
         # Convert the images to a list
         images = list(images)
@@ -158,7 +189,6 @@ async def get_images():
         # Convert ObjectIds to strings
         for image in images:
             image["_id"] = str(image["_id"])
-
         return images
 
     except Exception as e:
