@@ -50,7 +50,19 @@ async def predict(prompt, website, negative_prompt=None):
     #TODO: add Negative prompt to payload
 
     # Prepare QR Code Image
-    qr_image = qrcode.make(website)
+    # Create QR code instance
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_H,
+        box_size=10,
+        border=4
+    )
+
+    # Add website data
+    qr.add_data(website)  
+
+    # Generate image
+    qr_image = qr.make_image()
     qr_image.save("qrcode.png")
     image_base64_str = readImage("qrcode.png")
     payload["alwayson_scripts"]["ControlNet"]["args"][0]["image"] = image_base64_str
