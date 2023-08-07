@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 import base64
 import qrcode
@@ -176,12 +176,18 @@ async def predict(prompt, website, negative_prompt, seed, image_quality, qr_weig
 
 
 @app.get("/images/get")
-async def get_images():
+async def get_images(page: int = Query(1, alias="page")):
     # TODO: make user_id input parameter
     user_id = "64cacd9a2dd6a86ac819705b"
     try:
-        # Get all images for the given user_id
-        images = db["images"].find({"user_id": user_id}).sort("created_at", -1).limit(20)
+        images_per_page = 12
+
+        # Calculate the offset based on the current page
+        offset = (page - 1) * images_per_page
+
+        # Get images for the given user_id with pagination
+        images = db["images"].find({"user_id": user_id}).sort("created_at", -1).skip(offset).limit(images_per_page)
+
 
         # Convert the images to a list
         images = list(images)
