@@ -21,54 +21,69 @@ import AutoFixHighTwoToneIcon from "@mui/icons-material/AutoFixHighTwoTone";
 import dayjs from "dayjs";
 import base64ToBlob from "b64-to-blob";
 import { placeholder_image_str } from "./placeholder_image";
+import { useImages, useImagesDispatch } from "./AppProvider";
+import { ActionTypes } from "./reducers";
 
 function Generate() {
-  const [image, setImage] = useState({
-    created_at: "-",
-    content: "-",
-    prompt: "-",
-    image_str: placeholder_image_str,
-    seed: "-"
-
-  });
-  const [isLoading, setIsLoading] = useState(false);
-  const [formValues, setFormValues] = useState({
-    website: "",
-    prompt: "",
-    image_quality: "medium",
-    qr_weight: 0,
-    seed: -1,
-    qr_weight: 0.0,
-    negative_prompt: ""
-  });
+  const dispatch = useImagesDispatch();
+  const {
+    generatedImage,
+    loadingGeneratedImage,
+    generateFormValues,
+  } = useImages();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormValues({
-      ...formValues,
-      [name]: value,
+    dispatch({
+      type: ActionTypes.SET_GENERATE_FORM_VALUES,
+      payload: {
+        ...generateFormValues,
+        [name]: value,
+      },
     });
   };
 
-  const generate = async (formValues) => {
-    setIsLoading(true);
+  const generate = async (generateFormValues) => {
+    dispatch({
+      type: ActionTypes.SET_LOADING_GENERATED_IMAGE,
+      payload: true,
+    });
     axios
       .get(`http://localhost:8000/generate/`, {
-        params: formValues,
+        params: generateFormValues,
         withCredentials: true,
       })
       .then((res) => {
-        setImage(res.data);
-        setIsLoading(false);
+        dispatch({
+          type: ActionTypes.SET_GENERATED_IMAGE,
+          payload: res.data,
+        });
+        dispatch({
+          type: ActionTypes.SET_LOADING_GENERATED_IMAGE,
+          payload: false,
+        });
+
+        // Reset My Codes Images and Page
+        dispatch({
+          type: ActionTypes.SET_USER_IMAGES_PAGE,
+          payload: 0,
+        });
+        dispatch({
+          type: ActionTypes.SET_USER_IMAGES,
+          payload: [],
+        });
       })
       .catch((err) => {
-        setIsLoading(false);
+        dispatch({
+          type: ActionTypes.SET_LOADING_GENERATED_IMAGE,
+          payload: false,
+        });
         console.log(err);
       });
   };
 
-  const downloadImage = (image) => {
-    const blob = base64ToBlob(image.image_str);
+  const downloadImage = (generatedImage) => {
+    const blob = base64ToBlob(generatedImage.image_str);
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -80,7 +95,7 @@ function Generate() {
   const [alignment, setAlignment] = useState("medium");
   const handleChange = (event, newAlignment) => {
     setAlignment(newAlignment);
-    handleInputChange(event)
+    handleInputChange(event);
   };
 
   // Slider (QR Code Weight)
@@ -110,7 +125,7 @@ function Generate() {
             id="website"
             label="Website"
             name="website"
-            value={formValues.website}
+            value={generateFormValues.website}
             onChange={handleInputChange}
             variant="outlined"
           />
@@ -118,7 +133,7 @@ function Generate() {
             id="prompt"
             label="Prompt"
             name="prompt"
-            value={formValues.prompt}
+            value={generateFormValues.prompt}
             onChange={handleInputChange}
             variant="outlined"
             multiline
@@ -128,7 +143,7 @@ function Generate() {
             id="negative_prompt"
             label="Negative Prompt"
             name="negative_prompt"
-            value={formValues.negative_prompt}
+            value={generateFormValues.negative_prompt}
             onChange={handleInputChange}
             variant="outlined"
             multiline
@@ -138,7 +153,7 @@ function Generate() {
             id="seed"
             label="Seed"
             name="seed"
-            value={formValues.seed}
+            value={generateFormValues.seed}
             onChange={handleInputChange}
             variant="outlined"
           />
@@ -154,9 +169,15 @@ function Generate() {
             fullWidth="true"
             name="image_quality"
           >
-            <ToggleButton name="image_quality" value="low">Low</ToggleButton>
-            <ToggleButton name="image_quality" value="medium">Medium</ToggleButton>
-            <ToggleButton name="image_quality" value="high">High</ToggleButton>
+            <ToggleButton name="image_quality" value="low">
+              Low
+            </ToggleButton>
+            <ToggleButton name="image_quality" value="medium">
+              Medium
+            </ToggleButton>
+            <ToggleButton name="image_quality" value="high">
+              High
+            </ToggleButton>
           </ToggleButtonGroup>
           <Typography variant="subtitle2" align="center">
             QR Code Weight
@@ -172,18 +193,17 @@ function Generate() {
             max={3.0}
             track={false}
             color="secondary"
-            sx={{mb:'3rem'}}
+            sx={{ mb: "3rem" }}
             name="qr_weight"
             onChange={handleInputChange}
           />
-
         </Stack>
         <Fab
           variant="extended"
           size="medium"
           color="primary"
           aria-label="generate"
-          onClick={(e) => generate(formValues)}
+          onClick={(e) => generate(generateFormValues)}
         >
           <AutoFixHighTwoToneIcon sx={{ mr: 1 }} />
           Generate
@@ -192,14 +212,14 @@ function Generate() {
 
       {/*------ QR Image ------*/}
       <div className="image-container" elevation={0}>
-        {isLoading ? (
+        {loadingGeneratedImage ? (
           <Box className="loading-box">
             <CircularProgress color="secondary" />
           </Box>
         ) : (
           <CardMedia
             component="img"
-            image={`data:image/png;base64,${image.image_str}`}
+            image={`data:image/png;base64,${generatedImage.image_str}`}
             sx={{ borderRadius: "12px" }}
           />
         )}
@@ -210,7 +230,7 @@ function Generate() {
           color="secondary"
           sx={{ margin: "24px" }}
           aria-label="share"
-          onClick={() => downloadImage(image)}
+          onClick={() => downloadImage(generatedImage)}
         >
           Download Image
         </Fab>
@@ -225,27 +245,27 @@ function Generate() {
           Date created
         </Typography>
         <Typography variant="body" align="center" sx={{ mb: "1rem" }}>
-          {image.created_at != "-"
-            ? dayjs(image.created_at).format("MMMM D, YYYY")
+          {generatedImage.created_at != "-"
+            ? dayjs(generatedImage.created_at).format("MMMM D, YYYY")
             : "-"}
         </Typography>
         <Typography variant="subtitle2" align="center">
           QR Content
         </Typography>
         <Typography variant="body" align="center" sx={{ mb: "1rem" }}>
-          {image.content}
+          {generatedImage.content}
         </Typography>
         <Typography variant="subtitle2" align="center">
           Prompt
         </Typography>
         <Typography variant="body" align="center" sx={{ mb: "1rem" }}>
-          {image.prompt}
+          {generatedImage.prompt}
         </Typography>
         <Typography variant="subtitle2" align="center">
           Seed
         </Typography>
         <Typography variant="body" align="center" sx={{ mb: "1rem" }}>
-          {image.seed}
+          {generatedImage.seed}
         </Typography>
 
         {/*------ Additional Actions ------*/}

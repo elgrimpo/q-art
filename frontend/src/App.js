@@ -8,6 +8,8 @@ import theme from "./mui-theme";
 import TabContext from "@mui/lab/TabContext";
 import TabPanel from "@mui/lab/TabPanel";
 import MyCodes from "./MyCodes";
+import {ImagesProvider} from "./AppProvider";
+
 
 function App() {
   const [value, setValue] = React.useState(0);
@@ -16,6 +18,7 @@ function App() {
   };
 
   return (
+    <ImagesProvider>
     <ThemeProvider theme={theme}>
       <TabContext value={value}>
         <div className="app">
@@ -45,6 +48,7 @@ function App() {
         </div>
       </TabContext>
     </ThemeProvider>
+    </ImagesProvider>
   );
 }
 
