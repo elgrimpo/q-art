@@ -91,13 +91,6 @@ function Generate() {
     link.click();
   };
 
-  // Toogle Group (Image Quality)
-  const [alignment, setAlignment] = useState("medium");
-  const handleChange = (event, newAlignment) => {
-    setAlignment(newAlignment);
-    handleInputChange(event);
-  };
-
   // Slider (QR Code Weight)
   const marks = [
     {
@@ -162,9 +155,9 @@ function Generate() {
           </Typography>
           <ToggleButtonGroup
             color="secondary"
-            value={alignment}
+            value={generateFormValues.image_quality}
             exclusive
-            onChange={handleChange}
+            onChange={handleInputChange}
             aria-label="image-quality"
             fullWidth="true"
             name="image_quality"
@@ -184,7 +177,7 @@ function Generate() {
           </Typography>
           <Slider
             aria-label="QR Code Weight"
-            defaultValue={0.0}
+            defaultValue={generateFormValues.qr_weight}
             getAriaValueText={valuetext}
             step={0.1}
             valueLabelDisplay="auto"

@@ -23,9 +23,8 @@ import ChevronRightTwoToneIcon from "@mui/icons-material/KeyboardArrowRightTwoTo
 import ChevronLeftTwoToneIcon from "@mui/icons-material/ChevronLeftTwoTone";
 import dayjs from "dayjs";
 import { ActionTypes } from "./reducers";
-import {
-  useImages, useImagesDispatch
-} from "./AppProvider";
+import { useImages, useImagesDispatch } from "./AppProvider";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 
 function MyCodes() {
   const dispatch = useImagesDispatch();
@@ -64,7 +63,6 @@ function MyCodes() {
             type: ActionTypes.SET_USER_IMAGES_PAGE,
             payload: userImagesPage + 1,
           });
-
         }
       })
       .catch((err) => {
@@ -77,8 +75,6 @@ function MyCodes() {
   };
   // --------- Infinite scroll -----------
   const loadMoreRef = useRef(null);
-
-  
 
   useEffect(() => {
     const options = {
@@ -120,25 +116,44 @@ function MyCodes() {
     axios
       .delete(`http://localhost:8000/images/delete/${id}`)
       .then(() => {
-        const index = userImages.findIndex(image => image._id === id);
+        const index = userImages.findIndex((image) => image._id === id);
 
-  if(index > -1) {
-    // Remove image from array
-    const updatedImages = [
-      ...userImages.slice(0, index), 
-      ...userImages.slice(index + 1)
-    ];
+        if (index > -1) {
+          // Remove image from array
+          const updatedImages = [
+            ...userImages.slice(0, index),
+            ...userImages.slice(index + 1),
+          ];
 
-    // Dispatch SET_USER_IMAGES action
-    dispatch({
-      type: ActionTypes.SET_USER_IMAGES,
-      payload: updatedImages
-    });
-  }
+          // Dispatch SET_USER_IMAGES action
+          dispatch({
+            type: ActionTypes.SET_USER_IMAGES,
+            payload: updatedImages,
+          });
+        }
       })
       .catch((err) => {
         console.log(err);
       });
+  };
+
+  const handleCopy = (item) => {
+    const copyValues = {
+      website: item.content,
+      prompt: item.prompt,
+      image_quality: item.image_quality,
+      qr_weight: item.qr_weight,
+      negative_prompt: item.negative_prompt,
+      seed: item.seed,
+    };
+    dispatch({
+      type: ActionTypes.SET_GENERATE_FORM_VALUES,
+      payload: copyValues,
+    });
+    dispatch({
+      type: ActionTypes.SET_GENERATED_IMAGE,
+      payload: item,
+    });
   };
 
   // --------- Modal ----------
@@ -215,7 +230,7 @@ function MyCodes() {
                       <DownloadTwoToneIcon />
                     </IconButton>
                     <IconButton>
-                      <ShareTwoToneIcon />
+                      <ContentCopyIcon onClick={() => handleCopy(item)} />
                     </IconButton>
                     <IconButton onClick={() => deleteImage(item._id)}>
                       <DeleteForeverTwoToneIcon />
@@ -283,90 +298,91 @@ function MyCodes() {
       </Grid>
 
       {/*----------------- Modal: Image Details----------------*/}
-      {userImages &&
-      <Backdrop
-        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        open={open}
-        onClick={handleModalClose}
-      >
-        <IconButton
-          sx={{
-            borderRadius: "20px",
-            backgroundColor: "#70E195",
-            margin: "1rem",
-          }}
-          onClick={showPreviousImage}
+      {userImages && (
+        <Backdrop
+          sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+          open={open}
+          onClick={handleModalClose}
         >
-          <ChevronLeftTwoToneIcon />
-        </IconButton>
-        <Paper
-          elevation={10}
-          sx={{
-            width: "80%",
-            height: "80%",
-            backgroundColor: "#ffffff",
-            display: "flex",
-            flexDirection: "row",
-            borderRadius: "16px",
-          }}
-        >
-          <div
-            style={{
-              height: "100%",
-              aspectRatio: "1/1",
+          <IconButton
+            sx={{
+              borderRadius: "20px",
               backgroundColor: "#70E195",
+              margin: "1rem",
+            }}
+            onClick={showPreviousImage}
+          >
+            <ChevronLeftTwoToneIcon />
+          </IconButton>
+          <Paper
+            elevation={10}
+            sx={{
+              width: "80%",
+              height: "80%",
+              backgroundColor: "#ffffff",
               display: "flex",
-              borderRadius: "16px 0px 0px 16px",
+              flexDirection: "row",
+              borderRadius: "16px",
             }}
           >
-            <img
-              src={`data:image/png;base64,${userImages[selectedImageIndex]?.image_str}`}
+            <div
               style={{
-                height: "90%",
-                objectFit: "contain",
-                margin: "auto",
-                borderRadius: "16px",
+                height: "100%",
+                aspectRatio: "1/1",
+                backgroundColor: "#70E195",
+                display: "flex",
+                borderRadius: "16px 0px 0px 16px",
               }}
-            />
-          </div>
-          <Stack
-            sx={{ height: "100%", padding: "2rem" }}
-            justifyContent="center"
-            alignItems="flex-start"
+            >
+              <img
+                src={`data:image/png;base64,${userImages[selectedImageIndex]?.image_str}`}
+                style={{
+                  height: "90%",
+                  objectFit: "contain",
+                  margin: "auto",
+                  borderRadius: "16px",
+                }}
+              />
+            </div>
+            <Stack
+              sx={{ height: "100%", padding: "2rem" }}
+              justifyContent="center"
+              alignItems="flex-start"
+            >
+              <Typography variant="subtitle2">Date created</Typography>
+              <Typography variant="body" sx={{ mb: "1rem" }}>
+                {userImages[selectedImageIndex]?.created_at != "-"
+                  ? dayjs(userImages[selectedImageIndex]?.created_at).format(
+                      "MMMM D, YYYY"
+                    )
+                  : "-"}
+              </Typography>
+              <Typography variant="subtitle2">QR Content</Typography>
+              <Typography variant="body" sx={{ mb: "1rem" }}>
+                {userImages[selectedImageIndex]?.content}
+              </Typography>
+              <Typography variant="subtitle2">Prompt</Typography>
+              <Typography variant="body" sx={{ mb: "1rem" }}>
+                {userImages[selectedImageIndex]?.prompt}
+              </Typography>
+              <Typography variant="subtitle2">Seed</Typography>
+              <Typography variant="body" sx={{ mb: "1rem" }}>
+                {userImages[selectedImageIndex]?.seed}
+              </Typography>
+            </Stack>
+          </Paper>
+          <IconButton
+            sx={{
+              borderRadius: "20px",
+              backgroundColor: "#70E195",
+              margin: "1rem",
+            }}
+            onClick={showNextImage}
           >
-            <Typography variant="subtitle2">Date created</Typography>
-            <Typography variant="body" sx={{ mb: "1rem" }}>
-              {userImages[selectedImageIndex]?.created_at != "-"
-                ? dayjs(userImages[selectedImageIndex]?.created_at).format(
-                    "MMMM D, YYYY"
-                  )
-                : "-"}
-            </Typography>
-            <Typography variant="subtitle2">QR Content</Typography>
-            <Typography variant="body" sx={{ mb: "1rem" }}>
-              {userImages[selectedImageIndex]?.content}
-            </Typography>
-            <Typography variant="subtitle2">Prompt</Typography>
-            <Typography variant="body" sx={{ mb: "1rem" }}>
-              {userImages[selectedImageIndex]?.prompt}
-            </Typography>
-            <Typography variant="subtitle2">Seed</Typography>
-            <Typography variant="body" sx={{ mb: "1rem" }}>
-              {userImages[selectedImageIndex]?.seed}
-            </Typography>
-          </Stack>
-        </Paper>
-        <IconButton
-          sx={{
-            borderRadius: "20px",
-            backgroundColor: "#70E195",
-            margin: "1rem",
-          }}
-          onClick={showNextImage}
-        >
-          <ChevronRightTwoToneIcon />
-        </IconButton>
-      </Backdrop>}
+            <ChevronRightTwoToneIcon />
+          </IconButton>
+        </Backdrop>
+      )}
     </div>
   );
 }
