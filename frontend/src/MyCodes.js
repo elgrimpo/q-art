@@ -1,19 +1,13 @@
 import {
   Grid,
-  Paper,
-  Backdrop,
-  IconButton,
-  List,
-  ListItemText,
 } from "@mui/material";
 import "./App.css";
 import axios from "axios";
 import { useState, useEffect, useRef } from "react";
-import ChevronRightTwoToneIcon from "@mui/icons-material/KeyboardArrowRightTwoTone";
-import ChevronLeftTwoToneIcon from "@mui/icons-material/ChevronLeftTwoTone";
 import { ActionTypes } from "./reducers";
 import { useImages, useImagesDispatch } from "./AppProvider";
 import ImageCard from "./ImagesCard";
+import ImageModal from "./ImageModal";
 
 function MyCodes() {
   const dispatch = useImagesDispatch();
@@ -34,7 +28,9 @@ function MyCodes() {
             type: ActionTypes.SET_LOADING_USER_IMAGES,
             payload: false,
           });
-          dispatch({ type: ActionTypes.SET_USER_IMAGES_PAGE, payload: -1 });
+          dispatch({ 
+            type: ActionTypes.SET_USER_IMAGES_PAGE, 
+            payload: -1 });
         } else {
           dispatch({
             type: ActionTypes.SET_USER_IMAGES,
@@ -158,83 +154,15 @@ function MyCodes() {
       </Grid>
 
       {/*----------------- Modal: Image Details----------------*/}
-      {userImages && (
-        <Backdrop
-          sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+      {userImages != [] && 
+        <ImageModal
           open={open}
-          onClick={handleModalClose}
-        >
-          <IconButton
-            sx={{
-              borderRadius: "20px",
-              backgroundColor: "#70E195",
-              margin: "1rem",
-            }}
-            onClick={showPreviousImage}
-          >
-            <ChevronLeftTwoToneIcon />
-          </IconButton>
-          <Paper
-            elevation={10}
-            sx={{
-              width: "80%",
-              height: "80%",
-              backgroundColor: "#ffffff",
-              display: "flex",
-              flexDirection: "row",
-              borderRadius: "16px",
-            }}
-          >
-            <div
-              style={{
-                height: "100%",
-                aspectRatio: "1/1",
-                backgroundColor: "#70E195",
-                display: "flex",
-                borderRadius: "16px 0px 0px 16px",
-              }}
-            >
-              <img
-                src={`data:image/png;base64,${userImages[selectedImageIndex]?.image_str}`}
-                style={{
-                  height: "90%",
-                  objectFit: "contain",
-                  margin: "auto",
-                  borderRadius: "16px",
-                }}
-              />
-            </div>
-            <List sx={{ height: "100%", padding: "2rem" }}>
-              <ListItemText
-                primary="Date created"
-                secondary={userImages[selectedImageIndex]?.created_at}
-              />
-              <ListItemText
-                primary="QR Content"
-                secondary={userImages[selectedImageIndex]?.content}
-              />
-              <ListItemText
-                primary="Prompt"
-                secondary={userImages[selectedImageIndex]?.prompt}
-              />
-              <ListItemText
-                primary="Seed"
-                secondary={userImages[selectedImageIndex]?.seed}
-              />
-            </List>
-          </Paper>
-          <IconButton
-            sx={{
-              borderRadius: "20px",
-              backgroundColor: "#70E195",
-              margin: "1rem",
-            }}
-            onClick={showNextImage}
-          >
-            <ChevronRightTwoToneIcon />
-          </IconButton>
-        </Backdrop>
-      )}
+          index={selectedImageIndex}
+          handleClose={handleModalClose}
+          handlePrevious={showPreviousImage}
+          handleNext={showNextImage}
+        />
+      }
     </div>
   );
 }
