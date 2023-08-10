@@ -2,9 +2,10 @@ payloadConfig = {
     "prompt": "",
     "negative_prompt": "",
     "batch_size": 1,
-    "steps": 25,
-    "cfg_scale": 10, 
+    "steps": 30,
+    "cfg_scale": 9, 
     "sampler_name": "DPM++ 2M Karras",
+    "seed": -1,
     "alwayson_scripts": {
         "ControlNet": {
             "args": [
@@ -38,7 +39,7 @@ payloadConfig = {
                     "batch_images": "",
                     "control_mode": "Balanced",
                     "enabled": True,
-                    "guidance_end": 0.9,
+                    "guidance_end": 0.85,
                     "guidance_start": 0.2,
                     "input_mode": "simple",
                     "is_ui": True,
@@ -52,7 +53,7 @@ payloadConfig = {
                     "resize_mode": "Crop and Resize",
                     "threshold_a": -1,
                     "threshold_b": -1,
-                    "weight": 1,
+                    "weight": 1.0,
                 }
             ]
         }
