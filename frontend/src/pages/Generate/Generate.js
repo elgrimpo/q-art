@@ -1,3 +1,7 @@
+// Libraries imports
+import axios from "axios";
+import dayjs from "dayjs";
+import base64ToBlob from "b64-to-blob";
 import {
   Fab,
   CardMedia,
@@ -6,31 +10,22 @@ import {
   Box,
   Stack,
   Typography,
-  IconButton,
   ToggleButtonGroup,
   ToggleButton,
   Slider,
+  List,
+  ListItemText,
 } from "@mui/material";
-import "./App.css";
-import axios from "axios";
-import { useState } from "react";
-import ShareTwoToneIcon from "@mui/icons-material/ShareTwoTone";
-import FacebookTwoToneIcon from "@mui/icons-material/FacebookTwoTone";
-import CreateTwoToneIcon from "@mui/icons-material/CreateTwoTone";
 import AutoFixHighTwoToneIcon from "@mui/icons-material/AutoFixHighTwoTone";
-import dayjs from "dayjs";
-import base64ToBlob from "b64-to-blob";
-import { placeholder_image_str } from "./placeholder_image";
-import { useImages, useImagesDispatch } from "./AppProvider";
-import { ActionTypes } from "./reducers";
+
+// App imports
+import { useImages, useImagesDispatch } from "../../context/AppProvider";
+import { ActionTypes } from "../../context/reducers";
 
 function Generate() {
   const dispatch = useImagesDispatch();
-  const {
-    generatedImage,
-    loadingGeneratedImage,
-    generateFormValues,
-  } = useImages();
+  const { generatedImage, loadingGeneratedImage, generateFormValues } =
+    useImages();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -54,6 +49,7 @@ function Generate() {
         withCredentials: true,
       })
       .then((res) => {
+        // Update Generated Image state
         dispatch({
           type: ActionTypes.SET_GENERATED_IMAGE,
           payload: res.data,
@@ -108,10 +104,10 @@ function Generate() {
   }
 
   return (
-    <div className="generate-page">
+    <div class="generate-page">
       {/*------ Generate Image Form ------*/}
 
-      <Box className="sidebar">
+      <Box class="sidebar">
         <Stack useFlexGap spacing={2}>
           <Typography variant="h5">Generate QR Art</Typography>
           <TextField
@@ -159,7 +155,7 @@ function Generate() {
             exclusive
             onChange={handleInputChange}
             aria-label="image-quality"
-            fullWidth="true"
+            fullWidth={true}
             name="image_quality"
           >
             <ToggleButton name="image_quality" value="low">
@@ -231,53 +227,26 @@ function Generate() {
 
       {/*------ Metadata ------*/}
       <Box className="sidebar">
-        <Typography variant="h5" sx={{ margin: "1rem" }} align="center">
+        <Typography variant="h5" align="left">
           My QR Code
         </Typography>
-        <Typography variant="subtitle2" align="center">
-          Date created
-        </Typography>
-        <Typography variant="body" align="center" sx={{ mb: "1rem" }}>
-          {generatedImage.created_at != "-"
-            ? dayjs(generatedImage.created_at).format("MMMM D, YYYY")
-            : "-"}
-        </Typography>
-        <Typography variant="subtitle2" align="center">
-          QR Content
-        </Typography>
-        <Typography variant="body" align="center" sx={{ mb: "1rem" }}>
-          {generatedImage.content}
-        </Typography>
-        <Typography variant="subtitle2" align="center">
-          Prompt
-        </Typography>
-        <Typography variant="body" align="center" sx={{ mb: "1rem" }}>
-          {generatedImage.prompt}
-        </Typography>
-        <Typography variant="subtitle2" align="center">
-          Seed
-        </Typography>
-        <Typography variant="body" align="center" sx={{ mb: "1rem" }}>
-          {generatedImage.seed}
-        </Typography>
 
-        {/*------ Additional Actions ------*/}
-        <Stack
-          direction="row"
-          justifyContent="center"
-          alignItems="center"
-          spacing={3}
-        >
-          <IconButton>
-            <ShareTwoToneIcon />
-          </IconButton>
-          <IconButton>
-            <FacebookTwoToneIcon />
-          </IconButton>
-          <IconButton>
-            <CreateTwoToneIcon />
-          </IconButton>
-        </Stack>
+        <List>
+          <ListItemText
+            primary="Date created"
+            secondary={
+              generatedImage.created_at != "-"
+                ? dayjs(generatedImage.created_at).format("MMMM D, YYYY")
+                : "-"
+            }
+          />
+          <ListItemText
+            primary="QR content"
+            secondary={generatedImage.content}
+          />
+          <ListItemText primary="Prompt" secondary={generatedImage.prompt} />
+          <ListItemText primary="Seed" secondary={generatedImage.seed} />
+        </List>
       </Box>
     </div>
   );

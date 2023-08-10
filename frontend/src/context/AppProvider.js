@@ -1,8 +1,4 @@
-import React, {
-  createContext,
-  useContext,
-  useReducer,
-} from "react";
+import React, { createContext, useContext, useReducer } from "react";
 import { imagesReducer, initialState } from "./reducers";
 
 const ImagesContext = createContext(null);
@@ -26,4 +22,5 @@ export const useImages = () => {
 };
 
 export const useImagesDispatch = () => {
-  return useContext(ImagesDispatchContext)}
+  return useContext(ImagesDispatchContext);
+};

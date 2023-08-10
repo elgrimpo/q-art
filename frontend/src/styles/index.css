@@ -72,7 +72,6 @@ html {
   padding: 3rem 3rem 0 3rem;
   align-items: center;
   box-sizing: border-box;
-
   width: 100%;
   background-color: #70E195;
   border-radius: 16px;
@@ -87,4 +86,50 @@ html {
   justify-content: center;
   align-items: center; 
   border-radius: 16px 
+}
+
+/* MyCodes2 */
+/* CSS for the lightbox container */
+.lightbox-container {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  z-index: 1000;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* CSS for the previous and next buttons container */
+.lightbox-buttons {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+}
+
+/* CSS for the previous and next buttons */
+.lightbox-buttons button {
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  margin: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.lightbox-buttons button:hover {
+  background-color: rgba(0, 0, 0, 1);
+}
+
+/* CSS for the dialog (modal) */
+.MuiDialog-paper {
+  max-width: 80%;
+  max-height: 80%;
 }

@@ -1,4 +1,4 @@
-import { placeholder_image_str } from "./placeholder_image";
+import { placeholder_image_str } from "../assets/placeholder_image";
 
 export const ActionTypes = {
   SET_USER_IMAGES: "SET_USER_IMAGES",
@@ -35,7 +35,6 @@ export const initialState = {
 
 export const imagesReducer = (state, action) => {
   switch (action.type) {
-
     // My Codes Actions
     case ActionTypes.SET_USER_IMAGES:
       return { ...state, userImages: action.payload };
@@ -43,7 +42,7 @@ export const imagesReducer = (state, action) => {
       return { ...state, loadingUserImages: action.payload };
     case ActionTypes.SET_USER_IMAGES_PAGE:
       return { ...state, userImagesPage: action.payload };
-      
+
     // Generate Image Actions
     case ActionTypes.SET_GENERATED_IMAGE:
       return { ...state, generatedImage: action.payload };
@@ -55,4 +54,3 @@ export const imagesReducer = (state, action) => {
       return state;
   }
 };
-

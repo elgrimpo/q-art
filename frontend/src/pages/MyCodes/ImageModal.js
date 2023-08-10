@@ -1,21 +1,22 @@
+// Libraries imports
 import {
   Paper,
   Backdrop,
   IconButton,
   List,
   ListItemText,
-  Typography
+  Typography,
 } from "@mui/material";
-import "./App.css";
 import ChevronRightTwoToneIcon from "@mui/icons-material/KeyboardArrowRightTwoTone";
 import ChevronLeftTwoToneIcon from "@mui/icons-material/ChevronLeftTwoTone";
-import { useImages } from "./AppProvider";
+
+//App imports
+import { useImages } from "../../context/AppProvider";
 
 function MyCodes(props) {
-
   const { userImages } = useImages();
-  const {open, index, handleClose, handleNext, handlePrevious} = props
-  const image = userImages[index]
+  const { open, index, handleClose, handleNext, handlePrevious } = props;
+  const image = userImages[index];
 
   return (
     <Backdrop
@@ -64,44 +65,45 @@ function MyCodes(props) {
             }}
           />
         </div>
-        <div style={{height:'100%', padding:"3rem", boxSizing: "border-box", display:"flex", flexDirection:"column", justifyContent:"center", overflow:"scroll"}}>
-        <Typography variant="h5"  align="left" >
-          Image Details
-        </Typography>
-        <List>
-          <ListItemText
-            primary="Date created"
-            secondary={image?.created_at}
-          />
-          <ListItemText
-            primary="QR Content"
-            secondary={image?.content}
-          />
-          <ListItemText
-            primary="Prompt"
-            secondary={image?.prompt}
-          />
-          <ListItemText
-            primary="Negative prompt"
-            secondary={image?.negative_prompt}
-          />
-          <ListItemText
-            primary="Seed"
-            secondary={image?.seed}
-          />
-          <ListItemText
-            primary="Image Quality"
-            secondary={`${image?.image_quality} (${image?.steps} sampling steps)`}
-          />
-          <ListItemText
-            primary="Image Dimensions"
-            secondary={`${image?.width} x ${image?.height} px`}
-          />
-          <ListItemText
-            primary="QR Code Weight"
-            secondary={image?.qr_weight}
-          />
-        </List>
+        <div
+          style={{
+            height: "100%",
+            padding: "3rem",
+            boxSizing: "border-box",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            overflow: "scroll",
+          }}
+        >
+          <Typography variant="h5" align="left">
+            Image Details
+          </Typography>
+          <List>
+            <ListItemText
+              primary="Date created"
+              secondary={image?.created_at}
+            />
+            <ListItemText primary="QR Content" secondary={image?.content} />
+            <ListItemText primary="Prompt" secondary={image?.prompt} />
+            <ListItemText
+              primary="Negative prompt"
+              secondary={image?.negative_prompt}
+            />
+            <ListItemText primary="Seed" secondary={image?.seed} />
+            <ListItemText
+              primary="Image Quality"
+              secondary={`${image?.image_quality} (${image?.steps} sampling steps)`}
+            />
+            <ListItemText
+              primary="Image Dimensions"
+              secondary={`${image?.width} x ${image?.height} px`}
+            />
+            <ListItemText
+              primary="QR Code Weight"
+              secondary={image?.qr_weight}
+            />
+          </List>
         </div>
       </Paper>
       <IconButton

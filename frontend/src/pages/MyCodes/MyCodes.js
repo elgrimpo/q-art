@@ -1,13 +1,14 @@
-import {
-  Grid,
-} from "@mui/material";
-import "./App.css";
+// Libraries imports
+import { Grid } from "@mui/material";
 import axios from "axios";
 import { useState, useEffect, useRef } from "react";
-import { ActionTypes } from "./reducers";
-import { useImages, useImagesDispatch } from "./AppProvider";
+
+// App imports
+import { ActionTypes } from "../../context/reducers";
+import { useImages, useImagesDispatch } from "../../context/AppProvider";
 import ImageCard from "./ImagesCard";
 import ImageModal from "./ImageModal";
+
 
 function MyCodes() {
   const dispatch = useImagesDispatch();
@@ -28,9 +29,10 @@ function MyCodes() {
             type: ActionTypes.SET_LOADING_USER_IMAGES,
             payload: false,
           });
-          dispatch({ 
-            type: ActionTypes.SET_USER_IMAGES_PAGE, 
-            payload: -1 });
+          dispatch({
+            type: ActionTypes.SET_USER_IMAGES_PAGE,
+            payload: -1,
+          });
         } else {
           dispatch({
             type: ActionTypes.SET_USER_IMAGES,
@@ -154,7 +156,7 @@ function MyCodes() {
       </Grid>
 
       {/*----------------- Modal: Image Details----------------*/}
-      {userImages != [] && 
+      {userImages != [] && (
         <ImageModal
           open={open}
           index={selectedImageIndex}
@@ -162,7 +164,7 @@ function MyCodes() {
           handlePrevious={showPreviousImage}
           handleNext={showNextImage}
         />
-      }
+      )}
     </div>
   );
 }

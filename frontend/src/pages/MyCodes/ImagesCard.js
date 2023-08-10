@@ -1,3 +1,7 @@
+//Libraries imports
+import axios from "axios";
+import base64ToBlob from "b64-to-blob";
+import { useTheme } from "@mui/material/styles";
 import {
   Card,
   CardMedia,
@@ -9,15 +13,14 @@ import {
   IconButton,
   Skeleton,
 } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
-import "./App.css";
-import axios from "axios";
-import base64ToBlob from "b64-to-blob";
 import DownloadTwoToneIcon from "@mui/icons-material/DownloadTwoTone";
 import DeleteForeverTwoToneIcon from "@mui/icons-material/DeleteForeverTwoTone";
-import { ActionTypes } from "./reducers";
-import { useImages, useImagesDispatch } from "./AppProvider";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+
+// App imports
+import { ActionTypes } from "../../context/reducers";
+import { useImages, useImagesDispatch } from "../../context/AppProvider";
+
 
 function ImageCard(props) {
   const { variant, item, index, onClick } = props;
@@ -156,7 +159,7 @@ function ImageCard(props) {
               onClick={() => downloadImage(item.image_str)}
               key={index + "_1"}
             >
-              <DownloadTwoToneIcon key={index}/>
+              <DownloadTwoToneIcon key={index} />
             </IconButton>
             <IconButton key={index + "_2"} onClick={() => handleCopy(item)}>
               <ContentCopyIcon index={index} />
