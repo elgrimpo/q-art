@@ -24,17 +24,7 @@ function App() {
   };
 
   const handleLogin = async () => {
-    try {
-      console.log("Login triggered")
-      // Make a GET request to your backend login endpoint
-      const response = await axios.get('http://localhost:8000/google-login');
-
-      // Redirect the user to the authentication provider's login page
-      window.location.href = response.data.redirect_uri;
-    } catch (error) {
-      console.error('Error during login:', error);
-      // Handle error, e.g., show an error message to the user
-    }
+    window.open("http://localhost:8000/login/google", "_self");
   }
 
   return (
