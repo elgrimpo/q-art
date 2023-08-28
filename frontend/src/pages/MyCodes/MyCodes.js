@@ -12,13 +12,13 @@ import ImageModal from "./ImageModal";
 
 function MyCodes() {
   const dispatch = useImagesDispatch();
-  const { userImages, loadingUserImages, userImagesPage } = useImages();
+  const { userImages, loadingUserImages, userImagesPage, user } = useImages();
 
   // ----- Get Images ------ //
   const getMoreImages = () => {
     dispatch({ type: ActionTypes.SET_LOADING_USER_IMAGES, payload: true });
     axios
-      .get(`http://localhost:8000/images/get/?page=${userImagesPage + 1}`, {
+      .get(`http://localhost:8000/images/get/?page=${userImagesPage + 1}&user_id=${user._id}`, {
         params: {
           allowDiskUse: true, // Add allowDiskUse option here
         },

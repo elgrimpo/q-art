@@ -43,8 +43,8 @@ async def generate_endpoint(
 
 
 @app.get("/images/get")
-async def images_endpoint(page: int = Query(1, alias="page")):
-    return get_images(page)
+async def images_endpoint(page: int = Query(1, alias="page"), user_id: str = ""):
+    return get_images(page, user_id)
 
 
 @app.delete("/images/delete/{id}")
