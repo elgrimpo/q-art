@@ -36,7 +36,7 @@ export default function AccountMenu(props) {
         height: 40,
         width: 40
       },
-      children: `${user.name.split(' ')[0][0]}${user.name.split(' ')[1][0]}`,
+      children: `${user.name.split(' ')[0][0]}${user.name.split(' ')[1] ? user.name.split(' ')[1][0] : ''}`,
     };
   }
 
