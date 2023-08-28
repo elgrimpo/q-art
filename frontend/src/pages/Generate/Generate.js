@@ -104,10 +104,10 @@ function Generate() {
   }
 
   return (
-    <div class="generate-page">
+    <div className="generate-page">
       {/*------ Generate Image Form ------*/}
 
-      <Box class="sidebar">
+      <Box className="sidebar">
         <Stack useFlexGap spacing={2}>
           <Typography variant="h5">Generate QR Art</Typography>
           <TextField
