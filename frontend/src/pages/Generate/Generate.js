@@ -1,4 +1,5 @@
 // Libraries imports
+import React, { useEffect, useState } from 'react';
 import axios from "axios";
 import dayjs from "dayjs";
 import base64ToBlob from "b64-to-blob";
@@ -24,8 +25,9 @@ import { ActionTypes } from "../../context/reducers";
 
 function Generate() {
   const dispatch = useImagesDispatch();
-  const { generatedImage, loadingGeneratedImage, generateFormValues } =
+  const { generatedImage, loadingGeneratedImage, generateFormValues, user } =
     useImages();
+  const [submitDisabled, setSubmitDisabled] = useState(true);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -44,7 +46,7 @@ function Generate() {
       payload: true,
     });
     axios
-      .get(`http://localhost:8000/generate/`, {
+      .get(`http://localhost:8000/generate/?user_id=${user._id}`, {
         params: generateFormValues,
         withCredentials: true,
       })
@@ -103,6 +105,15 @@ function Generate() {
     return `${value}`;
   }
 
+  //Submit 
+  useEffect(() => {
+    if(generateFormValues.website && generateFormValues.prompt) {
+      setSubmitDisabled(false);
+    } else {
+      setSubmitDisabled(true);
+    }
+  }, [generateFormValues]);
+
   return (
     <div className="generate-page">
       {/*------ Generate Image Form ------*/}
@@ -111,6 +122,7 @@ function Generate() {
         <Stack useFlexGap spacing={2}>
           <Typography variant="h5">Generate QR Art</Typography>
           <TextField
+            required
             id="website"
             label="Website"
             name="website"
@@ -119,6 +131,7 @@ function Generate() {
             variant="outlined"
           />
           <TextField
+          required
             id="prompt"
             label="Prompt"
             name="prompt"
@@ -189,6 +202,7 @@ function Generate() {
         </Stack>
         <Fab
           variant="extended"
+          disabled={submitDisabled || loadingGeneratedImage}
           size="medium"
           color="primary"
           aria-label="generate"
@@ -216,6 +230,7 @@ function Generate() {
         <Fab
           variant="extended"
           size="medium"
+          disabled={loadingGeneratedImage}
           color="secondary"
           sx={{ margin: "24px" }}
           aria-label="share"
