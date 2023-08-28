@@ -13,10 +13,10 @@ def readImage(path):
     return b64img
 
 
-def prepare_doc(image, payload, info, website, image_quality, qr_weight):
+def prepare_doc(image, payload, info, website, image_quality, qr_weight, user_id):
     # TODO: make user_id as part of input parameter
     doc = {
-        "user_id": "64cacd9a2dd6a86ac819705b",
+        "user_id": user_id,
         "created_at": datetime.datetime.utcnow(),
         "image_str": image,
         "prompt": payload["prompt"],
