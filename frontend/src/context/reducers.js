@@ -1,6 +1,7 @@
 import { placeholder_image_str } from "../assets/placeholder_image";
 
 export const ActionTypes = {
+  SET_USER: "SET_USER",
   SET_USER_IMAGES: "SET_USER_IMAGES",
   SET_LOADING_USER_IMAGES: "SET_LOADING_USER_IMAGES",
   SET_USER_IMAGES_PAGE: "SET_USER_IMAGES_PAGE",
@@ -10,6 +11,8 @@ export const ActionTypes = {
 };
 
 export const initialState = {
+  // User
+  user: {},
   // My Codes
   userImages: [],
   loadingUserImages: false,
@@ -35,6 +38,12 @@ export const initialState = {
 
 export const imagesReducer = (state, action) => {
   switch (action.type) {
+    // User
+    case ActionTypes.SET_LOGGED_IN:
+      return { ...state, isLoggedIn: action.payload };
+    case ActionTypes.SET_USER:
+      return { ...state, user: action.payload };
+
     // My Codes Actions
     case ActionTypes.SET_USER_IMAGES:
       return { ...state, userImages: action.payload };
