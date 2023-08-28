@@ -14,7 +14,7 @@ from utils.utils import readImage, prepare_doc
 load_dotenv()
 webui_url = "http://127.0.0.1:7860"
 
-def predict(prompt, website, negative_prompt, seed, image_quality, qr_weight):
+def predict(prompt, website, negative_prompt, seed, image_quality, qr_weight, user_id):
     # Prepare QR Code Image
     qr = qrcode.QRCode(
         version=1,
@@ -57,7 +57,7 @@ def predict(prompt, website, negative_prompt, seed, image_quality, qr_weight):
 
     # Create database entry
     
-    doc = prepare_doc(image, payload, info, website, image_quality, qr_weight)
+    doc = prepare_doc(image, payload, info, website, image_quality, qr_weight, user_id)
 
     inserted_image = insert_image(doc)
     return inserted_image

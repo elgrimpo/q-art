@@ -37,7 +37,7 @@ def get_image(id):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-def get_images(page: int = Query(1, alias="page")):
+def get_images(page: int = Query(1, alias="page"), user_id: str = ""):
     try:
         images_per_page = 12
 
@@ -45,7 +45,8 @@ def get_images(page: int = Query(1, alias="page")):
         offset = (page - 1) * images_per_page
 
         # Get images for the given user_id with pagination
-        user_id = "64cacd9a2dd6a86ac819705b"  # TODO: replace with actual user_id
+        print("user_id")
+        print(user_id)
         images_result = db["images"].find({"user_id": user_id}).sort("created_at", -1).skip(offset).limit(images_per_page)
 
         # Convert the images to a list

@@ -37,9 +37,9 @@ app.add_middleware(
 
 @app.get("/generate")
 async def generate_endpoint(
-    prompt, website, negative_prompt, seed, image_quality, qr_weight
+    prompt, website, negative_prompt, seed, image_quality, qr_weight, user_id
 ):
-    return predict(prompt, website, negative_prompt, seed, image_quality, qr_weight)
+    return predict(prompt, website, negative_prompt, seed, image_quality, qr_weight, user_id)
 
 
 @app.get("/images/get")
