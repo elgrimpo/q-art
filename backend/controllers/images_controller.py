@@ -5,6 +5,8 @@ import requests as requests
 from pymongo import MongoClient
 import os
 from bson import ObjectId
+import datetime
+
 
 
 load_dotenv()
@@ -17,11 +19,28 @@ users = db.get_collection("users")
 images = db.get_collection("images")
 
 
-def insert_image(doc):
+def insert_image(doc, user_id, image_quality):
     try:
         result = db["images"].insert_one(doc)
         inserted_image = db["images"].find_one({"_id": result.inserted_id})
         inserted_image["_id"] = str(inserted_image["_id"])
+
+        # Increment user count
+        current_year = datetime.datetime.utcnow().year
+        current_month = datetime.datetime.utcnow().month
+
+        db["users"].update_one(
+            {"_id": ObjectId(user_id)},
+            {
+                "$inc": {
+                    f"image_counts.{current_year}.{current_month}.{image_quality}": 1
+                },
+                "$set": {"last_image_created_at": datetime.datetime.utcnow()}
+            },
+            upsert=True
+        )
+
+
         return inserted_image
     except Exception as e:
         raise HTTPException(status_code=409, detail=str(e))

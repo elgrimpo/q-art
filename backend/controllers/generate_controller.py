@@ -59,5 +59,5 @@ def predict(prompt, website, negative_prompt, seed, image_quality, qr_weight, us
     
     doc = prepare_doc(image, payload, info, website, image_quality, qr_weight, user_id)
 
-    inserted_image = insert_image(doc)
+    inserted_image = insert_image(doc, user_id, image_quality)
     return inserted_image
