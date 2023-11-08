@@ -103,6 +103,10 @@ function MyCodes(props) {
               primary="QR Code Weight"
               secondary={image?.qr_weight}
             />
+            <ListItemText
+              primary="Stable Diffusion Model"
+              secondary={image?.sd_model}
+            />
           </List>
         </div>
       </Paper>

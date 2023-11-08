@@ -35,6 +35,7 @@ def prepare_doc(image, req, info, website, image_quality, qr_weight, user_id):
         "negative_prompt": req.negative_prompt,
         "content": website,
         "presets": [""],
+        "sd_model": req.model_name,
         "seed": info["seed"],
         "image_quality": image_quality,
         "qr_weight": qr_weight,

@@ -261,6 +261,7 @@ function Generate() {
           />
           <ListItemText primary="Prompt" secondary={generatedImage.prompt} />
           <ListItemText primary="Seed" secondary={generatedImage.seed} />
+          <ListItemText primary="Stable Diffusion Model" secondary={generatedImage.sd_model} />
         </List>
       </Box>
     </div>
