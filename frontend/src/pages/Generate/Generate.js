@@ -117,8 +117,8 @@ function Generate() {
   return (
     <div className="generate-page">
       {/*------ Generate Image Form ------*/}
-
       <Box className="sidebar">
+      <Box className="formfield">
         <Stack useFlexGap spacing={2}>
           <Typography variant="h5">Generate QR Art</Typography>
           <TextField
@@ -200,10 +200,11 @@ function Generate() {
             onChange={handleInputChange}
           />
         </Stack>
-        <Fab
+      </Box>
+      <Fab
           variant="extended"
           disabled={submitDisabled || loadingGeneratedImage}
-          size="medium"
+          size="large"
           color="primary"
           aria-label="generate"
           onClick={(e) => generate(generateFormValues)}
@@ -223,7 +224,7 @@ function Generate() {
           <CardMedia
             component="img"
             image={`data:image/png;base64,${generatedImage.image_str}`}
-            sx={{ borderRadius: "12px" }}
+            sx={{ borderRadius: "12px",maxHeight: "calc(100% - 90px)", objectFit: "contain"}}
           />
         )}
 
@@ -240,30 +241,7 @@ function Generate() {
         </Fab>
       </div>
 
-      {/*------ Metadata ------*/}
-      <Box className="sidebar">
-        <Typography variant="h5" align="left">
-          My QR Code
-        </Typography>
 
-        <List>
-          <ListItemText
-            primary="Date created"
-            secondary={
-              generatedImage.created_at != "-"
-                ? dayjs(generatedImage.created_at).format("MMMM D, YYYY")
-                : "-"
-            }
-          />
-          <ListItemText
-            primary="QR content"
-            secondary={generatedImage.content}
-          />
-          <ListItemText primary="Prompt" secondary={generatedImage.prompt} />
-          <ListItemText primary="Seed" secondary={generatedImage.seed} />
-          <ListItemText primary="Stable Diffusion Model" secondary={generatedImage.sd_model} />
-        </List>
-      </Box>
     </div>
   );
 }
