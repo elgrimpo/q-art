@@ -55,7 +55,7 @@ def predict(prompt, website, negative_prompt, seed, image_quality, qr_weight, us
         prompt=prompt,
         negative_prompt = negative_prompt,
         sampler_name=Samplers.DPMPP_M_KARRAS,
-        model_name='beautifulRealistic_v40_37543.safetensors',
+        model_name='dreamshaper_6BakedVae_54299.safetensors',
         width=512,
         height=512,
         steps=steps,
@@ -80,15 +80,14 @@ def predict(prompt, website, negative_prompt, seed, image_quality, qr_weight, us
                 model="control_v1p_sd15_qrcode_monster_v2",
                 module=ControlNetPreprocessor.INPAINT,
                 resize_mode=ControlNetResizeMode.RESIZE_OR_CORP,
-                weight=1.0, #+ float(qr_weight) * 0.1,
-                guidance_start = 0.2, #- float(qr_weight) * 0.05,
-                guidance_end = 0.85 #+ float(qr_weight) * 0.05
+                weight=1.0 + float(qr_weight) * 0.1,
+                guidance_start = 0.2 - float(qr_weight) * 0.05,
+                guidance_end = 0.85 + float(qr_weight) * 0.05
             )
         ]
     )
 
     res = client.sync_txt2img(req)
-    print(ProgressResponse.data)
     if res.data.status != ProgressResponseStatusCode.SUCCESSFUL:
         raise Exception('Failed to generate image with error: ' +
                         res.data.failed_reason)
@@ -99,6 +98,6 @@ def predict(prompt, website, negative_prompt, seed, image_quality, qr_weight, us
         "seed": -1
     }
     doc = prepare_doc(image, req, info, website, image_quality, qr_weight, user_id)
-    print(doc)
+    #print(doc)
     inserted_image = insert_image(doc, user_id, image_quality)
     return inserted_image
