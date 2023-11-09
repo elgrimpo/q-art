@@ -1,5 +1,5 @@
 # Libraries Import
-from fastapi import FastAPI, Query, HTTPException
+from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 import requests as requests
 from dotenv import load_dotenv
@@ -7,25 +7,23 @@ from dotenv import load_dotenv
 import os
 
 from pymongo import MongoClient
-from fastapi.responses import RedirectResponse
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
-from authlib.integrations.starlette_client import OAuth
-from starlette.config import Config
-from starlette.exceptions import HTTPException as StarletteHTTPException
-import sys
-from datetime import datetime
+
 
 
 # App imports
 from controllers.images_controller import get_images, delete_image
 from controllers.generate_controller import predict
 from controllers.models_controller import get_models
+from controllers.auth_controller import google_login, google_auth, google_logout
 
 load_dotenv()
 
 app = FastAPI()
-app.add_middleware(SessionMiddleware, secret_key="some-random-string")
+app.add_middleware(SessionMiddleware, 
+#TODO: generate secret key and store in .env
+secret_key="some-random-string")
 
 origins = ["http://localhost:3000"]
 app.add_middleware(
@@ -36,18 +34,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ---------- ROUTES ---------- #
 
+# Generate Routes
 @app.get("/generate")
 async def generate_endpoint(
     prompt, website, negative_prompt, seed, image_quality, qr_weight, sd_model, user_id
 ):
     return predict(prompt, website, negative_prompt, seed, image_quality, qr_weight, sd_model, user_id)
 
-
+# Images Routes
 @app.get("/images/get")
 async def images_endpoint(page: int = Query(1, alias="page"), user_id: str = ""):
     return get_images(page, user_id)
-
 
 @app.delete("/images/delete/{id}")
 async def delete_image_endpoint(id: str):
@@ -58,84 +57,24 @@ async def get_models_endpoint():
     return get_models()
 
 
-# --------------- AUTH ------------------------
-# MongoDB
+# Auth Routes
+@app.get("/login/google")
+async def google_login_endpoint(request: Request):
+    return await google_login(request)
+
+@app.get("/auth/google")
+async def google_auth_endpoint(request: Request):
+    return await google_auth(request)
+
+@app.get('/logout')
+async def logout_endpoint(request: Request):
+    return google_logout(request)
+
+# User Routes
 mongo_url = os.environ["MONGO_URL"]
 client = MongoClient(mongo_url, ssl=True, ssl_cert_reqs="CERT_NONE")
 db = client.get_database("QART")
 users = db.get_collection("users")
-
-
-# Authlib
-
-config = Config(".env")
-oauth = OAuth(config)
-oauth.register(
-    name="google",
-    server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
-    access_token_url="https://oauth2.googleapis.com/token",
-    authorize_url="https://accounts.google.com/o/oauth2/v2/auth",
-    client_kwargs={"scope": "openid profile email"},
-)
-
-
-# FastAPI route for Google OAuth2 login
-@app.get("/login/google")
-async def login(request: Request):
-    try:
-        print("login route invoked")
-        google = oauth.create_client("google")
-        redirect_uri = request.url_for("google_auth")
-        print(redirect_uri)
-        return await google.authorize_redirect(request, redirect_uri, prompt="select_account")
-
-    except Exception as e:
-        print(e)
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.get("/auth/google")
-async def google_auth(request: Request):
-    print("auth route invoked")
-    token = await oauth.google.authorize_access_token(request)
-
-    google_user = {
-        "google_id": token["userinfo"]["sub"],
-        "name": token["userinfo"]["name"],
-        "picture": token["userinfo"]["picture"],
-        "email": token["userinfo"]["email"]
-    }
-
-    #check if user exists in db
-    existing_user = users.find_one({"google_id": google_user["google_id"]})
-    print("existing_user")
-    print(existing_user)
-
-    if existing_user:
-        # Update the existing user
-        users.update_one({"google_id": google_user["google_id"]}, {"$set": google_user})
-    else:
-        # Create a new user entry
-        users.insert_one(google_user)
-    
-    # Get user info from DB
-    loggedInUser = users.find_one({"google_id": google_user["google_id"]})
-    loggedInUser["_id"] = str(loggedInUser["_id"])
-    if "last_image_created_at" in loggedInUser:
-        loggedInUser["last_image_created_at"] = loggedInUser["last_image_created_at"].strftime('%Y-%m-%dT%H:%M:%S.%f+00:00')
-
-    # Store user information in the session
-    request.session["user_info"] = loggedInUser
-
-    frontend_redirect_uri = "http://localhost:3000"
-    return RedirectResponse(url=frontend_redirect_uri)
-
-@app.get('/logout')
-async def logout(request: Request):
-    request.session.pop('user_info', None)
-    message='user logged out successfully'
-    return message
-
 
 @app.get("/user/info")
 async def get_user_info(request: Request):
