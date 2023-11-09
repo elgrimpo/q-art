@@ -14,6 +14,7 @@ from authlib.integrations.starlette_client import OAuth
 from starlette.config import Config
 from starlette.exceptions import HTTPException as StarletteHTTPException
 import sys
+from datetime import datetime
 
 
 # App imports
@@ -120,6 +121,9 @@ async def google_auth(request: Request):
     # Get user info from DB
     loggedInUser = users.find_one({"google_id": google_user["google_id"]})
     loggedInUser["_id"] = str(loggedInUser["_id"])
+    if "last_image_created_at" in loggedInUser:
+        loggedInUser["last_image_created_at"] = loggedInUser["last_image_created_at"].strftime('%Y-%m-%dT%H:%M:%S.%f+00:00')
+
     # Store user information in the session
     request.session["user_info"] = loggedInUser
 
