@@ -6,6 +6,7 @@ import base64ToBlob from "b64-to-blob";
 import {
   Fab,
   CardMedia,
+  Button,
   CircularProgress,
   TextField,
   Box,
@@ -14,14 +15,13 @@ import {
   ToggleButtonGroup,
   ToggleButton,
   Slider,
-  List,
-  ListItemText,
 } from "@mui/material";
 import AutoFixHighTwoToneIcon from "@mui/icons-material/AutoFixHighTwoTone";
 
 // App imports
 import { useImages, useImagesDispatch } from "../../context/AppProvider";
 import { ActionTypes } from "../../context/reducers";
+import ModulesModal from "./ModulesModal";
 
 function Generate() {
   const dispatch = useImagesDispatch();
@@ -40,6 +40,7 @@ function Generate() {
     });
   };
 
+  // Generate Image
   const generate = async (generateFormValues) => {
     dispatch({
       type: ActionTypes.SET_LOADING_GENERATED_IMAGE,
@@ -80,6 +81,7 @@ function Generate() {
       });
   };
 
+  // Download Image
   const downloadImage = (generatedImage) => {
     const blob = base64ToBlob(generatedImage.image_str);
     const url = URL.createObjectURL(blob);
@@ -104,6 +106,17 @@ function Generate() {
   function valuetext(value) {
     return `${value}`;
   }
+
+    // Modules Modal
+    const [open, setOpen] = useState(false);
+
+    const handleClickOpen = () => {
+      setOpen(true);
+    };
+  
+    const handleClose = () => {
+      setOpen(false);
+    };
 
   //Submit 
   useEffect(() => {
@@ -195,10 +208,16 @@ function Generate() {
             max={3.0}
             track={false}
             color="secondary"
-            sx={{ mb: "3rem" }}
+
             name="qr_weight"
             onChange={handleInputChange}
           />
+          <Typography variant="subtitle2" align="center">
+            Stable Diffusion Model
+          </Typography>
+          <Button variant="contained" color="secondary"
+          onClick={handleClickOpen}>dreamshaper_6BakedVae_54299.safetensors</Button>
+
         </Stack>
       </Box>
       <Fab
@@ -241,7 +260,11 @@ function Generate() {
         </Fab>
       </div>
 
+<ModulesModal
+  open={open}
+  handleClose={handleClose}
 
+/>
     </div>
   );
 }
