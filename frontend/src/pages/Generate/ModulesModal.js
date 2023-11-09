@@ -1,53 +1,85 @@
 // Libraries imports
 import {
   Dialog,
-  DialogTitle,
   DialogContent,
-  Grid
+  Typography,
 } from "@mui/material";
+import axios from "axios";
+import { useEffect } from "react";
+import Masonry from "@mui/lab/Masonry";
 
-//App imports
-import ModuleCard from './ModulesCard';
+// App imports
+import { ActionTypes } from "../../context/reducers";
+import { useImages, useImagesDispatch } from "../../context/AppProvider";
+import SdModelCard from "./ModulesCard";
+// TODO: Rename ModulesModal
+function SdModelsModal(props) {
+  const { open, handleClose, handleModelSelection } = props;
 
-function ModulesModal(props) {
-  const {open, handleClose}= props;
-  const modules = []
+  const dispatch = useImagesDispatch();
+  const { sd_models } = useImages();
+
+  // ----- Get Images ------ //
+  const getSdModels = async () => {
+    dispatch({ type: ActionTypes.SET_LOADING_SD_MODELS, payload: true });
+
+    await axios
+      .get("http://localhost:8000/models/get")
+      .then((res) => {
+        dispatch({
+          type: ActionTypes.SET_SD_MODELS,
+          payload: res.data,
+        });
+
+        dispatch({
+          type: ActionTypes.SET_LOADING_SD_MODELS,
+          payload: false,
+        });
+      })
+      .catch((err) => {
+        dispatch({
+          type: ActionTypes.SET_LOADING_SD_MODELS,
+          payload: false,
+        });
+        console.log(err);
+      });
+  };
+
+  useEffect(() => {
+    getSdModels()
+  }, []);
 
   return (
-      <Dialog
-        fullWidth='false'
-        maxWidth='lg'
-        open={open}
-        onClose={handleClose}
-      >
-        <DialogTitle>Stable Diffusion Models</DialogTitle>
-        <DialogContent>
-
-          <Grid
-        container
-        direction="row"
-        justifyContent="center"
-        alignItems="stretch"
-        columns={6}
-        spacing={3}
-        sx={{ mb: "1.5rem" }}
-      >
-        {modules.length > 0 ? 
-          (modules.map((item, index) => (
-            <ModuleCard
-              item={item}
-              index={index}
-              variant="image"
-            />
-          ))) : (Array.from({ length: 12 }, (_, index) => index).map((_, index) => (
-            <ModuleCard item={_} variant="skeleton" index={index} />
-          )))
-        }
-      </Grid>
-        </DialogContent>
-      </Dialog>
-
+    <Dialog maxWidth="xl" open={open} onClose={handleClose}>
+      <DialogContent>
+        <Typography variant="h5" align="center" style={{ margin: "1rem 0" }}>
+          Stable Diffusion Models
+        </Typography>
+        <Masonry
+          direction="row"
+          columns={3}
+          spacing={3}
+          sx={{ mb: "1.5rem" }}
+        >
+          {sd_models.length > 0
+            ? sd_models.map((item, index) => (
+                <SdModelCard
+                  item={item}
+                  index={index}
+                  key={index}
+                  handleModelSelection={handleModelSelection}
+                  variant="image"
+                />
+              ))
+            : Array.from({ length: 12 }, (_, index) => index).map(
+                (_, index) => (
+                  <SdModelCard item={_} variant="skeleton" index={index} key={index}/>
+                )
+              )}
+        </Masonry>
+      </DialogContent>
+    </Dialog>
   );
 }
 
-export default ModulesModal;
+export default SdModelsModal;

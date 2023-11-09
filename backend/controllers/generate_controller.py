@@ -13,7 +13,7 @@ from utils.utils import readImage, prepare_doc
 load_dotenv()
 
 
-def predict(prompt, website, negative_prompt, seed, image_quality, qr_weight, user_id):
+def predict(prompt, website, negative_prompt, seed, image_quality, qr_weight,sd_model, user_id):
     
     client = NovitaClient(os.environ["NOVITA_KEY"])
 
@@ -50,12 +50,11 @@ def predict(prompt, website, negative_prompt, seed, image_quality, qr_weight, us
     elif image_quality == "high":
         steps = 30
 
-    # TODO: incorporate QR Weight
     req = Txt2ImgRequest(
         prompt=prompt,
         negative_prompt = negative_prompt,
         sampler_name=Samplers.DPMPP_M_KARRAS,
-        model_name='dreamshaper_6BakedVae_54299.safetensors',
+        model_name=sd_model,
         width=512,
         height=512,
         steps=steps,

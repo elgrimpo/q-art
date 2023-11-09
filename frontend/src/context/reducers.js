@@ -8,6 +8,8 @@ export const ActionTypes = {
   SET_GENERATED_IMAGE: "SET_GENERATED_IMAGE",
   SET_LOADING_GENERATED_IMAGE: "SET_LOADING_GENERATED_IMAGE",
   SET_GENERATE_FORM_VALUES: "SET_GENERATE_FORM_VALUES",
+  SET_LOADING_SD_MODELS: "SET_LOADING_SD_MODELS",
+  SET_SD_MODELS: "SET_SD_MODELS"
 };
 
 export const initialState = {
@@ -33,11 +35,16 @@ export const initialState = {
     qr_weight: 0.0,
     negative_prompt: "",
     seed: -1,
+    sd_model: "dreamshaper_6BakedVae_54299.safetensors"
   },
+  // Models
+  loadingSdModels: false,
+  sd_models: [],
 };
 
 export const imagesReducer = (state, action) => {
   switch (action.type) {
+
     // User
     case ActionTypes.SET_LOGGED_IN:
       return { ...state, isLoggedIn: action.payload };
@@ -59,6 +66,13 @@ export const imagesReducer = (state, action) => {
       return { ...state, loadingGeneratedImage: action.payload };
     case ActionTypes.SET_GENERATE_FORM_VALUES:
       return { ...state, generateFormValues: action.payload };
+
+      // Models Actions
+    case ActionTypes.SET_LOADING_SD_MODELS:
+      return {...state, loadingSdModels: action.payload};
+    case ActionTypes.SET_SD_MODELS:
+      return {...state, sd_models: action.payload};
+  
     default:
       return state;
   }

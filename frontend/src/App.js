@@ -37,7 +37,6 @@ function App() {
       .then((res) => {
         if (res.data._id) {
           // User logged in
-          console.log(res.data);
           dispatch({
             type: ActionTypes.SET_USER,
             payload: res.data,

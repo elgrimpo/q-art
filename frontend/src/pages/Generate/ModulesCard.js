@@ -6,18 +6,17 @@ import {
   Grid,
   Typography,
   Skeleton,
-  Chip
+  Chip,
+  Stack,
+  CardActionArea,
 } from "@mui/material";
 
 // App imports
 
-
-
-function ModuleCard(props) {
-  const { variant, item, index, onClick } = props;
+function SdModelCard(props) {
+  const { variant, item, index, handleModelSelection } = props;
   const theme = useTheme();
   const primaryColor = theme.palette.primary.main;
-
 
   return (
     <Grid item md={2} key={index}>
@@ -45,21 +44,34 @@ function ModuleCard(props) {
             key={index + "_1"}
           />
         ) : (
-          <CardMedia
-            component="img"
-            image={`data:image/png;base64,${item?.image_str}`}
-            sx={{ borderRadius: "5px" }}
-            onClick={onClick}
-            key={index}
-          />
+          <CardActionArea
+            onClick={() => handleModelSelection(item.sd_name_in_api)}
+          >
+            <CardMedia
+              component="img"
+              image={item?.cover_url}
+              sx={{ borderRadius: "5px", aspectRatio: "1/1" }}
+              key={index}
+            />
+
+            <Typography
+              variant="h5"
+              align="center"
+              display="block"
+              style={{ wordWrap: "break-word", margin: "1rem 0" }}
+            >
+              {item?.sd_name}
+            </Typography>
+            <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
+              {item?.tags.map((tag, index) => (
+                <Chip key={index} label={tag} />
+              ))}
+            </Stack>
+          </CardActionArea>
         )}
-      <Typography display="block"
-        style={{ wordWrap: "break-word" }}
-        >Lorem_isum_dolor_si_amet_ecetera_ecetera</Typography>
-        <Chip label="Chip Filled" />
       </Card>
     </Grid>
   );
 }
 
-export default ModuleCard;
+export default SdModelCard;

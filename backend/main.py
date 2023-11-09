@@ -19,6 +19,7 @@ import sys
 # App imports
 from controllers.images_controller import get_images, delete_image
 from controllers.generate_controller import predict
+from controllers.models_controller import get_models
 
 load_dotenv()
 
@@ -37,9 +38,9 @@ app.add_middleware(
 
 @app.get("/generate")
 async def generate_endpoint(
-    prompt, website, negative_prompt, seed, image_quality, qr_weight, user_id
+    prompt, website, negative_prompt, seed, image_quality, qr_weight, sd_model, user_id
 ):
-    return predict(prompt, website, negative_prompt, seed, image_quality, qr_weight, user_id)
+    return predict(prompt, website, negative_prompt, seed, image_quality, qr_weight, sd_model, user_id)
 
 
 @app.get("/images/get")
@@ -50,6 +51,10 @@ async def images_endpoint(page: int = Query(1, alias="page"), user_id: str = "")
 @app.delete("/images/delete/{id}")
 async def delete_image_endpoint(id: str):
     return delete_image(id)
+
+@app.get("/models/get")
+async def get_models_endpoint():
+    return get_models()
 
 
 # --------------- AUTH ------------------------
