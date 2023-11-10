@@ -20,16 +20,12 @@ models = db.get_collection("models")
 def get_models():
     try:
         models_result = db["models"].find()
-        print(models_result)
         # Convert the images to a list
         models_list = list(models_result)
 
         # Convert ObjectIds to strings
         for model in models_list:
             model["_id"] = str(model["_id"])
-        
-        print(models_list)
-
         return models_list
 
     except Exception as e:
