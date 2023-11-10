@@ -91,12 +91,11 @@ def predict(prompt, website, negative_prompt, seed, image_quality, qr_weight,sd_
         raise Exception('Failed to generate image with error: ' +
                         res.data.failed_reason)
     save_image(res.data.imgs_bytes[0], "qrcode-art.png")
-    image = readImage("qrcode-art.png")
     # TODO: read info from response
     info = {
         "seed": -1
     }
-    doc = prepare_doc(image, req, info, website, image_quality, qr_weight, user_id)
+    doc = prepare_doc( req, info, website, image_quality, qr_weight, user_id)
     #print(doc)
     inserted_image = insert_image(doc, user_id, image_quality)
     return inserted_image

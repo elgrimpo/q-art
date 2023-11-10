@@ -32,6 +32,7 @@ function ImageCard(props) {
   const primaryColor = theme.palette.primary.main;
 
   // -------- Actions ----------
+  // TODO: Download from S3 bucket instead of base64 conversion
   const downloadImage = (image) => {
     const blob = base64ToBlob(image);
     const url = URL.createObjectURL(blob);
@@ -111,7 +112,7 @@ function ImageCard(props) {
         ) : (
           <CardMedia
             component="img"
-            image={`data:image/png;base64,${item?.image_str}`}
+            image={item?.image_url}
             sx={{ borderRadius: "5px" }}
             onClick={onClick}
             key={index}

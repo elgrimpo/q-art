@@ -256,7 +256,7 @@ function Generate() {
         ) : (
           <CardMedia
             component="img"
-            image={`data:image/png;base64,${generatedImage.image_str}`}
+            image={generatedImage.image_url}
             sx={{
               borderRadius: "12px",
               maxHeight: "calc(100% - 90px)",

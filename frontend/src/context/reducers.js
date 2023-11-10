@@ -24,7 +24,7 @@ export const initialState = {
     created_at: "-",
     content: "-",
     prompt: "-",
-    image_str: placeholder_image_str,
+    image_url: "https://qrartimages.s3.us-west-1.amazonaws.com/sampleimg.png",
     seed: "-",
   },
   loadingGeneratedImage: false,

@@ -13,7 +13,7 @@ def readImage(path):
     return b64img
 
 
-def prepare_doc(image, req, info, website, image_quality, qr_weight, user_id):
+def prepare_doc( req, info, website, image_quality, qr_weight, user_id):
     
     
     sampler_name = req.sampler_name
@@ -30,7 +30,6 @@ def prepare_doc(image, req, info, website, image_quality, qr_weight, user_id):
     doc = {
         "user_id": user_id,
         "created_at": datetime.datetime.utcnow(),
-        "image_str": image,
         "prompt": req.prompt,
         "negative_prompt": req.negative_prompt,
         "content": website,
