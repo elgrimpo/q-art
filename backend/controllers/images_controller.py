@@ -7,6 +7,7 @@ import os
 from bson import ObjectId
 import datetime
 import boto3
+from botocore.exceptions import ClientError
 
 
 load_dotenv()
@@ -116,17 +117,20 @@ def get_images(page: int = Query(1, alias="page"), user_id: str = ""):
 
 
 def delete_image(id: str):
+    
+    object_name = id + ".png"
+    object_id = ObjectId(id)
     try:
-        # Convert id to ObjectId
-        object_id = ObjectId(id)
+        # Delete image from S3
+        s3_client.delete_object(Bucket=s3_bucket_name, Key=object_name)
 
-        # Delete image
+        # Delete image docement from Mongo
         result = db["images"].delete_one({"_id": object_id})
-
-        if result.deleted_count == 0:
-            raise HTTPException(status_code=404, detail=f"Image with id {id} not found")
-
-        return {"deleted": True}
-
-    except Exception as e:
+    except ClientError as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+    # Error if image _id was not found
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail=f"Image with id {id} not found")
+    return {"deleted": True}
+
