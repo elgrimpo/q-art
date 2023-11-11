@@ -132,7 +132,8 @@ def upscale(image_id: str):
 
         # Update the image doc with updated "width" and "height" values
         update_data = {"width": 1024, "height": 1024}
-        update_image(image_id, update_data)
+        updated_image = update_image(image_id, update_data)
+        return updated_image
 
     except Exception as e:
         print(f"Error during image upscaling: {str(e)}")

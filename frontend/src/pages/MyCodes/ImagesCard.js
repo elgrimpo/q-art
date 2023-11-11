@@ -2,13 +2,11 @@
 import axios from "axios";
 import base64ToBlob from "b64-to-blob";
 import { useTheme } from "@mui/material/styles";
+import React, { useState } from "react";
 import {
   Card,
   CardMedia,
   Grid,
-  Typography,
-  Paper,
-  Backdrop,
   Stack,
   IconButton,
   Skeleton,
@@ -16,11 +14,11 @@ import {
 import DownloadTwoToneIcon from "@mui/icons-material/DownloadTwoTone";
 import DeleteForeverTwoToneIcon from "@mui/icons-material/DeleteForeverTwoTone";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import DiamondTwoToneIcon from "@mui/icons-material/DiamondTwoTone";
 
 // App imports
 import { ActionTypes } from "../../context/reducers";
 import { useImages, useImagesDispatch } from "../../context/AppProvider";
-
 
 function ImageCard(props) {
   const { variant, item, index, onClick } = props;
@@ -32,14 +30,13 @@ function ImageCard(props) {
   const primaryColor = theme.palette.primary.main;
 
   // -------- Actions ----------
-  // TODO: Download from S3 bucket instead of base64 conversion
-  const downloadImage = (image) => {
-    const blob = base64ToBlob(image);
-    const url = URL.createObjectURL(blob);
+  const downloadImage = (item) => {
     const link = document.createElement("a");
-    link.href = url;
-    link.download = "my_qr_art.png";
+    link.href = item.image_url;
+    link.download = "QR-art.png";
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
   };
 
   const deleteImage = (id) => {
@@ -73,6 +70,7 @@ function ImageCard(props) {
       qr_weight: item.qr_weight,
       negative_prompt: item.negative_prompt,
       seed: item.seed,
+      sd_model: item.sd_model
     };
     dispatch({
       type: ActionTypes.SET_GENERATE_FORM_VALUES,
@@ -82,6 +80,39 @@ function ImageCard(props) {
       type: ActionTypes.SET_GENERATED_IMAGE,
       payload: item,
     });
+  };
+
+  // Upscaling
+  const [upscaling, setUpscaling] = useState(false);
+
+  const upscaleImage = (id) => {
+    // Set the state to indicate that upscaling is in progress
+    setUpscaling(true);
+
+    // Make the API request to trigger upscaling
+    axios
+      .get(`http://localhost:8000/upscale/${id}`)
+      .then((response) => {
+        // Upscaling is complete, update the image in your UI
+        const updatedImage = response.data; // Replace with the actual response format
+
+        // Update the UserImages state
+        const updatedImages = userImages.map((img) =>
+          img._id === id ? updatedImage : img
+        );
+
+        dispatch({
+          type: ActionTypes.SET_USER_IMAGES,
+          payload: updatedImages,
+        });
+      })
+      .catch((error) => {
+        console.error("Error upscaling image:", error);
+      })
+      .finally(() => {
+        // Set the state to indicate that upscaling is complete
+        setUpscaling(false);
+      });
   };
 
   return (
@@ -97,7 +128,7 @@ function ImageCard(props) {
         }}
         color="primary"
       >
-        {variant == "skeleton" ? (
+        {variant == "skeleton" || upscaling ? (
           <Skeleton
             variant="rounded"
             width="100%"
@@ -119,7 +150,7 @@ function ImageCard(props) {
           />
         )}
 
-        {variant == "skeleton" ? (
+        {variant == "skeleton" || upscaling ? (
           <Stack
             direction="row"
             justifyContent="center"
@@ -146,6 +177,12 @@ function ImageCard(props) {
               height={30}
               key={index + "_5"}
             />
+            <Skeleton
+              variant="circular"
+              width={30}
+              height={30}
+              key={index + "_6"}
+            />
           </Stack>
         ) : (
           <Stack
@@ -156,10 +193,7 @@ function ImageCard(props) {
             sx={{ mt: "1rem" }}
             key={index + "_6"}
           >
-            <IconButton
-              onClick={() => downloadImage(item.image_str)}
-              key={index + "_1"}
-            >
+            <IconButton onClick={() => downloadImage(item)} key={index + "_1"}>
               <DownloadTwoToneIcon key={index} />
             </IconButton>
             <IconButton key={index + "_2"} onClick={() => handleCopy(item)}>
@@ -171,6 +205,15 @@ function ImageCard(props) {
             >
               <DeleteForeverTwoToneIcon key={index} />
             </IconButton>
+
+            {item.width == 512 && (
+              <IconButton
+                onClick={() => upscaleImage(item._id)}
+                key={index + "_4"}
+              >
+                <DiamondTwoToneIcon key={index} />
+              </IconButton>
+            )}
           </Stack>
         )}
       </Card>

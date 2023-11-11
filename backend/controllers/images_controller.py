@@ -75,9 +75,31 @@ def insert_image(doc, user_id, image_quality):
 
 def update_image(document_id, update_data):
     try:
-        db["images"].update_one({"_id": ObjectId(document_id)}, {"$set": update_data})
+        # Update the image doc with the provided data and retrieve the updated document
+        updated_image = db["images"].find_one_and_update(
+            {"_id": ObjectId(document_id)},
+            {"$set": update_data},
+            return_document=True
+        )
+
+        if updated_image:
+            # Return a success response with details about the updated image
+            updated_image["_id"] = str(updated_image["_id"])
+            return updated_image
+            
+        else:
+            # Return an error response if the document is not found
+            return {
+                "message": f"Image with id {document_id} not found.",
+            }
+
     except Exception as e:
         print(f"Error updating document: {str(e)}")
+
+        # Return an error response
+        return {
+            "message": f"Error updating document: {str(e)}",
+        }
 
 def get_image(id):
     try:
