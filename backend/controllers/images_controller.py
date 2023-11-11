@@ -43,7 +43,7 @@ def insert_image(doc, user_id, image_quality):
             print("File uploaded successfully.")
 
             # Update image document with image_url
-            image_url = f"https://{s3_bucket_name}.s3.amazonaws.com/{object_name}"
+            image_url = f"https://{s3_bucket_name}.s3.us-west-1.amazonaws.com/{object_name}"
 
             inserted_image = db["images"].find_one_and_update(
                 {"_id": ObjectId(inserted_image_id)},
