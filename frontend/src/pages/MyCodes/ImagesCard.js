@@ -10,6 +10,7 @@ import {
   Stack,
   IconButton,
   Skeleton,
+  Tooltip,
 } from "@mui/material";
 import DownloadTwoToneIcon from "@mui/icons-material/DownloadTwoTone";
 import DeleteForeverTwoToneIcon from "@mui/icons-material/DeleteForeverTwoTone";
@@ -193,26 +194,39 @@ function ImageCard(props) {
             sx={{ mt: "1rem" }}
             key={index + "_6"}
           >
-            <IconButton onClick={() => downloadImage(item)} key={index + "_1"}>
-              <DownloadTwoToneIcon key={index} />
-            </IconButton>
-            <IconButton key={index + "_2"} onClick={() => handleCopy(item)}>
-              <ContentCopyIcon index={index} />
-            </IconButton>
-            <IconButton
-              onClick={() => deleteImage(item._id)}
-              key={index + "_3"}
-            >
-              <DeleteForeverTwoToneIcon key={index} />
-            </IconButton>
+            <Tooltip title="Download image">
+              <IconButton
+                onClick={() => downloadImage(item)}
+                key={index + "_1"}
+              >
+                <DownloadTwoToneIcon key={index} />
+              </IconButton>
+            </Tooltip>
+
+            <Tooltip title="Copy data to generate similar image">
+              <IconButton key={index + "_2"} onClick={() => handleCopy(item)}>
+                <ContentCopyIcon index={index} />
+              </IconButton>
+            </Tooltip>
+
+            <Tooltip title="Delete image">
+              <IconButton
+                onClick={() => deleteImage(item._id)}
+                key={index + "_3"}
+              >
+                <DeleteForeverTwoToneIcon key={index} />
+              </IconButton>
+            </Tooltip>
 
             {item.width == 512 && (
-              <IconButton
-                onClick={() => upscaleImage(item._id)}
-                key={index + "_4"}
-              >
-                <DiamondTwoToneIcon key={index} />
-              </IconButton>
+              <Tooltip title="Upscale resolution to 1024 x 1024">
+                <IconButton
+                  onClick={() => upscaleImage(item._id)}
+                  key={index + "_4"}
+                >
+                  <DiamondTwoToneIcon key={index} />
+                </IconButton>
+              </Tooltip>
             )}
           </Stack>
         )}
