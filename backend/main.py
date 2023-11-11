@@ -14,7 +14,7 @@ from starlette.requests import Request
 
 # App imports
 from controllers.images_controller import get_images, delete_image
-from controllers.generate_controller import predict
+from controllers.generate_controller import predict, upscale
 from controllers.models_controller import get_models
 from controllers.auth_controller import google_login, google_auth, google_logout
 
@@ -42,6 +42,10 @@ async def generate_endpoint(
     prompt, website, negative_prompt, seed, image_quality, qr_weight, sd_model, user_id
 ):
     return predict(prompt, website, negative_prompt, seed, image_quality, qr_weight, sd_model, user_id)
+
+@app.get("/upscale/{id}")
+async def upscale_endpoint(id: str):
+    return upscale(id)
 
 # Images Routes
 @app.get("/images/get")

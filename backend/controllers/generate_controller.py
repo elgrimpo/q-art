@@ -4,18 +4,29 @@ from dotenv import load_dotenv
 import os
 import requests as requests
 from novita_client import *
+import boto3
+import base64
 
 # App imports
-from controllers.images_controller import insert_image
+from controllers.images_controller import insert_image, update_image
 from utils.utils import readImage, prepare_doc
 
 
 load_dotenv()
+# S3
+api_url = os.environ["S3_URL"]
+s3_bucket_name = "qrartimages"
+s3_client = boto3.client(
+    "s3",
+    aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
+    aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
+)
 
+#Novita-Client Initialization
+client = NovitaClient(os.environ["NOVITA_KEY"])
 
 def predict(prompt, website, negative_prompt, seed, image_quality, qr_weight,sd_model, user_id):
     
-    client = NovitaClient(os.environ["NOVITA_KEY"])
 
     # TODO: Check SDK if fixed
     # # Load ControlNet models
@@ -99,3 +110,29 @@ def predict(prompt, website, negative_prompt, seed, image_quality, qr_weight,sd_
     #print(doc)
     inserted_image = insert_image(doc, user_id, image_quality)
     return inserted_image
+
+def upscale(image_id: str):
+    try:
+        # Get the image from S3
+        object_name = image_id + ".png"
+
+        response = s3_client.get_object(Bucket=s3_bucket_name, Key=object_name)
+        image_content = response['Body'].read()
+        base64_image = base64.b64encode(image_content).decode()
+
+        # Create UpscaleRequest
+        upscale_request = UpscaleRequest(image=base64_image, upscaling_resize=2.0)
+        
+        # Send UpscaleRequest via novita-client
+        upscale_response = client.sync_upscale(upscale_request)
+
+        # Replace the S3 file with the upscaled version
+        upscaled_image_content = upscale_response.data.imgs_bytes[0]
+        s3_client.put_object(Bucket=s3_bucket_name, Key=object_name, Body=upscaled_image_content)
+
+        # Update the image doc with updated "width" and "height" values
+        update_data = {"width": 1024, "height": 1024}
+        update_image(image_id, update_data)
+
+    except Exception as e:
+        print(f"Error during image upscaling: {str(e)}")
