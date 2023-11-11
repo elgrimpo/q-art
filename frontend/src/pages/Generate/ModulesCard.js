@@ -62,11 +62,11 @@ function SdModelCard(props) {
             >
               {item?.sd_name}
             </Typography>
-            <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
+            {/* <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
               {item?.tags.map((tag, index) => (
                 <Chip key={index} label={tag} />
               ))}
-            </Stack>
+            </Stack> */}
           </CardActionArea>
         )}
       </Card>
