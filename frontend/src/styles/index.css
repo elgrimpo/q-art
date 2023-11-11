@@ -101,6 +101,7 @@ html {
   aspect-ratio: 1/1; 
   justify-content: center;
   align-items: center; 
+  height: calc(100% - 90px);
   border-radius: 16px 
 }
 
