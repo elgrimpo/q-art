@@ -56,7 +56,7 @@ function MyCodes(props) {
           }}
         >
           <img
-            src={`data:image/png;base64,${image?.image_str}`}
+            src={image?.image_url}
             style={{
               height: "90%",
               objectFit: "contain",
