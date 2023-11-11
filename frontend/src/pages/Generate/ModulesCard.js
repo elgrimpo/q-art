@@ -45,11 +45,11 @@ function SdModelCard(props) {
           />
         ) : (
           <CardActionArea
-            onClick={() => handleModelSelection(item.sd_name_in_api)}
+            onClick={() => handleModelSelection(item.sd_name)}
           >
             <CardMedia
               component="img"
-              image={item?.cover_url}
+              image={item.qr_image_url ? item.qr_image_url : item.civitai_image_url}
               sx={{ borderRadius: "5px", aspectRatio: "1/1" }}
               key={index}
             />
