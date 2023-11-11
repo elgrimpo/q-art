@@ -72,7 +72,6 @@ function MyCodes(props) {
             boxSizing: "border-box",
             display: "flex",
             flexDirection: "column",
-            justifyContent: "center",
             overflow: "scroll",
           }}
         >
@@ -106,6 +105,10 @@ function MyCodes(props) {
             <ListItemText
               primary="Stable Diffusion Model"
               secondary={image?.sd_model}
+            />
+            <ListItemText
+              primary="Image Id"
+              secondary={image?._id}
             />
           </List>
         </div>
