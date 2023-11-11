@@ -1,8 +1,6 @@
 // Libraries imports
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import dayjs from "dayjs";
-import base64ToBlob from "b64-to-blob";
 import {
   Fab,
   CardMedia,
@@ -94,12 +92,12 @@ function Generate() {
 
   // Download Image
   const downloadImage = (generatedImage) => {
-    const blob = base64ToBlob(generatedImage.image_str);
-    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.href = url;
-    link.download = "my_qr_art.png";
+    link.href = generatedImage.image_url;
+    link.download = "QR-art.png";
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
   };
 
   // Slider (QR Code Weight)
