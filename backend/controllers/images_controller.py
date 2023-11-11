@@ -73,6 +73,12 @@ def insert_image(doc, user_id, image_quality):
         raise HTTPException(status_code=409, detail=str(e))
 
 
+def update_image(document_id, update_data):
+    try:
+        db["images"].update_one({"_id": ObjectId(document_id)}, {"$set": update_data})
+    except Exception as e:
+        print(f"Error updating document: {str(e)}")
+
 def get_image(id):
     try:
         object_id = ObjectId(id)
@@ -93,8 +99,6 @@ def get_images(page: int = Query(1, alias="page"), user_id: str = ""):
         offset = (page - 1) * images_per_page
 
         # Get images for the given user_id with pagination
-        print("user_id")
-        print(user_id)
         images_result = (
             db["images"]
             .find({"user_id": user_id})
