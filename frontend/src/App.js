@@ -85,7 +85,8 @@ function App() {
               <Generate />
             </TabPanel>
             <TabPanel value="2">
-              <MyCodes />
+              <MyCodes 
+              setTabValue = {setValue}/>
             </TabPanel>
             <TabPanel value="3">Explore (Placeholder)</TabPanel>
           </div>

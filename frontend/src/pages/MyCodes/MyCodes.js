@@ -9,20 +9,25 @@ import { useImages, useImagesDispatch } from "../../context/AppProvider";
 import ImageCard from "./ImagesCard";
 import ImageModal from "./ImageModal";
 
-
-function MyCodes() {
+function MyCodes(props) {
   const dispatch = useImagesDispatch();
   const { userImages, loadingUserImages, userImagesPage, user } = useImages();
+  const { setTabValue } = props;
 
   // ----- Get Images ------ //
   const getMoreImages = () => {
     dispatch({ type: ActionTypes.SET_LOADING_USER_IMAGES, payload: true });
     axios
-      .get(`http://localhost:8000/images/get/?page=${userImagesPage + 1}&user_id=${user._id}`, {
-        params: {
-          allowDiskUse: true, // Add allowDiskUse option here
-        },
-      })
+      .get(
+        `http://localhost:8000/images/get/?page=${userImagesPage + 1}&user_id=${
+          user._id
+        }`,
+        {
+          params: {
+            allowDiskUse: true, // Add allowDiskUse option here
+          },
+        }
+      )
       .then((res) => {
         if (res.data.length === 0) {
           dispatch({
@@ -131,6 +136,8 @@ function MyCodes() {
               index={index}
               variant="image"
               onClick={() => handleModalOpen(index)}
+              setTabValue={setTabValue}
+
             />
           ))}
       </Grid>
@@ -151,7 +158,12 @@ function MyCodes() {
       >
         {loadingUserImages > 0 &&
           Array.from({ length: 12 }, (_, index) => index).map((_, index) => (
-            <ImageCard item={_} variant="skeleton" index={index} />
+            <ImageCard
+              item={_}
+              variant="skeleton"
+              index={index}
+              setTabValue={setTabValue}
+            />
           ))}
       </Grid>
 

@@ -22,7 +22,7 @@ import { ActionTypes } from "../../context/reducers";
 import { useImages, useImagesDispatch } from "../../context/AppProvider";
 
 function ImageCard(props) {
-  const { variant, item, index, onClick } = props;
+  const { variant, item, index, onClick, setTabValue } = props;
   const { userImages } = useImages();
 
   const dispatch = useImagesDispatch();
@@ -81,6 +81,7 @@ function ImageCard(props) {
       type: ActionTypes.SET_GENERATED_IMAGE,
       payload: item,
     });
+    setTabValue("1")
   };
 
   // Upscaling
