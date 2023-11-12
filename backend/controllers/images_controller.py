@@ -8,7 +8,8 @@ from bson import ObjectId
 import datetime
 import boto3
 from botocore.exceptions import ClientError
-
+from pymongo import DESCENDING, ASCENDING
+from typing import Optional
 
 load_dotenv()
 
@@ -113,18 +114,33 @@ def get_image(id):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-def get_images(page: int = Query(1, alias="page"), user_id: str = ""):
+def get_images(
+    page: int = Query(1, alias="page"),
+    user_id: Optional[str] = None,
+    exclude_user_id: Optional[str] = None,
+    sort_by: Optional[str] = "created_at",
+    sort_order: Optional[str] = "desc",
+    images_per_page: int = 12,
+):
     try:
-        images_per_page = 12
-
         # Calculate the offset based on the current page
         offset = (page - 1) * images_per_page
 
-        # Get images for the given user_id with pagination
+        # Define the sort order
+        sort_direction = DESCENDING if sort_order.lower() == "desc" else ASCENDING
+
+        # Build the query based on the parameters
+        query = {}
+        if user_id:
+            query["user_id"] = user_id
+        if exclude_user_id:
+            query["user_id"] = {"$ne": exclude_user_id}
+
+        # Get images with pagination, sorting, and filtering
         images_result = (
             db["images"]
-            .find({"user_id": user_id})
-            .sort("created_at", -1)
+            .find(query)
+            .sort(sort_by, sort_direction)
             .skip(offset)
             .limit(images_per_page)
         )

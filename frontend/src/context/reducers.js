@@ -1,25 +1,35 @@
-import { placeholder_image_str } from "../assets/placeholder_image";
-
 export const ActionTypes = {
+  // User
   SET_USER: "SET_USER",
-  SET_USER_IMAGES: "SET_USER_IMAGES",
-  SET_LOADING_USER_IMAGES: "SET_LOADING_USER_IMAGES",
-  SET_USER_IMAGES_PAGE: "SET_USER_IMAGES_PAGE",
+
+  // Generate
   SET_GENERATED_IMAGE: "SET_GENERATED_IMAGE",
   SET_LOADING_GENERATED_IMAGE: "SET_LOADING_GENERATED_IMAGE",
   SET_GENERATE_FORM_VALUES: "SET_GENERATE_FORM_VALUES",
+
+  // User Images
+  SET_USER_IMAGES: "SET_USER_IMAGES",
+  SET_LOADING_USER_IMAGES: "SET_LOADING_USER_IMAGES",
+  SET_USER_IMAGES_PAGE: "SET_USER_IMAGES_PAGE",
+
+  // Community Images
+  SET_COMMUNITY_IMAGES: "SET_COMMUNITY_IMAGES",
+  SET_LOADING_COMMUNITY_IMAGES: "SET_LOADING_COMMUNITY_IMAGES",
+  SET_COMMUNITY_IMAGES_PAGE: "SET_COMMUNITY_IMAGES_PAGE",
+
+  // Models
   SET_LOADING_SD_MODELS: "SET_LOADING_SD_MODELS",
-  SET_SD_MODELS: "SET_SD_MODELS"
+  SET_SD_MODELS: "SET_SD_MODELS" 
+  
+
+
 };
 
 export const initialState = {
   // User
   user: {},
-  // My Codes
-  userImages: [],
-  loadingUserImages: false,
-  userImagesPage: 0,
-  //Generate
+
+  // Generate
   generatedImage: {
     created_at: "-",
     content: "-",
@@ -37,6 +47,17 @@ export const initialState = {
     seed: -1,
     sd_model: "dreamshaper_6BakedVae_54299.safetensors"
   },
+
+  // User Images
+  userImages: [],
+  loadingUserImages: false,
+  userImagesPage: 0,
+
+  // Community Images
+  communityImages: [],
+  loadingCommunityImages: false,
+  communityImagesPage: 0,
+
   // Models
   loadingSdModels: false,
   sd_models: [],
@@ -51,15 +72,7 @@ export const imagesReducer = (state, action) => {
     case ActionTypes.SET_USER:
       return { ...state, user: action.payload };
 
-    // My Codes Actions
-    case ActionTypes.SET_USER_IMAGES:
-      return { ...state, userImages: action.payload };
-    case ActionTypes.SET_LOADING_USER_IMAGES:
-      return { ...state, loadingUserImages: action.payload };
-    case ActionTypes.SET_USER_IMAGES_PAGE:
-      return { ...state, userImagesPage: action.payload };
-
-    // Generate Image Actions
+    // Generate 
     case ActionTypes.SET_GENERATED_IMAGE:
       return { ...state, generatedImage: action.payload };
     case ActionTypes.SET_LOADING_GENERATED_IMAGE:
@@ -67,7 +80,23 @@ export const imagesReducer = (state, action) => {
     case ActionTypes.SET_GENERATE_FORM_VALUES:
       return { ...state, generateFormValues: action.payload };
 
-      // Models Actions
+    // User Images
+    case ActionTypes.SET_USER_IMAGES:
+      return { ...state, userImages: action.payload };
+    case ActionTypes.SET_LOADING_USER_IMAGES:
+      return { ...state, loadingUserImages: action.payload };
+    case ActionTypes.SET_USER_IMAGES_PAGE:
+      return { ...state, userImagesPage: action.payload };
+
+    // Community Images
+    case ActionTypes.SET_COMMUNITY_IMAGES:
+      return { ...state, communityImages: action.payload };
+    case ActionTypes.SET_LOADING_COMMUNITY_IMAGES:
+      return { ...state, loadingCommunityImages: action.payload };
+    case ActionTypes.SET_COMMUNITY_IMAGES_PAGE:
+      return { ...state, communityImagesPage: action.payload };
+
+      // Models 
     case ActionTypes.SET_LOADING_SD_MODELS:
       return {...state, loadingSdModels: action.payload};
     case ActionTypes.SET_SD_MODELS:

@@ -5,7 +5,7 @@ import requests as requests
 from dotenv import load_dotenv
 
 import os
-
+from typing import Optional
 from pymongo import MongoClient
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
@@ -49,8 +49,13 @@ async def upscale_endpoint(id: str):
 
 # Images Routes
 @app.get("/images/get")
-async def images_endpoint(page: int = Query(1, alias="page"), user_id: str = ""):
-    return get_images(page, user_id)
+async def images_endpoint(page,
+    user_id: Optional[str] = None,
+    exclude_user_id: Optional[str] = None,
+    sort_by: Optional[str] = "created_at",
+    sort_order: Optional[str] = "desc",
+    images_per_page: int = 12,):
+    return get_images(page, user_id, exclude_user_id, sort_by, sort_order, images_per_page)
 
 @app.delete("/images/delete/{id}")
 async def delete_image_endpoint(id: str):

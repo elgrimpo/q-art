@@ -14,8 +14,8 @@ import "./styles/App.css";
 import theme from "./styles/mui-theme";
 import Generate from "./pages/Generate/Generate";
 import logo from "./assets/logo.png";
-import MyCodes from "./pages/MyCodes/MyCodes";
 import AccountMenu from "./pages/Home/AccountMenu";
+import ImageGallery from "./pages/MyCodes/ImageGallery";
 
 function App() {
   const [value, setValue] = React.useState("1");
@@ -57,7 +57,6 @@ function App() {
 
   // Profile menu
 
-
   return (
     <ThemeProvider theme={theme}>
       <TabContext value={value}>
@@ -73,7 +72,7 @@ function App() {
               </Tabs>
             </Box>
             {user._id ? (
-                <AccountMenu handleLogout={handleLogout} />  
+              <AccountMenu handleLogout={handleLogout} />
             ) : (
               <Button onClick={handleLogin}>Login</Button>
             )}
@@ -84,11 +83,14 @@ function App() {
             <TabPanel value="1">
               <Generate />
             </TabPanel>
+
             <TabPanel value="2">
-              <MyCodes 
-              setTabValue = {setValue}/>
+              <ImageGallery imageType="userImages" setTabValue={setValue} />
             </TabPanel>
-            <TabPanel value="3">Explore (Placeholder)</TabPanel>
+            <TabPanel value="3">
+              
+              <ImageGallery imageType="communityImages" setTabValue={setValue} />
+            </TabPanel>
           </div>
         </div>
       </TabContext>
