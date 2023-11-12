@@ -11,7 +11,7 @@ import Masonry from "@mui/lab/Masonry";
 // App imports
 import { ActionTypes } from "../../context/reducers";
 import { useImages, useImagesDispatch } from "../../context/AppProvider";
-import SdModelCard from "./ModulesCard";
+import SdModelCard from "./SdModelsCard";
 // TODO: Rename ModulesModal
 function SdModelsModal(props) {
   const { open, handleClose, handleModelSelection } = props;

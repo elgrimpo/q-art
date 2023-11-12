@@ -23,7 +23,7 @@ import CasinoTwoToneIcon from "@mui/icons-material/CasinoTwoTone";
 // App imports
 import { useImages, useImagesDispatch } from "../../context/AppProvider";
 import { ActionTypes } from "../../context/reducers";
-import SdModelsModal from "./ModulesModal";
+import SdModelsModal from "./SdModelsModal";
 
 function Generate() {
   const dispatch = useImagesDispatch();

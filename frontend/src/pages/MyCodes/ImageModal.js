@@ -13,7 +13,7 @@ import ChevronLeftTwoToneIcon from "@mui/icons-material/ChevronLeftTwoTone";
 //App imports
 import { useImages } from "../../context/AppProvider";
 
-function MyCodes(props) {
+function ImagesModal(props) {
   const { userImages } = useImages();
   const { open, index, handleClose, handleNext, handlePrevious } = props;
   const image = userImages[index];
@@ -127,4 +127,4 @@ function MyCodes(props) {
   );
 }
 
-export default MyCodes;
+export default ImagesModal;
