@@ -13,8 +13,12 @@ import {
   ToggleButtonGroup,
   ToggleButton,
   Slider,
+  IconButton,
+  Tooltip,
+  InputAdornment,
 } from "@mui/material";
 import AutoFixHighTwoToneIcon from "@mui/icons-material/AutoFixHighTwoTone";
+import CasinoTwoToneIcon from "@mui/icons-material/CasinoTwoTone";
 
 // App imports
 import { useImages, useImagesDispatch } from "../../context/AppProvider";
@@ -173,6 +177,7 @@ function Generate() {
               multiline
               rows={4}
             />
+
             <TextField
               id="seed"
               label="Seed"
@@ -180,7 +185,30 @@ function Generate() {
               value={generateFormValues.seed}
               onChange={handleInputChange}
               variant="outlined"
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <Tooltip title="Set to Random">
+                      <IconButton
+                        name="seed"
+                        value={-1}
+                        onClick={() =>
+                          handleInputChange({
+                            target: {
+                              name: "seed",
+                              value: -1,
+                            },
+                          })
+                        }
+                      >
+                        <CasinoTwoToneIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </InputAdornment>
+                ),
+              }}
             />
+
             <Typography variant="subtitle2" align="center">
               Image Quality
             </Typography>
