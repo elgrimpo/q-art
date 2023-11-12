@@ -19,11 +19,14 @@ import DiamondTwoToneIcon from "@mui/icons-material/DiamondTwoTone";
 import { ActionTypes } from "../../context/reducers";
 import { useImages, useImagesDispatch } from "../../context/AppProvider";
 import SkeletonCard from "./SkeletonCard.js";
-import {downloadImage, deleteImage, upscaleImage} from "../../utils/ImageUtils.js";
-
+import {
+  downloadImage,
+  deleteImage,
+  upscaleImage,
+} from "../../utils/ImageUtils.js";
 
 function ImageCard(props) {
-  const { variant, item, index, onClick, setTabValue } = props;
+  const { variant, item, index, onClick, setTabValue, imageType } = props;
   const { userImages } = useImages();
 
   const dispatch = useImagesDispatch();
@@ -56,36 +59,6 @@ function ImageCard(props) {
 
   // Upscaling
   const [upscaling, setUpscaling] = useState(false);
-
-  // const upscaleImage = (id) => {
-  //   // Set the state to indicate that upscaling is in progress
-  //   setUpscaling(true);
-
-  //   // Make the API request to trigger upscaling
-  //   axios
-  //     .get(`http://localhost:8000/upscale/${id}`)
-  //     .then((response) => {
-  //       // Upscaling is complete, update the image in your UI
-  //       const updatedImage = response.data; // Replace with the actual response format
-
-  //       // Update the UserImages state
-  //       const updatedImages = userImages.map((img) =>
-  //         img._id === id ? updatedImage : img
-  //       );
-
-  //       dispatch({
-  //         type: ActionTypes.SET_USER_IMAGES,
-  //         payload: updatedImages,
-  //       });
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error upscaling image:", error);
-  //     })
-  //     .finally(() => {
-  //       // Set the state to indicate that upscaling is complete
-  //       setUpscaling(false);
-  //     });
-  // };
 
   return (
     <Grid item md={2} key={index}>
@@ -135,19 +108,25 @@ function ImageCard(props) {
                 </IconButton>
               </Tooltip>
 
-              <Tooltip title="Delete image">
-                <IconButton
-                  onClick={() => deleteImage(item._id, index, userImages, dispatch)}
-                  key={index + "_3"}
-                >
-                  <DeleteForeverTwoToneIcon key={index} />
-                </IconButton>
-              </Tooltip>
+              {imageType == "userImages" && (
+                <Tooltip title="Delete image">
+                  <IconButton
+                    onClick={() =>
+                      deleteImage(item._id, index, userImages, dispatch)
+                    }
+                    key={index + "_3"}
+                  >
+                    <DeleteForeverTwoToneIcon key={index} />
+                  </IconButton>
+                </Tooltip>
+              )}
 
-              {item.width == 512 && (
+              {item.width == 512 && imageType == "userImages" && (
                 <Tooltip title="Upscale resolution to 1024 x 1024">
                   <IconButton
-                    onClick={() => upscaleImage(item._id, userImages, setUpscaling, dispatch)}
+                    onClick={() =>
+                      upscaleImage(item._id, userImages, setUpscaling, dispatch)
+                    }
                     key={index + "_4"}
                   >
                     <DiamondTwoToneIcon key={index} />

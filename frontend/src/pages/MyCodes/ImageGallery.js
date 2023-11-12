@@ -1,10 +1,8 @@
 // Libraries imports
 import { Grid } from "@mui/material";
-import axios from "axios";
 import { useState, useEffect, useRef } from "react";
 
 // App imports
-import { ActionTypes } from "../../context/reducers";
 import { useImages, useImagesDispatch } from "../../context/AppProvider";
 import ImageCard from "./ImagesCard";
 import ImageModal from "./ImageModal";
@@ -115,6 +113,7 @@ function ImageGallery(props) {
               variant="image"
               onClick={() => handleModalOpen(index)}
               setTabValue={setTabValue}
+              imageType = {imageType}
             />
           ))}
       </Grid>
@@ -139,7 +138,6 @@ function ImageGallery(props) {
               item={_}
               variant="skeleton"
               index={index}
-              setTabValue={setTabValue}
             />
           ))}
       </Grid>
