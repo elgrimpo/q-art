@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 import requests as requests
 import cv2
 import datetime
-
+import re
 
 def readImage(path):
     img = cv2.imread(path)
@@ -12,6 +12,16 @@ def readImage(path):
     b64img = base64.b64encode(buffer).decode("utf-8")
     return b64img
 
+def parse_seed(metadata):
+    # Use regular expression to find the value associated with 'Seed'
+    match = re.search(r'Seed: (\d+)', metadata)
+
+    # Check if the 'Seed' key is found
+    if match:
+        seed_value = match.group(1)
+        return int(seed_value)
+    else:
+        return None
 
 def prepare_doc( req, info, website, image_quality, qr_weight, user_id):
     

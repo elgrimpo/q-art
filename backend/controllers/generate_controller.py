@@ -9,7 +9,7 @@ import base64
 
 # App imports
 from controllers.images_controller import insert_image, update_image
-from utils.utils import readImage, prepare_doc
+from utils.utils import readImage, prepare_doc, parse_seed
 
 
 load_dotenv()
@@ -97,19 +97,34 @@ def predict(prompt, website, negative_prompt, seed, image_quality, qr_weight,sd_
         ]
     )
 
+    # Generate image and save response
     res = client.sync_txt2img(req)
     if res.data.status != ProgressResponseStatusCode.SUCCESSFUL:
         raise Exception('Failed to generate image with error: ' +
                         res.data.failed_reason)
     save_image(res.data.imgs_bytes[0], "qrcode-art.png")
+    
+    # Parse Seed from Metadata
     # TODO: read info from response
-    info = {
-        "seed": -1
-    }
+    with Image.open("qrcode-art.png") as img:
+        metadata_str = img.info.get("parameters")
+        parsed_seed = parse_seed(metadata_str)
+
+    if parsed_seed is not None:
+        info = {
+            "seed": parsed_seed
+        }
+    else:
+        info = {
+            "seed": -1  # Placeholder if parsing fails
+        }
+    
+    # Create Image Document
     doc = prepare_doc( req, info, website, image_quality, qr_weight, user_id)
     #print(doc)
     inserted_image = insert_image(doc, user_id, image_quality)
     return inserted_image
+
 
 def upscale(image_id: str):
     try:
