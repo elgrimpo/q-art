@@ -20,6 +20,7 @@ import DiamondTwoToneIcon from "@mui/icons-material/DiamondTwoTone";
 // App imports
 import { ActionTypes } from "../../context/reducers";
 import { useImages, useImagesDispatch } from "../../context/AppProvider";
+import SkeletonCard from "./SkeletonCard.js";
 
 function ImageCard(props) {
   const { variant, item, index, onClick, setTabValue } = props;
@@ -71,7 +72,7 @@ function ImageCard(props) {
       qr_weight: item.qr_weight,
       negative_prompt: item.negative_prompt,
       seed: item.seed,
-      sd_model: item.sd_model
+      sd_model: item.sd_model,
     };
     dispatch({
       type: ActionTypes.SET_GENERATE_FORM_VALUES,
@@ -81,7 +82,7 @@ function ImageCard(props) {
       type: ActionTypes.SET_GENERATED_IMAGE,
       payload: item,
     });
-    setTabValue("1")
+    setTabValue("1");
   };
 
   // Upscaling
@@ -131,105 +132,61 @@ function ImageCard(props) {
         color="primary"
       >
         {variant == "skeleton" || upscaling ? (
-          <Skeleton
-            variant="rounded"
-            width="100%"
-            height="0px"
-            animation="wave"
-            sx={{
-              aspectRatio: "1/1",
-              paddingTop: "100%", // Set the height to be the same as the width
-            }}
-            key={index + "_1"}
-          />
+          <SkeletonCard index={index} />
         ) : (
-          <CardMedia
-            component="img"
-            image={item?.image_url}
-            sx={{ borderRadius: "5px" }}
-            onClick={onClick}
-            key={index}
-          />
-        )}
+          <div>
+            <CardMedia
+              component="img"
+              image={item?.image_url}
+              sx={{ borderRadius: "5px" }}
+              onClick={onClick}
+              key={index}
+            />
 
-        {variant == "skeleton" || upscaling ? (
-          <Stack
-            direction="row"
-            justifyContent="center"
-            alignItems="center"
-            spacing={3}
-            sx={{ mt: "1rem" }}
-            key={index + "_2"}
-          >
-            <Skeleton
-              variant="circular"
-              width={30}
-              height={30}
-              key={index + "_3"}
-            />
-            <Skeleton
-              variant="circular"
-              width={30}
-              height={30}
-              key={index + "_4"}
-            />
-            <Skeleton
-              variant="circular"
-              width={30}
-              height={30}
-              key={index + "_5"}
-            />
-            <Skeleton
-              variant="circular"
-              width={30}
-              height={30}
+            <Stack
+              direction="row"
+              justifyContent="center"
+              alignItems="center"
+              spacing={3}
+              sx={{ mt: "1rem" }}
               key={index + "_6"}
-            />
-          </Stack>
-        ) : (
-          <Stack
-            direction="row"
-            justifyContent="center"
-            alignItems="center"
-            spacing={3}
-            sx={{ mt: "1rem" }}
-            key={index + "_6"}
-          >
-            <Tooltip title="Download image">
-              <IconButton
-                onClick={() => downloadImage(item)}
-                key={index + "_1"}
-              >
-                <DownloadTwoToneIcon key={index} />
-              </IconButton>
-            </Tooltip>
-
-            <Tooltip title="Copy data to generate similar image">
-              <IconButton key={index + "_2"} onClick={() => handleCopy(item)}>
-                <ContentCopyIcon index={index} />
-              </IconButton>
-            </Tooltip>
-
-            <Tooltip title="Delete image">
-              <IconButton
-                onClick={() => deleteImage(item._id)}
-                key={index + "_3"}
-              >
-                <DeleteForeverTwoToneIcon key={index} />
-              </IconButton>
-            </Tooltip>
-
-            {item.width == 512 && (
-              <Tooltip title="Upscale resolution to 1024 x 1024">
+            >
+              <Tooltip title="Download image">
                 <IconButton
-                  onClick={() => upscaleImage(item._id)}
-                  key={index + "_4"}
+                  onClick={() => downloadImage(item)}
+                  key={index + "_1"}
                 >
-                  <DiamondTwoToneIcon key={index} />
+                  <DownloadTwoToneIcon key={index} />
                 </IconButton>
               </Tooltip>
-            )}
-          </Stack>
+
+              <Tooltip title="Copy data to generate similar image">
+                <IconButton key={index + "_2"} onClick={() => handleCopy(item)}>
+                  <ContentCopyIcon index={index} />
+                </IconButton>
+              </Tooltip>
+
+              <Tooltip title="Delete image">
+                <IconButton
+                  onClick={() => deleteImage(item._id)}
+                  key={index + "_3"}
+                >
+                  <DeleteForeverTwoToneIcon key={index} />
+                </IconButton>
+              </Tooltip>
+
+              {item.width == 512 && (
+                <Tooltip title="Upscale resolution to 1024 x 1024">
+                  <IconButton
+                    onClick={() => upscaleImage(item._id)}
+                    key={index + "_4"}
+                  >
+                    <DiamondTwoToneIcon key={index} />
+                  </IconButton>
+                </Tooltip>
+              )}
+            </Stack>
+          </div>
         )}
       </Card>
     </Grid>
