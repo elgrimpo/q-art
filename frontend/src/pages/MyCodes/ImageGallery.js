@@ -8,6 +8,7 @@ import { ActionTypes } from "../../context/reducers";
 import { useImages, useImagesDispatch } from "../../context/AppProvider";
 import ImageCard from "./ImagesCard";
 import ImageModal from "./ImageModal";
+import { getMoreImages } from "../../utils/ImageUtils";
 
 function ImageGallery(props) {
   const dispatch = useImagesDispatch();
@@ -27,60 +28,7 @@ function ImageGallery(props) {
   const images = imageType === "userImages" ? userImages : communityImages;
   const loading = imageType === "userImages" ? loadingUserImages : loadingCommunityImages;
 
-  const getMoreImages = (imageType, params) => {
-    const loadingActionType =
-      imageType === "userImages"
-        ? ActionTypes.SET_LOADING_USER_IMAGES
-        : ActionTypes.SET_LOADING_COMMUNITY_IMAGES;
-    const imagesActionType =
-      imageType === "userImages"
-        ? ActionTypes.SET_USER_IMAGES
-        : ActionTypes.SET_COMMUNITY_IMAGES;
-    const pageActionType =
-      imageType === "userImages"
-        ? ActionTypes.SET_USER_IMAGES_PAGE
-        : ActionTypes.SET_COMMUNITY_IMAGES_PAGE;
-
-    dispatch({ type: loadingActionType, payload: true });
-
-    axios
-      .get(`http://localhost:8000/images/get`, {
-        params: params,
-      })
-      .then((res) => {
-        if (res.data.length === 0) {
-          dispatch({
-            type: loadingActionType,
-            payload: false,
-          });
-          dispatch({
-            type: pageActionType,
-            payload: -1,
-          });
-        } else {
-          dispatch({
-            type: imagesActionType,
-            payload: [...images, ...res.data],
-          });
-
-          dispatch({
-            type: loadingActionType,
-            payload: false,
-          });
-          dispatch({
-            type: pageActionType,
-            payload: page + 1,
-          });
-        }
-      })
-      .catch((err) => {
-        dispatch({
-          type: loadingActionType,
-          payload: false,
-        });
-        console.log(err);
-      });
-  };
+  
   // --------- Infinite scroll -----------
   const loadMoreRef = useRef(null);
 
@@ -104,7 +52,7 @@ function ImageGallery(props) {
             //images_per_page: (int = 12),
           };
 
-          getMoreImages(imageType, params);
+          getMoreImages(imageType, params, page, images, dispatch);
         }
       });
     }, options);

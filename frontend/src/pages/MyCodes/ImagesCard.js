@@ -1,6 +1,5 @@
 //Libraries imports
 import axios from "axios";
-import base64ToBlob from "b64-to-blob";
 import { useTheme } from "@mui/material/styles";
 import React, { useState } from "react";
 import {
@@ -9,7 +8,6 @@ import {
   Grid,
   Stack,
   IconButton,
-  Skeleton,
   Tooltip,
 } from "@mui/material";
 import DownloadTwoToneIcon from "@mui/icons-material/DownloadTwoTone";
@@ -21,6 +19,8 @@ import DiamondTwoToneIcon from "@mui/icons-material/DiamondTwoTone";
 import { ActionTypes } from "../../context/reducers";
 import { useImages, useImagesDispatch } from "../../context/AppProvider";
 import SkeletonCard from "./SkeletonCard.js";
+import {downloadImage, deleteImage, upscaleImage} from "../../utils/ImageUtils.js";
+
 
 function ImageCard(props) {
   const { variant, item, index, onClick, setTabValue } = props;
@@ -32,37 +32,6 @@ function ImageCard(props) {
   const primaryColor = theme.palette.primary.main;
 
   // -------- Actions ----------
-  const downloadImage = (item) => {
-    const link = document.createElement("a");
-    link.href = item.image_url;
-    link.download = "QR-art.png";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  const deleteImage = (id) => {
-    axios
-      .delete(`http://localhost:8000/images/delete/${id}`)
-      .then(() => {
-        if (index > -1) {
-          // Remove image from array
-          const updatedImages = [
-            ...userImages.slice(0, index),
-            ...userImages.slice(index + 1),
-          ];
-
-          // Update UserImages state
-          dispatch({
-            type: ActionTypes.SET_USER_IMAGES,
-            payload: updatedImages,
-          });
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
 
   const handleCopy = (item) => {
     const copyValues = {
@@ -88,35 +57,35 @@ function ImageCard(props) {
   // Upscaling
   const [upscaling, setUpscaling] = useState(false);
 
-  const upscaleImage = (id) => {
-    // Set the state to indicate that upscaling is in progress
-    setUpscaling(true);
+  // const upscaleImage = (id) => {
+  //   // Set the state to indicate that upscaling is in progress
+  //   setUpscaling(true);
 
-    // Make the API request to trigger upscaling
-    axios
-      .get(`http://localhost:8000/upscale/${id}`)
-      .then((response) => {
-        // Upscaling is complete, update the image in your UI
-        const updatedImage = response.data; // Replace with the actual response format
+  //   // Make the API request to trigger upscaling
+  //   axios
+  //     .get(`http://localhost:8000/upscale/${id}`)
+  //     .then((response) => {
+  //       // Upscaling is complete, update the image in your UI
+  //       const updatedImage = response.data; // Replace with the actual response format
 
-        // Update the UserImages state
-        const updatedImages = userImages.map((img) =>
-          img._id === id ? updatedImage : img
-        );
+  //       // Update the UserImages state
+  //       const updatedImages = userImages.map((img) =>
+  //         img._id === id ? updatedImage : img
+  //       );
 
-        dispatch({
-          type: ActionTypes.SET_USER_IMAGES,
-          payload: updatedImages,
-        });
-      })
-      .catch((error) => {
-        console.error("Error upscaling image:", error);
-      })
-      .finally(() => {
-        // Set the state to indicate that upscaling is complete
-        setUpscaling(false);
-      });
-  };
+  //       dispatch({
+  //         type: ActionTypes.SET_USER_IMAGES,
+  //         payload: updatedImages,
+  //       });
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error upscaling image:", error);
+  //     })
+  //     .finally(() => {
+  //       // Set the state to indicate that upscaling is complete
+  //       setUpscaling(false);
+  //     });
+  // };
 
   return (
     <Grid item md={2} key={index}>
@@ -168,7 +137,7 @@ function ImageCard(props) {
 
               <Tooltip title="Delete image">
                 <IconButton
-                  onClick={() => deleteImage(item._id)}
+                  onClick={() => deleteImage(item._id, index, userImages, dispatch)}
                   key={index + "_3"}
                 >
                   <DeleteForeverTwoToneIcon key={index} />
@@ -178,7 +147,7 @@ function ImageCard(props) {
               {item.width == 512 && (
                 <Tooltip title="Upscale resolution to 1024 x 1024">
                   <IconButton
-                    onClick={() => upscaleImage(item._id)}
+                    onClick={() => upscaleImage(item._id, userImages, setUpscaling, dispatch)}
                     key={index + "_4"}
                   >
                     <DiamondTwoToneIcon key={index} />

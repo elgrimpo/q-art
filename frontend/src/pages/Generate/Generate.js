@@ -24,6 +24,7 @@ import CasinoTwoToneIcon from "@mui/icons-material/CasinoTwoTone";
 import { useImages, useImagesDispatch } from "../../context/AppProvider";
 import { ActionTypes } from "../../context/reducers";
 import SdModelsModal from "./SdModelsModal";
+import {downloadImage} from "../../utils/ImageUtils";
 
 function Generate() {
   const dispatch = useImagesDispatch();
@@ -92,16 +93,6 @@ function Generate() {
         });
         console.log(err);
       });
-  };
-
-  // Download Image
-  const downloadImage = (generatedImage) => {
-    const link = document.createElement("a");
-    link.href = generatedImage.image_url;
-    link.download = "QR-art.png";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   // Slider (QR Code Weight)
