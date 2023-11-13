@@ -1,5 +1,4 @@
 //Libraries imports
-import axios from "axios";
 import { useTheme } from "@mui/material/styles";
 import React, { useState } from "react";
 import {
@@ -16,44 +15,27 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import DiamondTwoToneIcon from "@mui/icons-material/DiamondTwoTone";
 
 // App imports
-import { ActionTypes } from "../../context/reducers";
-import { useImages, useImagesDispatch } from "../../context/AppProvider";
 import SkeletonCard from "./SkeletonCard.js";
 import { useImageUtils } from "../../utils/ImageUtils.js";
+import { useGenerateUtils } from "../../utils/GenerateUtils.js";
 
 function ImageCard(props) {
   const { variant, item, index, onClick, setTabValue, imageType } = props;
-  const dispatch = useImagesDispatch();
 
   const theme = useTheme();
   const { downloadImage, deleteImage, upscaleImage } = useImageUtils();
     // Upscaling
+  const {copyGenerateFormValues} = useGenerateUtils()
   const [upscaling, setUpscaling] = useState(false);
+
   const primaryColor = theme.palette.primary.main;
 
   // -------- Actions ----------
 
   const handleCopy = (item) => {
-    const copyValues = {
-      website: item.content,
-      prompt: item.prompt,
-      image_quality: item.image_quality,
-      qr_weight: item.qr_weight,
-      negative_prompt: item.negative_prompt,
-      seed: item.seed,
-      sd_model: item.sd_model,
-    };
-    dispatch({
-      type: ActionTypes.SET_GENERATE_FORM_VALUES,
-      payload: copyValues,
-    });
-    dispatch({
-      type: ActionTypes.SET_GENERATED_IMAGE,
-      payload: item,
-    });
+    copyGenerateFormValues(item)
     setTabValue("1");
   };
-
 
 
   return (
@@ -69,7 +51,7 @@ function ImageCard(props) {
         }}
         color="primary"
       >
-        {variant == "skeleton" || upscaling ? (
+        {variant === "skeleton" || upscaling ? (
           <SkeletonCard index={index} />
         ) : (
           <div>
@@ -104,7 +86,7 @@ function ImageCard(props) {
                 </IconButton>
               </Tooltip>
 
-              {imageType == "userImages" && (
+              {imageType === "userImages" && (
                 <Tooltip title="Delete image">
                   <IconButton
                     onClick={() => deleteImage(item._id, index)}
@@ -115,7 +97,7 @@ function ImageCard(props) {
                 </Tooltip>
               )}
 
-              {item.width == 512 && imageType == "userImages" && (
+              {item.width === 512 && imageType === "userImages" && (
                 <Tooltip title="Upscale resolution to 1024 x 1024">
                   <IconButton
                     onClick={() => upscaleImage(item._id, setUpscaling)}

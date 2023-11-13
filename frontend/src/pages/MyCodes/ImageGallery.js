@@ -3,13 +3,12 @@ import { Grid } from "@mui/material";
 import { useState, useEffect, useRef } from "react";
 
 // App imports
-import { useImages, useImagesDispatch } from "../../context/AppProvider";
+import { useImages } from "../../context/AppProvider";
 import ImageCard from "./ImagesCard";
 import ImageModal from "./ImageModal";
 import { useImageUtils } from "../../utils/ImageUtils";
 
 function ImageGallery(props) {
-  const dispatch = useImagesDispatch();
   const {
     userImages,
     loadingUserImages,

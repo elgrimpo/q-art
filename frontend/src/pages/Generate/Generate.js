@@ -1,6 +1,5 @@
 // Libraries imports
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import {
   Fab,
   CardMedia,
@@ -21,79 +20,24 @@ import AutoFixHighTwoToneIcon from "@mui/icons-material/AutoFixHighTwoTone";
 import CasinoTwoToneIcon from "@mui/icons-material/CasinoTwoTone";
 
 // App imports
-import { useImages, useImagesDispatch } from "../../context/AppProvider";
-import { ActionTypes } from "../../context/reducers";
+import { useImages } from "../../context/AppProvider";
 import SdModelsModal from "./SdModelsModal";
-import {useImageUtils} from "../../utils/ImageUtils";
+import { useImageUtils } from "../../utils/ImageUtils";
+import { useGenerateUtils } from "../../utils/GenerateUtils";
 
 function Generate() {
-  const dispatch = useImagesDispatch();
-  const { generatedImage, loadingGeneratedImage, generateFormValues, user } =
+  const { generatedImage, loadingGeneratedImage, generateFormValues } =
     useImages();
   const [submitDisabled, setSubmitDisabled] = useState(true);
-  const {downloadImage} = useImageUtils()
+  const { downloadImage } = useImageUtils();
+  const { generateImage, selectSdModel, handleInputChange } =
+    useGenerateUtils();
+  // Modules Modal
+  const [open, setOpen] = useState(false);
 
   const handleModelSelection = (sd_model) => {
-    dispatch({
-      type: ActionTypes.SET_GENERATE_FORM_VALUES,
-      payload: {
-        ...generateFormValues,
-        sd_model: sd_model,
-      },
-    });
+    selectSdModel(sd_model);
     setOpen(false);
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    dispatch({
-      type: ActionTypes.SET_GENERATE_FORM_VALUES,
-      payload: {
-        ...generateFormValues,
-        [name]: value,
-      },
-    });
-  };
-
-  // Generate Image
-  const generate = async (generateFormValues) => {
-    dispatch({
-      type: ActionTypes.SET_LOADING_GENERATED_IMAGE,
-      payload: true,
-    });
-    axios
-      .get(`http://localhost:8000/generate/?user_id=${user._id}`, {
-        params: generateFormValues,
-        withCredentials: true,
-      })
-      .then((res) => {
-        // Update Generated Image state
-        dispatch({
-          type: ActionTypes.SET_GENERATED_IMAGE,
-          payload: res.data,
-        });
-        dispatch({
-          type: ActionTypes.SET_LOADING_GENERATED_IMAGE,
-          payload: false,
-        });
-
-        // Reset My Codes Images and Page
-        dispatch({
-          type: ActionTypes.SET_USER_IMAGES_PAGE,
-          payload: 0,
-        });
-        dispatch({
-          type: ActionTypes.SET_USER_IMAGES,
-          payload: [],
-        });
-      })
-      .catch((err) => {
-        dispatch({
-          type: ActionTypes.SET_LOADING_GENERATED_IMAGE,
-          payload: false,
-        });
-        console.log(err);
-      });
   };
 
   // Slider (QR Code Weight)
@@ -111,9 +55,6 @@ function Generate() {
   function valuetext(value) {
     return `${value}`;
   }
-
-  // Modules Modal
-  const [open, setOpen] = useState(false);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -258,7 +199,7 @@ function Generate() {
           size="large"
           color="primary"
           aria-label="generate"
-          onClick={(e) => generate(generateFormValues)}
+          onClick={(e) => generateImage(generateFormValues)}
         >
           <AutoFixHighTwoToneIcon sx={{ mr: 1 }} />
           Generate
