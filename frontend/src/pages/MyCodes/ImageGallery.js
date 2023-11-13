@@ -6,7 +6,7 @@ import { useState, useEffect, useRef } from "react";
 import { useImages, useImagesDispatch } from "../../context/AppProvider";
 import ImageCard from "./ImagesCard";
 import ImageModal from "./ImageModal";
-import { getMoreImages } from "../../utils/ImageUtils";
+import { useImageUtils } from "../../utils/ImageUtils";
 
 function ImageGallery(props) {
   const dispatch = useImagesDispatch();
@@ -19,6 +19,7 @@ function ImageGallery(props) {
     loadingCommunityImages,
     communityImagesPage,
   } = useImages();
+  const {getMoreImages} = useImageUtils();
 
   const { setTabValue, imageType } = props;
 
@@ -50,7 +51,7 @@ function ImageGallery(props) {
             //images_per_page: (int = 12),
           };
 
-          getMoreImages(imageType, params, page, images, dispatch);
+          getMoreImages(imageType, params);
         }
       });
     }, options);

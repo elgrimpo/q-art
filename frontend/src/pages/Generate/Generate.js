@@ -24,13 +24,14 @@ import CasinoTwoToneIcon from "@mui/icons-material/CasinoTwoTone";
 import { useImages, useImagesDispatch } from "../../context/AppProvider";
 import { ActionTypes } from "../../context/reducers";
 import SdModelsModal from "./SdModelsModal";
-import {downloadImage} from "../../utils/ImageUtils";
+import {useImageUtils} from "../../utils/ImageUtils";
 
 function Generate() {
   const dispatch = useImagesDispatch();
   const { generatedImage, loadingGeneratedImage, generateFormValues, user } =
     useImages();
   const [submitDisabled, setSubmitDisabled] = useState(true);
+  const {downloadImage} = useImageUtils()
 
   const handleModelSelection = (sd_model) => {
     dispatch({
