@@ -49,7 +49,7 @@ async def upscale_endpoint(id: str):
 
 # Images Routes
 @app.get("/images/get")
-async def images_endpoint(page,
+async def images_endpoint(page: int = 1,
     user_id: Optional[str] = None,
     exclude_user_id: Optional[str] = None,
     sort_by: Optional[str] = "created_at",
