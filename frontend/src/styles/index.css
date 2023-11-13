@@ -46,11 +46,15 @@ html {
   height: calc(100% - 100px);
   background-color: #F5F5F5;
   padding: 8px;
-  border-radius: 16px;
-  margin: 8px 24px 24px 24px;
+  margin: 0px;
   overflow: scroll;
 }
 
+@media screen and (max-width: 900px) {
+  .body {
+    height: calc(100% - 120px);
+  }
+}
 /*-------- Generate Page ---------*/
 
 .generate-page {

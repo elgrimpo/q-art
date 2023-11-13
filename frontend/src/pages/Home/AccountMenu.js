@@ -8,18 +8,20 @@ import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import Tooltip from "@mui/material/Tooltip";
+import Chip from "@mui/material/Chip";
 import PersonAdd from "@mui/icons-material/PersonAdd";
 import Settings from "@mui/icons-material/Settings";
 import Logout from "@mui/icons-material/Logout";
 import { useTheme } from "@mui/material";
 import { useImages } from "../../context/AppProvider";
+import DiamondTwoToneIcon from "@mui/icons-material/DiamondTwoTone";
 
 export default function AccountMenu(props) {
   const theme = useTheme();
   const primaryColor = theme.palette.primary.main;
   const { user } = useImages();
 
-  const {handleLogout} = props
+  const { handleLogout } = props;
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
@@ -34,15 +36,17 @@ export default function AccountMenu(props) {
       sx: {
         bgcolor: primaryColor,
         height: 40,
-        width: 40
+        width: 40,
       },
-      children: `${user.name.split(' ')[0][0]}${user.name.split(' ')[1] ? user.name.split(' ')[1][0] : ''}`,
+      children: `${user.name.split(" ")[0][0]}${
+        user.name.split(" ")[1] ? user.name.split(" ")[1][0] : ""
+      }`,
     };
   }
 
-
   return (
     <React.Fragment>
+      <Chip color="primary"  icon={<DiamondTwoToneIcon/>} label="100" />
       <Box sx={{ display: "flex", alignItems: "center", textAlign: "center" }}>
         <Tooltip title="Account settings">
           <IconButton

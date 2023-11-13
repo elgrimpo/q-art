@@ -12,7 +12,12 @@ import {
   Snackbar,
   Alert,
   IconButton,
+  BottomNavigation,
+  BottomNavigationAction,
 } from "@mui/material";
+import RestoreIcon from "@mui/icons-material/Restore";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
 import CloseIcon from "@mui/icons-material/Close";
 import { useEffect } from "react";
 
@@ -25,9 +30,10 @@ import logo from "./assets/logo.png";
 import AccountMenu from "./pages/Home/AccountMenu";
 import ImageGallery from "./pages/MyCodes/ImageGallery";
 import { useUtils } from "./utils/utils";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 function App() {
-  const [value, setValue] = React.useState("1");
+  const [value, setValue] = React.useState("Generate");
   const { user, alertOpen, alertSeverity, alertMessage } = useImages();
 
   const handleChange = (event, newValue) => {
@@ -35,6 +41,7 @@ function App() {
   };
   const { getUserInfo, logout, closeAlert } = useUtils();
 
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));;
   // Login
   const handleLogin = async () => {
     window.open("http://localhost:8000/login/google", "_self");
@@ -53,10 +60,10 @@ function App() {
           <Toolbar display="flex" className="header">
             <img src={logo} alt="Logo" />
             <Box className="menu-container">
-              <Tabs value={value} onChange={handleChange} centered>
-                <Tab label="Generate" value="1" />
-                <Tab label="My codes" value="2" />
-                <Tab label="Explore" value="3" />
+              <Tabs sx={{ display: { xs: 'none', md: 'flex' }}} value={value} onChange={handleChange} centered>
+                <Tab label="Generate" value="Generate" />
+                <Tab label="My codes" value="My codes" />
+                <Tab label="Explore" value="Explore" />
               </Tabs>
             </Box>
             {user._id ? (
@@ -68,14 +75,14 @@ function App() {
 
           {/*-------- App Body --------*/}
           <div className="body">
-            <TabPanel value="1">
+            <TabPanel value="Generate">
               <Generate />
             </TabPanel>
 
-            <TabPanel value="2">
+            <TabPanel value="My codes">
               <ImageGallery imageType="userImages" setTabValue={setValue} />
             </TabPanel>
-            <TabPanel value="3">
+            <TabPanel value="Explore">
               <ImageGallery
                 imageType="communityImages"
                 setTabValue={setValue}
@@ -108,6 +115,31 @@ function App() {
               {alertMessage}
             </Alert>
           </Snackbar>
+
+          { isMobile &&
+          <BottomNavigation
+            showLabels
+            value={value}
+            onChange={(event, newValue) => {
+              setValue(newValue);
+            }}
+          >
+            <BottomNavigationAction
+              value="Generate"
+              label="Generate"
+              icon={<RestoreIcon />}
+            />
+            <BottomNavigationAction
+              value="My codes"
+              label="My codes"
+              icon={<FavoriteIcon />}
+            />
+            <BottomNavigationAction
+              value="Explore"
+              label="Explore"
+              icon={<LocationOnIcon />}
+            />
+          </BottomNavigation>}
         </div>
       </TabContext>
     </ThemeProvider>
