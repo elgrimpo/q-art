@@ -150,6 +150,7 @@ function ImageGallery(props) {
           handleClose={handleModalClose}
           handlePrevious={showPreviousImage}
           handleNext={showNextImage}
+          imageType={imageType}
         />
       )}
     </div>

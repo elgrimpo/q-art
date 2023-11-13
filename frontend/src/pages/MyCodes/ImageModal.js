@@ -14,9 +14,9 @@ import ChevronLeftTwoToneIcon from "@mui/icons-material/ChevronLeftTwoTone";
 import { useImages } from "../../context/AppProvider";
 
 function ImagesModal(props) {
-  const { userImages } = useImages();
-  const { open, index, handleClose, handleNext, handlePrevious } = props;
-  const image = userImages[index];
+  const { userImages, communityImages } = useImages();
+  const { open, index, handleClose, handleNext, handlePrevious, imageType } = props;
+  const image = imageType === 'userImages' ? userImages[index] : communityImages[index];
 
   return (
     <Backdrop
