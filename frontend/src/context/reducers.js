@@ -19,10 +19,12 @@ export const ActionTypes = {
 
   // Models
   SET_LOADING_SD_MODELS: "SET_LOADING_SD_MODELS",
-  SET_SD_MODELS: "SET_SD_MODELS" 
+  SET_SD_MODELS: "SET_SD_MODELS", 
+
+  // Alert
+  OPEN_ALERT: "OPEN_ALERT",
+  CLOSE_ALERT: "CLOSE_ALERT",
   
-
-
 };
 
 export const initialState = {
@@ -61,6 +63,12 @@ export const initialState = {
   // Models
   loadingSdModels: false,
   sd_models: [],
+
+  // Alert
+  alertOpen: false,
+  alertSeverity: "",
+  alertMessage: ""   
+
 };
 
 export const imagesReducer = (state, action) => {
@@ -101,6 +109,12 @@ export const imagesReducer = (state, action) => {
       return {...state, loadingSdModels: action.payload};
     case ActionTypes.SET_SD_MODELS:
       return {...state, sd_models: action.payload};
+
+      // Alert
+      case ActionTypes.OPEN_ALERT:
+        return {...state, alertOpen: true, alertSeverity: action.payload.severity, alertMessage: action.payload.message};
+      case ActionTypes.CLOSE_ALERT:
+        return {...state, alertOpen: false, alertSeverity: "", alertMessage: ""};
   
     default:
       return state;
