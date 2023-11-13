@@ -1,29 +1,39 @@
 // Libraries imports
 import * as React from "react";
-import axios from "axios";
 import { ThemeProvider } from "@mui/material/styles";
 import TabContext from "@mui/lab/TabContext";
 import TabPanel from "@mui/lab/TabPanel";
-import { Tab, Tabs, Toolbar, Box, Button } from "@mui/material";
+import {
+  Tab,
+  Tabs,
+  Toolbar,
+  Box,
+  Button,
+  Snackbar,
+  Alert,
+  IconButton,
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import { useEffect } from "react";
 
 // App imports
-import { ActionTypes } from "./context/reducers";
-import { useImages, useImagesDispatch } from "./context/AppProvider";
+import { useImages } from "./context/AppProvider";
 import "./styles/App.css";
 import theme from "./styles/mui-theme";
 import Generate from "./pages/Generate/Generate";
 import logo from "./assets/logo.png";
 import AccountMenu from "./pages/Home/AccountMenu";
 import ImageGallery from "./pages/MyCodes/ImageGallery";
+import { useUtils } from "./utils/utils";
 
 function App() {
   const [value, setValue] = React.useState("1");
-  const dispatch = useImagesDispatch();
-  const { user } = useImages();
+  const { user, alertOpen, alertSeverity, alertMessage } = useImages();
+
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
+  const { getUserInfo, logout, closeAlert } = useUtils();
 
   // Login
   const handleLogin = async () => {
@@ -32,30 +42,8 @@ function App() {
 
   // Check if user session exists
   useEffect(() => {
-    axios
-      .get("http://localhost:8000/user/info", { withCredentials: true })
-      .then((res) => {
-        if (res.data._id) {
-          // User logged in
-          dispatch({
-            type: ActionTypes.SET_USER,
-            payload: res.data,
-          });
-        } else {
-          // User not logged in
-          console.log("not logged in");
-        }
-      });
+    getUserInfo();
   }, []);
-
-  // Logout
-  const handleLogout = async () => {
-    axios
-      .get("http://localhost:8000/logout", { withCredentials: true })
-      .then(window.location.reload());
-  };
-
-  // Profile menu
 
   return (
     <ThemeProvider theme={theme}>
@@ -72,7 +60,7 @@ function App() {
               </Tabs>
             </Box>
             {user._id ? (
-              <AccountMenu handleLogout={handleLogout} />
+              <AccountMenu handleLogout={logout} />
             ) : (
               <Button onClick={handleLogin}>Login</Button>
             )}
@@ -88,10 +76,38 @@ function App() {
               <ImageGallery imageType="userImages" setTabValue={setValue} />
             </TabPanel>
             <TabPanel value="3">
-              
-              <ImageGallery imageType="communityImages" setTabValue={setValue} />
+              <ImageGallery
+                imageType="communityImages"
+                setTabValue={setValue}
+              />
             </TabPanel>
           </div>
+
+          {/* ---- Snackbar ---- */}
+          <Snackbar
+            open={alertOpen}
+            anchorOrigin={{ vertical: "top", horizontal: "right" }}
+            autoHideDuration={6000}
+            onClose={closeAlert}
+          >
+            <Alert
+              severity={alertSeverity}
+              sx={{ width: "100%" }}
+              variant="filled"
+              action={
+                <IconButton
+                  aria-label="close"
+                  color="inherit"
+                  size="small"
+                  onClick={closeAlert}
+                >
+                  <CloseIcon fontSize="inherit" />
+                </IconButton>
+              }
+            >
+              {alertMessage}
+            </Alert>
+          </Snackbar>
         </div>
       </TabContext>
     </ThemeProvider>

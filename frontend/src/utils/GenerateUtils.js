@@ -4,11 +4,13 @@ import axios from "axios";
 // App imports
 import { ActionTypes } from "../context/reducers";
 import { useImages, useImagesDispatch } from "../context/AppProvider";
+import { useUtils } from "./utils";
 
 export const useGenerateUtils = () => {
   const { user, generateFormValues } =
     useImages();
   const dispatch = useImagesDispatch();
+  const {openAlert} = useUtils();
 
   const generateImage = async (generateFormValues) => {
     dispatch({
@@ -40,12 +42,15 @@ export const useGenerateUtils = () => {
           type: ActionTypes.SET_USER_IMAGES,
           payload: [],
         });
+        openAlert("success", "Image Generated")
       })
+      
       .catch((err) => {
         dispatch({
           type: ActionTypes.SET_LOADING_GENERATED_IMAGE,
           payload: false,
         });
+        openAlert("error", "Image Generation Failed");
         console.log(err);
       });
   };
@@ -91,11 +96,38 @@ export const useGenerateUtils = () => {
     });
   };
 
+  const getSdModels = async () => {
+    dispatch({ type: ActionTypes.SET_LOADING_SD_MODELS, payload: true });
+
+    await axios
+      .get("http://localhost:8000/models/get")
+      .then((res) => {
+        dispatch({
+          type: ActionTypes.SET_SD_MODELS,
+          payload: res.data,
+        });
+
+        dispatch({
+          type: ActionTypes.SET_LOADING_SD_MODELS,
+          payload: false,
+        });
+      })
+      .catch((err) => {
+        dispatch({
+          type: ActionTypes.SET_LOADING_SD_MODELS,
+          payload: false,
+        });
+        openAlert('error', 'Stable Diffusion Models could not be loaded')
+
+        console.log(err);
+      });
+  };
+
   return {
     generateImage, 
     copyGenerateFormValues,
     selectSdModel,
-    handleInputChange
-
+    handleInputChange,
+    getSdModels
   };
 };

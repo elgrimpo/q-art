@@ -4,11 +4,16 @@ import axios from "axios";
 // App imports
 import { ActionTypes } from "../context/reducers";
 import { useImages, useImagesDispatch } from "../context/AppProvider";
+import { useUtils } from "./utils";
+
+
+
 
 export const useImageUtils = () => {
   const { userImages, communityImages, userImagesPage, communityImagesPage } =
     useImages();
   const dispatch = useImagesDispatch();
+  const {openAlert} = useUtils();
 
   // ---------- Get More Images ---------- //
   const getMoreImages = (imageType, params) => {
@@ -65,6 +70,8 @@ export const useImageUtils = () => {
           type: loadingActionType,
           payload: false,
         });
+        openAlert('error', 'Images could not be loaded')
+
         console.log(err);
       });
   };
@@ -97,8 +104,10 @@ export const useImageUtils = () => {
             payload: updatedImages,
           });
         }
+        openAlert('success', 'Image Deleted')
       })
       .catch((err) => {
+        openAlert('error', 'Image Could Not Be Deleted')
         console.log(err);
       });
   };
@@ -124,9 +133,11 @@ export const useImageUtils = () => {
           type: ActionTypes.SET_USER_IMAGES,
           payload: updatedImages,
         });
+        openAlert('success', 'Image Upscaled')
       })
       .catch((error) => {
         console.error("Error upscaling image:", error);
+        openAlert('error', 'Image could not be upscaled')
       })
      .finally(() => {
         //Set the state to indicate that upscaling is complete
