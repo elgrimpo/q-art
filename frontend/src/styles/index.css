@@ -1,6 +1,9 @@
 
 
 /*--------- Global --------*/
+* {
+  box-sizing: border-box;
+}
 
 body {
   margin: 0;
@@ -23,7 +26,7 @@ html {
 
 /*-------- App.js --------*/
 .app {
-  margin: 0 2rem;
+  margin: 0 2rem; 
   height: 100%;
   max-width: 1600px;
   margin: auto;
@@ -53,6 +56,12 @@ html {
 @media screen and (max-width: 900px) {
   .body {
     height: calc(100% - 120px);
+    padding: 0px
+  }
+  .sidebar {
+    width: 100%;
+    
+
   }
 }
 /*-------- Generate Page ---------*/
@@ -69,20 +78,22 @@ html {
   flex: 1;
   display: flex;
   flex-direction: column;
-  max-width:550px;
+  /* max-width:550px; */
   max-height: 100%;
 }
 
+
+
 .formfield {
   height: calc(100% - 130px);
-  overflow: scroll;
-  padding: 1rem 1rem;
-  margin-bottom:1rem
+  overflow-y: scroll;
+  overflow-x: hidden;
+  margin-bottom:24px
 }
 
 
 .image-container {
-  flex: 1;
+  flex: 2;
   padding: 2rem 2rem 0 2rem;
   align-items: center;
   box-sizing: border-box;

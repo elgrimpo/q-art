@@ -93,7 +93,11 @@ function Generate() {
         <Box className="sidebar">
           <Box className="formfield">
             <Stack useFlexGap spacing={2}>
-              <Typography variant="h5">Generate QR Art</Typography>
+              <Typography 
+                variant="h5"
+                align={isMobile ? "center" : "left"} >
+                  Generate QR Art
+                  </Typography>
               <TextField
                 required
                 id="website"
@@ -194,6 +198,8 @@ function Generate() {
                 color="secondary"
                 name="qr_weight"
                 onChange={handleInputChange}
+                sx={{width:"90%", margin:"auto"}}
+
               />
               <Typography variant="subtitle2" align="center">
                 Stable Diffusion Model
