@@ -16,6 +16,8 @@ import {
   Tooltip,
   InputAdornment,
 } from "@mui/material";
+
+
 import AutoFixHighTwoToneIcon from "@mui/icons-material/AutoFixHighTwoTone";
 import CasinoTwoToneIcon from "@mui/icons-material/CasinoTwoTone";
 import DownloadTwoToneIcon from "@mui/icons-material/DownloadTwoTone";
@@ -220,20 +222,23 @@ function Generate() {
                   )?.name
                 }
               </Button>
-
             </Stack>
           </Box>
-          <Fab
-            variant="extended"
-            disabled={submitDisabled || loadingGeneratedImage}
-            size="large"
+          <Button
+            variant="contained"
             color="primary"
+            disabled={submitDisabled || loadingGeneratedImage}
             aria-label="generate"
             onClick={(e) => handleGenerate()}
           >
-            <AutoFixHighTwoToneIcon sx={{ mr: 1 }} />
-            Generate
-          </Fab>
+            <Typography variant="body1" component="div">
+              Generate QR Code ( 1
+              <IconButton size="small">
+                <DiamondTwoToneIcon />
+              </IconButton>
+              )
+            </Typography>
+          </Button>
         </Box>
       ) : (
         <></>
