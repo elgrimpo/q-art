@@ -2,6 +2,8 @@
 import { Dialog, DialogContent, Typography } from "@mui/material";
 import { useEffect } from "react";
 import Masonry from "@mui/lab/Masonry";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import theme from "../../styles/mui-theme";
 
 // App imports
 import { useImages } from "../../context/AppProvider";
@@ -13,18 +15,19 @@ function SdModelsModal(props) {
 
   const { sd_models } = useImages();
   const { getSdModels } = useGenerateUtils();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   useEffect(() => {
     getSdModels();
   }, []);
 
   return (
-    <Dialog maxWidth="xl" open={open} onClose={handleClose}>
-      <DialogContent>
+    <Dialog fullScreen={isMobile} maxWidth="xl" open={open} onClose={handleClose}>
+      <DialogContent sx={{padding: {xs: "0px", sm: "1rem"}}} align="center">
         <Typography variant="h5" align="center" style={{ margin: "1rem 0" }}>
           Stable Diffusion Models
         </Typography>
-        <Masonry direction="row" columns={3} spacing={3} sx={{ mb: "1.5rem" }}>
+        <Masonry  direction="row" columns={{xs:1, sm:2, md: 2, lg: 3, xl:3}} spacing={{xs:2, sm:2, md:2, lg:3, xl:3}} sx={{ mb: "1.5rem" }} >
           {sd_models.length > 0
             ? sd_models.map((item, index) => (
                 <SdModelCard

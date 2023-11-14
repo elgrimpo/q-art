@@ -60,7 +60,7 @@ function SdModelCard(props) {
               display="block"
               style={{ wordWrap: "break-word", margin: "1rem 0" }}
             >
-              {item?.sd_name}
+              {item?.name}
             </Typography>
             {/* <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
               {item?.tags.map((tag, index) => (

@@ -33,7 +33,7 @@ import { useImageUtils } from "../../utils/ImageUtils";
 import { useGenerateUtils } from "../../utils/GenerateUtils";
 
 function Generate() {
-  const { generatedImage, loadingGeneratedImage, generateFormValues } =
+  const { generatedImage, loadingGeneratedImage, generateFormValues, sd_models } =
     useImages();
   const [submitDisabled, setSubmitDisabled] = useState(true);
   const { downloadImage } = useImageUtils();
@@ -43,7 +43,7 @@ function Generate() {
 
   // Modules Modal
   const [open, setOpen] = useState(false);
-  const [formSubmitted, setFormSubmitted] = useState(true);
+  const [formSubmitted, setFormSubmitted] = useState(false);
   const handleModelSelection = (sd_model) => {
     selectSdModel(sd_model);
     setOpen(false);
@@ -211,7 +211,7 @@ function Generate() {
                 color="secondary"
                 onClick={handleClickOpen}
               >
-                {generateFormValues.sd_model}
+                {sd_models.find(model => model.sd_name === generateFormValues.sd_model).name}
               </Button>
             </Stack>
           </Box>
