@@ -83,12 +83,13 @@ html {
 
 
 .image-container {
+  flex: 2;
   height: 100%;
   padding: 2rem 2rem 2rem 0rem
 }
 
 .image-card {
-  flex: 2;
+  
   padding: 2rem 2rem 2rem 2rem;
   align-items: center;
   height: 100%;
