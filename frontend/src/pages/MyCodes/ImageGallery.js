@@ -94,7 +94,7 @@ function ImageGallery(props) {
   };
 
   return (
-    <Box sx={{padding:"1rem"}}>
+    <Box sx={{padding:{xs:"0.5rem", sm:"1rem"}}}>
       {/*------ Images List ------*/}
       <Grid
         container
@@ -102,7 +102,7 @@ function ImageGallery(props) {
         justifyContent="center"
         alignItems="stretch"
         columns={{xs:1, sm:2, md:2, lg:3, xl:4}}
-        spacing={3}
+        spacing={{xs:1, sm:2, md:2, lg:3, xl:3}}
         sx={{ mb: "1.5rem" }}
       >
         {images &&
