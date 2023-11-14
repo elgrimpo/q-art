@@ -1,128 +1,218 @@
 // Libraries imports
 import {
   Paper,
+  Fab,
   Backdrop,
-  IconButton,
   List,
   ListItemText,
   Typography,
+  Box,
+  CardMedia,
 } from "@mui/material";
 import ChevronRightTwoToneIcon from "@mui/icons-material/KeyboardArrowRightTwoTone";
 import ChevronLeftTwoToneIcon from "@mui/icons-material/ChevronLeftTwoTone";
-
+import CloseTwoToneIcon from "@mui/icons-material/CloseTwoTone";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import theme from "../../styles/mui-theme";
 //App imports
 import { useImages } from "../../context/AppProvider";
 
 function ImagesModal(props) {
   const { userImages, communityImages } = useImages();
-  const { open, index, handleClose, handleNext, handlePrevious, imageType } = props;
-  const image = imageType === 'userImages' ? userImages[index] : communityImages[index];
+  const { open, index, handleClose, handleNext, handlePrevious, imageType } =
+    props;
+  const isFullScreen = useMediaQuery(theme.breakpoints.down("lg"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
+  const image =
+    imageType === "userImages" ? userImages[index] : communityImages[index];
 
   return (
     <Backdrop
-      sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+      sx={{
+        color: "#fff",
+        width: "100%",
+        zIndex: (theme) => theme.zIndex.drawer + 1,
+      }}
       open={open}
       onClick={handleClose}
     >
-      <IconButton
+      {/* ---- Navigation Buttons */}
+      <Fab
+        color="primary"
+        aria-label="previous"
+        size="medium"
         sx={{
           borderRadius: "20px",
-          backgroundColor: "#70E195",
           margin: "1rem",
+          position: "absolute",
+          bottom: { xs: "1rem", lg: "auto" },
+          left: { xs: "1rem", lg: "0.5rem", xl: "0.5rem" },
+          zIndex: "1",
         }}
         onClick={handlePrevious}
       >
         <ChevronLeftTwoToneIcon />
-      </IconButton>
+      </Fab>
+
+      <Fab
+        color="primary"
+        variant="circular"
+        size="medium"
+        aria-label="next"
+        sx={{
+          borderRadius: "20px",
+          margin: "1rem",
+          position: { xs: "absolute" },
+          bottom: { xs: "1rem", lg: "auto" },
+          right: { xs: "1rem", lg: "0.5rem", xl: "0.5rem" },
+          zIndex: "1",
+        }}
+        onClick={handleNext}
+      >
+        <ChevronRightTwoToneIcon />
+      </Fab>
+
+      {isFullScreen && (
+        <Fab
+          color="primary"
+          aria-label="close"
+          size="medium"
+          sx={{
+            borderRadius: "20px",
+            margin: "1rem",
+            position: "absolute",
+            bottom: { xs: "1rem" },
+            left: { xs: "auto" },
+            zIndex: "1",
+          }}
+          onClick={handleClose}
+        >
+          <CloseTwoToneIcon />
+        </Fab>
+      )}
+
       <Paper
         elevation={10}
         sx={{
-          width: "80%",
-          maxWidth: "1200px",
-          height: "80%",
+          width: { xs: "100%", lg: "85%", xl: "90%" },
+          maxWidth: "1400px",
+          height: { xs: "100%", lg: "90%" },
           backgroundColor: "#ffffff",
           display: "flex",
-          flexDirection: "row",
-          borderRadius: "16px",
+          flexDirection: { xs: "column", md: "row" },
+          borderRadius: { xs: "0px", lg: "16px" },
+          overflowY: { xs: "scroll", md: "hidden" },
         }}
       >
         <div
           style={{
-            height: "100%",
-            aspectRatio: "1/1",
+            maxHeight: "100%",
             backgroundColor: "#70E195",
             display: "flex",
-            borderRadius: "16px 0px 0px 16px",
+            borderRadius: { xs: "0px", lg: "16px 0px 0px 16px" },
+            maxWidth: "100%",
+
+            flex: "2",
           }}
         >
-          <img
-            src={image?.image_url}
-            style={{
-              height: "90%",
-              objectFit: "contain",
+          <Box
+            sx={{
+              objectFit: "fill",
+              aspectRatio: "1/1",
               margin: "auto",
-              borderRadius: "16px",
+              padding: { xs: "0rem", md: "0rem", lg: "2rem" },
+              borderRadius: { xs: "0px", lg: "16px" },
+              width: "100%",
             }}
-          />
+          >
+            <CardMedia
+              component="img"
+              image={image?.image_url}
+              sx={{
+                zIndex: "1",
+
+                objectFit: "fill",
+                // aspectRatio: "1/1",
+                borderRadius: { xs: "0px", lg: "16px" },
+                width: "100%",
+              }}
+            />
+          </Box>
         </div>
-        <div
-          style={{
+        {/* ------ Sidebard ------ */}
+        <Box
+          sx={{
+            flex: "1",
             height: "100%",
             padding: "3rem",
-            boxSizing: "border-box",
+            minWidth: "230px",
             display: "flex",
             flexDirection: "column",
-            overflow: "scroll",
+            justifyContent: 'center',
+            overflow: {md: "scroll"},
           }}
         >
-          <Typography variant="h5" align="left">
+          <div style={{maxHeight:"100%"}}>
+          
+          <Typography variant="h5" align={isMobile ? "center" : "left"}>
             Image Details
           </Typography>
           <List>
             <ListItemText
               primary="Date created"
               secondary={image?.created_at}
+              align={isMobile ? "center" : "left"}
             />
-            <ListItemText primary="QR Content" secondary={image?.content} />
-            <ListItemText primary="Prompt" secondary={image?.prompt} />
+            <ListItemText
+              primary="QR Content"
+              secondary={image?.content}
+              align={isMobile ? "center" : "left"}
+            />
+            <ListItemText
+              primary="Prompt"
+              secondary={image?.prompt}
+              align={isMobile ? "center" : "left"}
+            />
             <ListItemText
               primary="Negative prompt"
               secondary={image?.negative_prompt}
+              align={isMobile ? "center" : "left"}
             />
-            <ListItemText primary="Seed" secondary={image?.seed} />
+            <ListItemText
+              primary="Seed"
+              secondary={image?.seed}
+              align={isMobile ? "center" : "left"}
+            />
             <ListItemText
               primary="Image Quality"
               secondary={`${image?.image_quality} (${image?.steps} sampling steps)`}
+              align={isMobile ? "center" : "left"}
             />
             <ListItemText
               primary="Image Dimensions"
               secondary={`${image?.width} x ${image?.height} px`}
+              align={isMobile ? "center" : "left"}
             />
             <ListItemText
               primary="QR Code Weight"
               secondary={image?.qr_weight}
+              align={isMobile ? "center" : "left"}
             />
             <ListItemText
               primary="Stable Diffusion Model"
               secondary={image?.sd_model}
+              align={isMobile ? "center" : "left"}
             />
             <ListItemText
               primary="Image Id"
               secondary={image?._id}
+              align={isMobile ? "center" : "left"}
             />
           </List>
-        </div>
+          </div>
+        </Box>
       </Paper>
-      <IconButton
-        sx={{
-          borderRadius: "20px",
-          backgroundColor: "#70E195",
-          margin: "1rem",
-        }}
-        onClick={handleNext}
-      >
-        <ChevronRightTwoToneIcon />
-      </IconButton>
     </Backdrop>
   );
 }
