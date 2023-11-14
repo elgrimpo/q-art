@@ -65,7 +65,6 @@ function ImageGallery(props) {
       }
     };
   }, [images, loading]);
-
   // --------- Modal ----------
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
   const [open, setOpen] = useState(false);
@@ -129,8 +128,9 @@ function ImageGallery(props) {
         direction="row"
         justifyContent="center"
         alignItems="stretch"
-        columns={8}
-        spacing={3}
+        columns={{xs:1, sm:2, md:2, lg:3, xl:4}}
+        spacing={{xs:1, sm:2, md:2, lg:3, xl:3}}
+        sx={{ mb: "1.5rem" }}
       >
         {loading > 0 &&
           Array.from({ length: 12 }, (_, index) => index).map((_, index) => (
