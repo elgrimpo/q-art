@@ -34,7 +34,7 @@ function ImageCard(props) {
 
   const handleCopy = (item) => {
     copyGenerateFormValues(item)
-    setTabValue("1");
+    setTabValue("Generate");
   };
 
 
