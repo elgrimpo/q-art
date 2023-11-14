@@ -15,22 +15,22 @@ import {
   BottomNavigation,
   BottomNavigationAction,
 } from "@mui/material";
-import RestoreIcon from "@mui/icons-material/Restore";
-import FavoriteIcon from "@mui/icons-material/Favorite";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
+import AutoFixHighTwoToneIcon from "@mui/icons-material/AutoFixHighTwoTone";
+import ImageTwoToneIcon from '@mui/icons-material/ImageTwoTone';
+import Diversity1TwoToneIcon from '@mui/icons-material/Diversity1TwoTone';
 import CloseIcon from "@mui/icons-material/Close";
 import { useEffect } from "react";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import theme from "./styles/mui-theme";
 
 // App imports
 import { useImages } from "./context/AppProvider";
 import "./styles/App.css";
-import theme from "./styles/mui-theme";
 import Generate from "./pages/Generate/Generate";
 import logo from "./assets/logo.png";
 import AccountMenu from "./pages/Home/AccountMenu";
 import ImageGallery from "./pages/MyCodes/ImageGallery";
 import { useUtils } from "./utils/utils";
-import useMediaQuery from "@mui/material/useMediaQuery";
 
 function App() {
   const [value, setValue] = React.useState("Generate");
@@ -127,17 +127,17 @@ function App() {
             <BottomNavigationAction
               value="Generate"
               label="Generate"
-              icon={<RestoreIcon />}
+              icon={<AutoFixHighTwoToneIcon />}
             />
             <BottomNavigationAction
               value="My codes"
               label="My codes"
-              icon={<FavoriteIcon />}
+              icon={<ImageTwoToneIcon />}
             />
             <BottomNavigationAction
               value="Explore"
               label="Explore"
-              icon={<LocationOnIcon />}
+              icon={<Diversity1TwoToneIcon />}
             />
           </BottomNavigation>}
         </div>
