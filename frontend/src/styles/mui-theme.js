@@ -46,6 +46,7 @@ const theme = createTheme({
                     fontStyle: 'italic',
                     fontSize: '1.2rem',
                     margin: '0.5rem',
+                    padding: "0px",
                     '&.Mui-selected': {
                         
                                 fontFamily: "Roboto Serif",
@@ -65,7 +66,12 @@ const theme = createTheme({
                         backgroundColor: 'rgba(0, 0, 0, 0);' 
                       }
                     }
-                  }
+                  },
+                  MuiTabPanel: {
+                    styleOverrides: {
+                        root: {
+                            padding: "0px"
+                        }}}
             }
         
     

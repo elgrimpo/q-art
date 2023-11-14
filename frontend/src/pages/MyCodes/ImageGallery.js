@@ -1,5 +1,5 @@
 // Libraries imports
-import { Grid } from "@mui/material";
+import { Grid, Box } from "@mui/material";
 import { useState, useEffect, useRef } from "react";
 
 // App imports
@@ -94,14 +94,14 @@ function ImageGallery(props) {
   };
 
   return (
-    <div>
+    <Box sx={{padding:"1rem"}}>
       {/*------ Images List ------*/}
       <Grid
         container
         direction="row"
         justifyContent="center"
         alignItems="stretch"
-        columns={8}
+        columns={{xs:1, sm:2, md:2, lg:3, xl:4}}
         spacing={3}
         sx={{ mb: "1.5rem" }}
       >
@@ -120,7 +120,7 @@ function ImageGallery(props) {
 
       {/* Trigger for loading more images */}
       {!loading && page >= 0 && (
-        <div ref={loadMoreRef}></div>
+        <div ref={loadMoreRef} style={{height: "10px"}}></div>
       )}
 
       {/*------ Placeholder Cards ------*/}
@@ -153,7 +153,7 @@ function ImageGallery(props) {
           imageType={imageType}
         />
       )}
-    </div>
+    </Box>
   );
 }
 

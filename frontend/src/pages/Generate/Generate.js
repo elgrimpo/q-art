@@ -211,7 +211,7 @@ function Generate() {
                 color="secondary"
                 onClick={handleClickOpen}
               >
-                {sd_models.find(model => model.sd_name === generateFormValues.sd_model).name}
+                {sd_models?.find(model => model.sd_name === generateFormValues.sd_model)?.name}
               </Button>
             </Stack>
           </Box>

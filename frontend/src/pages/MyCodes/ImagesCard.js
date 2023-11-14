@@ -39,13 +39,13 @@ function ImageCard(props) {
 
 
   return (
-    <Grid item md={2} key={index}>
+    <Grid item xs={1} key={index}>
       {" "}
       <Card
         elevation={0}
         key={index}
         sx={{
-          padding: "1.2rem",
+          padding: {xs:"0 0 1rem 0", md: "1.2rem"},
           backgroundColor: primaryColor,
           borderRadius: "5px",
         }}
