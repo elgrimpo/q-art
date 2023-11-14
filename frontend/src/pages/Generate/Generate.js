@@ -22,7 +22,6 @@ import DownloadTwoToneIcon from "@mui/icons-material/DownloadTwoTone";
 import DeleteForeverTwoToneIcon from "@mui/icons-material/DeleteForeverTwoTone";
 import DiamondTwoToneIcon from "@mui/icons-material/DiamondTwoTone";
 
-
 import useMediaQuery from "@mui/material/useMediaQuery";
 import theme from "../../styles/mui-theme";
 
@@ -33,8 +32,12 @@ import { useImageUtils } from "../../utils/ImageUtils";
 import { useGenerateUtils } from "../../utils/GenerateUtils";
 
 function Generate() {
-  const { generatedImage, loadingGeneratedImage, generateFormValues, sd_models } =
-    useImages();
+  const {
+    generatedImage,
+    loadingGeneratedImage,
+    generateFormValues,
+    sd_models,
+  } = useImages();
   const [submitDisabled, setSubmitDisabled] = useState(true);
   const { downloadImage } = useImageUtils();
   const { generateImage, selectSdModel, handleInputChange } =
@@ -211,8 +214,13 @@ function Generate() {
                 color="secondary"
                 onClick={handleClickOpen}
               >
-                {sd_models?.find(model => model.sd_name === generateFormValues.sd_model)?.name}
+                {
+                  sd_models?.find(
+                    (model) => model.sd_name === generateFormValues.sd_model
+                  )?.name
+                }
               </Button>
+
             </Stack>
           </Box>
           <Fab
@@ -234,70 +242,76 @@ function Generate() {
       {/*------ QR Image ------*/}
       {!isMobile || (isMobile && formSubmitted) ? (
         <div className="image-container">
-        <div className="image-card" elevation={0}>
-          {isMobile && <Typography variant="h5" align="center" sx={{ mb: "1rem", mt: "1rem" }}>
-            Your QR Art
-          </Typography>}
-          {loadingGeneratedImage ? (
-            <Box className="loading-box">
-              <CircularProgress color="secondary" />
-            </Box>
-          ) : (
-            <CardMedia
-              component="img"
-              image={generatedImage.image_url}
-              sx={{
-                borderRadius: { md: "12px" },
-                maxHeight: {
-                  xs: "calc(100% - 200px)",
-                  lg: "calc(100% - 90px)",
-                },
-                objectFit: "contain",
-              }}
-            />
-          )}
-          <Stack
-            direction="row"
-            justifyContent="center"
-            alignItems="center"
-            spacing={3}
-            sx={{mt:"1rem"}}
-
-          >
-            <Tooltip title="Download image">
-              <IconButton onClick={() => downloadImage(generatedImage)}>
-                <DownloadTwoToneIcon />
-              </IconButton>
-            </Tooltip>
-
-            <Tooltip title="Delete image">
-              <IconButton>
-                <DeleteForeverTwoToneIcon />
-              </IconButton>
-            </Tooltip>
-
-            {generatedImage.width === 512 && (
-              <Tooltip title="Upscale resolution to 1024 x 1024">
-                <IconButton>
-                  <DiamondTwoToneIcon />
+          <div className="image-card" elevation={0}>
+            {isMobile && (
+              <Typography
+                variant="h5"
+                align="center"
+                sx={{ mb: "1rem", mt: "1rem" }}
+              >
+                Your QR Art
+              </Typography>
+            )}
+            {loadingGeneratedImage ? (
+              <Box className="loading-box">
+                <CircularProgress color="secondary" />
+              </Box>
+            ) : (
+              <CardMedia
+                component="img"
+                image={generatedImage.image_url}
+                sx={{
+                  borderRadius: { md: "12px" },
+                  maxHeight: {
+                    xs: "calc(100% - 200px)",
+                    md: "calc(100% - 90px)",
+                  },
+                  objectFit: "contain",
+                }}
+              />
+            )}
+            <Stack
+              direction="row"
+              justifyContent="center"
+              alignItems="center"
+              spacing={3}
+              sx={{ mt: "1rem" }}
+            >
+              <Tooltip title="Download image">
+                <IconButton onClick={() => downloadImage(generatedImage)}>
+                  <DownloadTwoToneIcon />
                 </IconButton>
               </Tooltip>
-            )}
-          </Stack>
 
-          {isMobile && !loadingGeneratedImage && (
-            <Fab
-              variant="extended"
-              size="medium"
-              color="secondary"
-              sx={{ margin: "24px" }}
-              aria-label="share"
-              onClick={() => handleFormUnsubmit()}
-            >
-              Make another one
-            </Fab>
-          )}
-        </div></div>
+              <Tooltip title="Delete image">
+                <IconButton>
+                  <DeleteForeverTwoToneIcon />
+                </IconButton>
+              </Tooltip>
+
+              {generatedImage.width === 512 && (
+                <Tooltip title="Upscale resolution to 1024 x 1024">
+                  <IconButton>
+                    <DiamondTwoToneIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+            </Stack>
+
+            {isMobile && !loadingGeneratedImage && (
+              <Fab
+                variant="extended"
+                size="medium"
+                color="secondary"
+                sx={{ margin: "24px" }}
+                aria-label="share"
+                onClick={() => handleFormUnsubmit()}
+              >
+                Make another one
+              </Fab>
+            )}
+          </div>
+        </div>
       ) : (
         <></>
       )}

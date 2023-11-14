@@ -19,12 +19,11 @@ export const ActionTypes = {
 
   // Models
   SET_LOADING_SD_MODELS: "SET_LOADING_SD_MODELS",
-  SET_SD_MODELS: "SET_SD_MODELS", 
+  SET_SD_MODELS: "SET_SD_MODELS",
 
   // Alert
   OPEN_ALERT: "OPEN_ALERT",
   CLOSE_ALERT: "CLOSE_ALERT",
-  
 };
 
 export const initialState = {
@@ -36,7 +35,8 @@ export const initialState = {
     created_at: "-",
     content: "-",
     prompt: "-",
-    image_url: "https://qrartimages.s3.us-west-1.amazonaws.com/654f3d47bef0549f910f70ca.png",
+    image_url:
+      "https://qrartimages.s3.us-west-1.amazonaws.com/654f3d47bef0549f910f70ca.png",
     seed: "-",
   },
   loadingGeneratedImage: false,
@@ -47,7 +47,7 @@ export const initialState = {
     qr_weight: 0.0,
     negative_prompt: "",
     seed: -1,
-    sd_model: "dreamshaper_6BakedVae_54299.safetensors"
+    sd_model: "dreamshaper_8_93211.safetensors",
   },
 
   // User Images
@@ -62,25 +62,28 @@ export const initialState = {
 
   // Models
   loadingSdModels: false,
-  sd_models: [],
+  sd_models: [
+    {
+      sd_model: "dreamshaper_8_93211.safetensors",
+      name: "DreamShaper",
+    },
+  ],
 
   // Alert
   alertOpen: false,
   alertSeverity: "",
-  alertMessage: ""   
-
+  alertMessage: "",
 };
 
 export const imagesReducer = (state, action) => {
   switch (action.type) {
-
     // User
     case ActionTypes.SET_LOGGED_IN:
       return { ...state, isLoggedIn: action.payload };
     case ActionTypes.SET_USER:
       return { ...state, user: action.payload };
 
-    // Generate 
+    // Generate
     case ActionTypes.SET_GENERATED_IMAGE:
       return { ...state, generatedImage: action.payload };
     case ActionTypes.SET_LOADING_GENERATED_IMAGE:
@@ -104,18 +107,28 @@ export const imagesReducer = (state, action) => {
     case ActionTypes.SET_COMMUNITY_IMAGES_PAGE:
       return { ...state, communityImagesPage: action.payload };
 
-      // Models 
+    // Models
     case ActionTypes.SET_LOADING_SD_MODELS:
-      return {...state, loadingSdModels: action.payload};
+      return { ...state, loadingSdModels: action.payload };
     case ActionTypes.SET_SD_MODELS:
-      return {...state, sd_models: action.payload};
+      return { ...state, sd_models: action.payload };
 
-      // Alert
-      case ActionTypes.OPEN_ALERT:
-        return {...state, alertOpen: true, alertSeverity: action.payload.severity, alertMessage: action.payload.message};
-      case ActionTypes.CLOSE_ALERT:
-        return {...state, alertOpen: false, alertSeverity: "", alertMessage: ""};
-  
+    // Alert
+    case ActionTypes.OPEN_ALERT:
+      return {
+        ...state,
+        alertOpen: true,
+        alertSeverity: action.payload.severity,
+        alertMessage: action.payload.message,
+      };
+    case ActionTypes.CLOSE_ALERT:
+      return {
+        ...state,
+        alertOpen: false,
+        alertSeverity: "",
+        alertMessage: "",
+      };
+
     default:
       return state;
   }
