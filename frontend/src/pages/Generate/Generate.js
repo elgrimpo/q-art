@@ -18,6 +18,11 @@ import {
 } from "@mui/material";
 import AutoFixHighTwoToneIcon from "@mui/icons-material/AutoFixHighTwoTone";
 import CasinoTwoToneIcon from "@mui/icons-material/CasinoTwoTone";
+import DownloadTwoToneIcon from "@mui/icons-material/DownloadTwoTone";
+import DeleteForeverTwoToneIcon from "@mui/icons-material/DeleteForeverTwoTone";
+import DiamondTwoToneIcon from "@mui/icons-material/DiamondTwoTone";
+
+
 import useMediaQuery from "@mui/material/useMediaQuery";
 import theme from "../../styles/mui-theme";
 
@@ -38,7 +43,7 @@ function Generate() {
 
   // Modules Modal
   const [open, setOpen] = useState(false);
-  const [formSubmitted, setFormSubmitted] = useState(false);
+  const [formSubmitted, setFormSubmitted] = useState(true);
   const handleModelSelection = (sd_model) => {
     selectSdModel(sd_model);
     setOpen(false);
@@ -93,11 +98,9 @@ function Generate() {
         <Box className="sidebar">
           <Box className="formfield">
             <Stack useFlexGap spacing={2}>
-              <Typography 
-                variant="h5"
-                align={isMobile ? "center" : "left"} >
-                  Generate QR Art
-                  </Typography>
+              <Typography variant="h5" align={isMobile ? "center" : "left"}>
+                Generate QR Art
+              </Typography>
               <TextField
                 required
                 id="website"
@@ -198,8 +201,7 @@ function Generate() {
                 color="secondary"
                 name="qr_weight"
                 onChange={handleInputChange}
-                sx={{width:"90%", margin:"auto"}}
-
+                sx={{ width: "90%", margin: "auto" }}
               />
               <Typography variant="subtitle2" align="center">
                 Stable Diffusion Model
@@ -231,40 +233,71 @@ function Generate() {
 
       {/*------ QR Image ------*/}
       {!isMobile || (isMobile && formSubmitted) ? (
+        <div className="image-container">
+        <div className="image-card" elevation={0}>
+          {isMobile && <Typography variant="h5" align="center" sx={{ mb: "1rem", mt: "1rem" }}>
+            Your QR Art
+          </Typography>}
+          {loadingGeneratedImage ? (
+            <Box className="loading-box">
+              <CircularProgress color="secondary" />
+            </Box>
+          ) : (
+            <CardMedia
+              component="img"
+              image={generatedImage.image_url}
+              sx={{
+                borderRadius: { md: "12px" },
+                maxHeight: {
+                  xs: "calc(100% - 200px)",
+                  lg: "calc(100% - 90px)",
+                },
+                objectFit: "contain",
+              }}
+            />
+          )}
+          <Stack
+            direction="row"
+            justifyContent="center"
+            alignItems="center"
+            spacing={3}
+            sx={{mt:"1rem"}}
 
-          <div className="image-container" elevation={0}>
-            {loadingGeneratedImage ? (
-              <Box className="loading-box">
-                <CircularProgress color="secondary" />
-              </Box>
-            ) : (
-              <CardMedia
-                component="img"
-                image={generatedImage.image_url}
-                sx={{
-                  borderRadius: "12px",
-                  maxHeight: "calc(100% - 90px)",
-                  objectFit: "contain",
-                }}
-              />
+          >
+            <Tooltip title="Download image">
+              <IconButton onClick={() => downloadImage(generatedImage)}>
+                <DownloadTwoToneIcon />
+              </IconButton>
+            </Tooltip>
+
+            <Tooltip title="Delete image">
+              <IconButton>
+                <DeleteForeverTwoToneIcon />
+              </IconButton>
+            </Tooltip>
+
+            {generatedImage.width === 512 && (
+              <Tooltip title="Upscale resolution to 1024 x 1024">
+                <IconButton>
+                  <DiamondTwoToneIcon />
+                </IconButton>
+              </Tooltip>
             )}
-            <Button variant="filled" color="secondary" sx={{ margin: "24px" }}>
-              Download
-            </Button>
+          </Stack>
 
-            {isMobile && !loadingGeneratedImage &&
-              <Fab
-                variant="extended"
-                size="medium"
-                color="secondary"
-                sx={{ margin: "24px" }}
-                aria-label="share"
-                onClick={() => handleFormUnsubmit()}
-              >
-                Make another one
-              </Fab>
-            }
-          </div>
+          {isMobile && !loadingGeneratedImage && (
+            <Fab
+              variant="extended"
+              size="medium"
+              color="secondary"
+              sx={{ margin: "24px" }}
+              aria-label="share"
+              onClick={() => handleFormUnsubmit()}
+            >
+              Make another one
+            </Fab>
+          )}
+        </div></div>
       ) : (
         <></>
       )}
