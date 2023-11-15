@@ -17,13 +17,10 @@ import {
   InputAdornment,
 } from "@mui/material";
 
-
-import AutoFixHighTwoToneIcon from "@mui/icons-material/AutoFixHighTwoTone";
 import CasinoTwoToneIcon from "@mui/icons-material/CasinoTwoTone";
 import DownloadTwoToneIcon from "@mui/icons-material/DownloadTwoTone";
 import DeleteForeverTwoToneIcon from "@mui/icons-material/DeleteForeverTwoTone";
 import DiamondTwoToneIcon from "@mui/icons-material/DiamondTwoTone";
-
 import useMediaQuery from "@mui/material/useMediaQuery";
 import theme from "../../styles/mui-theme";
 
@@ -32,6 +29,7 @@ import { useImages } from "../../context/AppProvider";
 import SdModelsModal from "./SdModelsModal";
 import { useImageUtils } from "../../utils/ImageUtils";
 import { useGenerateUtils } from "../../utils/GenerateUtils";
+import { priceList, useUtils } from "../../utils/utils";
 
 function Generate() {
   const {
@@ -39,7 +37,9 @@ function Generate() {
     loadingGeneratedImage,
     generateFormValues,
     sd_models,
+    user
   } = useImages();
+  const { calculateCredits } = useUtils();
   const [submitDisabled, setSubmitDisabled] = useState(true);
   const { downloadImage } = useImageUtils();
   const { generateImage, selectSdModel, handleInputChange } =
@@ -49,14 +49,17 @@ function Generate() {
   // Modules Modal
   const [open, setOpen] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [price, setPrice] = useState(
+    calculateCredits("imageQuality", generateFormValues.image_quality)
+  );
   const handleModelSelection = (sd_model) => {
     selectSdModel(sd_model);
     setOpen(false);
   };
 
   const handleGenerate = () => {
-    generateImage(generateFormValues);
-    setFormSubmitted(true);
+      generateImage(generateFormValues);
+      setFormSubmitted(true);
   };
 
   const handleFormUnsubmit = () => {
@@ -88,13 +91,23 @@ function Generate() {
   };
 
   //Submit
-  useEffect(() => {
-    if (generateFormValues.website && generateFormValues.prompt) {
-      setSubmitDisabled(false);
-    } else {
-      setSubmitDisabled(true);
-    }
-  }, [generateFormValues]);
+  useEffect(
+    () => {
+      const newPrice = calculateCredits(
+        "imageQuality",
+        generateFormValues.image_quality
+      );
+      if (newPrice !== price) {
+        setPrice(newPrice);
+      }
+      if (generateFormValues.website && generateFormValues.prompt) {
+        setSubmitDisabled(false);
+      } else {
+        setSubmitDisabled(true);
+      }
+    },
+    [generateFormValues]
+  );
 
   return (
     <div className="generate-page">
@@ -232,7 +245,7 @@ function Generate() {
             onClick={(e) => handleGenerate()}
           >
             <Typography variant="body1" component="div">
-              Generate QR Code ( 1
+              Generate QR Code ( {price}
               <IconButton size="small">
                 <DiamondTwoToneIcon />
               </IconButton>
@@ -289,6 +302,7 @@ function Generate() {
               </Tooltip>
 
               <Tooltip title="Delete image">
+                {/* TODO: Delete only user Images */}
                 <IconButton>
                   <DeleteForeverTwoToneIcon />
                 </IconButton>

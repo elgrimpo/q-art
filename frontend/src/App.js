@@ -34,7 +34,7 @@ import { useUtils } from "./utils/utils";
 
 function App() {
   const [value, setValue] = React.useState("Generate");
-  const { user, alertOpen, alertSeverity, alertMessage } = useImages();
+  const { user, alertOpen, alertSeverity, alertMessage, generatedImage } = useImages();
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -50,7 +50,7 @@ function App() {
   // Check if user session exists
   useEffect(() => {
     getUserInfo();
-  }, []);
+  }, [generatedImage]);
 
   return (
     <ThemeProvider theme={theme}>

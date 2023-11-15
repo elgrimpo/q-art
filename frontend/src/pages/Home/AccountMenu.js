@@ -46,7 +46,7 @@ export default function AccountMenu(props) {
 
   return (
     <React.Fragment>
-      <Chip color="primary"  icon={<DiamondTwoToneIcon/>} label="100" />
+      <Chip color="primary"  icon={<DiamondTwoToneIcon/>} label={user.credits} />
       <Box sx={{ display: "flex", alignItems: "center", textAlign: "center" }}>
         <Tooltip title="Account settings">
           <IconButton

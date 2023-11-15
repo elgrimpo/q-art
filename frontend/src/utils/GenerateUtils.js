@@ -50,7 +50,7 @@ export const useGenerateUtils = () => {
           type: ActionTypes.SET_LOADING_GENERATED_IMAGE,
           payload: false,
         });
-        openAlert("error", "Image Generation Failed");
+        openAlert("error", `Image Generation Failed: ${err.response.data.detail}`);
         console.log(err);
       });
   };
