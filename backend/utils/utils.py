@@ -76,24 +76,26 @@ def prepare_doc( req, info, website, image_quality, qr_weight, user_id):
 def calculate_credits(service):
     price = {
         'image_quality': {
+            'none': 0,
             'low': 1,
             'medium': 2,
             'high': 3
         },
         'upscale_resize': {
-            'upscaling_resize': 2,
+            '0': 0,
+            '2': 2,
         }
     }
 
     total_credits = 0
 
     # Calculate credits based on image quality
-    image_quality = service.get('image_quality', 'medium')
+    image_quality = service.get('image_quality', 'none')
     total_credits += price['image_quality'].get(image_quality, 0)
 
     # Calculate credits based on upscale_resize
-    upscale_resize = service.get('upscale_resize', {}).get('upscaling_resize', 0)
-    total_credits += price['upscale_resize'].get('upscaling_resize', 0) * upscale_resize
+    upscale_resize = service.get('upscale_resize', "0")
+    total_credits += price['upscale_resize'].get(upscale_resize, 0)
 
     return total_credits
 

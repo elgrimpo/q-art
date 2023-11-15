@@ -60,9 +60,9 @@ async def insert_image(doc):
         raise HTTPException(status_code=409, detail=str(e))
 
 
-def update_image(document_id, update_data):
+async def update_image(document_id, update_data):
     try:
-        # Update the image doc with the provided data and retrieve the updated document
+        # print("5. Updating image...")
         updated_image = db["images"].find_one_and_update(
             {"_id": ObjectId(document_id)},
             {"$set": update_data},
@@ -70,20 +70,17 @@ def update_image(document_id, update_data):
         )
 
         if updated_image:
-            # Return a success response with details about the updated image
+            # print("6. Image doc updated")
             updated_image["_id"] = str(updated_image["_id"])
             return updated_image
             
         else:
-            # Return an error response if the document is not found
             return {
                 "message": f"Image with id {document_id} not found.",
             }
 
     except Exception as e:
         print(f"Error updating document: {str(e)}")
-
-        # Return an error response
         return {
             "message": f"Error updating document: {str(e)}",
         }

@@ -2,7 +2,6 @@
 import qrcode
 from dotenv import load_dotenv
 import os
-import requests as requests
 from novita_client import *
 import boto3
 import base64
@@ -160,20 +159,36 @@ async def predict(prompt, website, negative_prompt, seed, image_quality, qr_weig
     
 
 
-def upscale(image_id: str):
+async def upscale(image_id, user_id, request):
+    
+    # Calculate credits required
+    service_config = {
+        'upscale_resize': '2',
+    }
+    credits_required = calculate_credits(service_config)
+    print("credits_required")
+    print(credits_required)
+
+    # Check if the user has sufficient credits
+    user_data = users.find_one({"_id": ObjectId(user_id)})
+    if not sufficient_credit(user_data, service_config):
+        raise HTTPException(status_code=403, detail="Insufficient credits")
+    
     try:
         # Get the image from S3
         object_name = image_id + ".png"
-
+        # print("1: Getting image from S3")
         response = s3_client.get_object(Bucket=s3_bucket_name, Key=object_name)
         image_content = response['Body'].read()
         base64_image = base64.b64encode(image_content).decode()
 
         # Create UpscaleRequest
-        upscale_request = UpscaleRequest(image=base64_image, upscaling_resize=2.0)
         
+        upscale_request = UpscaleRequest(image=base64_image, upscaling_resize=2.0)
+        # print("2. Sending UpscaleRequest")
         # Send UpscaleRequest via novita-client
         upscale_response = client.sync_upscale(upscale_request)
+        # print("3. Updating image in S3")
 
         # Replace the S3 file with the upscaled version
         upscaled_image_content = upscale_response.data.imgs_bytes[0]
@@ -181,8 +196,18 @@ def upscale(image_id: str):
 
         # Update the image doc with updated "width" and "height" values
         update_data = {"width": 1024, "height": 1024}
-        updated_image = update_image(image_id, update_data)
-        return updated_image
 
+        # print("4. Updating image document")
+        updated_image = await update_image(image_id, update_data)
+        
+        # print("7. initiating increment_user_count")
+
+        # Increment User Count
+        await increment_user_count(user_id, service_config, credits_required, request)
+        # print("14. operation complete - returning image")
+
+        return updated_image
+    
     except Exception as e:
         print(f"Error during image upscaling: {str(e)}")
+        raise
