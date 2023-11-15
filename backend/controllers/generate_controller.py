@@ -40,7 +40,7 @@ s3_client = boto3.client(
 #Novita-Client Initialization
 client = NovitaClient(os.environ["NOVITA_KEY"])
 
-def predict(prompt, website, negative_prompt, seed, image_quality, qr_weight,sd_model, user_id, request):
+async def predict(prompt, website, negative_prompt, seed, image_quality, qr_weight,sd_model, user_id, request):
     
 
     # TODO: Check SDK if fixed
@@ -83,7 +83,7 @@ def predict(prompt, website, negative_prompt, seed, image_quality, qr_weight,sd_
     
     # Image Quality -> Steps
     if image_quality == "low":
-        steps = 10
+        steps = 13
     elif image_quality == "medium":
         steps = 20  
     elif image_quality == "high":
@@ -150,10 +150,10 @@ def predict(prompt, website, negative_prompt, seed, image_quality, qr_weight,sd_
     # Create Image Document
     doc = prepare_doc( req, info, website, image_quality, qr_weight, user_id)
     #print(doc)
-    inserted_image = insert_image(doc)
+    inserted_image = await insert_image(doc)
 
     # Increment User Count
-    increment_user_count(user_id, service_config, credits_required, request)
+    await increment_user_count(user_id, service_config, credits_required, request)
 
     return inserted_image
     

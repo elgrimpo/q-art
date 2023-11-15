@@ -30,7 +30,7 @@ s3_client = boto3.client(
 )
 
 
-def insert_image(doc):
+async def insert_image(doc):
     try:
         # Create new image document
         result = db["images"].insert_one(doc)
