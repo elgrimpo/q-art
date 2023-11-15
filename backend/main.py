@@ -11,6 +11,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
 
 
+
 # App imports
 from controllers.images_controller import get_images, delete_image
 from controllers.generate_controller import predict, upscale
@@ -64,9 +65,17 @@ async def generate_endpoint(
     )
 
 
-@app.get("/upscale/{id}")
-async def upscale_endpoint(id: str):
-    return upscale(id)
+@app.get("/upscale/{image_id}")
+async def upscale_endpoint(
+    image_id,
+    user_id,
+    request: Request,
+):
+    return await upscale(
+        image_id,
+        user_id,
+        request,
+    )
 
 
 # Images Routes
