@@ -6,11 +6,26 @@ import requests as requests
 from novita_client import *
 import boto3
 import base64
+from bson import ObjectId
+from fastapi import HTTPException, Query
+from starlette.requests import Request
+
+
+
 
 # App imports
 from controllers.images_controller import insert_image, update_image
-from utils.utils import readImage, prepare_doc, parse_seed
+from utils.utils import readImage, prepare_doc, parse_seed, calculate_credits, sufficient_credit
+from controllers.users_controller import increment_user_count
 
+from pymongo import MongoClient
+
+
+
+mongo_url = os.environ["MONGO_URL"]
+client = MongoClient(mongo_url, ssl=True, ssl_cert_reqs="CERT_NONE")
+db = client.get_database("QART")
+users = db.get_collection("users")
 
 load_dotenv()
 # S3
@@ -25,7 +40,7 @@ s3_client = boto3.client(
 #Novita-Client Initialization
 client = NovitaClient(os.environ["NOVITA_KEY"])
 
-def predict(prompt, website, negative_prompt, seed, image_quality, qr_weight,sd_model, user_id):
+def predict(prompt, website, negative_prompt, seed, image_quality, qr_weight,sd_model, user_id, request):
     
 
     # TODO: Check SDK if fixed
@@ -40,7 +55,20 @@ def predict(prompt, website, negative_prompt, seed, image_quality, qr_weight,sd_
     # print("Model:")
     # print(controlnet_model_1)
 
+
+    # Calculate credits required
+    service_config = {
+        'image_quality': image_quality,
+    }
+    credits_required = calculate_credits(service_config)
+
+    # Check if the user has sufficient credits
+    user_data = users.find_one({"_id": ObjectId(user_id)})
+    if not sufficient_credit(user_data, service_config):
+        raise HTTPException(status_code=403, detail="Insufficient credits")
+    
     # Create QR Code
+
     qr = qrcode.QRCode(
         version=1,
         error_correction=qrcode.constants.ERROR_CORRECT_H,
@@ -122,8 +150,14 @@ def predict(prompt, website, negative_prompt, seed, image_quality, qr_weight,sd_
     # Create Image Document
     doc = prepare_doc( req, info, website, image_quality, qr_weight, user_id)
     #print(doc)
-    inserted_image = insert_image(doc, user_id, image_quality)
+    inserted_image = insert_image(doc)
+
+    # Increment User Count
+    increment_user_count(user_id, service_config, credits_required, request)
+
     return inserted_image
+    
+    
 
 
 def upscale(image_id: str):

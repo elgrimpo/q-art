@@ -30,7 +30,7 @@ s3_client = boto3.client(
 )
 
 
-def insert_image(doc, user_id, image_quality):
+def insert_image(doc):
     try:
         # Create new image document
         result = db["images"].insert_one(doc)
@@ -54,20 +54,6 @@ def insert_image(doc, user_id, image_quality):
 
         inserted_image["_id"] = str(inserted_image["_id"])
 
-        # Increment user count for generated images
-        current_year = datetime.datetime.utcnow().year
-        current_month = datetime.datetime.utcnow().month
-
-        db["users"].update_one(
-            {"_id": ObjectId(user_id)},
-            {
-                "$inc": {
-                    f"image_counts.{current_year}.{current_month}.{image_quality}": 1
-                },
-                "$set": {"last_image_created_at": datetime.datetime.utcnow()},
-            },
-            upsert=True,
-        )
 
         return inserted_image
     except Exception as e:

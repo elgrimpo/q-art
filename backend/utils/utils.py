@@ -24,8 +24,6 @@ def parse_seed(metadata):
         return None
 
 def prepare_doc( req, info, website, image_quality, qr_weight, user_id):
-    
-    
     sampler_name = req.sampler_name
     control_mode_0 = req.controlnet_units[0].control_mode.value
     model_0 = req.controlnet_units[0].model
@@ -74,3 +72,37 @@ def prepare_doc( req, info, website, image_quality, qr_weight, user_id):
         },
     }
     return doc
+
+def calculate_credits(service):
+    price = {
+        'image_quality': {
+            'low': 1,
+            'medium': 2,
+            'high': 3
+        },
+        'upscale_resize': {
+            'upscaling_resize': 2,
+        }
+    }
+
+    total_credits = 0
+
+    # Calculate credits based on image quality
+    image_quality = service.get('image_quality', 'medium')
+    total_credits += price['image_quality'].get(image_quality, 0)
+
+    # Calculate credits based on upscale_resize
+    upscale_resize = service.get('upscale_resize', {}).get('upscaling_resize', 0)
+    total_credits += price['upscale_resize'].get('upscaling_resize', 0) * upscale_resize
+
+    return total_credits
+
+def sufficient_credit(user, service):
+    user_credits = user.get('credits', 0)
+    total_credits = calculate_credits(service)
+
+    return user_credits >= total_credits
+
+    
+
+    

@@ -41,7 +41,7 @@ app.add_middleware(
 async def generate_endpoint(
     prompt, website, negative_prompt, seed, image_quality, qr_weight, sd_model, user_id
 ):
-    return predict(prompt, website, negative_prompt, seed, image_quality, qr_weight, sd_model, user_id)
+    return predict(prompt, website, negative_prompt, seed, image_quality, qr_weight, sd_model, user_id, Request)
 
 @app.get("/upscale/{id}")
 async def upscale_endpoint(id: str):
