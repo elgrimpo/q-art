@@ -5,6 +5,8 @@ import requests as requests
 import cv2
 import datetime
 import re
+from datetime import datetime, timedelta
+from typing import Optional
 
 def readImage(path):
     img = cv2.imread(path)
@@ -106,5 +108,38 @@ def sufficient_credit(user, service):
     return user_credits >= total_credits
 
     
+def createImagesFilterQuery(
+    likes: Optional[str] = None,
+    time_period: Optional[str] = None,
+    sd_model: Optional[str] = None,
+    user_id: Optional[str] = None,
+    exclude_user_id: Optional[str] = None
+):
+    query = {}
 
-    
+    # Include / Exclude user_id
+    if user_id:
+        query["user_id"] = user_id
+    if exclude_user_id:
+        query["user_id"] = {"$ne": exclude_user_id}
+
+    # Time period
+    if time_period == "Today":
+        end_of_day = datetime.now()
+        start_of_day = end_of_day - timedelta(days=1)
+        query["created_at"] = {"$gte": start_of_day, "$lte": end_of_day}
+    elif time_period == "This Week":
+        end_of_week = datetime.now()
+        start_of_week = end_of_week - timedelta(weeks=1)
+        query["created_at"] = {"$gte": start_of_week, "$lte": end_of_week}
+    elif time_period == "This Month":
+        end_of_month = datetime.now()
+        start_of_month = end_of_month - timedelta(days=30)
+        query["created_at"] = {"$gte": start_of_month, "$lte": end_of_month}
+    elif time_period == "This Year":
+        end_of_year = datetime.now()
+        start_of_year = end_of_year - timedelta(days=365)
+        query["created_at"] = {"$gte": start_of_year, "$lte": end_of_year}
+
+
+    return query

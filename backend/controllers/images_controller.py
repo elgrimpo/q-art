@@ -11,6 +11,9 @@ from botocore.exceptions import ClientError
 from pymongo import DESCENDING, ASCENDING
 from typing import Optional
 
+# App imports
+from utils.utils import createImagesFilterQuery
+
 load_dotenv()
 
 # MongoDB
@@ -101,29 +104,23 @@ def get_images(
     page: int = Query(1, alias="page"),
     user_id: Optional[str] = None,
     exclude_user_id: Optional[str] = None,
-    sort_by: Optional[str] = "created_at",
-    sort_order: Optional[str] = "desc",
+    likes: Optional[str] = None,
+    time_period: Optional[str] = None,
+    sd_model: Optional[str] = None,
     images_per_page: int = 12,
 ):
     try:
+        query = createImagesFilterQuery(likes, time_period, sd_model, user_id, exclude_user_id)
+
         # Calculate the offset based on the current page
         offset = (page - 1) * images_per_page
 
-        # Define the sort order
-        sort_direction = DESCENDING if sort_order.lower() == "desc" else ASCENDING
-
-        # Build the query based on the parameters
-        query = {}
-        if user_id:
-            query["user_id"] = user_id
-        if exclude_user_id:
-            query["user_id"] = {"$ne": exclude_user_id}
 
         # Get images with pagination, sorting, and filtering
         images_result = (
             db["images"]
             .find(query)
-            .sort(sort_by, sort_direction)
+            # .sort(sort_by, sort_direction)
             .skip(offset)
             .limit(images_per_page)
         )

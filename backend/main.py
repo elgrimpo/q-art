@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import requests as requests
 from dotenv import load_dotenv
 
+
 import os
 from typing import Optional
 from pymongo import MongoClient
@@ -84,12 +85,15 @@ async def images_endpoint(
     page: int = 1,
     user_id: Optional[str] = None,
     exclude_user_id: Optional[str] = None,
-    sort_by: Optional[str] = "created_at",
-    sort_order: Optional[str] = "desc",
+    likes: Optional[str] = None,
+    time_period: Optional[str] = None,
+    sd_model: Optional[str] = None,
     images_per_page: int = 12,
 ):
+    print(likes)
+
     return get_images(
-        page, user_id, exclude_user_id, sort_by, sort_order, images_per_page
+        page, user_id, exclude_user_id, likes, time_period, sd_model, images_per_page
     )
 
 
@@ -129,7 +133,8 @@ users = db.get_collection("users")
 @app.get("/user/info")
 async def get_user_info(request: Request):
     user_info = request.session.get("user_info", None)
-    print(user_info)
+    #  print(user_info)
     if user_info is None:
         return {"message": "User information not found in session"}
     return user_info
+

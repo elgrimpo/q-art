@@ -10,7 +10,7 @@ import { useUtils } from "./utils";
 
 
 export const useImageUtils = () => {
-  const { userImages, communityImages, userImagesPage, communityImagesPage } =
+  const { userImages, communityImages, userImagesPage, communityImagesPage, user } =
     useImages();
   const dispatch = useImagesDispatch();
   const {openAlert} = useUtils();
@@ -52,7 +52,7 @@ export const useImageUtils = () => {
         } else {
           dispatch({
             type: imagesActionType,
-            payload: [...images, ...res.data],
+            payload: params.page === 1 ? [...res.data] : [...images, ...res.data],
           });
 
           dispatch({
@@ -61,7 +61,7 @@ export const useImageUtils = () => {
           });
           dispatch({
             type: pageActionType,
-            payload: page + 1,
+            payload: params.page === 1 ? 1 : page + 1,
           });
         }
       })
@@ -119,7 +119,9 @@ export const useImageUtils = () => {
 
     // Make the API request to trigger upscaling
     axios
-      .get(`http://localhost:8000/upscale/${id}`)
+      .get(`http://localhost:8000/upscale/${id}`, {
+        params: {user_id: user._id},
+      })
       .then((response) => {
         // Upscaling is complete, update the image in your UI
         const updatedImage = response.data; // Replace with the actual response format

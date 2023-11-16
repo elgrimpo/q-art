@@ -7,6 +7,7 @@ import { useImages } from "../../context/AppProvider";
 import ImageCard from "./ImagesCard";
 import ImageModal from "./ImageModal";
 import { useImageUtils } from "../../utils/ImageUtils";
+import FilterPanel from "./FilterPanel";
 
 function ImageGallery(props) {
   const {
@@ -17,16 +18,56 @@ function ImageGallery(props) {
     communityImages,
     loadingCommunityImages,
     communityImagesPage,
+    sd_models,
   } = useImages();
-  const {getMoreImages} = useImageUtils();
 
+  const { getMoreImages } = useImageUtils();
+  const [filtersSet, setFiltersSet] = useState({likes: null, time_period: null, sd_model: null});
   const { setTabValue, imageType } = props;
+  console.log(filtersSet)
 
-  const page = imageType === "userImages" ? userImagesPage : communityImagesPage;
+  const page =
+    imageType === "userImages" ? userImagesPage : communityImagesPage;
   const images = imageType === "userImages" ? userImages : communityImages;
-  const loading = imageType === "userImages" ? loadingUserImages : loadingCommunityImages;
+  const loading =
+    imageType === "userImages" ? loadingUserImages : loadingCommunityImages;
 
-  
+  //TODO: Move to FilterPanel?
+  const filters = [
+    {
+      id: "likes",
+      name: "Likes",
+      param: images.like,
+      options: ["Liked", "All"],
+    },
+    {
+      id: "time_period",
+      name: "Time Period",
+      param: images.created_at,
+      options: ["Today", "This Week", "This Month", "This Year", "All"],
+    },
+    {
+      id: "sd_model",
+      name: "SD Model",
+      param: images.sd_model,
+      options: sd_models.map((model) => model.name),
+    },
+  ];
+
+  // Handle Filter & Sort
+  const applyFilters = async (newFiltersSet) => {
+    const params = {
+      page: 1,
+      user_id: imageType === "userImages" ? user._id : null,
+      exclude_user_id: imageType === "userImages" ? null : user._id,
+      likes: newFiltersSet.likes,
+      time_period: newFiltersSet.time_period,
+      sd_model: newFiltersSet.sd_model,
+    };
+
+    getMoreImages(imageType, params);
+  };
+
   // --------- Infinite scroll -----------
   const loadMoreRef = useRef(null);
 
@@ -40,14 +81,13 @@ function ImageGallery(props) {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-
           const params = {
             page: page + 1,
             user_id: imageType === "userImages" ? user._id : null,
             exclude_user_id: imageType === "userImages" ? null : user._id,
-            //sort_by: (Optional[str] = "created_at"),
-            //sort_order: (Optional[str] = "desc"),
-            //images_per_page: (int = 12),
+            likes: filtersSet.likes,
+            time_period: filtersSet.time_period,
+            sd_model: filtersSet.sd_model,
           };
 
           getMoreImages(imageType, params);
@@ -93,15 +133,21 @@ function ImageGallery(props) {
   };
 
   return (
-    <Box sx={{padding:{xs:"0.5rem", sm:"1rem"}}}>
+    <Box sx={{ padding: { xs: "0.5rem", sm: "1rem" } }}>
+      <FilterPanel
+        filters={filters}
+        applyFilters={applyFilters}
+        filtersSet={filtersSet}
+        setFiltersSet={setFiltersSet}
+      />
       {/*------ Images List ------*/}
       <Grid
         container
         direction="row"
         justifyContent="center"
         alignItems="stretch"
-        columns={{xs:1, sm:2, md:2, lg:3, xl:4}}
-        spacing={{xs:1, sm:2, md:2, lg:3, xl:3}}
+        columns={{ xs: 1, sm: 2, md: 2, lg: 3, xl: 4 }}
+        spacing={{ xs: 1, sm: 2, md: 2, lg: 3, xl: 3 }}
         sx={{ mb: "1.5rem" }}
       >
         {images &&
@@ -112,14 +158,14 @@ function ImageGallery(props) {
               variant="image"
               onClick={() => handleModalOpen(index)}
               setTabValue={setTabValue}
-              imageType = {imageType}
+              imageType={imageType}
             />
           ))}
       </Grid>
 
       {/* Trigger for loading more images */}
       {!loading && page >= 0 && (
-        <div ref={loadMoreRef} style={{height: "10px"}}></div>
+        <div ref={loadMoreRef} style={{ height: "10px" }}></div>
       )}
 
       {/*------ Placeholder Cards ------*/}
@@ -128,17 +174,13 @@ function ImageGallery(props) {
         direction="row"
         justifyContent="center"
         alignItems="stretch"
-        columns={{xs:1, sm:2, md:2, lg:3, xl:4}}
-        spacing={{xs:1, sm:2, md:2, lg:3, xl:3}}
+        columns={{ xs: 1, sm: 2, md: 2, lg: 3, xl: 4 }}
+        spacing={{ xs: 1, sm: 2, md: 2, lg: 3, xl: 3 }}
         sx={{ mb: "1.5rem" }}
       >
         {loading > 0 &&
           Array.from({ length: 12 }, (_, index) => index).map((_, index) => (
-            <ImageCard
-              item={_}
-              variant="skeleton"
-              index={index}
-            />
+            <ImageCard item={_} variant="skeleton" index={index} />
           ))}
       </Grid>
 
