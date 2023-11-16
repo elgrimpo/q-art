@@ -36,7 +36,7 @@ export const initialState = {
     content: "-",
     prompt: "-",
     image_url:
-      "https://qrartimages.s3.us-west-1.amazonaws.com/654f3d47bef0549f910f70ca.png",
+      "https://qrartimages.s3.us-west-1.amazonaws.com/BannerImage.png",
     seed: "-",
   },
   loadingGeneratedImage: false,
