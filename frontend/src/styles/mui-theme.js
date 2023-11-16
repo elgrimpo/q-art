@@ -37,13 +37,22 @@ const theme = createTheme({
   },
   components: {
     MuiBottomNavigationAction: {
-        styleOverrides: {
+      styleOverrides: {
         root: {
-          '&.Mui-selected': {
-            color: palette.primary.dark, 
+          "&.Mui-selected": {
+            color: palette.primary.dark,
           },
         },
-      }},
+      },
+    },
+    MuiMenuItem: {
+      styleOverrides: {
+        root: { 
+          "&.Mui-selected": {
+          backgroundColor: palette.primary.light
+        }
+      }}
+    },
     MuiTab: {
       styleOverrides: {
         root: {
