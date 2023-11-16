@@ -61,7 +61,7 @@ function ImageGallery(props) {
       (model) => model.name === newFiltersSet.sd_model
     );
     const sd_name = sdModelObject ? sdModelObject.sd_name : null;
-    
+
     const params = {
       page: 1,
       user_id: imageType === "userImages" ? user._id : null,
@@ -88,13 +88,19 @@ function ImageGallery(props) {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
+
+          const sdModelObject = sd_models.find(
+            (model) => model.name === filtersSet.sd_model
+          );
+          const sd_name = sdModelObject ? sdModelObject.sd_name : null;
+
           const params = {
             page: page + 1,
             user_id: imageType === "userImages" ? user._id : null,
             exclude_user_id: imageType === "userImages" ? null : user._id,
             likes: filtersSet.likes,
             time_period: filtersSet.time_period,
-            sd_model: filtersSet.sd_model,
+            sd_model: sd_name,
           };
 
           getMoreImages(imageType, params);

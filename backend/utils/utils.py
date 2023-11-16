@@ -9,7 +9,6 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 # App imports
-from controllers.models_controller import get_model
 
 def readImage(path):
     img = cv2.imread(path)
@@ -42,7 +41,7 @@ def prepare_doc( req, info, website, image_quality, qr_weight, user_id):
 
     doc = {
         "user_id": user_id,
-        "created_at": datetime.datetime.utcnow(),
+        "created_at": datetime.utcnow(),
         "prompt": req.prompt,
         "negative_prompt": req.negative_prompt,
         "content": website,

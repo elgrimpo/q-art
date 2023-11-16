@@ -105,15 +105,14 @@ function ImagesModal(props) {
           overflowY: { xs: "scroll", md: "hidden" },
         }}
       >
-        <div
-          style={{
+        <Box
+          sx={{
             maxHeight: "100%",
             backgroundColor: "#70E195",
             display: "flex",
             borderRadius: { xs: "0px", lg: "16px 0px 0px 16px" },
             maxWidth: "100%",
-
-            flex: "2",
+            flex: {xs: "2", lg: "3"},
           }}
         >
           <Box
@@ -139,7 +138,7 @@ function ImagesModal(props) {
               }}
             />
           </Box>
-        </div>
+        </Box>
         {/* ------ Sidebard ------ */}
         <Box
           sx={{

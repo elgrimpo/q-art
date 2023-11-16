@@ -111,7 +111,7 @@ def get_images(
 ):
     try:
         query = createImagesFilterQuery(likes, time_period, sd_model, user_id, exclude_user_id)
-
+        # print(query)
         # Calculate the offset based on the current page
         offset = (page - 1) * images_per_page
 
