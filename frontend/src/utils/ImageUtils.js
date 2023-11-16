@@ -49,12 +49,17 @@ export const useImageUtils = () => {
             type: pageActionType,
             payload: -1,
           });
+          if (params.page == 1) {
+            dispatch({
+              type: imagesActionType,
+              payload: []
+            })
+          }
         } else {
           dispatch({
             type: imagesActionType,
             payload: params.page === 1 ? [...res.data] : [...images, ...res.data],
           });
-
           dispatch({
             type: loadingActionType,
             payload: false,
@@ -69,6 +74,10 @@ export const useImageUtils = () => {
         dispatch({
           type: loadingActionType,
           payload: false,
+        });
+        dispatch({
+          type: pageActionType,
+          payload: -1,
         });
         openAlert('error', 'Images could not be loaded')
 
