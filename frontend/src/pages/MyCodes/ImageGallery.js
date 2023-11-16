@@ -56,14 +56,21 @@ function ImageGallery(props) {
 
   // Handle Filter & Sort
   const applyFilters = async (newFiltersSet) => {
+    
+    const sdModelObject = sd_models.find(
+      (model) => model.name === newFiltersSet.sd_model
+    );
+    const sd_name = sdModelObject ? sdModelObject.sd_name : null;
+    
     const params = {
       page: 1,
       user_id: imageType === "userImages" ? user._id : null,
       exclude_user_id: imageType === "userImages" ? null : user._id,
       likes: newFiltersSet.likes,
       time_period: newFiltersSet.time_period,
-      sd_model: newFiltersSet.sd_model,
+      sd_model: sd_name,
     };
+    console.log(params)
 
     getMoreImages(imageType, params);
   };

@@ -8,6 +8,9 @@ import re
 from datetime import datetime, timedelta
 from typing import Optional
 
+# App imports
+from controllers.models_controller import get_model
+
 def readImage(path):
     img = cv2.imread(path)
     retval, buffer = cv2.imencode(".jpg", img)
@@ -141,5 +144,7 @@ def createImagesFilterQuery(
         start_of_year = end_of_year - timedelta(days=365)
         query["created_at"] = {"$gte": start_of_year, "$lte": end_of_year}
 
+    if sd_model:
+        query["sd_model"] = sd_model
 
     return query
