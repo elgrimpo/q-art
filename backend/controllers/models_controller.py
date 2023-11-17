@@ -5,21 +5,24 @@ import requests as requests
 from pymongo import MongoClient
 import os
 
-
-
 load_dotenv()
-mongo_url = os.environ["MONGO_URL"]
 
+# ----------------------------- INITIALIZE CLIENT ---------------------------- #
+mongo_url = os.environ["MONGO_URL"]
 client = MongoClient(mongo_url, ssl=True, ssl_cert_reqs
 ="CERT_NONE")
 db = client.get_database("QART")
 models = db.get_collection("models")
 
 
+# ---------------------------------------------------------------------------- #
+#                                  GET MODELS                                  #
+# ---------------------------------------------------------------------------- #
 
 def get_models():
     try:
         models_result = db["models"].find()
+        
         # Convert the images to a list
         models_list = list(models_result)
 

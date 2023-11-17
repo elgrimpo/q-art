@@ -11,13 +11,15 @@ from starlette.exceptions import HTTPException
 
 load_dotenv()
 
-# MongoDB
+# ---------------------------- INITIALIZE CLIENTS ---------------------------- #
+
+# MONGODB CLIENT
 mongo_url = os.environ["MONGO_URL"]
 client = MongoClient(mongo_url, ssl=True, ssl_cert_reqs="CERT_NONE")
 db = client.get_database("QART")
 users = db.get_collection("users")
 
-#Authlib
+# OAUTH
 config = Config(".env")
 oauth = OAuth(config)
 oauth.register(
@@ -28,6 +30,11 @@ oauth.register(
     client_kwargs={"scope": "openid profile email"},
 )
 
+# ---------------------------------------------------------------------------- #
+#                                 GOOGLE LOGIN                                 #
+# ---------------------------------------------------------------------------- #
+
+
 def google_login(request):
     try:
         google = oauth.create_client("google")
@@ -37,41 +44,72 @@ def google_login(request):
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=str(e))
-    
+
+
+# ---------------------------------------------------------------------------- #
+#                                  GOOGLE AUTH                                 #
+# ---------------------------------------------------------------------------- #
+
+
 async def google_auth(request):
-    token = await oauth.google.authorize_access_token(request)
+    try:
+        # ------------------------------- AUTHENTICATE ------------------------------- #
+        try:
+            token = await oauth.google.authorize_access_token(request)
+        except Exception:
+            # Handle authentication error
+            raise HTTPException(status_code=401, detail="Authentication failed")
 
-    google_user = {
-        "google_id": token["userinfo"]["sub"],
-        "name": token["userinfo"]["name"],
-        "picture": token["userinfo"]["picture"],
-        "email": token["userinfo"]["email"]
-    }
+        google_user = {
+            "google_id": token["userinfo"]["sub"],
+            "name": token["userinfo"]["name"],
+            "picture": token["userinfo"]["picture"],
+            "email": token["userinfo"]["email"],
+        }
 
-    #check if user exists in db
-    existing_user = users.find_one({"google_id": google_user["google_id"]})
+        # ----------------------------- UPDATE USER INFO ----------------------------- #
+        try:
+            existing_user = users.find_one({"google_id": google_user["google_id"]})
+            if existing_user:
+                users.update_one({"google_id": google_user["google_id"]}, {"$set": google_user})
+            else:
+                users.insert_one(google_user)
+        except Exception:
+            # Handle database operation error
+            raise HTTPException(status_code=500, detail="Database operation failed")
 
-    if existing_user:
-        # Update the existing user
-        users.update_one({"google_id": google_user["google_id"]}, {"$set": google_user})
-    else:
-        # Create a new user entry
-        users.insert_one(google_user)
-    
-    # Get user info from DB
-    loggedInUser = users.find_one({"google_id": google_user["google_id"]})
-    loggedInUser["_id"] = str(loggedInUser["_id"])
-    if "last_image_created_at" in loggedInUser:
-        loggedInUser["last_image_created_at"] = loggedInUser["last_image_created_at"].strftime('%Y-%m-%dT%H:%M:%S.%f+00:00')
+        # ----------------------------- CREATE USER SESSION ----------------------------- #
+        try:
+            loggedInUser = users.find_one({"google_id": google_user["google_id"]})
+            if loggedInUser:
+                loggedInUser["_id"] = str(loggedInUser["_id"])
+                if "last_image_created_at" in loggedInUser:
+                    loggedInUser["last_image_created_at"] = loggedInUser["last_image_created_at"].strftime("%Y-%m-%dT%H:%M:%S.%f+00:00")
+                request.session["user_info"] = loggedInUser
+            else:
+                raise HTTPException(status_code=404, detail="User not found")
+            
+        except Exception:
+            # Handle session creation error
+            raise HTTPException(status_code=500, detail="Session creation failed")
 
-    # Store user information in the session
-    request.session["user_info"] = loggedInUser
+        # Redirect to frontend
+        frontend_redirect_uri = "http://localhost:3000"
+        return RedirectResponse(url=frontend_redirect_uri)
 
-    frontend_redirect_uri = "http://localhost:3000"
-    return RedirectResponse(url=frontend_redirect_uri)
-    return ""
+    except HTTPException:
+        # Reraise HTTP exceptions for FastAPI to handle
+        raise
+    except Exception:
+        # Log unexpected errors and return a generic error message
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+# ---------------------------------------------------------------------------- #
+#                                    LOGOUT                                    #
+# ---------------------------------------------------------------------------- #
 
 def google_logout(request):
-    request.session.pop('user_info', None)
-    message='user logged out successfully'
+    request.session.pop("user_info", None)
+    message = "user logged out successfully"
     return message
