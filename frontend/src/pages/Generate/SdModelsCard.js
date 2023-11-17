@@ -6,17 +6,24 @@ import {
   Grid,
   Typography,
   Skeleton,
-  Chip,
-  Stack,
   CardActionArea,
 } from "@mui/material";
 
-// App imports
+/* -------------------------------------------------------------------------- */
+/*                               COMPONENT START                              */
+/* -------------------------------------------------------------------------- */
 
 function SdModelCard(props) {
   const { variant, item, index, handleModelSelection } = props;
+
+  /* ---------------------------- DECLARE VARIABLES --------------------------- */
+
   const theme = useTheme();
   const primaryColor = theme.palette.primary.main;
+
+  /* -------------------------------------------------------------------------- */
+  /*                              COMPONENT RENDER                              */
+  /* -------------------------------------------------------------------------- */
 
   return (
     <Grid item md={2} key={index}>
@@ -31,7 +38,9 @@ function SdModelCard(props) {
         }}
         color="primary"
       >
+        {/* ----------------------------- IMAGE --------------------------- */}
         {variant == "skeleton" ? (
+          // SKELETON FOR LOADING THE IMAGE
           <Skeleton
             variant="rounded"
             width="100%"
@@ -39,21 +48,23 @@ function SdModelCard(props) {
             animation="wave"
             sx={{
               aspectRatio: "1/1",
-              paddingTop: "100%", // Set the height to be the same as the width
+              paddingTop: "100%",
             }}
             key={index + "_1"}
           />
         ) : (
-          <CardActionArea
-            onClick={() => handleModelSelection(item.sd_name)}
-          >
+          // IMAGE
+          <CardActionArea onClick={() => handleModelSelection(item.sd_name)}>
             <CardMedia
               component="img"
-              image={item.qr_image_url ? item.qr_image_url : item.civitai_image_url}
+              image={
+                item.qr_image_url ? item.qr_image_url : item.civitai_image_url
+              }
               sx={{ borderRadius: "5px", aspectRatio: "1/1" }}
               key={index}
             />
 
+            {/* ---------------------------------- TEXT ---------------------------------- */}
             <Typography
               variant="h5"
               align="center"
@@ -62,11 +73,6 @@ function SdModelCard(props) {
             >
               {item?.name}
             </Typography>
-            {/* <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
-              {item?.tags.map((tag, index) => (
-                <Chip key={index} label={tag} />
-              ))}
-            </Stack> */}
           </CardActionArea>
         )}
       </Card>

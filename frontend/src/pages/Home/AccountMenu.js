@@ -1,3 +1,4 @@
+// Libraries imports
 import * as React from "react";
 import Box from "@mui/material/Box";
 import Avatar from "@mui/material/Avatar";
@@ -6,24 +7,35 @@ import MenuItem from "@mui/material/MenuItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
 import Tooltip from "@mui/material/Tooltip";
 import Chip from "@mui/material/Chip";
-import PersonAdd from "@mui/icons-material/PersonAdd";
-import Settings from "@mui/icons-material/Settings";
 import Logout from "@mui/icons-material/Logout";
-import { useTheme } from "@mui/material";
-import { useImages } from "../../context/AppProvider";
 import DiamondTwoToneIcon from "@mui/icons-material/DiamondTwoTone";
+import theme from "../../styles/mui-theme";
+
+// App imports
+import { useImages } from "../../context/AppProvider";
+
+/* -------------------------------------------------------------------------- */
+/*                               COMPONENT START                              */
+/* -------------------------------------------------------------------------- */
 
 export default function AccountMenu(props) {
-  const theme = useTheme();
-  const primaryColor = theme.palette.primary.main;
+
+  /* ---------------------------- DECLARE VARIABLES --------------------------- */
+  
+  // Props
+  const { handleLogout } = props;
+
+  // Context
   const { user } = useImages();
 
-  const { handleLogout } = props;
+  // Anchor Element for Account Menu
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
+
+  /* -------------------------------- FUNCTIONS ------------------------------- */
+
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -31,10 +43,11 @@ export default function AccountMenu(props) {
     setAnchorEl(null);
   };
 
+  // Create Avatar icon
   function stringAvatar(user) {
     return {
       sx: {
-        bgcolor: primaryColor,
+        bgcolor: theme.palette.primary.main,
         height: 40,
         width: 40,
       },
@@ -44,8 +57,14 @@ export default function AccountMenu(props) {
     };
   }
 
+  /* -------------------------------------------------------------------------- */
+  /*                              COMPONENT RENDER                              */
+  /* -------------------------------------------------------------------------- */
+
   return (
     <React.Fragment>
+
+      {/* -------------------------- USER CREDITS --------------------------- */}
       <Chip color="primary"  icon={<DiamondTwoToneIcon/>} label={user.credits} />
       <Box sx={{ display: "flex", alignItems: "center", textAlign: "center" }}>
         <Tooltip title="Account settings">
@@ -57,10 +76,16 @@ export default function AccountMenu(props) {
             aria-haspopup="true"
             aria-expanded={open ? "true" : undefined}
           >
+
+            {/* ------------------------- USER ACCOUNT ------------------------- */}
+            
+            {/* AVATAR */}
             <Avatar {...stringAvatar(user)} />
           </IconButton>
         </Tooltip>
       </Box>
+
+      {/* MENU */}
       <Menu
         anchorEl={anchorEl}
         id="account-menu"
@@ -70,8 +95,14 @@ export default function AccountMenu(props) {
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
+
+        {/* -------------------------- MENU ITEMS --------------------------- */}
+        
+        {/* MY ACCOUNT */}
         <MenuItem onClick={handleClose}>My account</MenuItem>
         <Divider />
+
+        {/* LOGOUT */}
         <MenuItem onClick={handleLogout}>
           <ListItemIcon>
             <Logout fontSize="small" />

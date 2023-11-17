@@ -5,58 +5,66 @@ import axios from "axios";
 import { ActionTypes } from "../context/reducers";
 import { useImages, useImagesDispatch } from "../context/AppProvider";
 
-export const priceList = {
-  imageQuality: {
-    low: 1,
-    medium: 2,
-    high: 3,
-  },
-  upscaleResize: {
-    2: 2,
-  },
-};
-
 export const useUtils = () => {
+  /* ---------------------------- DECLARE VARIABLES --------------------------- */
   const { userImages, communityImages, userImagesPage, communityImagesPage } =
     useImages();
   const dispatch = useImagesDispatch();
 
-  // Check if user session exists
+  /* -------------------------------------------------------------------------- */
+  /*                            GET USER FROM SESSION                           */
+  /* -------------------------------------------------------------------------- */
+
   const getUserInfo = async () => {
     axios
       .get("http://localhost:8000/user/info", { withCredentials: true })
       .then((res) => {
         if (res.data._id) {
-          // User logged in
+          /* ----------------------------- User logged in ----------------------------- */
+          
+          // Update user info
           dispatch({
             type: ActionTypes.SET_USER,
             payload: res.data,
           });
         } else {
-          // User not logged in
+          /* --------------------------- User not logged in --------------------------- */
           console.log("not logged in");
         }
       })
+
+      /* ----------------------------- Error handling ----------------------------- */
       .catch((err) => {
+
+        // Open snackbar
         openAlert("error", "User info could not be loaded");
         console.log(err);
       });
   };
 
-  // Logout
+  /* -------------------------------------------------------------------------- */
+  /*                                   LOGOUT                                   */
+  /* -------------------------------------------------------------------------- */
+
   const logout = async () => {
     axios
       .get("http://localhost:8000/logout", { withCredentials: true })
       .then(window.location.reload())
       .catch((err) => {
+
+        // Open Snackbar
         openAlert("error", "User info could not be loaded");
         console.log(err);
       });
   };
 
-  
+  /* -------------------------------------------------------------------------- */
+  /*                                OPEN SNACKBAR                               */
+  /* -------------------------------------------------------------------------- */
 
   const openAlert = (severity, message) => {
+    
+    // Set Snackbar open with severity and message
     dispatch({
       type: ActionTypes.OPEN_ALERT,
       payload: {
@@ -66,22 +74,44 @@ export const useUtils = () => {
     });
   };
 
+  /* -------------------------------------------------------------------------- */
+  /*                               CLOSE SNACKBAR                               */
+  /* -------------------------------------------------------------------------- */
+
   const closeAlert = () => {
+    
+    // Set Snackbar to closed
     dispatch({
       type: ActionTypes.CLOSE_ALERT,
     });
   };
 
+  /* -------------------------------------------------------------------------- */
+  /*                              CALCULATE CREDITS                             */
+  /* -------------------------------------------------------------------------- */
+
   function calculateCredits(service, option) {
-    console.log("Calculating credits for:", service, option);
+
+    // Declare credits for each service
+    const priceList = {
+      imageQuality: {
+        low: 1,
+        medium: 2,
+        high: 3,
+      },
+      upscaleResize: {
+        2: 2,
+      },
+    };
 
     // Check if the service exists in the priceList
     if (priceList[service]) {
+    
       // Check if the option exists within the service
       if (priceList[service][option]) {
-        return priceList[service][option];
-        
 
+        // Return credits needed for service / option
+        return priceList[service][option];
       } else {
         console.error(`Option '${option}' not found in service '${service}'.`);
       }
@@ -90,19 +120,10 @@ export const useUtils = () => {
     }
   }
 
-  function checkSufficientCredits(price, user) {
-    if (user.credits >= price) {
-      return true
-    } else {
-      return false
-    }
-  }
-
   return {
     getUserInfo,
     logout,
     calculateCredits,
-    checkSufficientCredits,
     openAlert,
     closeAlert,
   };

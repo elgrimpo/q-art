@@ -16,7 +16,6 @@ import {
   Tooltip,
   InputAdornment,
 } from "@mui/material";
-
 import CasinoTwoToneIcon from "@mui/icons-material/CasinoTwoTone";
 import DownloadTwoToneIcon from "@mui/icons-material/DownloadTwoTone";
 import DeleteForeverTwoToneIcon from "@mui/icons-material/DeleteForeverTwoTone";
@@ -29,45 +28,49 @@ import { useImages } from "../../context/AppProvider";
 import SdModelsModal from "./SdModelsModal";
 import { useImageUtils } from "../../utils/ImageUtils";
 import { useGenerateUtils } from "../../utils/GenerateUtils";
-import { priceList, useUtils } from "../../utils/utils";
+import { useUtils } from "../../utils/utils";
+
+/* -------------------------------------------------------------------------- */
+/*                               COMPONENT START                              */
+/* -------------------------------------------------------------------------- */
 
 function Generate() {
+  /* ---------------------------- DECLARE VARIABLES --------------------------- */
+
+  // Context variables
   const {
     generatedImage,
     loadingGeneratedImage,
     generateFormValues,
     sd_models,
-    user
+    user,
   } = useImages();
+
+  // Utils functions
   const { calculateCredits } = useUtils();
-  const [submitDisabled, setSubmitDisabled] = useState(true);
   const { downloadImage } = useImageUtils();
   const { generateImage, selectSdModel, handleInputChange } =
     useGenerateUtils();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
+  // Submit Button state
+  const [submitDisabled, setSubmitDisabled] = useState(true);
 
   // Modules Modal
-  const [open, setOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+
+  // Screen size
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
+  // Switch between Form and Image view for mobile screen
   const [formSubmitted, setFormSubmitted] = useState(false);
+
+  // Track user credits
   const [price, setPrice] = useState(
     calculateCredits("imageQuality", generateFormValues.image_quality)
   );
-  const handleModelSelection = (sd_model) => {
-    selectSdModel(sd_model);
-    setOpen(false);
-  };
 
-  const handleGenerate = () => {
-      generateImage(generateFormValues);
-      setFormSubmitted(true);
-  };
-
-  const handleFormUnsubmit = () => {
-    setFormSubmitted(false);
-  };
-
-  // Slider (QR Code Weight)
-  const marks = [
+  // Slider for (QR Code Weight)
+  const qrWeight = [
     {
       value: -3,
       label: "Low",
@@ -78,40 +81,64 @@ function Generate() {
     },
   ];
 
-  function valuetext(value) {
+  /* -------------------------------- FUNCTIONS ------------------------------- */
+
+  // SD Model selection in Modal window
+  const handleModelSelection = (sd_model) => {
+    selectSdModel(sd_model);
+    setModalOpen(false);
+  };
+
+  // Initiate QR Code Art generation
+  const handleGenerate = () => {
+    generateImage(generateFormValues);
+    setFormSubmitted(true);
+  };
+
+  // Switch to Form view for mobile view
+  const handleFormUnsubmit = () => {
+    setFormSubmitted(false);
+  };
+
+  // Set display text for slider
+  function sliderText(value) {
     return `${value}`;
   }
 
-  const handleClickOpen = () => {
-    setOpen(true);
+  // Open Modules Modal
+  const handleModalOpen = () => {
+    setModalOpen(true);
   };
 
-  const handleClose = () => {
-    setOpen(false);
+  // Open Modules Modal
+  const handleModalClose = () => {
+    setModalOpen(false);
   };
 
-  //Submit
-  useEffect(
-    () => {
-      const newPrice = calculateCredits(
-        "imageQuality",
-        generateFormValues.image_quality
-      );
-      if (newPrice !== price) {
-        setPrice(newPrice);
-      }
-      if (generateFormValues.website && generateFormValues.prompt) {
-        setSubmitDisabled(false);
-      } else {
-        setSubmitDisabled(true);
-      }
-    },
-    [generateFormValues]
-  );
+  //Keep track of Form Values
+  useEffect(() => {
+    const newPrice = calculateCredits(
+      "imageQuality",
+      generateFormValues.image_quality
+    );
+    if (newPrice !== price) {
+      setPrice(newPrice);
+    }
+    if (generateFormValues.website && generateFormValues.prompt) {
+      setSubmitDisabled(false);
+    } else {
+      setSubmitDisabled(true);
+    }
+  }, [generateFormValues]);
+
+  /* -------------------------------------------------------------------------- */
+  /*                              COMPONENT RENDER                              */
+  /* -------------------------------------------------------------------------- */
 
   return (
     <div className="generate-page">
-      {/*------ Generate Image Form ------*/}
+      {/* ------------------------------ GENERATE FORM ----------------------------- */}
+      {/* TODO: MOVE FORM TO SEPARATE COMPONENT */}
       {!isMobile || (isMobile && !formSubmitted) ? (
         <Box className="sidebar">
           <Box className="formfield">
@@ -119,6 +146,8 @@ function Generate() {
               <Typography variant="h5" align={isMobile ? "center" : "left"}>
                 Generate QR Art
               </Typography>
+
+              {/* WEBSITE */}
               <TextField
                 required
                 id="website"
@@ -128,6 +157,8 @@ function Generate() {
                 onChange={handleInputChange}
                 variant="outlined"
               />
+
+              {/* PROMPT */}
               <TextField
                 required
                 id="prompt"
@@ -139,6 +170,8 @@ function Generate() {
                 multiline
                 rows={4}
               />
+
+              {/* NEGATIVE PROMPT */}
               <TextField
                 id="negative_prompt"
                 label="Negative Prompt"
@@ -150,6 +183,7 @@ function Generate() {
                 rows={4}
               />
 
+              {/* SEED */}
               <TextField
                 id="seed"
                 label="Seed"
@@ -181,6 +215,7 @@ function Generate() {
                 }}
               />
 
+              {/* IMAGE QUALITY */}
               <Typography variant="subtitle2" align="center">
                 Image Quality
               </Typography>
@@ -203,16 +238,18 @@ function Generate() {
                   High
                 </ToggleButton>
               </ToggleButtonGroup>
+
+              {/* QR CODE WEIGHT */}
               <Typography variant="subtitle2" align="center">
                 QR Code Weight
               </Typography>
               <Slider
                 aria-label="QR Code Weight"
                 defaultValue={generateFormValues.qr_weight}
-                getAriaValueText={valuetext}
+                getAriaValueText={sliderText}
                 step={0.1}
                 valueLabelDisplay="auto"
-                marks={marks}
+                marks={qrWeight}
                 min={-3.0}
                 max={3.0}
                 track={false}
@@ -221,13 +258,15 @@ function Generate() {
                 onChange={handleInputChange}
                 sx={{ width: "90%", margin: "auto" }}
               />
+
+              {/* ------------------------- SD MODELS MODAL ------------------------- */}
               <Typography variant="subtitle2" align="center">
                 Stable Diffusion Model
               </Typography>
               <Button
                 variant="contained"
                 color="secondary"
-                onClick={handleClickOpen}
+                onClick={handleModalOpen}
               >
                 {
                   sd_models?.find(
@@ -236,7 +275,15 @@ function Generate() {
                 }
               </Button>
             </Stack>
+
+            <SdModelsModal
+              open={modalOpen}
+              handleClose={handleModalClose}
+              handleModelSelection={handleModelSelection}
+            />
           </Box>
+
+          {/* --------------------------------- SUBMIT --------------------------------- */}
           <Button
             variant="contained"
             color="primary"
@@ -257,8 +304,8 @@ function Generate() {
         <></>
       )}
 
-      {/*------ QR Image ------*/}
-      {!isMobile || (isMobile && formSubmitted) ? (
+      {/* -------------------------------- QR IMAGE -------------------------------- */}
+      {!isMobile || (isMobile && formSubmitted) ? ( // Mobile: Only shows when Form has been submitted
         <div className="image-container">
           <div className="image-card" elevation={0}>
             {isMobile && (
@@ -270,11 +317,15 @@ function Generate() {
                 Your QR Art
               </Typography>
             )}
+
+            {/* LOADING PLACEHOLDER */}
             {loadingGeneratedImage ? (
               <Box className="loading-box">
                 <CircularProgress color="secondary" />
               </Box>
             ) : (
+
+              // IMAGE
               <CardMedia
                 component="img"
                 image={generatedImage.image_url}
@@ -288,6 +339,8 @@ function Generate() {
                 }}
               />
             )}
+
+            {/* ACTION BUTTONS */}
             <Stack
               direction="row"
               justifyContent="center"
@@ -309,6 +362,7 @@ function Generate() {
               </Tooltip>
 
               {generatedImage.width === 512 && (
+                // TODO: Upscale only user Images
                 <Tooltip title="Upscale resolution to 1024 x 1024">
                   <IconButton>
                     <DiamondTwoToneIcon />
@@ -316,7 +370,8 @@ function Generate() {
                 </Tooltip>
               )}
             </Stack>
-
+            
+            {/* MOBILE: BACK TO FORM BUTTON */}
             {isMobile && !loadingGeneratedImage && (
               <Fab
                 variant="extended"
@@ -334,13 +389,6 @@ function Generate() {
       ) : (
         <></>
       )}
-
-      {/*------ SD Model Modal ------*/}
-      <SdModelsModal
-        open={open}
-        handleClose={handleClose}
-        handleModelSelection={handleModelSelection}
-      />
     </div>
   );
 }

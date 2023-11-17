@@ -36,6 +36,20 @@ const theme = createTheme({
     },
   },
   components: {
+    MuiButton: {
+      styleOverrides: {
+        outlined: {
+          color: palette.primary.dark,
+          borderColor: palette.primary.dark,
+         }}
+    },
+    MuiChip: {
+      styleOverrides: {
+        outlined: {
+          color: palette.primary.dark,
+          borderColor: palette.primary.dark,
+         }}
+    },
     MuiBottomNavigationAction: {
       styleOverrides: {
         root: {
@@ -45,6 +59,8 @@ const theme = createTheme({
         },
       },
     },
+
+    // class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium css-uhfczg-MuiButtonBase-root-MuiButton-root"
     MuiMenuItem: {
       styleOverrides: {
         root: { 

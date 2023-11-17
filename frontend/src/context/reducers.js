@@ -1,4 +1,8 @@
 export const ActionTypes = {
+  /* -------------------------------------------------------------------------- */
+  /*                             DEFINE ACTION TYPES                            */
+  /* -------------------------------------------------------------------------- */
+
   // User
   SET_USER: "SET_USER",
 
@@ -26,6 +30,10 @@ export const ActionTypes = {
   CLOSE_ALERT: "CLOSE_ALERT",
 };
 
+/* -------------------------------------------------------------------------- */
+/*                                INITIAL STATE                               */
+/* -------------------------------------------------------------------------- */
+
 export const initialState = {
   // User
   user: {},
@@ -35,8 +43,7 @@ export const initialState = {
     created_at: "-",
     content: "-",
     prompt: "-",
-    image_url:
-      "https://qrartimages.s3.us-west-1.amazonaws.com/BannerImage.png",
+    image_url: "https://qrartimages.s3.us-west-1.amazonaws.com/BannerImage.png",
     seed: "-",
   },
   loadingGeneratedImage: false,
@@ -74,6 +81,10 @@ export const initialState = {
   alertSeverity: "",
   alertMessage: "",
 };
+
+/* -------------------------------------------------------------------------- */
+/*                              REDUCER FUNCTION                              */
+/* -------------------------------------------------------------------------- */
 
 export const imagesReducer = (state, action) => {
   switch (action.type) {

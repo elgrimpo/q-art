@@ -1,4 +1,3 @@
-//Libraries imports
 import React, { useState } from "react";
 import {
   Card,
@@ -13,8 +12,6 @@ import DeleteForeverTwoToneIcon from "@mui/icons-material/DeleteForeverTwoTone";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import DiamondTwoToneIcon from "@mui/icons-material/DiamondTwoTone";
 import theme from "../../styles/mui-theme.js";
-
-// App imports
 import SkeletonCard from "./SkeletonCard.js";
 import { useImageUtils } from "../../utils/ImageUtils.js";
 import { useGenerateUtils } from "../../utils/GenerateUtils.js";
@@ -22,12 +19,10 @@ import { useGenerateUtils } from "../../utils/GenerateUtils.js";
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
 /* -------------------------------------------------------------------------- */
-
-function ImageCard(props) {
+export function ImageCard(props) {
   const { variant, item, index, onClick, setTabValue, imageType } = props;
 
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
-
   // Image fuctions
   const { downloadImage, deleteImage, upscaleImage } = useImageUtils();
 
@@ -38,7 +33,6 @@ function ImageCard(props) {
   const [upscaling, setUpscaling] = useState(false);
 
   /* -------------------------------- FUNCTIONS ------------------------------- */
-
   const handleCopy = (item) => {
     copyGenerateFormValues(item);
     setTabValue("Generate");
@@ -47,7 +41,6 @@ function ImageCard(props) {
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
   /* -------------------------------------------------------------------------- */
-
   return (
     <Grid item xs={1} key={index}>
       {" "}
@@ -61,7 +54,6 @@ function ImageCard(props) {
         }}
         color="primary"
       >
-        {/* Skeleton (if loading) */}
         {variant === "skeleton" || upscaling ? (
           <SkeletonCard index={index} />
         ) : (
@@ -113,7 +105,6 @@ function ImageCard(props) {
                 </Tooltip>
               )}
 
-              {/* UPSCALE */}
               {item.width === 512 && imageType === "userImages" && (
                 <Tooltip title="Upscale resolution to 1024 x 1024">
                   <IconButton
@@ -123,7 +114,6 @@ function ImageCard(props) {
                     <DiamondTwoToneIcon key={index} />
                   </IconButton>
                 </Tooltip>
-
               )}
             </Stack>
           </div>
@@ -132,5 +122,3 @@ function ImageCard(props) {
     </Grid>
   );
 }
-
-export default ImageCard;

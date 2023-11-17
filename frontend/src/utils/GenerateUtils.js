@@ -7,27 +7,36 @@ import { useImages, useImagesDispatch } from "../context/AppProvider";
 import { useUtils } from "./utils";
 
 export const useGenerateUtils = () => {
-  const { user, generateFormValues } =
-    useImages();
+  /* ---------------------------- DECLARE VARIABLES --------------------------- */
+  const { user, generateFormValues } = useImages();
   const dispatch = useImagesDispatch();
-  const {openAlert} = useUtils();
+  const { openAlert } = useUtils();
+
+  /* -------------------------------------------------------------------------- */
+  /*                               GENERATE IMAGE                               */
+  /* -------------------------------------------------------------------------- */
 
   const generateImage = async (generateFormValues) => {
+    // Set state to loading
     dispatch({
       type: ActionTypes.SET_LOADING_GENERATED_IMAGE,
       payload: true,
     });
+
+    /* -------------------------------- API Call -------------------------------- */
     axios
       .get(`http://localhost:8000/generate/?user_id=${user._id}`, {
         params: generateFormValues,
         withCredentials: true,
       })
       .then((res) => {
-        // Update Generated Image state
+        // Update Generated Image in reducer
         dispatch({
           type: ActionTypes.SET_GENERATED_IMAGE,
           payload: res.data,
         });
+
+        // Set state to NOT loading
         dispatch({
           type: ActionTypes.SET_LOADING_GENERATED_IMAGE,
           payload: false,
@@ -42,20 +51,36 @@ export const useGenerateUtils = () => {
           type: ActionTypes.SET_USER_IMAGES,
           payload: [],
         });
-        openAlert("success", "Image Generated")
+
+        // Open Snackbar
+        openAlert("success", "Image Generated");
       })
-      
+
+      /* ----------------------------- Error Handling ----------------------------- */
+
       .catch((err) => {
+        // Set state to NOT loading
         dispatch({
           type: ActionTypes.SET_LOADING_GENERATED_IMAGE,
           payload: false,
         });
-        openAlert("error", `Image Generation Failed: ${err.response.data.detail}`);
+
+        // Open Snackbar
+        openAlert(
+          "error",
+          `Image Generation Failed: ${err.response.data.detail}`
+        );
+
         console.log(err);
       });
   };
 
+  /* -------------------------------------------------------------------------- */
+  /*                              COPY FORM VALUES                              */
+  /* -------------------------------------------------------------------------- */
+
   const copyGenerateFormValues = (item) => {
+    // Declare form values
     const copyValues = {
       website: item.content,
       prompt: item.prompt,
@@ -65,17 +90,71 @@ export const useGenerateUtils = () => {
       seed: item.seed,
       sd_model: item.sd_model,
     };
+
+    // Update Form values in reducer
     dispatch({
       type: ActionTypes.SET_GENERATE_FORM_VALUES,
       payload: copyValues,
     });
+
+    // Show Images to be copied in Generate Page
     dispatch({
       type: ActionTypes.SET_GENERATED_IMAGE,
       payload: item,
     });
   };
-  
+
+  /* -------------------------------------------------------------------------- */
+  /*                                GET SD MODELS                               */
+  /* -------------------------------------------------------------------------- */
+
+  const getSdModels = async () => {
+    // Set State to Loading
+    dispatch({
+      type: ActionTypes.SET_LOADING_SD_MODELS,
+      payload: true,
+    });
+
+    /* -------------------------------- API Call -------------------------------- */
+    await axios
+      .get("http://localhost:8000/models/get")
+      .then((res) => {
+        // Update sd_models in reducer
+        dispatch({
+          type: ActionTypes.SET_SD_MODELS,
+          payload: res.data,
+        });
+
+        // Set state to NOT loading
+        dispatch({
+          type: ActionTypes.SET_LOADING_SD_MODELS,
+          payload: false,
+        });
+      })
+
+      /* ----------------------------- Error handling ----------------------------- */
+      .catch((err) => {
+        
+        // Set state to not loading
+        dispatch({
+          type: ActionTypes.SET_LOADING_SD_MODELS,
+          payload: false,
+        });
+
+        // Open Snackbar
+        openAlert("error", "Stable Diffusion Models could not be loaded");
+
+        console.log(err);
+      });
+  };
+
+  /* -------------------------------------------------------------------------- */
+  /*                               SELECT SD MODEL                              */
+  /* -------------------------------------------------------------------------- */
+
   const selectSdModel = (sd_model) => {
+    
+    // Update generateFormValues.sd_model with new selection
     dispatch({
       type: ActionTypes.SET_GENERATE_FORM_VALUES,
       payload: {
@@ -84,6 +163,10 @@ export const useGenerateUtils = () => {
       },
     });
   };
+
+  /* -------------------------------------------------------------------------- */
+  /*                          HANDLE FORM INPUT CHANGE                          */
+  /* -------------------------------------------------------------------------- */
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -96,38 +179,12 @@ export const useGenerateUtils = () => {
     });
   };
 
-  const getSdModels = async () => {
-    dispatch({ type: ActionTypes.SET_LOADING_SD_MODELS, payload: true });
-
-    await axios
-      .get("http://localhost:8000/models/get")
-      .then((res) => {
-        dispatch({
-          type: ActionTypes.SET_SD_MODELS,
-          payload: res.data,
-        });
-
-        dispatch({
-          type: ActionTypes.SET_LOADING_SD_MODELS,
-          payload: false,
-        });
-      })
-      .catch((err) => {
-        dispatch({
-          type: ActionTypes.SET_LOADING_SD_MODELS,
-          payload: false,
-        });
-        openAlert('error', 'Stable Diffusion Models could not be loaded')
-
-        console.log(err);
-      });
-  };
-
+  /* ---------------------------- RETURN FUNCTIONS ---------------------------- */
   return {
-    generateImage, 
+    generateImage,
     copyGenerateFormValues,
     selectSdModel,
     handleInputChange,
-    getSdModels
+    getSdModels,
   };
 };

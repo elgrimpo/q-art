@@ -14,11 +14,19 @@ import ChevronLeftTwoToneIcon from "@mui/icons-material/ChevronLeftTwoTone";
 import CloseTwoToneIcon from "@mui/icons-material/CloseTwoTone";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import theme from "../../styles/mui-theme";
+
 //App imports
 import { useImages } from "../../context/AppProvider";
 
+/* -------------------------------------------------------------------------- */
+/*                               COMPONENT START                              */
+/* -------------------------------------------------------------------------- */
+
 function ImagesModal(props) {
   const { userImages, communityImages } = useImages();
+
+  /* ---------------------------- DECLARE VARIABLES --------------------------- */
+
   const { open, index, handleClose, handleNext, handlePrevious, imageType } =
     props;
   const isFullScreen = useMediaQuery(theme.breakpoints.down("lg"));
@@ -26,6 +34,10 @@ function ImagesModal(props) {
 
   const image =
     imageType === "userImages" ? userImages[index] : communityImages[index];
+
+  /* -------------------------------------------------------------------------- */
+  /*                              COMPONENT RENDER                              */
+  /* -------------------------------------------------------------------------- */
 
   return (
     <Backdrop
@@ -37,7 +49,9 @@ function ImagesModal(props) {
       open={open}
       onClick={handleClose}
     >
-      {/* ---- Navigation Buttons */}
+      {/* ------------------------ NAVIGATION BUTTONS ----------------------- */}
+
+      {/* PREVIOUS */}
       <Fab
         color="primary"
         aria-label="previous"
@@ -55,6 +69,7 @@ function ImagesModal(props) {
         <ChevronLeftTwoToneIcon />
       </Fab>
 
+      {/* NEXT */}
       <Fab
         color="primary"
         variant="circular"
@@ -73,6 +88,7 @@ function ImagesModal(props) {
         <ChevronRightTwoToneIcon />
       </Fab>
 
+      {/* CLOSE */}
       {isFullScreen && (
         <Fab
           color="primary"
@@ -92,6 +108,7 @@ function ImagesModal(props) {
         </Fab>
       )}
 
+      {/* -------------------------- MODAL SCREEN -------------------------- */}
       <Paper
         elevation={10}
         sx={{
@@ -105,6 +122,7 @@ function ImagesModal(props) {
           overflowY: { xs: "scroll", md: "hidden" },
         }}
       >
+        {/* ------------ Image ------------- */}
         <Box
           sx={{
             maxHeight: "100%",
@@ -112,7 +130,7 @@ function ImagesModal(props) {
             display: "flex",
             borderRadius: { xs: "0px", lg: "16px 0px 0px 16px" },
             maxWidth: "100%",
-            flex: {xs: "2", lg: "3"},
+            flex: { xs: "2", lg: "3" },
           }}
         >
           <Box
@@ -139,7 +157,8 @@ function ImagesModal(props) {
             />
           </Box>
         </Box>
-        {/* ------ Sidebard ------ */}
+
+        {/* ------------- Sidebar -------------- */}
         <Box
           sx={{
             flex: "1",
@@ -148,67 +167,66 @@ function ImagesModal(props) {
             minWidth: "230px",
             display: "flex",
             flexDirection: "column",
-            justifyContent: 'center',
-            overflow: {md: "scroll"},
+            justifyContent: "center",
+            overflow: { md: "scroll" },
           }}
         >
-          <div style={{maxHeight:"100%"}}>
-          
-          <Typography variant="h5" align={isMobile ? "center" : "left"}>
-            Image Details
-          </Typography>
-          <List>
-            <ListItemText
-              primary="Date created"
-              secondary={image?.created_at}
-              align={isMobile ? "center" : "left"}
-            />
-            <ListItemText
-              primary="QR Content"
-              secondary={image?.content}
-              align={isMobile ? "center" : "left"}
-            />
-            <ListItemText
-              primary="Prompt"
-              secondary={image?.prompt}
-              align={isMobile ? "center" : "left"}
-            />
-            <ListItemText
-              primary="Negative prompt"
-              secondary={image?.negative_prompt}
-              align={isMobile ? "center" : "left"}
-            />
-            <ListItemText
-              primary="Seed"
-              secondary={image?.seed}
-              align={isMobile ? "center" : "left"}
-            />
-            <ListItemText
-              primary="Image Quality"
-              secondary={`${image?.image_quality} (${image?.steps} sampling steps)`}
-              align={isMobile ? "center" : "left"}
-            />
-            <ListItemText
-              primary="Image Dimensions"
-              secondary={`${image?.width} x ${image?.height} px`}
-              align={isMobile ? "center" : "left"}
-            />
-            <ListItemText
-              primary="QR Code Weight"
-              secondary={image?.qr_weight}
-              align={isMobile ? "center" : "left"}
-            />
-            <ListItemText
-              primary="Stable Diffusion Model"
-              secondary={image?.sd_model}
-              align={isMobile ? "center" : "left"}
-            />
-            <ListItemText
-              primary="Image Id"
-              secondary={image?._id}
-              align={isMobile ? "center" : "left"}
-            />
-          </List>
+          <div style={{ maxHeight: "100%" }}>
+            <Typography variant="h5" align={isMobile ? "center" : "left"}>
+              Image Details
+            </Typography>
+            <List>
+              <ListItemText
+                primary="Date created"
+                secondary={image?.created_at}
+                align={isMobile ? "center" : "left"}
+              />
+              <ListItemText
+                primary="QR Content"
+                secondary={image?.content}
+                align={isMobile ? "center" : "left"}
+              />
+              <ListItemText
+                primary="Prompt"
+                secondary={image?.prompt}
+                align={isMobile ? "center" : "left"}
+              />
+              <ListItemText
+                primary="Negative prompt"
+                secondary={image?.negative_prompt}
+                align={isMobile ? "center" : "left"}
+              />
+              <ListItemText
+                primary="Seed"
+                secondary={image?.seed}
+                align={isMobile ? "center" : "left"}
+              />
+              <ListItemText
+                primary="Image Quality"
+                secondary={`${image?.image_quality} (${image?.steps} sampling steps)`}
+                align={isMobile ? "center" : "left"}
+              />
+              <ListItemText
+                primary="Image Dimensions"
+                secondary={`${image?.width} x ${image?.height} px`}
+                align={isMobile ? "center" : "left"}
+              />
+              <ListItemText
+                primary="QR Code Weight"
+                secondary={image?.qr_weight}
+                align={isMobile ? "center" : "left"}
+              />
+              <ListItemText
+                primary="Stable Diffusion Model"
+                secondary={image?.sd_model}
+                align={isMobile ? "center" : "left"}
+              />
+              <ListItemText
+                primary="Image Id"
+                secondary={image?._id}
+                align={isMobile ? "center" : "left"}
+              />
+            </List>
           </div>
         </Box>
       </Paper>

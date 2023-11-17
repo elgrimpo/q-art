@@ -16,8 +16,8 @@ import {
   BottomNavigationAction,
 } from "@mui/material";
 import AutoFixHighTwoToneIcon from "@mui/icons-material/AutoFixHighTwoTone";
-import ImageTwoToneIcon from '@mui/icons-material/ImageTwoTone';
-import Diversity1TwoToneIcon from '@mui/icons-material/Diversity1TwoTone';
+import ImageTwoToneIcon from "@mui/icons-material/ImageTwoTone";
+import Diversity1TwoToneIcon from "@mui/icons-material/Diversity1TwoTone";
 import CloseIcon from "@mui/icons-material/Close";
 import { useEffect } from "react";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -32,16 +32,39 @@ import AccountMenu from "./pages/Home/AccountMenu";
 import ImageGallery from "./pages/MyCodes/ImageGallery";
 import { useUtils } from "./utils/utils";
 
-function App() {
-  const [value, setValue] = React.useState("Generate");
-  const { user, alertOpen, alertSeverity, alertMessage, generatedImage, userImages } = useImages();
+/* -------------------------------------------------------------------------- */
+/*                               COMPONENT START                              */
+/* -------------------------------------------------------------------------- */
 
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
-  };
+function App() {
+  /* ---------------------------- DECLARE VARIABLE ---------------------------- */
+
+  // Context
+  const {
+    user,
+    alertOpen,
+    alertSeverity,
+    alertMessage,
+    generatedImage,
+    userImages,
+  } = useImages();
+
+  // Utils functions
   const { getUserInfo, logout, closeAlert } = useUtils();
 
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));;
+  // Screen size
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
+  // Current Tab
+  const [tabValue, setTabValue] = React.useState("Generate");
+
+  /* -------------------------------- FUNCTIONS ------------------------------- */
+
+  // Change Tabs
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
+  };
+
   // Login
   const handleLogin = async () => {
     window.open("http://localhost:8000/login/google", "_self");
@@ -52,20 +75,35 @@ function App() {
     getUserInfo();
   }, [generatedImage, userImages]);
 
+  /* -------------------------------------------------------------------------- */
+  /*                              COMPONENT RENDER                              */
+  /* -------------------------------------------------------------------------- */
   return (
     <ThemeProvider theme={theme}>
-      <TabContext value={value}>
+      <TabContext value={tabValue}>
         <div className="app">
           {/*-------- App Bar --------*/}
+
+          {/* ------------------------------ APP BAR ----------------------------- */}
           <Toolbar display="flex" className="header">
+            {/* LOGO */}
             <img src={logo} alt="Logo" />
+
+            {/* TABS */}
             <Box className="menu-container">
-              <Tabs sx={{ display: { xs: 'none', md: 'flex' }}} value={value} onChange={handleChange} centered>
+              <Tabs
+                sx={{ display: { xs: "none", md: "flex" } }}
+                value={tabValue}
+                onChange={handleTabChange}
+                centered
+              >
                 <Tab label="Generate" value="Generate" />
                 <Tab label="My codes" value="My codes" />
                 <Tab label="Explore" value="Explore" />
               </Tabs>
             </Box>
+
+            {/* ACCOUNT */}
             {user._id ? (
               <AccountMenu handleLogout={logout} />
             ) : (
@@ -73,24 +111,28 @@ function App() {
             )}
           </Toolbar>
 
-          {/*-------- App Body --------*/}
+          {/* --------------------------- APP CONTENT -------------------------- */}
           <div className="body">
+            {/* GENERATE PAGE */}
             <TabPanel value="Generate">
               <Generate />
             </TabPanel>
 
+            {/* MY CODES PAGE */}
             <TabPanel value="My codes">
-              <ImageGallery imageType="userImages" setTabValue={setValue} />
+              <ImageGallery imageType="userImages" setTabValue={setTabValue} />
             </TabPanel>
+
+            {/* EXPLORE PAGE */}
             <TabPanel value="Explore">
               <ImageGallery
                 imageType="communityImages"
-                setTabValue={setValue}
+                setTabValue={setTabValue}
               />
             </TabPanel>
           </div>
 
-          {/* ---- Snackbar ---- */}
+          {/* ---------------------------- SNACKBAR ------------------------ */}
           <Snackbar
             open={alertOpen}
             anchorOrigin={{ vertical: "top", horizontal: "right" }}
@@ -116,30 +158,37 @@ function App() {
             </Alert>
           </Snackbar>
 
-          { isMobile &&
-          <BottomNavigation
-            showLabels
-            value={value}
-            onChange={(event, newValue) => {
-              setValue(newValue);
-            }}
-          >
-            <BottomNavigationAction
-              value="Generate"
-              label="Generate"
-              icon={<AutoFixHighTwoToneIcon />}
-            />
-            <BottomNavigationAction
-              value="My codes"
-              label="My codes"
-              icon={<ImageTwoToneIcon />}
-            />
-            <BottomNavigationAction
-              value="Explore"
-              label="Explore"
-              icon={<Diversity1TwoToneIcon />}
-            />
-          </BottomNavigation>}
+          {/* ----------------------- BOTTOM NAVIGATION ------------------- */}
+          {isMobile && (
+            <BottomNavigation
+              showLabels
+              value={tabValue}
+              onChange={(event, newValue) => {
+                setTabValue(newValue);
+              }}
+            >
+              {/* GENERATE PAGE */}
+              <BottomNavigationAction
+                value="Generate"
+                label="Generate"
+                icon={<AutoFixHighTwoToneIcon />}
+              />
+
+              {/* MY CODES PAGE */}
+              <BottomNavigationAction
+                value="My codes"
+                label="My codes"
+                icon={<ImageTwoToneIcon />}
+              />
+
+              {/* EXPLORE PAGE */}
+              <BottomNavigationAction
+                value="Explore"
+                label="Explore"
+                icon={<Diversity1TwoToneIcon />}
+              />
+            </BottomNavigation>
+          )}
         </div>
       </TabContext>
     </ThemeProvider>

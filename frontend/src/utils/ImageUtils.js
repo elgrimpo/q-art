@@ -6,17 +6,25 @@ import { ActionTypes } from "../context/reducers";
 import { useImages, useImagesDispatch } from "../context/AppProvider";
 import { useUtils } from "./utils";
 
-
-
-
 export const useImageUtils = () => {
-  const { userImages, communityImages, userImagesPage, communityImagesPage, user } =
-    useImages();
-  const dispatch = useImagesDispatch();
-  const {openAlert} = useUtils();
+  /* ---------------------------- DECLARE VARIABLES --------------------------- */
 
-  // ---------- Get More Images ---------- //
+  const {
+    userImages,
+    communityImages,
+    userImagesPage,
+    communityImagesPage,
+    user,
+  } = useImages();
+  const dispatch = useImagesDispatch();
+  const { openAlert } = useUtils();
+
+  /* -------------------------------------------------------------------------- */
+  /*                               GET MORE IMAGES                              */
+  /* -------------------------------------------------------------------------- */
+
   const getMoreImages = (imageType, params) => {
+    /* ----------------- Check if userImages vs community images ---------------- */
     const loadingActionType =
       imageType === "userImages"
         ? ActionTypes.SET_LOADING_USER_IMAGES
@@ -33,32 +41,47 @@ export const useImageUtils = () => {
       imageType === "userImages" ? userImagesPage : communityImagesPage;
     const images = imageType === "userImages" ? userImages : communityImages;
 
+    /* -------------------------------- API Call -------------------------------- */
+
+    // Set state to "loading images"
     dispatch({ type: loadingActionType, payload: true });
 
+    // API Call
     axios
       .get(`http://localhost:8000/images/get`, {
         params: params,
       })
       .then((res) => {
+        /* ------------------------- No images are returned ------------------------- */
         if (res.data.length === 0) {
+          // Set state to NOT loading
           dispatch({
             type: loadingActionType,
             payload: false,
           });
+
+          // Set page to -1
+          // (will prevent from GetMoreImages to be retriggered)
           dispatch({
             type: pageActionType,
             payload: -1,
           });
+
+          // No images at the initial Query:
           if (params.page == 1) {
+            // Set userImages / communityImage to empty
             dispatch({
               type: imagesActionType,
-              payload: []
-            })
+              payload: [],
+            });
           }
         } else {
+          /* --------------------------- Images are returned -------------------------- */
+
           dispatch({
             type: imagesActionType,
-            payload: params.page === 1 ? [...res.data] : [...images, ...res.data],
+            payload:
+              params.page === 1 ? [...res.data] : [...images, ...res.data], // Remove loaded data for initial (re)Query
           });
           dispatch({
             type: loadingActionType,
@@ -66,26 +89,36 @@ export const useImageUtils = () => {
           });
           dispatch({
             type: pageActionType,
-            payload: params.page === 1 ? 1 : page + 1,
+            payload: params.page === 1 ? 1 : page + 1, // Handle initial query
           });
         }
       })
+
+      /* ----------------------------- Error handling ----------------------------- */
       .catch((err) => {
+        // Set state to NOT loading
         dispatch({
           type: loadingActionType,
           payload: false,
         });
+
+        // Set page to -1
+        // (will prevent from GetMoreImages to be retriggered)
         dispatch({
           type: pageActionType,
           payload: -1,
         });
-        openAlert('error', 'Images could not be loaded')
 
+        // Open Snackbar
+        openAlert("error", "Images could not be loaded");
         console.log(err);
       });
   };
 
-  // ---------- Download Image ---------- //
+  /* -------------------------------------------------------------------------- */
+  /*                               DOWNLOAD IMAGE                               */
+  /* -------------------------------------------------------------------------- */
+
   const downloadImage = (item) => {
     const link = document.createElement("a");
     link.href = item.image_url;
@@ -95,7 +128,10 @@ export const useImageUtils = () => {
     document.body.removeChild(link);
   };
 
-    // ---------- Delete Image ---------- //
+  /* -------------------------------------------------------------------------- */
+  /*                                DELETE IMAGE                                */
+  /* -------------------------------------------------------------------------- */
+
   const deleteImage = (id, index) => {
     axios
       .delete(`http://localhost:8000/images/delete/${id}`)
@@ -113,49 +149,62 @@ export const useImageUtils = () => {
             payload: updatedImages,
           });
         }
-        openAlert('success', 'Image Deleted')
+
+        // Open Snackbar
+        openAlert("success", "Image Deleted");
       })
+
+      /* ----------------------------- Error handling ----------------------------- */
       .catch((err) => {
-        openAlert('error', 'Image Could Not Be Deleted')
+        openAlert("error", "Image Could Not Be Deleted");
         console.log(err);
       });
   };
 
-  // ---------- Upscale Image ---------- //
+  /* -------------------------------------------------------------------------- */
+  /*                                UPSCALE IMAGE                               */
+  /* -------------------------------------------------------------------------- */
+
   const upscaleImage = (id, setUpscaling) => {
-    // Set the state to indicate that upscaling is in progress
+    // Set the state loading
     setUpscaling(true);
 
-    // Make the API request to trigger upscaling
+/* -------------------------------- API Call -------------------------------- */
     axios
       .get(`http://localhost:8000/upscale/${id}`, {
-        params: {user_id: user._id},
+        params: { user_id: user._id },
       })
       .then((response) => {
-        // Upscaling is complete, update the image in your UI
-        const updatedImage = response.data; // Replace with the actual response format
-
-        // Update the UserImages state
+        // Find updated image in userImages and replace with new image
+        const updatedImage = response.data;
         const updatedImages = userImages.map((img) =>
           img._id === id ? updatedImage : img
         );
 
+        // Update userImages in reducer
         dispatch({
           type: ActionTypes.SET_USER_IMAGES,
           payload: updatedImages,
         });
-        openAlert('success', 'Image Upscaled')
+
+        // Open Snackbar
+        openAlert("success", "Image Upscaled");
       })
+
+      /* ----------------------------- Error Handling ----------------------------- */
       .catch((error) => {
         console.error("Error upscaling image:", error);
-        openAlert('error', 'Image could not be upscaled')
+
+        // Open Snackbar
+        openAlert("error", "Image could not be upscaled");
       })
-     .finally(() => {
-        //Set the state to indicate that upscaling is complete
+      .finally(() => {
+        // Set the state to NOT loading
         setUpscaling(false);
-     });
+      });
   };
 
+  /* ---------------------------- FUNCTION RETURNS ---------------------------- */
   return {
     getMoreImages,
     downloadImage,

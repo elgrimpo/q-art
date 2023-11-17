@@ -1,15 +1,28 @@
 // Libraries imports
 import { Grid, Box } from "@mui/material";
 import { useState, useEffect, useRef } from "react";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import theme from "../../styles/mui-theme";
 
 // App imports
 import { useImages } from "../../context/AppProvider";
 import ImageCard from "./ImagesCard";
 import ImageModal from "./ImageModal";
 import { useImageUtils } from "../../utils/ImageUtils";
-import FilterPanel from "./FilterPanel";
+import FilterPanelDesktop from "./FilterPanelDesktop";
+import FilterPanelMobile from "./FilterPanelMobile";
+
+/* -------------------------------------------------------------------------- */
+/*                               COMPONENT START                              */
+/* -------------------------------------------------------------------------- */
 
 function ImageGallery(props) {
+  /* --------------------------- DECLARE VARIABLES ---------------------------- */
+
+  // Props
+  const { setTabValue, imageType } = props;
+
+  // Context Variables
   const {
     userImages,
     loadingUserImages,
@@ -22,43 +35,62 @@ function ImageGallery(props) {
   } = useImages();
 
   const { getMoreImages } = useImageUtils();
-  const [filtersSet, setFiltersSet] = useState({likes: null, time_period: null, sd_model: null});
-  const { setTabValue, imageType } = props;
-  console.log(filtersSet)
 
+  // Screen size
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
+  // Ref for infinite scrolling
+  const loadMoreRef = useRef(null);
+
+  // Sort & Filter Options
+  const filters = [
+    {
+      id: "sort",
+      name: "Sort",
+      options: ["Newest", "Oldest", "Most Liked"],
+    },
+    {
+      id: "likes",
+      name: "Likes",
+      options: ["Liked by me"],
+    },
+    {
+      id: "time_period",
+      name: "Time Period",
+      options: ["Today", "This Week", "This Month", "This Year"],
+    },
+    {
+      id: "sd_model",
+      name: "SD Model",
+      options: sd_models.map((model) => model.name),
+    },
+  ];
+
+  // Selected Filters
+  const [selectedFilters, setSelectedFilters] = useState({
+    likes: null,
+    time_period: null,
+    sd_model: null,
+    sort: "Newest",
+  });
+
+  // Set userImages vs communityImages
   const page =
     imageType === "userImages" ? userImagesPage : communityImagesPage;
   const images = imageType === "userImages" ? userImages : communityImages;
   const loading =
     imageType === "userImages" ? loadingUserImages : loadingCommunityImages;
 
-  //TODO: Move to FilterPanel?
-  const filters = [
-    {
-      id: "likes",
-      name: "Likes",
-      param: images.like,
-      options: ["Liked", "All"],
-    },
-    {
-      id: "time_period",
-      name: "Time Period",
-      param: images.created_at,
-      options: ["Today", "This Week", "This Month", "This Year", "All"],
-    },
-    {
-      id: "sd_model",
-      name: "SD Model",
-      param: images.sd_model,
-      options: sd_models.map((model) => model.name),
-    },
-  ];
+  //Image Details Modal
+  const [selectedImageIndex, setSelectedImageIndex] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
-  // Handle Filter & Sort
-  const applyFilters = async (newFiltersSet) => {
-    
+  /* -------------------------------- FUNCTIONS ------------------------------- */
+
+  // Apply Filter & Sort and load Images
+  const applyFilters = async (newSelectedFilters) => {
     const sdModelObject = sd_models.find(
-      (model) => model.name === newFiltersSet.sd_model
+      (model) => model.name === newSelectedFilters.sd_model
     );
     const sd_name = sdModelObject ? sdModelObject.sd_name : null;
 
@@ -66,31 +98,28 @@ function ImageGallery(props) {
       page: 1,
       user_id: imageType === "userImages" ? user._id : null,
       exclude_user_id: imageType === "userImages" ? null : user._id,
-      likes: newFiltersSet.likes,
-      time_period: newFiltersSet.time_period,
+      likes: newSelectedFilters.likes,
+      time_period: newSelectedFilters.time_period,
       sd_model: sd_name,
     };
-    console.log(params)
+    console.log(params);
 
     getMoreImages(imageType, params);
   };
 
-  // --------- Infinite scroll -----------
-  const loadMoreRef = useRef(null);
-
+  // Infinite scrolling and load Image
   useEffect(() => {
     const options = {
       root: null,
       rootMargin: "5px",
-      threshold: 1, // Adjust this threshold value as needed
+      threshold: 1,
     };
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-
           const sdModelObject = sd_models.find(
-            (model) => model.name === filtersSet.sd_model
+            (model) => model.name === selectedFilters.sd_model
           );
           const sd_name = sdModelObject ? sdModelObject.sd_name : null;
 
@@ -98,8 +127,8 @@ function ImageGallery(props) {
             page: page + 1,
             user_id: imageType === "userImages" ? user._id : null,
             exclude_user_id: imageType === "userImages" ? null : user._id,
-            likes: filtersSet.likes,
-            time_period: filtersSet.time_period,
+            likes: selectedFilters.likes,
+            time_period: selectedFilters.time_period,
             sd_model: sd_name,
           };
 
@@ -118,19 +147,18 @@ function ImageGallery(props) {
       }
     };
   }, [images, loading]);
-  // --------- Modal ----------
-  const [selectedImageIndex, setSelectedImageIndex] = useState(null);
-  const [open, setOpen] = useState(false);
 
+  // Images Details Modal
   const handleModalClose = (event) => {
     if (event.target === event.currentTarget) {
-      setOpen(false);
+      setModalOpen(false);
       setSelectedImageIndex(null);
     }
   };
+
   const handleModalOpen = (imageIndex) => {
     setSelectedImageIndex(imageIndex);
-    setOpen(true);
+    setModalOpen(true);
   };
 
   const showPreviousImage = () => {
@@ -145,15 +173,30 @@ function ImageGallery(props) {
     );
   };
 
+  /* -------------------------------------------------------------------------- */
+  /*                              COMPONENT RENDER                              */
+  /* -------------------------------------------------------------------------- */
+
   return (
     <Box sx={{ padding: { xs: "0.5rem", sm: "1rem" } }}>
-      <FilterPanel
-        filters={filters}
-        applyFilters={applyFilters}
-        filtersSet={filtersSet}
-        setFiltersSet={setFiltersSet}
-      />
-      {/*------ Images List ------*/}
+      {/* ----------------------------- FILTERS ----------------------------- */}
+      {isMobile ? (
+        <FilterPanelMobile
+          filters={filters}
+          applyFilters={applyFilters}
+          selectedFilters={selectedFilters}
+          setSelectedFilters={setSelectedFilters}
+        />
+      ) : (
+        <FilterPanelDesktop
+          filters={filters}
+          applyFilters={applyFilters}
+          selectedFilters={selectedFilters}
+          setSelectedFilters={setSelectedFilters}
+        />
+      )}
+
+      {/* --------------------------- IMAGES LIST ------------------------- */}
       <Grid
         container
         direction="row"
@@ -181,7 +224,7 @@ function ImageGallery(props) {
         <div ref={loadMoreRef} style={{ height: "10px" }}></div>
       )}
 
-      {/*------ Placeholder Cards ------*/}
+      {/* --------------------------- SKELETON CARDS -------------------------- */}
       <Grid
         container
         direction="row"
@@ -197,10 +240,10 @@ function ImageGallery(props) {
           ))}
       </Grid>
 
-      {/*----------------- Modal: Image Details----------------*/}
+      {/* ------------------------ IMAGE DETAILS MODAL ----------------------- */}
       {images != [] && (
         <ImageModal
-          open={open}
+          open={modalOpen}
           index={selectedImageIndex}
           handleClose={handleModalClose}
           handlePrevious={showPreviousImage}

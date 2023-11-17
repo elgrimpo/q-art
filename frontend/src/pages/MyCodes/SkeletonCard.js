@@ -1,18 +1,17 @@
 //Libraries imports
 import React from "react";
-import {
-  Stack,
-  Skeleton,
-} from "@mui/material";
+import { Stack, Skeleton } from "@mui/material";
 
+/* -------------------------------------------------------------------------- */
+/*                               COMPONENT START                              */
+/* -------------------------------------------------------------------------- */
 
 function SkeletonCard(props) {
   const { index } = props;
 
-
-
   return (
     <div>
+      {/* ------------------------ IMAGE SKELETON ------------------------- */}
       <Skeleton
         variant="rounded"
         width="100%"
@@ -25,6 +24,8 @@ function SkeletonCard(props) {
         key={index + "_1"}
       />
 
+      {/* ------------------------- ICONS SKELETON ------------------------- */}
+
       <Stack
         direction="row"
         justifyContent="center"
@@ -33,30 +34,9 @@ function SkeletonCard(props) {
         sx={{ mt: "1.5rem" }}
         key={index + "_2"}
       >
-        <Skeleton
-          variant="circular"
-          width={30}
-          height={30}
-          key={index + "_3"}
-        />
-        <Skeleton
-          variant="circular"
-          width={30}
-          height={30}
-          key={index + "_4"}
-        />
-        <Skeleton
-          variant="circular"
-          width={30}
-          height={30}
-          key={index + "_5"}
-        />
-        <Skeleton
-          variant="circular"
-          width={30}
-          height={30}
-          key={index + "_6"}
-        />
+        {Array.from({ length: 4 }, (_, index) => index).map((_, iconIndex) => (
+          <Skeleton variant="circular" width={30} height={30} key={iconIndex} />
+        ))}
       </Stack>
     </div>
   );
