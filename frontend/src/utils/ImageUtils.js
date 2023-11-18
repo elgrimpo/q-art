@@ -173,6 +173,7 @@ export const useImageUtils = () => {
     axios
       .get(`http://localhost:8000/upscale/${id}`, {
         params: { user_id: user._id },
+        withCredentials: true,
       })
       .then((response) => {
         // Find updated image in userImages and replace with new image

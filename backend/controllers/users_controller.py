@@ -92,7 +92,7 @@ async def increment_user_count(user_id, service_config, credits_deducted, reques
             ].strftime("%Y-%m-%dT%H:%M:%S.%f+00:00")
 
         # Update user session
-        request.session["user_info"] = user_id
+        request.session["user_info"] = updated_user_info
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
