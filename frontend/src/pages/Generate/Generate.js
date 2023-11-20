@@ -144,7 +144,7 @@ function Generate() {
           <Box className="formfield">
             <Stack useFlexGap spacing={2}>
               <Typography variant="h5" align={isMobile ? "center" : "left"} sx={{mt:"1rem"}}>
-                Generate QR Art
+              Generate QR Art
               </Typography>
 
               {/* WEBSITE */}

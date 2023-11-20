@@ -114,6 +114,7 @@ function FilterPanelMobile({
         open={filterOpen}
         onClose={() => setFilterOpen(false)}
         fullScreen
+        sx={{ maxHeight: "100%", overflow: "hidden" }}
       >
         <DialogTitle>
           <Typography variant="h5" align="center">
@@ -127,14 +128,16 @@ function FilterPanelMobile({
           </IconButton>
         </DialogTitle>
 
+        {/* -------------------------- FILTER SECTIONS ------------------------- */}
+
         <DialogContent
           sx={{
             display: "flex",
             flexDirection: "column",
-            justifyContent: "center",
+            justifyContent: {xs: "top", md: "center"},
+            overflow: "scroll",
           }}
         >
-          {/* -------------------------- FILTER SECTIONS ------------------------- */}
           {filters.map((filter, index) => (
             <Box sx={{ padding: "1rem" }}>
               <Typography

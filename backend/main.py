@@ -32,7 +32,7 @@ app.add_middleware(
 )
 
 # CORS middleware
-origins = ["http://localhost:3000"]
+origins = ["http://192.168.1.116.nip.io:3000"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
