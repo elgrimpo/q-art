@@ -25,10 +25,13 @@ export const useGenerateUtils = () => {
 
     /* -------------------------------- API Call -------------------------------- */
     axios
-      .get(`http://localhost:8000/generate/?user_id=${user._id}`, {
-        params: generateFormValues,
-        withCredentials: true,
-      })
+      .get(
+        `${process.env.REACT_APP_BACKEND_URL}/generate/?user_id=${user._id}`,
+        {
+          params: generateFormValues,
+          withCredentials: true,
+        }
+      )
       .then((res) => {
         // Update Generated Image in reducer
         dispatch({
@@ -117,7 +120,7 @@ export const useGenerateUtils = () => {
 
     /* -------------------------------- API Call -------------------------------- */
     await axios
-      .get("http://localhost:8000/models/get")
+      .get(`${process.env.REACT_APP_BACKEND_URL}/models/get`)
       .then((res) => {
         // Update sd_models in reducer
         dispatch({
@@ -134,7 +137,6 @@ export const useGenerateUtils = () => {
 
       /* ----------------------------- Error handling ----------------------------- */
       .catch((err) => {
-        
         // Set state to not loading
         dispatch({
           type: ActionTypes.SET_LOADING_SD_MODELS,
@@ -153,7 +155,6 @@ export const useGenerateUtils = () => {
   /* -------------------------------------------------------------------------- */
 
   const selectSdModel = (sd_model) => {
-    
     // Update generateFormValues.sd_model with new selection
     dispatch({
       type: ActionTypes.SET_GENERATE_FORM_VALUES,

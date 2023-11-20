@@ -94,7 +94,7 @@ async def google_auth(request):
             raise HTTPException(status_code=500, detail="Session creation failed")
 
         # Redirect to frontend
-        frontend_redirect_uri = "http://localhost:3000"
+        frontend_redirect_uri = os.environ["FRONTEND_URL"]
         return RedirectResponse(url=frontend_redirect_uri)
 
     except HTTPException:

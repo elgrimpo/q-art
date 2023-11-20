@@ -17,11 +17,13 @@ export const useUtils = () => {
 
   const getUserInfo = async () => {
     axios
-      .get("http://localhost:8000/user/info", { withCredentials: true })
+      .get(`${process.env.REACT_APP_BACKEND_URL}/user/info`, {
+        withCredentials: true,
+      })
       .then((res) => {
         if (res.data._id) {
           /* ----------------------------- User logged in ----------------------------- */
-          
+
           // Update user info
           dispatch({
             type: ActionTypes.SET_USER,
@@ -35,7 +37,6 @@ export const useUtils = () => {
 
       /* ----------------------------- Error handling ----------------------------- */
       .catch((err) => {
-
         // Open snackbar
         openAlert("error", "User info could not be loaded");
         console.log(err);
@@ -48,10 +49,11 @@ export const useUtils = () => {
 
   const logout = async () => {
     axios
-      .get("http://localhost:8000/logout", { withCredentials: true })
+      .get(`${process.env.REACT_APP_BACKEND_URL}/logout`, {
+        withCredentials: true,
+      })
       .then(window.location.reload())
       .catch((err) => {
-
         // Open Snackbar
         openAlert("error", "User info could not be loaded");
         console.log(err);
@@ -63,7 +65,6 @@ export const useUtils = () => {
   /* -------------------------------------------------------------------------- */
 
   const openAlert = (severity, message) => {
-    
     // Set Snackbar open with severity and message
     dispatch({
       type: ActionTypes.OPEN_ALERT,
@@ -79,7 +80,6 @@ export const useUtils = () => {
   /* -------------------------------------------------------------------------- */
 
   const closeAlert = () => {
-    
     // Set Snackbar to closed
     dispatch({
       type: ActionTypes.CLOSE_ALERT,
@@ -91,7 +91,6 @@ export const useUtils = () => {
   /* -------------------------------------------------------------------------- */
 
   function calculateCredits(service, option) {
-
     // Declare credits for each service
     const priceList = {
       imageQuality: {
@@ -106,10 +105,8 @@ export const useUtils = () => {
 
     // Check if the service exists in the priceList
     if (priceList[service]) {
-    
       // Check if the option exists within the service
       if (priceList[service][option]) {
-
         // Return credits needed for service / option
         return priceList[service][option];
       } else {

@@ -67,7 +67,7 @@ function App() {
 
   // Login
   const handleLogin = async () => {
-    window.open("http://localhost:8000/login/google", "_self");
+    window.open(`${process.env.REACT_APP_BACKEND_URL}/login/google`, "_self");
   };
 
   // Check if user session exists
