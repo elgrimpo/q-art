@@ -143,7 +143,7 @@ function Generate() {
         <Box className="sidebar">
           <Box className="formfield">
             <Stack useFlexGap spacing={2}>
-              <Typography variant="h5" align={isMobile ? "center" : "left"}>
+              <Typography variant="h5" align={isMobile ? "center" : "left"} sx={{mt:"1rem"}}>
                 Generate QR Art
               </Typography>
 
@@ -264,7 +264,7 @@ function Generate() {
                 Stable Diffusion Model
               </Typography>
               <Button
-                variant="contained"
+                variant="outlined"
                 color="secondary"
                 onClick={handleModalOpen}
               >
@@ -274,6 +274,24 @@ function Generate() {
                   )?.name
                 }
               </Button>
+              
+              {/* --------------------------------- SUBMIT --------------------------------- */}
+              <Button
+                variant="contained"
+                color="primary"
+                disabled={submitDisabled || loadingGeneratedImage}
+                aria-label="generate"
+                onClick={(e) => handleGenerate()}
+                sx={{mb:"1rem"}}
+              >
+                <Typography variant="body1" component="div">
+                  Generate QR Code ( {price}
+                  <IconButton size="small">
+                    <DiamondTwoToneIcon />
+                  </IconButton>
+                  )
+                </Typography>
+              </Button>
             </Stack>
 
             <SdModelsModal
@@ -282,23 +300,6 @@ function Generate() {
               handleModelSelection={handleModelSelection}
             />
           </Box>
-
-          {/* --------------------------------- SUBMIT --------------------------------- */}
-          <Button
-            variant="contained"
-            color="primary"
-            disabled={submitDisabled || loadingGeneratedImage}
-            aria-label="generate"
-            onClick={(e) => handleGenerate()}
-          >
-            <Typography variant="body1" component="div">
-              Generate QR Code ( {price}
-              <IconButton size="small">
-                <DiamondTwoToneIcon />
-              </IconButton>
-              )
-            </Typography>
-          </Button>
         </Box>
       ) : (
         <></>
@@ -324,7 +325,6 @@ function Generate() {
                 <CircularProgress color="secondary" />
               </Box>
             ) : (
-
               // IMAGE
               <CardMedia
                 component="img"
@@ -370,7 +370,7 @@ function Generate() {
                 </Tooltip>
               )}
             </Stack>
-            
+
             {/* MOBILE: BACK TO FORM BUTTON */}
             {isMobile && !loadingGeneratedImage && (
               <Fab
