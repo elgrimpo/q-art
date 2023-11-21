@@ -30,7 +30,7 @@ import logo from "./assets/logo.png";
 import AccountMenu from "./pages/Home/AccountMenu";
 import ImageGallery from "./pages/MyCodes/ImageGallery";
 import { useUtils } from "./utils/utils";
-import Payments from "./pages/Home/Payments";
+import Account from "./pages/Home/Account";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
@@ -157,7 +157,7 @@ function App() {
             />
 
             {/* ACCOUNT */}
-            <Route path="account" element={<Payments />} />
+            <Route path="account" element={<Account />} />
           </Routes>
         </div>
 
