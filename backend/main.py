@@ -4,9 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import requests as requests
 from dotenv import load_dotenv
 from pymongo import DESCENDING, ASCENDING
-import os
 from typing import Optional
-from pymongo import MongoClient
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
 
@@ -16,6 +14,7 @@ from controllers.generate_controller import predict, upscale
 from controllers.models_controller import get_models
 from controllers.auth_controller import google_login, google_auth, google_logout
 from controllers.users_controller import get_user_info
+from controllers.payment_controller import create_checkout_session
 
 # ---------------------------------------------------------------------------- #
 #                                INITIALIZE APP                                #
@@ -146,3 +145,8 @@ async def logout_endpoint(request: Request):
 async def get_user_info_endpoint(request: Request):
     return await get_user_info(request)
 
+# ------------------------------ PAYMENTS ROUTES ----------------------------- #
+
+@app.post('/checkout')
+async def create_checkout_session_endpoint():
+    return create_checkout_session()
