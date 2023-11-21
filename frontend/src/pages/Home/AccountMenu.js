@@ -12,6 +12,7 @@ import Chip from "@mui/material/Chip";
 import Logout from "@mui/icons-material/Logout";
 import DiamondTwoToneIcon from "@mui/icons-material/DiamondTwoTone";
 import theme from "../../styles/mui-theme";
+import { Link } from "react-router-dom";
 
 // App imports
 import { useImages } from "../../context/AppProvider";
@@ -21,9 +22,8 @@ import { useImages } from "../../context/AppProvider";
 /* -------------------------------------------------------------------------- */
 
 export default function AccountMenu(props) {
-
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
-  
+
   // Props
   const { handleLogout } = props;
 
@@ -63,9 +63,12 @@ export default function AccountMenu(props) {
 
   return (
     <React.Fragment>
-
       {/* -------------------------- USER CREDITS --------------------------- */}
-      <Chip color="primary"  icon={<DiamondTwoToneIcon/>} label={user.credits} />
+      <Chip
+        color="primary"
+        icon={<DiamondTwoToneIcon />}
+        label={user.credits}
+      />
       <Box sx={{ display: "flex", alignItems: "center", textAlign: "center" }}>
         <Tooltip title="Account settings">
           <IconButton
@@ -76,9 +79,8 @@ export default function AccountMenu(props) {
             aria-haspopup="true"
             aria-expanded={open ? "true" : undefined}
           >
-
             {/* ------------------------- USER ACCOUNT ------------------------- */}
-            
+
             {/* AVATAR */}
             <Avatar {...stringAvatar(user)} />
           </IconButton>
@@ -95,11 +97,10 @@ export default function AccountMenu(props) {
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-
         {/* -------------------------- MENU ITEMS --------------------------- */}
-        
+
         {/* MY ACCOUNT */}
-        <MenuItem onClick={handleClose}>My account</MenuItem>
+        <MenuItem component={Link} to="/account">My account</MenuItem>
         <Divider />
 
         {/* LOGOUT */}

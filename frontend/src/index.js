@@ -4,12 +4,15 @@ import "./styles/index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { ImagesProvider } from "./context/AppProvider";
+import { BrowserRouter } from "react-router-dom";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <ImagesProvider>
-      <App />
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
     </ImagesProvider>
   </React.StrictMode>
 );

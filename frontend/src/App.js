@@ -1,8 +1,7 @@
 // Libraries imports
 import * as React from "react";
+import { Routes, Route, Navigate, useNavigate, Link } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
-import TabContext from "@mui/lab/TabContext";
-import TabPanel from "@mui/lab/TabPanel";
 import {
   Tab,
   Tabs,
@@ -31,6 +30,7 @@ import logo from "./assets/logo.png";
 import AccountMenu from "./pages/Home/AccountMenu";
 import ImageGallery from "./pages/MyCodes/ImageGallery";
 import { useUtils } from "./utils/utils";
+import Payments from "./pages/Home/Payments";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
@@ -60,11 +60,6 @@ function App() {
 
   /* -------------------------------- FUNCTIONS ------------------------------- */
 
-  // Change Tabs
-  const handleTabChange = (event, newValue) => {
-    setTabValue(newValue);
-  };
-
   // Login
   const handleLogin = async () => {
     window.open(`${process.env.REACT_APP_BACKEND_URL}/login/google`, "_self");
@@ -75,122 +70,161 @@ function App() {
     getUserInfo();
   }, [generatedImage, userImages]);
 
+  // Change selected Tab
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
+  };
+
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
   /* -------------------------------------------------------------------------- */
   return (
     <ThemeProvider theme={theme}>
-      <TabContext value={tabValue}>
-        <div className="app">
-          {/*-------- App Bar --------*/}
+      <div className="app">
+        {/*-------- App Bar --------*/}
 
-          {/* ------------------------------ APP BAR ----------------------------- */}
-          <Toolbar display="flex" className="header">
-            {/* LOGO */}
-            <img src={logo} alt="Logo" />
+        {/* ------------------------------ APP BAR ----------------------------- */}
+        <Toolbar display="flex" className="header">
+          {/* LOGO */}
+          <img src={logo} alt="Logo" />
 
-            {/* TABS */}
-            <Box className="menu-container">
-              <Tabs
-                sx={{ display: { xs: "none", md: "flex" } }}
-                value={tabValue}
-                onChange={handleTabChange}
-                centered
-              >
-                <Tab label="Generate" value="Generate" />
-                <Tab label="My codes" value="My codes" />
-                <Tab label="Explore" value="Explore" />
-              </Tabs>
-            </Box>
+          {/* TABS */}
+          <Box className="menu-container">
+            <Tabs
+              value={tabValue}
+              sx={{ display: { xs: "none", md: "flex" } }}
+              onChange={handleTabChange}
+              centered
+            >
+              <Tab
+                component={Link}
+                label="Generate"
+                value="Generate"
+                to="/generate"
+              />
+              <Tab
+                component={Link}
+                label="My codes"
+                value="My codes"
+                to="/mycodes"
+              />
+              <Tab
+                component={Link}
+                label="Explore"
+                value="Explore"
+                to="/explore"
+              />
+            </Tabs>
+          </Box>
 
-            {/* ACCOUNT */}
-            {user._id ? (
-              <AccountMenu handleLogout={logout} />
-            ) : (
-              <Button onClick={handleLogin}>Login</Button>
-            )}
-          </Toolbar>
+          {/* ACCOUNT */}
+          {user._id ? (
+            <AccountMenu handleLogout={logout} />
+          ) : (
+            <Button onClick={handleLogin}>Login</Button>
+          )}
+        </Toolbar>
 
-          {/* --------------------------- APP CONTENT -------------------------- */}
-          <div className="body">
+        {/* --------------------------- APP CONTENT -------------------------- */}
+
+        <div className="body">
+          <Routes>
             {/* GENERATE PAGE */}
-            <TabPanel value="Generate">
-              <Generate />
-            </TabPanel>
+            <Route path="/" element={<Navigate to="/generate" replace />} />
+
+            <Route path="generate" element={<Generate />} />
 
             {/* MY CODES PAGE */}
-            <TabPanel value="My codes">
-              <ImageGallery imageType="userImages" setTabValue={setTabValue} />
-            </TabPanel>
+            <Route
+              path="mycodes"
+              element={
+                <ImageGallery
+                  imageType="userImages"
+                  setTabValue={setTabValue}
+                />
+              }
+            />
 
             {/* EXPLORE PAGE */}
-            <TabPanel value="Explore">
-              <ImageGallery
-                imageType="communityImages"
-                setTabValue={setTabValue}
-              />
-            </TabPanel>
-          </div>
-
-          {/* ---------------------------- SNACKBAR ------------------------ */}
-          <Snackbar
-            open={alertOpen}
-            anchorOrigin={{ vertical: "top", horizontal: "right" }}
-            autoHideDuration={6000}
-            onClose={closeAlert}
-          >
-            <Alert
-              severity={alertSeverity}
-              sx={{ width: "100%" }}
-              variant="filled"
-              action={
-                <IconButton
-                  aria-label="close"
-                  color="inherit"
-                  size="small"
-                  onClick={closeAlert}
-                >
-                  <CloseIcon fontSize="inherit" />
-                </IconButton>
+            <Route
+              path="explore"
+              element={
+                <ImageGallery
+                  imageType="communityImages"
+                  setTabValue={setTabValue}
+                />
               }
-            >
-              {alertMessage}
-            </Alert>
-          </Snackbar>
+            />
 
-          {/* ----------------------- BOTTOM NAVIGATION ------------------- */}
-          {isMobile && (
-            <BottomNavigation
-              showLabels
-              value={tabValue}
-              onChange={(event, newValue) => {
-                setTabValue(newValue);
-              }}
-            >
-              {/* GENERATE PAGE */}
-              <BottomNavigationAction
-                value="Generate"
-                label="Generate"
-                icon={<AutoFixHighTwoToneIcon />}
-              />
-
-              {/* MY CODES PAGE */}
-              <BottomNavigationAction
-                value="My codes"
-                label="My codes"
-                icon={<ImageTwoToneIcon />}
-              />
-
-              {/* EXPLORE PAGE */}
-              <BottomNavigationAction
-                value="Explore"
-                label="Explore"
-                icon={<Diversity1TwoToneIcon />}
-              />
-            </BottomNavigation>
-          )}
+            {/* ACCOUNT */}
+            <Route path="account" element={<Payments />} />
+          </Routes>
         </div>
-      </TabContext>
+
+        {/* ---------------------------- SNACKBAR -------------------------- */}
+        <Snackbar
+          open={alertOpen}
+          anchorOrigin={{ vertical: "top", horizontal: "right" }}
+          autoHideDuration={6000}
+          onClose={closeAlert}
+        >
+          <Alert
+            severity={alertSeverity}
+            sx={{ width: "100%" }}
+            variant="filled"
+            action={
+              <IconButton
+                aria-label="close"
+                color="inherit"
+                size="small"
+                onClick={closeAlert}
+              >
+                <CloseIcon fontSize="inherit" />
+              </IconButton>
+            }
+          >
+            {alertMessage}
+          </Alert>
+        </Snackbar>
+
+        {/* ----------------------- BOTTOM NAVIGATION ------------------- */}
+        {isMobile && (
+          <BottomNavigation
+            showLabels
+            value={tabValue}
+            onChange={(event, newValue) => {
+              setTabValue(newValue);
+            }}
+          >
+            {/* GENERATE PAGE */}
+            <BottomNavigationAction
+              component={Link}
+              value="Generate"
+              label="Generate"
+              to="/generate"
+              icon={<AutoFixHighTwoToneIcon />}
+            />
+
+            {/* MY CODES PAGE */}
+            <BottomNavigationAction
+              component={Link}
+              value="My codes"
+              label="My codes"
+              to="/mycodes"
+              icon={<ImageTwoToneIcon />}
+            />
+
+            {/* EXPLORE PAGE */}
+            <BottomNavigationAction
+              component={Link}
+              value="Explore"
+              label="Explore"
+              to="/explore"
+              icon={<Diversity1TwoToneIcon />}
+            />
+          </BottomNavigation>
+        )}
+      </div>
     </ThemeProvider>
   );
 }
