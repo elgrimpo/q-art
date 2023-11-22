@@ -18,7 +18,7 @@ from novita_client import image_to_base64, read_image_to_base64
 # App imports
 from controllers.images_controller import insert_image, update_image
 from utils.utils import (
-    readImage,
+    prepare_txt2img_request,
     prepare_doc,
     parse_seed,
     calculate_credits,
@@ -88,57 +88,24 @@ async def predict(
         buffer.seek(0)
         image_base64_str = base64.b64encode(buffer.getvalue()).decode("ascii")
 
+        # -------------------------- GENERATE IMAGE AND SAVE ------------------------- #
 
-
-
-        # ------------------------------ PREPARE REQUEST ----------------------------- #
-        if image_quality == "low":
-            steps = 13
-        elif image_quality == "medium":
-            steps = 20
-        elif image_quality == "high":
-            steps = 30
-
-        req = Txt2ImgRequest(
-            prompt=prompt,
-            negative_prompt=negative_prompt,
-            sampler_name=Samplers.DPMPP_M_KARRAS,
-            model_name=sd_model,
-            width=512,
-            height=512,
-            steps=steps,
-            batch_size=1,
-            cfg_scale=9,
-            seed=int(seed),
-            controlnet_units=[
-                ControlnetUnit(
-                    input_image=image_base64_str,
-                    control_mode=ControlNetMode.BALANCED,
-                    model="controlV1pSd15_v10_92404",
-                    module=ControlNetPreprocessor.INPAINT,
-                    resize_mode=ControlNetResizeMode.RESIZE_OR_CORP,
-                    weight=0.35,
-                    guidance_start=0.0,
-                    guidance_end=1.0,
-                ),
-                ControlnetUnit(
-                    input_image=image_base64_str,
-                    control_mode=ControlNetMode.BALANCED,
-                    model="control_v1p_sd15_qrcode_monster_v2",
-                    module=ControlNetPreprocessor.INPAINT,
-                    resize_mode=ControlNetResizeMode.RESIZE_OR_CORP,
-                    weight=1.0 + float(qr_weight) * 0.1,
-                    guidance_start=0.2 - float(qr_weight) * 0.05,
-                    guidance_end=0.85 + float(qr_weight) * 0.05,
-                ),
-            ],
+        req = prepare_txt2img_request(
+            image_quality,
+            prompt,
+            negative_prompt,
+            sd_model,
+            seed,
+            image_base64_str,
+            qr_weight,
         )
 
-        # -------------------------- GENERATE IMAGE AND SAVE ------------------------- #
         try:
             res = client.sync_txt2img(req)
             if res.data.status != ProgressResponseStatusCode.SUCCESSFUL:
-                raise Exception("Failed to generate image with error: " + res.data.failed_reason)
+                raise Exception(
+                    "Failed to generate image with error: " + res.data.failed_reason
+                )
 
             generated_image = Image.open(BytesIO(res.data.imgs_bytes[0]))
 
@@ -205,7 +172,9 @@ async def upscale(image_id, user_id):
             base64_image = base64.b64encode(image_content).decode()
         except Exception as s3_error:
             # Handle S3 retrieval error
-            raise HTTPException(status_code=500, detail="Failed to retrieve image from S3")
+            raise HTTPException(
+                status_code=500, detail="Failed to retrieve image from S3"
+            )
 
         # ------------------------------ UPSCALE IMAGE ----------------------------- #
         try:

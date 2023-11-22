@@ -7,14 +7,14 @@ import datetime
 import re
 from datetime import datetime, timedelta
 from typing import Optional
+from novita_client import *
+
 
 # App imports
 
-def readImage(path):
-    img = cv2.imread(path)
-    retval, buffer = cv2.imencode(".jpg", img)
-    b64img = base64.b64encode(buffer).decode("utf-8")
-    return b64img
+# ---------------------------------------------------------------------------- #
+#                                  PARSE SEED                                  #
+# ---------------------------------------------------------------------------- #
 
 def parse_seed(metadata):
     # Use regular expression to find the value associated with 'Seed'
@@ -26,6 +26,62 @@ def parse_seed(metadata):
         return int(seed_value)
     else:
         return None
+
+
+
+# ---------------------------------------------------------------------------- #
+#                            PREPARE TXT2IMG REQUEST                           #
+# ---------------------------------------------------------------------------- #
+
+def prepare_txt2img_request( image_quality, prompt, negative_prompt, sd_model, seed, image_base64_str, qr_weight ):
+
+    if image_quality == "low":
+        steps = 13
+    elif image_quality == "medium":
+        steps = 20
+    elif image_quality == "high":
+        steps = 30
+
+    req = Txt2ImgRequest(
+        prompt=prompt,
+        negative_prompt=negative_prompt,
+        sampler_name=Samplers.DPMPP_M_KARRAS,
+        model_name=sd_model,
+        width=512,
+        height=512,
+        steps=steps,
+        batch_size=1,
+        cfg_scale=9,
+        seed=int(seed),
+        controlnet_units=[
+            ControlnetUnit(
+                input_image=image_base64_str,
+                control_mode=ControlNetMode.BALANCED,
+                model="controlV1pSd15_v10_92404",
+                module=ControlNetPreprocessor.INPAINT,
+                resize_mode=ControlNetResizeMode.RESIZE_OR_CORP,
+                weight=0.35,
+                guidance_start=0.0,
+                guidance_end=1.0,
+            ),
+            ControlnetUnit(
+                input_image=image_base64_str,
+                control_mode=ControlNetMode.BALANCED,
+                model="control_v1p_sd15_qrcode_monster_v2",
+                module=ControlNetPreprocessor.INPAINT,
+                resize_mode=ControlNetResizeMode.RESIZE_OR_CORP,
+                weight=1.0 + float(qr_weight) * 0.1,
+                guidance_start=0.2 - float(qr_weight) * 0.05,
+                guidance_end=0.85 + float(qr_weight) * 0.05,
+            ),
+        ],
+    )
+    
+    return req
+
+# ---------------------------------------------------------------------------- #
+#                                  PREPARE DOC                                 #
+# ---------------------------------------------------------------------------- #
 
 def prepare_doc( req, info, website, image_quality, qr_weight, user_id):
     sampler_name = req.sampler_name
@@ -77,6 +133,10 @@ def prepare_doc( req, info, website, image_quality, qr_weight, user_id):
     }
     return doc
 
+# ---------------------------------------------------------------------------- #
+#                               CALCULATE CREDITS                              #
+# ---------------------------------------------------------------------------- #
+
 def calculate_credits(service):
     price = {
         'image_quality': {
@@ -103,12 +163,19 @@ def calculate_credits(service):
 
     return total_credits
 
+# ---------------------------------------------------------------------------- #
+#                              SUFFICIENT CREDITS                              #
+# ---------------------------------------------------------------------------- #
+
 def sufficient_credit(user, service):
     user_credits = user.get('credits', 0)
     total_credits = calculate_credits(service)
 
     return user_credits >= total_credits
 
+# ---------------------------------------------------------------------------- #
+#                          CREATE IMAGES FILTER QUERY                          #
+# ---------------------------------------------------------------------------- #
     
 def createImagesFilterQuery(
     likes: Optional[str] = None,
