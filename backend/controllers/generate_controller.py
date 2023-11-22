@@ -57,7 +57,6 @@ async def predict(
     qr_weight,
     sd_model,
     user_id,
-    request,
 ):
     try:
         # --------------------------------- CHECK FUNDS ------------------------------- #
@@ -155,7 +154,7 @@ async def predict(
 
         # ---------------------- UPDATE USER CREDITS AND COUNT ---------------------- #
         try:
-            await increment_user_count(user_id, service_config, credits_required, request)
+            await increment_user_count(user_id, service_config, credits_required)
         except Exception as user_count_error:
             # Handle user count update error
             raise HTTPException(status_code=500, detail="User count update failed")
@@ -176,7 +175,7 @@ async def predict(
 # ---------------------------------------------------------------------------- #
 
 
-async def upscale(image_id, user_id, request):
+async def upscale(image_id, user_id):
     try:
         # -------------------------------- CHECK FUNDS ------------------------------- #
         service_config = {
@@ -220,7 +219,7 @@ async def upscale(image_id, user_id, request):
 
         # ---------------------- UPDATE USER CREDITS AND COUNT ---------------------- #
         try:
-            await increment_user_count(user_id, service_config, credits_required, request)
+            await increment_user_count(user_id, service_config, credits_required)
         except Exception as user_count_error:
             # Handle user count update error
             raise HTTPException(status_code=500, detail="User count update failed")

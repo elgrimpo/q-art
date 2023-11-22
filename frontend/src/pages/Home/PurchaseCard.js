@@ -43,7 +43,7 @@ export default function PurchaseCard(props) {
         <Button
           align="center"
           variant="contained"
-          onClick={handleCheckout}
+          onClick={() => handleCheckout(purchaseItem)}
           sx={{ padding: "0.5rem 4rem" }}
         >
           {`${purchaseItem.price} USD`}

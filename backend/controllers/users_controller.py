@@ -7,6 +7,8 @@ import datetime
 from starlette.exceptions import HTTPException
 import os
 from pymongo import MongoClient, ReturnDocument
+import json
+
 
 # ---------------------------- INITIALIAZE CLIENT ---------------------------- #
 mongo_url = os.environ["MONGO_URL"]
@@ -20,11 +22,13 @@ users = db.get_collection("users")
 
 
 async def get_user_info(request):
+    # TODO: check in session if is_authenticated and return status if not authenticated
     user_info = request.session.get("user_info", None)
-
-    if user_info is None:
+    logged_in_user = users.find_one({"_id": ObjectId(user_info.get("_id"))})
+    serialized_user = json.dumps(logged_in_user, indent = 4, sort_keys = True, default = str)
+    if serialized_user is None:
         return {"message": "User information not found in session"}
-    return user_info
+    return serialized_user
 
 
 # ---------------------------------------------------------------------------- #
@@ -32,7 +36,7 @@ async def get_user_info(request):
 # ---------------------------------------------------------------------------- #
 
 
-async def increment_user_count(user_id, service_config, credits_deducted, request):
+async def increment_user_count(user_id, service_config, credits_deducted):
     try:
         # Increment user count for generated images
         current_year = datetime.datetime.utcnow().year
@@ -70,29 +74,46 @@ async def increment_user_count(user_id, service_config, credits_deducted, reques
 
         # ------------------------------ UPDATE CREDITS ------------------------------ #
 
-        updated_user_info = db["users"].find_one_and_update(
+        db["users"].update_one(
             {"_id": ObjectId(user_id)},
             {
                 "$inc": {
                     "credits": -credits_deducted,
                 },
             },
-            return_document=True,
+            upsert=True,
         )
-
-        # ---------------------------- UPDATE USER SESSION --------------------------- #
-
-        # Convert ObjectId to String
-        updated_user_info["_id"] = str(updated_user_info["_id"])
-
-        # Convert Datetime to String
-        if "last_image_created_at" in updated_user_info:
-            updated_user_info["last_image_created_at"] = updated_user_info[
-                "last_image_created_at"
-            ].strftime("%Y-%m-%dT%H:%M:%S.%f+00:00")
-
-        # Update user session
-        request.session["user_info"] = updated_user_info
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# ---------------------------------------------------------------------------- #
+#                               Add User Payment                               #
+# ---------------------------------------------------------------------------- #
+
+def add_user_payment(user_id, transaction_amount, product_id, credit_amount, payment_intent, timestamp):
+    print("add_user_payment_invoked")
+
+    # Create a new payment history object
+    payment_history_obj = {
+        "date_time": timestamp,
+        "transaction_amount": int(transaction_amount),
+        "product_id": product_id,
+        "credit_amount": int(credit_amount),
+        "payment_intent_id": payment_intent
+    }
+
+    try:
+        # Find and update the user document
+        db["users"].update_one(
+            {"_id": ObjectId(user_id)},
+            {
+                "$push": {"payment_history": payment_history_obj},
+                "$inc": {"credits": int(credit_amount)}
+            },
+            upsert=True  # Return the modified document
+        )
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+

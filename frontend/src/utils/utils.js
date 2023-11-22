@@ -21,13 +21,15 @@ export const useUtils = () => {
         withCredentials: true,
       })
       .then((res) => {
-        if (res.data._id) {
+        const user = JSON.parse(res.data);
+        console.log(user)
+        if (user) {
           /* ----------------------------- User logged in ----------------------------- */
 
           // Update user info
           dispatch({
             type: ActionTypes.SET_USER,
-            payload: res.data,
+            payload: user,
           });
         } else {
           /* --------------------------- User not logged in --------------------------- */

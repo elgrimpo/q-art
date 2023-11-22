@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import {
   Fab,
   Typography,
@@ -21,7 +22,7 @@ import logo from "../../assets/logo.png";
 import one_diamond from "../../assets/one_diamond.png";
 import two_diamonds from "../../assets/two_diamonds.png";
 import three_diamonds from "../../assets/three_diamonds.png";
-
+import { useUtils } from "../../utils/utils";
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
 /* -------------------------------------------------------------------------- */
@@ -30,7 +31,8 @@ export default function Account() {
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
   const { user } = useImages();
 
-  const [message, setMessage] = useState("");
+  const { openAlert } = useUtils();
+
 
   const purchaseItems = [
     {
@@ -54,32 +56,43 @@ export default function Account() {
   ];
 
   /* -------------------------------- FUNCTIONS ------------------------------- */
-  const handleCheckout = () => {
-    const form = document.createElement("form");
-    form.method = "POST";
-    form.action = `${process.env.REACT_APP_BACKEND_URL}/checkout`;
+  const handleCheckout = (item) => {
+    // API call
+    axios
+      .post(`${process.env.REACT_APP_BACKEND_URL}/checkout`, null, {
+        params: {
+          stripeId: item.stripeId,
+          credit_amount: item.creditAmount,
+          user_id: user._id,
+        },
+        withCredentials: true,
+      })
+      .then((res) => {
 
-    const hiddenInput = document.createElement("input");
-    hiddenInput.type = "hidden";
-    hiddenInput.name = "submit_param";
-    hiddenInput.value = "checkout";
-    form.appendChild(hiddenInput);
-
-    document.body.appendChild(form);
-    form.submit();
-    document.body.removeChild(form);
+        if (res.data && res.data.session_url) {
+          // Redirect to the Stripe Checkout URL
+          const sessionURL = res.data.session_url;
+          window.location.href = sessionURL; 
+        } else {
+          console.error("Invalid response or missing session URL");
+          openAlert("error", "Payment session could not be opened.");
+        }
+      })
+      // Error handling
+      .catch((err) => {
+        openAlert("error", "Credit purchase failed.");
+        console.log(err);
+      });
   };
 
   useEffect(() => {
-    // Check to see if there is a redirect back from Checkout
+    // Check to see if there is a redirect back from Checkout Session
     const query = new URLSearchParams(window.location.search);
     if (query.get("success")) {
-      setMessage("Order placed! You will receive an email confirmation.");
+      openAlert("success", "Credits added to your account!")
     }
     if (query.get("canceled")) {
-      setMessage(
-        "Order canceled -- continue to shop around and checkout when you're ready."
-      );
+      openAlert("error", "Credit purchase cancelled.")
     }
   }, []);
 
@@ -164,7 +177,7 @@ export default function Account() {
               padding: "0.5rem",
               borderRadius: "8px",
               width: "200px",
-              margin: "0px auto"
+              margin: "0px auto",
             }}
           >
             <Typography align="center" variant="h6">

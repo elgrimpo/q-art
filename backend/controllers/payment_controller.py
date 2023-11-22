@@ -1,8 +1,11 @@
 import os
-from fastapi.responses import RedirectResponse
 from fastapi import HTTPException
 from dotenv import load_dotenv
 import stripe
+import datetime
+
+# App imports
+from controllers.users_controller import add_user_payment
 
 load_dotenv()
 
@@ -13,22 +16,57 @@ frontend_url = os.environ["FRONTEND_URL"]
 #                                   CHECKOUT                                   #
 # ---------------------------------------------------------------------------- #
 
-def create_checkout_session():
+def create_checkout_session(stripeId, credit_amount, user_id):
     try:
         checkout_session = stripe.checkout.Session.create(
             line_items=[
                 {
-                    # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-                    "price": "price_1OEfQEAaPyl1Ov3PGzbZPdgD",
+                    "price": stripeId,
                     "quantity": 1,
                 },
             ],
             mode="payment",
-            success_url=frontend_url + "?success=true",
-            cancel_url=frontend_url + "?canceled=true",
+            success_url=frontend_url + "/account" + "?success=true",
+            cancel_url=frontend_url + "/account" + "?canceled=true",
+            client_reference_id=user_id,
+            metadata={
+                "product_id": stripeId,
+                "credit_amount": credit_amount
+            }
         )
-        print(checkout_session.url)
+        return {"session_url": checkout_session.url} 
     except Exception as e:
         raise HTTPException(status_code=500, detail="Payment failed")
 
-    return RedirectResponse(url=checkout_session.url, status_code=303)
+# ---------------------------------------------------------------------------- #
+#                                STRIPE WEBHOOK                                #
+# ---------------------------------------------------------------------------- #
+
+async def stripe_webhook(request, stripe_signature):
+   
+
+    endpoint_secret = os.environ["STRIPE_ENDPOINT_SECRET"]
+
+    data = await request.body()
+    try:
+        event = stripe.Webhook.construct_event(
+            payload=data,
+            sig_header=stripe_signature,
+            secret=endpoint_secret
+        )
+        
+        if event["type"] == "checkout.session.completed":
+            session = event["data"]["object"]
+            user_id = session["client_reference_id"]
+            transaction_amount = session["amount_total"] 
+            product_id = session["metadata"]["product_id"]
+            credit_amount = session["metadata"]["credit_amount"]
+            payment_intent = session["payment_intent"]
+            unix_timestamp = session["created"]
+            timestamp = datetime.datetime.utcfromtimestamp(unix_timestamp)
+
+            # Update user doc with payment and credits
+            add_user_payment(user_id, transaction_amount, product_id, credit_amount, payment_intent, timestamp)    
+
+    except Exception as e:
+        return {"error": str(e)}
