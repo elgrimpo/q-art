@@ -9,6 +9,11 @@ from bson import ObjectId
 from fastapi import HTTPException, Query
 from starlette.requests import Request
 from pymongo import MongoClient
+from io import BytesIO
+from PIL import Image
+import cv2
+from novita_client import image_to_base64, read_image_to_base64
+
 
 # App imports
 from controllers.images_controller import insert_image, update_image
@@ -76,9 +81,15 @@ async def predict(
         )
         qr.add_data(website)
 
-        qr_image = qr.make_image()
-        qr_image.save("qrcode.png")
-        image_base64_str = readImage("qrcode.png")
+        qr_image = qr.make_image(fill_color="black", back_color="white")
+
+        buffer = BytesIO()
+        qr_image.save(buffer, format="JPEG")  # Save as JPEG
+        buffer.seek(0)
+        image_base64_str = base64.b64encode(buffer.getvalue()).decode("ascii")
+
+
+
 
         # ------------------------------ PREPARE REQUEST ----------------------------- #
         if image_quality == "low":
@@ -129,11 +140,10 @@ async def predict(
             if res.data.status != ProgressResponseStatusCode.SUCCESSFUL:
                 raise Exception("Failed to generate image with error: " + res.data.failed_reason)
 
-            save_image(res.data.imgs_bytes[0], "qrcode-art.png")
+            generated_image = Image.open(BytesIO(res.data.imgs_bytes[0]))
 
-            with Image.open("qrcode-art.png") as img:
-                metadata_str = img.info.get("parameters")
-                parsed_seed = parse_seed(metadata_str)
+            metadata_str = generated_image.info.get("parameters")
+            parsed_seed = parse_seed(metadata_str)
 
             if parsed_seed is not None:
                 info = {"seed": parsed_seed}
@@ -147,7 +157,7 @@ async def predict(
         # ------------------------------ UPDATE DATABASE ----------------------------- #
         try:
             doc = prepare_doc(req, info, website, image_quality, qr_weight, user_id)
-            inserted_image = await insert_image(doc)
+            inserted_image = await insert_image(doc, generated_image)
         except Exception as db_error:
             # Handle database insertion error
             raise HTTPException(status_code=500, detail="Database insertion failed")

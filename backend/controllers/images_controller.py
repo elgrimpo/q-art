@@ -9,6 +9,7 @@ import boto3
 from botocore.exceptions import ClientError
 from pymongo import DESCENDING, ASCENDING
 from typing import Optional
+from io import BytesIO
 
 # App imports
 from utils.utils import createImagesFilterQuery
@@ -35,9 +36,9 @@ s3_client = boto3.client(
 
 
 # ---------------------------------------------------------------------------- #
-#                                 IMSERT IMAGE                                 #
+#                                 INSERT IMAGE                                 #
 # ---------------------------------------------------------------------------- #
-async def insert_image(doc):
+async def insert_image(doc, image):
     try:
         # -------------------------- CREATE IMAGE DOC IN DB -------------------------- #
 
@@ -54,15 +55,18 @@ async def insert_image(doc):
 
         # -------------------------- UPLOAD IMAGE FILE TO S3 ------------------------- #
         try:
-            with open("./qrcode-art.png", "rb") as file:
-                # Upload file to S3
-                s3_client.upload_file(file.name, s3_bucket_name, object_name)
-                print("File uploaded successfully.")
+            # Convert the PIL Image to bytes
+            buffer = BytesIO()
+            image.save(buffer, format="PNG")
+            buffer.seek(0)
 
-                # Create image_url for image doc
-                image_url = (
-                    f"https://{s3_bucket_name}.s3.us-west-1.amazonaws.com/{object_name}"
-                )
+            # Upload file to S3
+            s3_client.upload_fileobj(buffer, s3_bucket_name, object_name)
+
+            # Create image_url for image doc
+            image_url = (
+                f"https://{s3_bucket_name}.s3.us-west-1.amazonaws.com/{object_name}"
+            )
         except Exception as upload_error:
             # Handle S3 upload error
             raise HTTPException(status_code=500, detail="S3 upload failed")
