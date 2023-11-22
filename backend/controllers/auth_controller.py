@@ -80,12 +80,14 @@ async def google_auth(request):
 
         # ----------------------------- CREATE USER SESSION ----------------------------- #
         try:
-            loggedInUser = users.find_one({"google_id": google_user["google_id"]})
-            if loggedInUser:
-                loggedInUser["_id"] = str(loggedInUser["_id"])
-                if "last_image_created_at" in loggedInUser:
-                    loggedInUser["last_image_created_at"] = loggedInUser["last_image_created_at"].strftime("%Y-%m-%dT%H:%M:%S.%f+00:00")
-                request.session["user_info"] = loggedInUser
+            logged_in_user = users.find_one({"google_id": google_user["google_id"]})
+            if logged_in_user:
+                user_info = {
+                    "_id": str(logged_in_user["_id"]),
+                    "is_authenticated": True,
+                }
+
+                request.session["user_info"] = user_info
             else:
                 raise HTTPException(status_code=404, detail="User not found")
             

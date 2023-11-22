@@ -1,5 +1,5 @@
 # Libraries Import
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Header
 from fastapi.middleware.cors import CORSMiddleware
 import requests as requests
 from dotenv import load_dotenv
@@ -14,7 +14,7 @@ from controllers.generate_controller import predict, upscale
 from controllers.models_controller import get_models
 from controllers.auth_controller import google_login, google_auth, google_logout
 from controllers.users_controller import get_user_info
-from controllers.payment_controller import create_checkout_session
+from controllers.payment_controller import create_checkout_session, stripe_webhook
 
 # ---------------------------------------------------------------------------- #
 #                                INITIALIZE APP                                #
@@ -31,7 +31,7 @@ app.add_middleware(
 )
 
 # CORS middleware
-origins = ["http://192.168.1.116.nip.io:3000"]
+origins = ["http://192.168.1.116.nip.io:3000", "https://checkout.stripe.com"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -58,7 +58,6 @@ async def generate_endpoint(
     qr_weight,
     sd_model,
     user_id,
-    request: Request,
 ):
     return await predict(
         prompt,
@@ -69,7 +68,6 @@ async def generate_endpoint(
         qr_weight,
         sd_model,
         user_id,
-        request,
     )
 
 # UPSCALE IMAGE
@@ -77,12 +75,10 @@ async def generate_endpoint(
 async def upscale_endpoint(
     image_id,
     user_id,
-    request: Request,
 ):
     return await upscale(
         image_id,
         user_id,
-        request,
     )
 
 
@@ -148,5 +144,9 @@ async def get_user_info_endpoint(request: Request):
 # ------------------------------ PAYMENTS ROUTES ----------------------------- #
 
 @app.post('/checkout')
-async def create_checkout_session_endpoint():
-    return create_checkout_session()
+async def create_checkout_session_endpoint(stripeId: Optional[str] = None, credit_amount: Optional[str] = None, user_id: Optional[str] = None):
+    return create_checkout_session(stripeId, credit_amount, user_id)
+
+@app.post("/stripe-webhook")
+async def stripe_webhook_endpoint(request: Request, stripe_signature: str = Header(None)):
+    return await stripe_webhook(request, stripe_signature)
