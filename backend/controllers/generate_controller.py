@@ -6,14 +6,10 @@ from novita_client import *
 import boto3
 import base64
 from bson import ObjectId
-from fastapi import HTTPException, Query
-from starlette.requests import Request
+from fastapi import HTTPException
 from pymongo import MongoClient
 from io import BytesIO
 from PIL import Image
-import cv2
-from novita_client import image_to_base64, read_image_to_base64
-
 
 # App imports
 from controllers.images_controller import insert_image, update_image
