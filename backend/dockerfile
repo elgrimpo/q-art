@@ -1,0 +1,19 @@
+FROM python:3.9
+
+# Install build essentials and other required tools
+RUN apt-get update && apt-get install -y build-essential
+
+# Set working directory
+WORKDIR /api
+
+# Copy requirements.txt
+COPY ./requirements.txt /api/requirements.txt
+
+# Install Python dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Copy the rest of your application files
+COPY . /api
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

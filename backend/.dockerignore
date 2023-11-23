@@ -1,0 +1,8 @@
+# env/
+__pychache__/
+
+# *.env
+# *.env.*
+# env.*
+
+scripts
