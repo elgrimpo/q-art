@@ -1,8 +1,5 @@
 # Libraries Import
-import base64
-from dotenv import load_dotenv
 import requests as requests
-import cv2
 import datetime
 import re
 from datetime import datetime, timedelta
@@ -76,7 +73,7 @@ def prepare_txt2img_request( image_quality, prompt, negative_prompt, sd_model, s
             ),
         ],
     )
-    
+
     return req
 
 # ---------------------------------------------------------------------------- #
