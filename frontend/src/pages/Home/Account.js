@@ -59,7 +59,7 @@ export default function Account() {
   const handleCheckout = (item) => {
     // API call
     axios
-      .post(`${process.env.REACT_APP_BACKEND_URL}/checkout`, null, {
+      .post('/checkout', null, {
         params: {
           stripeId: item.stripeId,
           credit_amount: item.creditAmount,

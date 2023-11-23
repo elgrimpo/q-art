@@ -31,7 +31,7 @@ app.add_middleware(
 )
 
 # CORS middleware
-origins = ["http://192.168.1.116.nip.io:3000", "https://checkout.stripe.com"]
+origins = ["http://192.168.1.116", "https://checkout.stripe.com", "http://localhost:3000", "http://192.168.1.116.nip.io:3000"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -48,7 +48,7 @@ app.add_middleware(
 # ------------------------------ GENERATE ROUTES ----------------------------- #
 
 # GENERATE IMAGE
-@app.get("/generate")
+@app.get("/api/generate")
 async def generate_endpoint(
     prompt,
     website,
@@ -71,7 +71,7 @@ async def generate_endpoint(
     )
 
 # UPSCALE IMAGE
-@app.get("/upscale/{image_id}")
+@app.get("/api/upscale/{image_id}")
 async def upscale_endpoint(
     image_id,
     user_id,
@@ -85,7 +85,7 @@ async def upscale_endpoint(
 # ------------------------------- IMAGE ROUTES ------------------------------- #
 
 # GET IMAGES
-@app.get("/images/get")
+@app.get("/api/images/get")
 async def images_endpoint(
     page: int = 1,
     user_id: Optional[str] = None,
@@ -104,14 +104,14 @@ async def images_endpoint(
     )
 
 # DELETE IMAGE
-@app.delete("/images/delete/{id}")
+@app.delete("/api/images/delete/{id}")
 async def delete_image_endpoint(id: str):
     return delete_image(id)
 
 # ------------------------------- MODELS ROUTES ------------------------------ #
 
 # GET MODEL
-@app.get("/models/get")
+@app.get("/api/models/get")
 async def get_models_endpoint():
     return get_models()
 
@@ -119,17 +119,17 @@ async def get_models_endpoint():
 # -------------------------------- AUTH ROUTES ------------------------------- #
 
 # GOOGLE LOGIN
-@app.get("/login/google")
+@app.get("/api/login/google")
 async def google_login_endpoint(request: Request):
     return await google_login(request)
 
 # GOOGLE AUTH
-@app.get("/auth/google")
+@app.get("/api/auth/google")
 async def google_auth_endpoint(request: Request):
     return await google_auth(request)
 
 # LOGOUT
-@app.get("/logout")
+@app.get("/api/logout")
 async def logout_endpoint(request: Request):
     return google_logout(request)
 
@@ -137,16 +137,16 @@ async def logout_endpoint(request: Request):
 
 
 # GET USER INFO
-@app.get("/user/info")
+@app.get("/api/user/info")
 async def get_user_info_endpoint(request: Request):
     return await get_user_info(request)
 
 # ------------------------------ PAYMENTS ROUTES ----------------------------- #
 
-@app.post('/checkout')
+@app.post('/api/checkout')
 async def create_checkout_session_endpoint(stripeId: Optional[str] = None, credit_amount: Optional[str] = None, user_id: Optional[str] = None):
     return create_checkout_session(stripeId, credit_amount, user_id)
 
-@app.post("/stripe-webhook")
+@app.post("/api/stripe-webhook")
 async def stripe_webhook_endpoint(request: Request, stripe_signature: str = Header(None)):
     return await stripe_webhook(request, stripe_signature)

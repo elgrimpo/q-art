@@ -17,7 +17,7 @@ export const useUtils = () => {
 
   const getUserInfo = async () => {
     axios
-      .get(`${process.env.REACT_APP_BACKEND_URL}/user/info`, {
+      .get('api/user/info', {
         withCredentials: true,
       })
       .then((res) => {
@@ -51,7 +51,7 @@ export const useUtils = () => {
 
   const logout = async () => {
     axios
-      .get(`${process.env.REACT_APP_BACKEND_URL}/logout`, {
+      .get('api/logout', {
         withCredentials: true,
       })
       .then(window.location.reload())

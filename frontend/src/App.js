@@ -1,5 +1,6 @@
 // Libraries imports
 import * as React from "react";
+import axios from "axios";
 import { Routes, Route, Navigate, useNavigate, Link } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import {
@@ -62,9 +63,8 @@ function App() {
 
   // Login
   const handleLogin = async () => {
-    window.open(`${process.env.REACT_APP_BACKEND_URL}/login/google`, "_self");
-  };
-
+    window.open(`api/login/google`, "_self");
+  }
   // Check if user session exists
   useEffect(() => {
     getUserInfo();
