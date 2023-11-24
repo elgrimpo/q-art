@@ -56,9 +56,9 @@ async def google_auth(request):
         # ------------------------------- AUTHENTICATE ------------------------------- #
         try:
             token = await oauth.google.authorize_access_token(request)
-        except Exception:
+        except Exception as e:
             # Handle authentication error
-            raise HTTPException(status_code=401, detail="Authentication failed")
+            raise HTTPException(status_code=401, detail=e)
 
         google_user = {
             "google_id": token["userinfo"]["sub"],

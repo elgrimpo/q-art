@@ -22,13 +22,23 @@ users = db.get_collection("users")
 
 
 async def get_user_info(request):
-    # TODO: check in session if is_authenticated and return status if not authenticated
-    user_info = request.session.get("user_info", None)
-    logged_in_user = users.find_one({"_id": ObjectId(user_info.get("_id"))})
-    serialized_user = json.dumps(logged_in_user, indent = 4, sort_keys = True, default = str)
-    if serialized_user is None:
+    user_info = request.session.get("user_info")
+    
+    if not user_info:
         return {"message": "User information not found in session"}
-    return serialized_user
+    
+    try:
+        logged_in_user = users.find_one({"_id": ObjectId(user_info.get("_id"))})
+        
+        if logged_in_user:
+            serialized_user = json.dumps(logged_in_user, indent=4, sort_keys=True, default=str)
+            return serialized_user
+        else:
+            return {"message": "User not found in the database"}
+    
+    except Exception as e:
+        # Handle specific exceptions such as database connection issues, etc.
+        return {"message": f"Error retrieving user information: {str(e)}"}
 
 
 # ---------------------------------------------------------------------------- #
