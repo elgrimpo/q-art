@@ -39,7 +39,7 @@ function SdModelCard(props) {
         color="primary"
       >
         {/* ----------------------------- IMAGE --------------------------- */}
-        {variant == "skeleton" ? (
+        {variant === "skeleton" ? (
           // SKELETON FOR LOADING THE IMAGE
           <Skeleton
             variant="rounded"

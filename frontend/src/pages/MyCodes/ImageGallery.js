@@ -115,6 +115,8 @@ function ImageGallery(props) {
       threshold: 1,
     };
 
+    const currentLoadMoreRef = loadMoreRef.current;
+
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
@@ -137,15 +139,17 @@ function ImageGallery(props) {
       });
     }, options);
 
-    if (loadMoreRef.current) {
-      observer.observe(loadMoreRef.current);
+    if (currentLoadMoreRef) {
+      observer.observe(currentLoadMoreRef);
     }
 
     return () => {
-      if (loadMoreRef.current) {
-        observer.unobserve(loadMoreRef.current);
+      if (currentLoadMoreRef) {
+        observer.unobserve(currentLoadMoreRef);
       }
     };
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [images, loading]);
 
   // Images Details Modal
@@ -241,7 +245,7 @@ function ImageGallery(props) {
       </Grid>
 
       {/* ------------------------ IMAGE DETAILS MODAL ----------------------- */}
-      {images != [] && (
+      {images !== [] && (
         <ImageModal
           open={modalOpen}
           index={selectedImageIndex}

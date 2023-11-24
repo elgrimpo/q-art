@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import axios from "axios";
 import {
   Fab,
@@ -94,7 +94,8 @@ export default function Account() {
     if (query.get("canceled")) {
       openAlert("error", "Credit purchase cancelled.")
     }
-  }, []);
+
+  }, [openAlert]);
 
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */

@@ -1,7 +1,6 @@
 // Libraries imports
 import * as React from "react";
-import axios from "axios";
-import { Routes, Route, Navigate, useNavigate, Link } from "react-router-dom";
+import { Routes, Route, Navigate, Link } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import {
   Tab,
@@ -68,7 +67,7 @@ function App() {
   // Check if user session exists
   useEffect(() => {
     getUserInfo();
-  }, [generatedImage, userImages]);
+  }, [generatedImage, userImages, getUserInfo]);
 
   // Change selected Tab
   const handleTabChange = (event, newValue) => {

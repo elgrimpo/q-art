@@ -68,7 +68,7 @@ export const useImageUtils = () => {
           });
 
           // No images at the initial Query:
-          if (params.page == 1) {
+          if (params.page === 1) {
             // Set userImages / communityImage to empty
             dispatch({
               type: imagesActionType,
@@ -134,7 +134,7 @@ export const useImageUtils = () => {
 
   const deleteImage = (id, index) => {
     axios
-      .delete('api/images/delete/${id}')
+      .delete(`api/images/delete/${id}`)
       .then(() => {
         if (index > -1) {
           // Remove image from array
@@ -171,7 +171,7 @@ export const useImageUtils = () => {
 
     /* -------------------------------- API Call -------------------------------- */
     axios
-      .get('api/upscale/${id}', {
+      .get(`api/upscale/${id}`, {
         params: { user_id: user._id },
         withCredentials: true,
       })

@@ -33,6 +33,7 @@ function SdModelsModal(props) {
 
   useEffect(() => {
     getSdModels();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /* -------------------------------------------------------------------------- */

@@ -26,7 +26,7 @@ export const useGenerateUtils = () => {
     /* -------------------------------- API Call -------------------------------- */
     axios
       .get(
-        'api/generate/?user_id=${user._id}',
+        `api/generate/?user_id=${user._id}`,
         {
           params: generateFormValues,
           withCredentials: true,

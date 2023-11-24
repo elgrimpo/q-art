@@ -1,21 +1,47 @@
 //Libraries imports
 import axios from "axios";
+import { useCallback } from "react";
 
 // App imports
 import { ActionTypes } from "../context/reducers";
-import { useImages, useImagesDispatch } from "../context/AppProvider";
+import { useImagesDispatch } from "../context/AppProvider";
 
 export const useUtils = () => {
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
-  const { userImages, communityImages, userImagesPage, communityImagesPage } =
-    useImages();
+
   const dispatch = useImagesDispatch();
+
+   /* -------------------------------------------------------------------------- */
+  /*                                OPEN SNACKBAR                               */
+  /* -------------------------------------------------------------------------- */
+
+  const openAlert = useCallback((severity, message) => {
+    // Set Snackbar open with severity and message
+    dispatch({
+      type: ActionTypes.OPEN_ALERT,
+      payload: {
+        severity: severity,
+        message: message,
+      },
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  /* -------------------------------------------------------------------------- */
+  /*                               CLOSE SNACKBAR                               */
+  /* -------------------------------------------------------------------------- */
+
+  const closeAlert = () => {
+    // Set Snackbar to closed
+    dispatch({
+      type: ActionTypes.CLOSE_ALERT,
+    });
+  };
 
   /* -------------------------------------------------------------------------- */
   /*                            GET USER FROM SESSION                           */
   /* -------------------------------------------------------------------------- */
-
-  const getUserInfo = async () => {
+  const getUserInfo = useCallback(() => {
     axios
       .get('api/user/info', {
         withCredentials: true,
@@ -43,7 +69,8 @@ export const useUtils = () => {
         openAlert("error", "User info could not be loaded");
         console.log(err);
       });
-  };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[openAlert]);
 
   /* -------------------------------------------------------------------------- */
   /*                                   LOGOUT                                   */
@@ -62,31 +89,6 @@ export const useUtils = () => {
       });
   };
 
-  /* -------------------------------------------------------------------------- */
-  /*                                OPEN SNACKBAR                               */
-  /* -------------------------------------------------------------------------- */
-
-  const openAlert = (severity, message) => {
-    // Set Snackbar open with severity and message
-    dispatch({
-      type: ActionTypes.OPEN_ALERT,
-      payload: {
-        severity: severity,
-        message: message,
-      },
-    });
-  };
-
-  /* -------------------------------------------------------------------------- */
-  /*                               CLOSE SNACKBAR                               */
-  /* -------------------------------------------------------------------------- */
-
-  const closeAlert = () => {
-    // Set Snackbar to closed
-    dispatch({
-      type: ActionTypes.CLOSE_ALERT,
-    });
-  };
 
   /* -------------------------------------------------------------------------- */
   /*                              CALCULATE CREDITS                             */

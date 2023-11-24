@@ -43,7 +43,6 @@ function Generate() {
     loadingGeneratedImage,
     generateFormValues,
     sd_models,
-    user,
   } = useImages();
 
   // Utils functions
@@ -129,7 +128,7 @@ function Generate() {
     } else {
       setSubmitDisabled(true);
     }
-  }, [generateFormValues]);
+  }, [generateFormValues, calculateCredits, price]);
 
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
