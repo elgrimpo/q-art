@@ -1,8 +1,28 @@
-# env/
-__pychache__/
+Copy code
+# Ignore Git files and directories
+.git
+.gitignore
 
-# *.env
-# *.env.*
-# env.*
+# Ignore Node.js specific files and directories
+node_modules
+npm-debug.log
 
-scripts
+# Ignore Python specific files and directories
+__pycache__
+*.pyc
+
+# Ignore development-specific files and directories
+.idea
+.vscode
+
+# Ignore build artifacts and logs
+build
+dist
+logs
+*.log
+
+# Ignore sensitive or private files
+.env
+secrets.json
+
+scripts/
