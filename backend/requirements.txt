@@ -11,7 +11,7 @@ click==8.1.7
 cryptography==41.0.3
 dataclass-wizard==0.22.2
 distlib==0.3.7
-dnspython==2.4.1
+dnspython==2.3.0
 fastapi==0.104.1
 filelock==3.12.2
 h11==0.14.0
