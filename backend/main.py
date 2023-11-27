@@ -31,7 +31,7 @@ app.add_middleware(
 )
 
 # CORS middleware
-origins = ["http://192.168.1.116", "https://checkout.stripe.com", "http://localhost:3000", "http://192.168.1.116.nip.io:3000"]
+origins = ["http://192.168.1.116", "https://checkout.stripe.com", "http://localhost:3000", "http://192.168.1.116.nip.io:3000", "https://master.d2beipd1yn0vaa.amplifyapp.com"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
