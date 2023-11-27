@@ -123,7 +123,7 @@ function ImagesModal(props) {
         }}
       >
         {/* ------------ Image ------------- */}
-        <Box
+        <Box // Background fill
           sx={{
             maxHeight: "100%",
             backgroundColor: "#70E195",
@@ -140,7 +140,8 @@ function ImagesModal(props) {
               margin: "auto",
               padding: { xs: "0rem", md: "0rem", lg: "2rem" },
               borderRadius: { xs: "0px", lg: "16px" },
-              width: "100%",
+              maxWidth: "100%",
+              maxHeight: "100%",
             }}
           >
             <CardMedia
@@ -153,6 +154,7 @@ function ImagesModal(props) {
                 // aspectRatio: "1/1",
                 borderRadius: { xs: "0px", lg: "16px" },
                 width: "100%",
+                height: "100%",
               }}
             />
           </Box>

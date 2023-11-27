@@ -142,8 +142,12 @@ function Generate() {
         <Box className="sidebar">
           <Box className="formfield">
             <Stack useFlexGap spacing={2}>
-              <Typography variant="h5" align={isMobile ? "center" : "left"} sx={{mt:"1rem"}}>
-              Generate QR Art
+              <Typography
+                variant="h5"
+                align={isMobile ? "center" : "left"}
+                sx={{ mt: "1rem" }}
+              >
+                Generate QR Art
               </Typography>
 
               {/* WEBSITE */}
@@ -273,7 +277,7 @@ function Generate() {
                   )?.name
                 }
               </Button>
-              
+
               {/* --------------------------------- SUBMIT --------------------------------- */}
               <Button
                 variant="contained"
@@ -281,7 +285,7 @@ function Generate() {
                 disabled={submitDisabled || loadingGeneratedImage}
                 aria-label="generate"
                 onClick={(e) => handleGenerate()}
-                sx={{mb:"1rem"}}
+                sx={{ mb: "1rem" }}
               >
                 <Typography variant="body1" component="div">
                   Generate QR Code ( {price}
@@ -325,18 +329,25 @@ function Generate() {
               </Box>
             ) : (
               // IMAGE
-              <CardMedia
-                component="img"
-                image={generatedImage.image_url}
+              <Box
                 sx={{
-                  borderRadius: { md: "12px" },
                   maxHeight: {
                     xs: "calc(100% - 200px)",
                     md: "calc(100% - 90px)",
                   },
-                  objectFit: "contain",
                 }}
-              />
+              >
+                <CardMedia
+                  component="img"
+                  image={generatedImage.image_url}
+                  sx={{
+                    borderRadius: { md: "12px" },
+                    objectFit: "contain",
+                    maxHeight: "100%",
+                  }}
+                  
+                />
+              </Box>
             )}
 
             {/* ACTION BUTTONS */}
