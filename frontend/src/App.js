@@ -1,6 +1,6 @@
 // Libraries imports
 import * as React from "react";
-import { Routes, Route, Navigate, Link } from "react-router-dom";
+import { Routes, Route, Navigate, Link, useLocation } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import {
   Tab,
@@ -55,6 +55,9 @@ function App() {
   // Screen size
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
+  // URL Path
+  const location = useLocation();
+
   // Current Tab
   const [tabValue, setTabValue] = React.useState("Generate");
 
@@ -69,10 +72,13 @@ function App() {
     getUserInfo();
   }, [generatedImage, userImages, getUserInfo]);
 
-  // Change selected Tab
-  const handleTabChange = (event, newValue) => {
-    setTabValue(newValue);
-  };
+  
+  // Change selected Tab based on URL path
+  useEffect(() => {
+    const { pathname } = location;
+
+    setTabValue(pathname);
+  }, [location]);
 
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
@@ -92,25 +98,24 @@ function App() {
             <Tabs
               value={tabValue}
               sx={{ display: { xs: "none", md: "flex" } }}
-              onChange={handleTabChange}
               centered
             >
               <Tab
                 component={Link}
                 label="Generate"
-                value="Generate"
+                value="/generate"
                 to="/generate"
               />
               <Tab
                 component={Link}
                 label="My codes"
-                value="My codes"
+                value="/mycodes"
                 to="/mycodes"
               />
               <Tab
                 component={Link}
                 label="Explore"
-                value="Explore"
+                value="/explore"
                 to="/explore"
               />
             </Tabs>
@@ -139,7 +144,6 @@ function App() {
               element={
                 <ImageGallery
                   imageType="userImages"
-                  setTabValue={setTabValue}
                 />
               }
             />
@@ -150,7 +154,6 @@ function App() {
               element={
                 <ImageGallery
                   imageType="communityImages"
-                  setTabValue={setTabValue}
                 />
               }
             />
@@ -192,7 +195,6 @@ function App() {
             showLabels
             value={tabValue}
             onChange={(event, newValue) => {
-              setTabValue(newValue);
             }}
           >
             {/* GENERATE PAGE */}

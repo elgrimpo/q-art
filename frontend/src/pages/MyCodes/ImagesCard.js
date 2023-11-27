@@ -13,6 +13,7 @@ import DeleteForeverTwoToneIcon from "@mui/icons-material/DeleteForeverTwoTone";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import DiamondTwoToneIcon from "@mui/icons-material/DiamondTwoTone";
 import theme from "../../styles/mui-theme.js";
+import { useNavigate } from "react-router-dom";
 
 // App imports
 import SkeletonCard from "./SkeletonCard.js";
@@ -24,9 +25,12 @@ import { useGenerateUtils } from "../../utils/GenerateUtils.js";
 /* -------------------------------------------------------------------------- */
 
 function ImageCard(props) {
-  const { variant, item, index, onClick, setTabValue, imageType } = props;
+  const { variant, item, index, onClick, imageType } = props;
 
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
+
+  // Initialize navigate function
+  const navigate = useNavigate();
 
   // Image fuctions
   const { downloadImage, deleteImage, upscaleImage } = useImageUtils();
@@ -41,7 +45,7 @@ function ImageCard(props) {
 
   const handleCopy = (item) => {
     copyGenerateFormValues(item);
-    setTabValue("Generate");
+    navigate("/generate");
   };
 
   /* -------------------------------------------------------------------------- */
@@ -123,7 +127,6 @@ function ImageCard(props) {
                     <DiamondTwoToneIcon key={index} />
                   </IconButton>
                 </Tooltip>
-
               )}
             </Stack>
           </div>
