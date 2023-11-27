@@ -48,7 +48,7 @@ export const useImageUtils = () => {
 
     // API Call
     axios
-      .get('/api/images/get', {
+      .get(`${process.env.REACT_APP_BACKEND_URL}/api/images/get`, {
         params: params,
       })
       .then((res) => {
@@ -134,7 +134,7 @@ export const useImageUtils = () => {
 
   const deleteImage = (id, index) => {
     axios
-      .delete(`api/images/delete/${id}`)
+      .delete(`${process.env.REACT_APP_BACKEND_URL}/api/images/delete/${id}`)
       .then(() => {
         if (index > -1) {
           // Remove image from array
@@ -171,7 +171,7 @@ export const useImageUtils = () => {
 
     /* -------------------------------- API Call -------------------------------- */
     axios
-      .get(`api/upscale/${id}`, {
+      .get(`${process.env.REACT_APP_BACKEND_URL}/api/upscale/${id}`, {
         params: { user_id: user._id },
         withCredentials: true,
       })

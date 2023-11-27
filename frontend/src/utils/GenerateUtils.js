@@ -26,7 +26,7 @@ export const useGenerateUtils = () => {
     /* -------------------------------- API Call -------------------------------- */
     axios
       .get(
-        `api/generate/?user_id=${user._id}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/generate/?user_id=${user._id}`,
         {
           params: generateFormValues,
           withCredentials: true,
@@ -120,7 +120,7 @@ export const useGenerateUtils = () => {
 
     /* -------------------------------- API Call -------------------------------- */
     await axios
-      .get('api/models/get')
+      .get(`${process.env.REACT_APP_BACKEND_URL}/api/models/get`)
       .then((res) => {
         // Update sd_models in reducer
         dispatch({
