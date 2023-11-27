@@ -66,8 +66,6 @@ async def google_auth(request):
             "picture": token["userinfo"]["picture"],
             "email": token["userinfo"]["email"],
         }
-        print("google_user:")
-        print(google_user)
 
         # ----------------------------- UPDATE USER INFO ----------------------------- #
         try:
@@ -90,8 +88,6 @@ async def google_auth(request):
                 }
 
                 request.session["user_info"] = user_info
-                print("Session:")
-                print(request.session["user_info"])
             else:
                 raise HTTPException(status_code=404, detail="User not found")
             

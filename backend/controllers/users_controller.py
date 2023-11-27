@@ -23,8 +23,6 @@ users = db.get_collection("users")
 
 async def get_user_info(request):
     user_info = request.session.get("user_info")
-    print("get_user_info:")
-    print(user_info)
     
     if not user_info:
         return {"message": "User information not found in session"}
@@ -104,7 +102,6 @@ async def increment_user_count(user_id, service_config, credits_deducted):
 # ---------------------------------------------------------------------------- #
 
 def add_user_payment(user_id, transaction_amount, product_id, credit_amount, payment_intent, timestamp):
-    print("add_user_payment_invoked")
 
     # Create a new payment history object
     payment_history_obj = {

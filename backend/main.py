@@ -97,7 +97,6 @@ async def images_endpoint(
     sort_by: str = "created_at",
     sort_direction: int = DESCENDING
 ):
-    print(likes)
 
     return get_images(
         page, user_id, exclude_user_id, likes, time_period, sd_model, images_per_page, sort_by, sort_direction

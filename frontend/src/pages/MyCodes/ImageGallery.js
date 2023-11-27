@@ -102,8 +102,6 @@ function ImageGallery(props) {
       time_period: newSelectedFilters.time_period,
       sd_model: sd_name,
     };
-    console.log(params);
-
     getMoreImages(imageType, params);
   };
 
