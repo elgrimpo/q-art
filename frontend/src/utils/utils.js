@@ -43,7 +43,7 @@ export const useUtils = () => {
   /* -------------------------------------------------------------------------- */
   const getUserInfo = useCallback(() => {
     axios
-      .get(`${process.env.REACT_APP_BACKEND_URL}/api/user/info`, {
+      .get(`/api/user/info`, {
         withCredentials: true,
       })
       .then((res) => {
@@ -79,7 +79,7 @@ export const useUtils = () => {
 
   const logout = async () => {
     axios
-      .get(`${process.env.REACT_APP_BACKEND_URL}/api/logout`, {
+      .get(`/api/logout`, {
         withCredentials: true,
       })
       .then(window.location.reload())
