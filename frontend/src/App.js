@@ -62,7 +62,7 @@ function App() {
 
   // Login
   const handleLogin = async () => {
-    window.open(`/api/login/google`, "_self");
+    window.open(`${process.env.REACT_APP_BACKEND_URL}/api/login/google`, "_self");
   }
   // Check if user session exists
   useEffect(() => {
