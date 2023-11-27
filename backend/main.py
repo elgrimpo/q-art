@@ -31,7 +31,7 @@ app.add_middleware(
 )
 
 # CORS middleware
-origins = ["http://192.168.1.116", "https://checkout.stripe.com", "http://localhost:3000", "http://192.168.1.116.nip.io:3000", "https://dev.qr-ai.co/", "https://www.qr-ai.co/"]
+origins = ["http://192.168.1.116", "https://checkout.stripe.com", "http://localhost:3000", "http://192.168.1.116.nip.io:3000", "https://dev.qr-ai.co", "https://www.qr-ai.co"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
