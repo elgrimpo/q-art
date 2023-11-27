@@ -23,6 +23,8 @@ users = db.get_collection("users")
 
 async def get_user_info(request):
     user_info = request.session.get("user_info")
+    print("get_user_info:")
+    print(user_info)
     
     if not user_info:
         return {"message": "User information not found in session"}

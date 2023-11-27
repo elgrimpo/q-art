@@ -47,6 +47,7 @@ export const useUtils = () => {
         withCredentials: true,
       })
       .then((res) => {
+        console.log(res.data)
         const user = JSON.parse(res.data);
         console.log(user)
         if (user) {
