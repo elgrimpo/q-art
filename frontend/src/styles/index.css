@@ -10,21 +10,12 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  box-sizing: border-box;
-  height: 100dvh
-}
+  box-sizing: border-box;}
 
-html {
-  height: 100%
-}
 
-#root {
-  height: 100%;
-}
 
 /*-------- App.js --------*/
 .app {
-  height: 100%;
   max-width: 1600px;
   margin: auto;
   box-sizing: border-box;
@@ -43,7 +34,8 @@ html {
 
 .body {
   box-sizing: border-box;
-  height: calc(100dvh - 75px);
+  /* TODO Remove for mobile */
+  height: calc(100dvh - 75px); 
   background-color: #F5F5F5;
   margin: 0px;
   overflow: scroll;
@@ -67,8 +59,8 @@ html {
   flex-direction: column;
   /* max-width:550px; */
   max-height: 100%;
-  /* TODO: add padding */
-  padding: 0rem 2rem
+  padding: 0rem 2rem;
+  margin-bottom: 60px
 }
 
 
@@ -107,7 +99,7 @@ html {
   aspect-ratio: 1/1;
   justify-content: center;
   align-items: center;
-  height: calc(100% - 90px);
+  width: 100%;
   border-radius: 16px
 }
 
@@ -160,34 +152,48 @@ html {
 
 @media screen and (max-width: 900px) {
   .body {
-    height: calc(100dvh - 120px);
+    height: auto;
     padding: 0px
   }
-
   .generate-page {
-    height: calc(100dvh - 120px);
+   height: auto
 
   }
-
   .sidebar {
     width: 100%;
     padding: 0rem 1rem
   }
-
   .image-container {
     margin: 0;
-    padding: 2rem;
+    padding: 1rem;
+    height: calc(100dvh - 120px);
+  }
+  .image-card {
+    height: calc(100dvh - 180px);
+    padding: 0px;
+  }
+  .loading-box {
+    max-height: calc(100dvh - 320px);
+
   }
 }
 
 @media screen and (max-width: 600px) {
   .image-container {
     padding: 0rem;
+    height: calc(100dvh - 100px);
   }
 
   .image-card {
     margin: 0;
     padding: 0;
-    border-radius: 0
+    border-radius: 0;
+    height: 100%
+  }
+  .loading-box {
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+
   }
 }

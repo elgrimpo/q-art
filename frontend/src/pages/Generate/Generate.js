@@ -16,9 +16,7 @@ import {
   Tooltip,
   InputAdornment,
 } from "@mui/material";
-import CasinoTwoToneIcon from "@mui/icons-material/CasinoTwoTone";
-import DownloadTwoToneIcon from "@mui/icons-material/DownloadTwoTone";
-import DeleteForeverTwoToneIcon from "@mui/icons-material/DeleteForeverTwoTone";
+import CasinoTwoToneIcon from "@mui/icons-material/CasinoTwoTone"
 import DiamondTwoToneIcon from "@mui/icons-material/DiamondTwoTone";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import theme from "../../styles/mui-theme";
@@ -47,7 +45,6 @@ function Generate() {
 
   // Utils functions
   const { calculateCredits } = useUtils();
-  const { downloadImage } = useImageUtils();
   const { generateImage, selectSdModel, handleInputChange } =
     useGenerateUtils();
 
@@ -341,7 +338,7 @@ function Generate() {
                   component="img"
                   image={generatedImage.image_url}
                   sx={{
-                    borderRadius: { md: "12px" },
+                    borderRadius: { sm: "12px" },
                     objectFit: "contain",
                     maxHeight: "100%",
                   }}
@@ -350,44 +347,13 @@ function Generate() {
               </Box>
             )}
 
-            {/* ACTION BUTTONS */}
-            <Stack
-              direction="row"
-              justifyContent="center"
-              alignItems="center"
-              spacing={3}
-              sx={{ mt: "1rem" }}
-            >
-              <Tooltip title="Download image">
-                <IconButton onClick={() => downloadImage(generatedImage)}>
-                  <DownloadTwoToneIcon />
-                </IconButton>
-              </Tooltip>
-
-              <Tooltip title="Delete image">
-                {/* TODO: Delete only user Images */}
-                <IconButton>
-                  <DeleteForeverTwoToneIcon />
-                </IconButton>
-              </Tooltip>
-
-              {generatedImage.width === 512 && (
-                // TODO: Upscale only user Images
-                <Tooltip title="Upscale resolution to 1024 x 1024">
-                  <IconButton>
-                    <DiamondTwoToneIcon />
-                  </IconButton>
-                </Tooltip>
-              )}
-            </Stack>
-
             {/* MOBILE: BACK TO FORM BUTTON */}
             {isMobile && !loadingGeneratedImage && (
               <Fab
                 variant="extended"
                 size="medium"
                 color="secondary"
-                sx={{ margin: "24px" }}
+                sx={{ margin: "24px", zIndex: 900 }}
                 aria-label="share"
                 onClick={() => handleFormUnsubmit()}
               >

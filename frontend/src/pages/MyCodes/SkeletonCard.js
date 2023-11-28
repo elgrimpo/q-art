@@ -31,7 +31,7 @@ function SkeletonCard(props) {
         justifyContent="center"
         alignItems="center"
         spacing={3}
-        sx={{ mt: "1.5rem" }}
+        sx={{ mt: "1.6rem" }}
         key={index + "_2"}
       >
         {Array.from({ length: 4 }, (_, index) => index).map((_, iconIndex) => (
