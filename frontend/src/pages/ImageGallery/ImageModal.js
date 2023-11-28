@@ -14,6 +14,7 @@ import ChevronLeftTwoToneIcon from "@mui/icons-material/ChevronLeftTwoTone";
 import CloseTwoToneIcon from "@mui/icons-material/CloseTwoTone";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import theme from "../../styles/mui-theme";
+import StyledIconButton from "../../components/StyledIconButton";
 
 //App imports
 import { useImages } from "../../context/AppProvider";
@@ -52,60 +53,62 @@ function ImagesModal(props) {
       {/* ------------------------ NAVIGATION BUTTONS ----------------------- */}
 
       {/* PREVIOUS */}
-      <Fab
-        color="primary"
-        aria-label="previous"
-        size="medium"
+      <Box
         sx={{
-          borderRadius: "20px",
           margin: "1rem",
           position: "absolute",
           bottom: { xs: "1rem", lg: "auto" },
           left: { xs: "1rem", lg: "0.5rem", xl: "0.5rem" },
           zIndex: "1",
         }}
-        onClick={handlePrevious}
       >
-        <ChevronLeftTwoToneIcon />
-      </Fab>
+        <StyledIconButton
+          variant="contained"
+          color="secondary"
+          type="previous"
+          handleClick={handlePrevious}
+        />
+      </Box>
 
       {/* NEXT */}
-      <Fab
-        color="primary"
-        variant="circular"
-        size="medium"
-        aria-label="next"
+      <Box
         sx={{
-          borderRadius: "20px",
           margin: "1rem",
-          position: { xs: "absolute" },
+          position: "absolute",
           bottom: { xs: "1rem", lg: "auto" },
           right: { xs: "1rem", lg: "0.5rem", xl: "0.5rem" },
           zIndex: "1",
         }}
-        onClick={handleNext}
       >
-        <ChevronRightTwoToneIcon />
-      </Fab>
+        <StyledIconButton
+          variant="contained"
+          color="secondary"
+          type="next"
+          handleClick={handleNext}
+        />
+        </Box>
+      
 
       {/* CLOSE */}
       {isFullScreen && (
-        <Fab
-          color="primary"
-          aria-label="close"
-          size="medium"
-          sx={{
-            borderRadius: "20px",
-            margin: "1rem",
-            position: "absolute",
-            bottom: { xs: "1rem" },
-            left: { xs: "auto" },
-            zIndex: "1",
-          }}
-          onClick={handleClose}
-        >
-          <CloseTwoToneIcon />
-        </Fab>
+     <Box
+     sx={{
+      margin: "1rem",
+      position: "absolute",
+      bottom: { xs: "1rem" },
+      left: { xs: "auto" },
+      zIndex: "1",
+     }}
+   >
+     <StyledIconButton
+       variant="contained"
+       color="secondary"
+       type="close"
+       handleClick={handleClose}
+     />
+     </Box>
+
+        
       )}
 
       {/* -------------------------- MODAL SCREEN -------------------------- */}

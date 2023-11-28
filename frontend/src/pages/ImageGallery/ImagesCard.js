@@ -5,13 +5,7 @@ import {
   CardMedia,
   Grid,
   Stack,
-  IconButton,
-  Tooltip,
 } from "@mui/material";
-import DownloadTwoToneIcon from "@mui/icons-material/DownloadTwoTone";
-import DeleteForeverTwoToneIcon from "@mui/icons-material/DeleteForeverTwoTone";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import DiamondTwoToneIcon from "@mui/icons-material/DiamondTwoTone";
 import theme from "../../styles/mui-theme.js";
 import { useNavigate } from "react-router-dom";
 
@@ -19,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 import SkeletonCard from "./SkeletonCard.js";
 import { useImageUtils } from "../../utils/ImageUtils.js";
 import { useGenerateUtils } from "../../utils/GenerateUtils.js";
-
+import StyledIconButton from "../../components/StyledIconButton.js";
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
 /* -------------------------------------------------------------------------- */
@@ -89,44 +83,47 @@ function ImageCard(props) {
               key={index + "_6"}
             >
               {/* DOWNLOAD */}
-              <Tooltip title="Download image">
-                <IconButton
-                  onClick={() => downloadImage(item)}
-                  key={index + "_1"}
-                >
-                  <DownloadTwoToneIcon key={index} />
-                </IconButton>
-              </Tooltip>
+              <StyledIconButton
+                type="download"
+                variant="contained"
+                color="secondary"
+                tooltip="Download image"
+                handleClick={() => downloadImage(item)}
+                key={index + "_1"}
+              />
 
               {/* COPY */}
-              <Tooltip title="Copy data to generate similar image">
-                <IconButton key={index + "_2"} onClick={() => handleCopy(item)}>
-                  <ContentCopyIcon index={index} />
-                </IconButton>
-              </Tooltip>
+              <StyledIconButton
+                type="copy"
+                variant="contained"
+                color="secondary"
+                tooltip="Copy data to generate similar image"
+                handleClick={() => handleCopy(item)}
+                key={index + "_2"}
+              />
 
               {/* DELETE */}
               {imageType === "userImages" && (
-                <Tooltip title="Delete image">
-                  <IconButton
-                    onClick={() => deleteImage(item._id, index)}
-                    key={index + "_3"}
-                  >
-                    <DeleteForeverTwoToneIcon key={index} />
-                  </IconButton>
-                </Tooltip>
+                <StyledIconButton
+                  type="delete"
+                  variant="contained"
+                  color="secondary"
+                  tooltip="Delete image"
+                  handleClick={() => deleteImage(item._id, index)}
+                  key={index + "_3"}
+                />
               )}
 
               {/* UPSCALE */}
               {item.width === 512 && imageType === "userImages" && (
-                <Tooltip title="Upscale resolution to 1024 x 1024">
-                  <IconButton
-                    onClick={() => upscaleImage(item._id, setUpscaling)}
-                    key={index + "_4"}
-                  >
-                    <DiamondTwoToneIcon key={index} />
-                  </IconButton>
-                </Tooltip>
+                <StyledIconButton
+                  type="upscale"
+                  variant="contained"
+                  color="secondary"
+                  tooltip="Upscale resolution to 1024 x 1024"
+                  handleClick={() => upscaleImage(item._id, setUpscaling)}
+                  key={index + "_4"}
+                />
               )}
             </Stack>
           </div>
