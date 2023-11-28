@@ -38,6 +38,9 @@ const theme = createTheme({
   components: {
     MuiButton: {
       styleOverrides: {
+        root: {
+          borderRadius: "24px"
+        },
         outlined: {
           color: palette.primary.dark,
           borderColor: palette.primary.dark,
