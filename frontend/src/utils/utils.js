@@ -65,7 +65,7 @@ export const useUtils = () => {
       /* ----------------------------- Error handling ----------------------------- */
       .catch((err) => {
         // Open snackbar
-        openAlert("error", "User info could not be loaded");
+        // openAlert("error", "User info could not be loaded");
         console.log(err);
       });
       // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -13,7 +13,7 @@ import ImageTwoToneIcon from "@mui/icons-material/ImageTwoTone";
 import Diversity1TwoToneIcon from "@mui/icons-material/Diversity1TwoTone";
 import { useEffect } from "react";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import theme from "./styles/mui-theme";
+import theme from "../../styles/mui-theme";
 import QrCodeTwoToneIcon from "@mui/icons-material/QrCodeTwoTone";
 
 /* -------------------------------------------------------------------------- */
@@ -53,7 +53,6 @@ function BottomNavBar() {
   /*                              COMPONENT RENDER                              */
   /* -------------------------------------------------------------------------- */
   return (
-    
     /* --------------------------- MOBILE NAVIGATION --------------------------- */
     <div>
       {isMobile && (
@@ -115,15 +114,16 @@ function BottomNavBar() {
           >
             <Box
               sx={{
-                width: "56px",
-                height: "56px",
+                width: "60px",
+                height: "60px",
                 borderRadius: "100%",
                 position: "absolute",
-                bottom: "32px",
+                bottom: "28px",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                boxShadow: "0px 20px 20px 0px rgba(0, 0, 0, 0.25)",
+                // boxShadow: "0px 20px 20px 0px rgba(0, 0, 0, 0.25)",
+                border: "#262626 6px solid",
                 backgroundColor: getColor("/generate"),
               }}
             >

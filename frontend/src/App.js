@@ -20,10 +20,10 @@ import "./styles/App.css";
 import Generate from "./pages/Generate/Generate";
 import logo from "./assets/logo.png";
 import AccountMenu from "./pages/Home/AccountMenu";
-import ImageGallery from "./pages/MyCodes/ImageGallery";
+import ImageGallery from "./pages/ImageGallery/ImageGallery";
 import { useUtils } from "./utils/utils";
-import Account from "./pages/Home/Account";
-import NavBar from "./NavBar";
+import Account from "./pages/UserAccount/AccountPage";
+import NavBar from "./pages/Home/NavBar";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */

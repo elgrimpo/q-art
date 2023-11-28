@@ -33,7 +33,6 @@ export default function Account() {
 
   const { openAlert } = useUtils();
 
-
   const purchaseItems = [
     {
       creditAmount: 100,
@@ -68,11 +67,10 @@ export default function Account() {
         withCredentials: true,
       })
       .then((res) => {
-
         if (res.data && res.data.session_url) {
           // Redirect to the Stripe Checkout URL
           const sessionURL = res.data.session_url;
-          window.location.href = sessionURL; 
+          window.location.href = sessionURL;
         } else {
           console.error("Invalid response or missing session URL");
           openAlert("error", "Payment session could not be opened.");
@@ -89,12 +87,11 @@ export default function Account() {
     // Check to see if there is a redirect back from Checkout Session
     const query = new URLSearchParams(window.location.search);
     if (query.get("success")) {
-      openAlert("success", "Credits added to your account!")
+      openAlert("success", "Credits added to your account!");
     }
     if (query.get("canceled")) {
-      openAlert("error", "Credit purchase cancelled.")
+      openAlert("error", "Credit purchase cancelled.");
     }
-
   }, [openAlert]);
 
   /* -------------------------------------------------------------------------- */
