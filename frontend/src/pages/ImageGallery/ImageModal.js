@@ -55,9 +55,9 @@ function ImagesModal(props) {
       {/* PREVIOUS */}
       <Box
         sx={{
-          margin: "1rem",
+          margin: { sx: "0rem", lg: "1rem" },
           position: "absolute",
-          bottom: { xs: "1rem", lg: "auto" },
+          bottom: "auto",
           left: { xs: "1rem", lg: "0.5rem", xl: "0.5rem" },
           zIndex: "1",
         }}
@@ -73,9 +73,9 @@ function ImagesModal(props) {
       {/* NEXT */}
       <Box
         sx={{
-          margin: "1rem",
+          margin: { sx: "0rem", lg: "1rem" },
           position: "absolute",
-          bottom: { xs: "1rem", lg: "auto" },
+          bottom: "auto",
           right: { xs: "1rem", lg: "0.5rem", xl: "0.5rem" },
           zIndex: "1",
         }}
@@ -86,29 +86,26 @@ function ImagesModal(props) {
           type="next"
           handleClick={handleNext}
         />
-        </Box>
-      
+      </Box>
 
       {/* CLOSE */}
       {isFullScreen && (
-     <Box
-     sx={{
-      margin: "1rem",
-      position: "absolute",
-      bottom: { xs: "1rem" },
-      left: { xs: "auto" },
-      zIndex: "1",
-     }}
-   >
-     <StyledIconButton
-       variant="contained"
-       color="secondary"
-       type="close"
-       handleClick={handleClose}
-     />
-     </Box>
-
-        
+        <Box
+          sx={{
+            margin: { sx: "0rem", lg: "1rem" },
+            position: "absolute",
+            top: { xs: "0.5rem" },
+            right: { xs: "0.5rem" },
+            zIndex: "1",
+          }}
+        >
+          <StyledIconButton
+            variant="contained"
+            color="secondary"
+            type="close"
+            handleClick={handleClose}
+          />
+        </Box>
       )}
 
       {/* -------------------------- MODAL SCREEN -------------------------- */}

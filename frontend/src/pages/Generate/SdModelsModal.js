@@ -1,5 +1,5 @@
 // Libraries imports
-import { Dialog, DialogContent, Typography } from "@mui/material";
+import { Dialog, DialogContent, Typography, Box } from "@mui/material";
 import { useEffect } from "react";
 import Masonry from "@mui/lab/Masonry";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -9,6 +9,7 @@ import theme from "../../styles/mui-theme";
 import { useImages } from "../../context/AppProvider";
 import SdModelCard from "./SdModelsCard";
 import { useGenerateUtils } from "../../utils/GenerateUtils";
+import StyledIconButton from "../../components/StyledIconButton";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
@@ -47,6 +48,22 @@ function SdModelsModal(props) {
       open={open}
       onClose={handleClose}
     >
+      <Box
+        sx={{
+          margin: { sx: "0rem", lg: "1rem" },
+          position: "absolute",
+          top: { xs: "0.5rem" },
+          right: { xs: "0.5rem" },
+          zIndex: "1",
+        }}
+      >
+        <StyledIconButton
+          variant="contained"
+          color="secondary"
+          type="close"
+          handleClick={handleClose}
+        />
+      </Box>
       <DialogContent sx={{ padding: { xs: "0px", sm: "1rem" } }} align="center">
         {/* TITLE */}
         <Typography variant="h5" align="center" style={{ margin: "1rem 0" }}>

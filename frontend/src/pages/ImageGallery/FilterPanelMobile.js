@@ -10,11 +10,11 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  IconButton,
   Fab,
 } from "@mui/material";
 import FilterAltTwoToneIcon from "@mui/icons-material/FilterAltTwoTone";
-import CloseIcon from "@mui/icons-material/Close";
+// App imports
+import StyledIconButton from "../../components/StyledIconButton";
 
 /* -------------------------------------------------------------------------- */
 /*                                  COMPONENT                                 */
@@ -120,12 +120,22 @@ function FilterPanelMobile({
           <Typography variant="h5" align="center">
             Filters
           </Typography>
-          <IconButton
-            sx={{ position: "absolute", top: "0.8rem", right: "1rem" }}
-            onClick={handleFilterClose}
+          <Box
+            sx={{
+              margin: { sx: "0rem", lg: "1rem" },
+              position: "absolute",
+              top: { xs: "0.5rem" },
+              right: { xs: "0.5rem" },
+              zIndex: "1",
+            }}
           >
-            <CloseIcon />
-          </IconButton>
+            <StyledIconButton
+              variant="contained"
+              color="secondary"
+              type="close"
+              handleClick={handleFilterClose}
+            />
+          </Box>
         </DialogTitle>
 
         {/* -------------------------- FILTER SECTIONS ------------------------- */}
@@ -134,7 +144,7 @@ function FilterPanelMobile({
           sx={{
             display: "flex",
             flexDirection: "column",
-            justifyContent: {xs: "top", md: "center"},
+            justifyContent: { xs: "top", md: "center" },
             overflow: "scroll",
           }}
         >

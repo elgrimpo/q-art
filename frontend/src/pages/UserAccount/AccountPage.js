@@ -1,4 +1,6 @@
 import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
 import axios from "axios";
 import {
   Fab,
@@ -11,7 +13,6 @@ import {
   IconButton,
 } from "@mui/material";
 import { Link } from "react-router-dom";
-import CloseTwoToneIcon from "@mui/icons-material/CloseTwoTone";
 import theme from "../../styles/mui-theme";
 import DiamondTwoToneIcon from "@mui/icons-material/DiamondTwoTone";
 
@@ -23,6 +24,7 @@ import one_diamond from "../../assets/one_diamond.png";
 import two_diamonds from "../../assets/two_diamonds.png";
 import three_diamonds from "../../assets/three_diamonds.png";
 import { useUtils } from "../../utils/utils";
+import StyledIconButton from "../../components/StyledIconButton";
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
 /* -------------------------------------------------------------------------- */
@@ -32,6 +34,8 @@ export default function Account() {
   const { user } = useImages();
 
   const { openAlert } = useUtils();
+
+  const navigate = useNavigate();
 
   const purchaseItems = [
     {
@@ -55,6 +59,10 @@ export default function Account() {
   ];
 
   /* -------------------------------- FUNCTIONS ------------------------------- */
+  const handleClose = () => {
+    navigate("/generate");
+  };
+
   const handleCheckout = (item) => {
     // API call
     axios
@@ -109,21 +117,24 @@ export default function Account() {
         <img src={logo} alt="Logo" />
 
         {/* CLOSE BUTTON */}
-        <Fab
+        <Box
           component={Link}
           to="/generate"
-          color="secondary"
-          aria-label="close"
-          size="small"
           sx={{
-            borderRadius: "20px",
+            margin: { sx: "0rem", lg: "1rem" },
             position: "absolute",
-            top: "1rem",
-            right: "1rem",
+            top: { xs: "0.5rem" },
+            right: { xs: "0.5rem" },
+            zIndex: "1",
           }}
         >
-          <CloseTwoToneIcon />
-        </Fab>
+          <StyledIconButton
+            variant="contained"
+            color="secondary"
+            type="close"
+            handleClick={handleClose}
+          />
+        </Box>
       </Toolbar>
 
       {/* ----------------------------- ACCOUNT DETAILS ---------------------------- */}
