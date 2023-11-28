@@ -66,8 +66,10 @@ export default function AccountMenu(props) {
       {/* -------------------------- USER CREDITS --------------------------- */}
       <Chip
         color="primary"
+        variant="outlined"
         icon={<DiamondTwoToneIcon />}
         label={user.credits}
+        sx={{height: "40px", borderRadius: "24px"}}
       />
       <Box sx={{ display: "flex", alignItems: "center", textAlign: "center" }}>
         <Tooltip title="Account settings">
