@@ -77,7 +77,7 @@ def prepare_txt2img_request( image_quality, prompt, negative_prompt, sd_model, s
     return req
 
 # ---------------------------------------------------------------------------- #
-#                                  PREPARE DOC                                 #
+#                                  PREPARE IMAGE DOC                           #
 # ---------------------------------------------------------------------------- #
 
 def prepare_doc( req, info, website, image_quality, qr_weight, user_id):
@@ -207,7 +207,13 @@ def createImagesFilterQuery(
         start_of_year = end_of_year - timedelta(days=365)
         query["created_at"] = {"$gte": start_of_year, "$lte": end_of_year}
 
+    #  SD Model
     if sd_model:
         query["sd_model"] = sd_model
+
+    # Likes
+    if likes == "Liked by me":
+        if user_id:
+            query["likes"] = user_id
 
     return query

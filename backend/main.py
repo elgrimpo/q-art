@@ -94,12 +94,11 @@ async def images_endpoint(
     time_period: Optional[str] = None,
     sd_model: Optional[str] = None,
     images_per_page: int = 12,
-    sort_by: str = "created_at",
-    sort_direction: int = DESCENDING
+    sort_by: str = "Newest",
 ):
 
     return get_images(
-        page, user_id, exclude_user_id, likes, time_period, sd_model, images_per_page, sort_by, sort_direction
+        page, user_id, exclude_user_id, likes, time_period, sd_model, images_per_page, sort_by
     )
 
 # LIKE IMAGE

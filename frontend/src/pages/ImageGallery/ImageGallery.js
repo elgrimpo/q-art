@@ -101,6 +101,7 @@ function ImageGallery(props) {
       likes: newSelectedFilters.likes,
       time_period: newSelectedFilters.time_period,
       sd_model: sd_name,
+      sort_by: newSelectedFilters.sort
     };
     getMoreImages(imageType, params);
   };

@@ -161,8 +161,7 @@ def get_images(
     time_period: Optional[str] = None,
     sd_model: Optional[str] = None,
     images_per_page: int = 12,
-    sort_by: str = "created_at",
-    sort_direction: int = DESCENDING,
+    sort_by: str = "Newest",
 ):
     # -------------------------- CREATE QUERY PARAMETERS ------------------------- #
     try:
@@ -171,6 +170,16 @@ def get_images(
         query = createImagesFilterQuery(
             likes, time_period, sd_model, user_id, exclude_user_id
         )
+
+        # Create sort
+        sort_statement = None
+        if sort_by == "Newest":
+            sort_statement = [("created_at", DESCENDING)]
+        elif sort_by == "Oldest":
+            sort_statement = [("created_at", ASCENDING)]
+        elif sort_by == "Most Liked":
+            sort_statement = [("likes", DESCENDING), ("created_at", DESCENDING)]
+
 
         # Calculate the offset based on the current page
         offset = (page - 1) * images_per_page
@@ -181,7 +190,7 @@ def get_images(
         images_result = (
             db["images"]
             .find(query)
-            .sort(sort_by, sort_direction)
+            .sort(sort_statement)
             .skip(offset)
             .limit(images_per_page)
         )
