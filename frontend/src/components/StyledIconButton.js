@@ -1,8 +1,5 @@
 import React from "react";
-import {
-  Tooltip,
-  IconButton,
-} from "@mui/material";
+import { Tooltip, IconButton } from "@mui/material";
 import theme from "../styles/mui-theme";
 import CloseTwoToneIcon from "@mui/icons-material/CloseTwoTone";
 import DownloadTwoToneIcon from "@mui/icons-material/DownloadTwoTone";
@@ -11,6 +8,7 @@ import ChevronLeftTwoToneIcon from "@mui/icons-material/ChevronLeftTwoTone";
 import DiamondTwoToneIcon from "@mui/icons-material/DiamondTwoTone";
 import DeleteForeverTwoToneIcon from "@mui/icons-material/DeleteForeverTwoTone";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import FavoriteTwoToneIcon from "@mui/icons-material/FavoriteTwoTone";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
@@ -35,11 +33,12 @@ function StyledIconButton(props) {
     } else if (type === "close") {
       return <CloseTwoToneIcon />;
     } else if (type === "previous") {
-        return <ChevronLeftTwoToneIcon />;
-      }else if (type === "next") {
-        return <ChevronRightTwoToneIcon />;
-      }
-    else {
+      return <ChevronLeftTwoToneIcon />;
+    } else if (type === "next") {
+      return <ChevronRightTwoToneIcon />;
+    } else if (type === "like") {
+      return <FavoriteTwoToneIcon />;
+    } else {
       return null;
     }
   };
@@ -95,23 +94,21 @@ function StyledIconButton(props) {
   /* -------------------------------------------------------------------------- */
   return (
     <Tooltip title={tooltip}>
-
-    <IconButton
-      sx={{
-        backgroundColor: getFillColor(),
-        width: "40px",
-        height: "40px",
-        border: `${getBorderColor()} 1px solid`,
-        color: getIconColor(),
-        "&:hover": {
+      <IconButton
+        sx={{
           backgroundColor: getFillColor(),
-        },
-      }}
-
-      onClick={(e) => handleClick(e)}
-    >
-      {getIcon()}
-    </IconButton>
+          width: "40px",
+          height: "40px",
+          border: `${getBorderColor()} 1px solid`,
+          color: getIconColor(),
+          "&:hover": {
+            backgroundColor: getFillColor(),
+          },
+        }}
+        onClick={(e) => handleClick(e)}
+      >
+        {getIcon()}
+      </IconButton>
     </Tooltip>
   );
 }
