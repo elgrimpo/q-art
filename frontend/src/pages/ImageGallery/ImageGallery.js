@@ -118,7 +118,7 @@ function ImageGallery(props) {
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
-        if (entry.isIntersecting) {
+        if (entry.isIntersecting && user._id) {
           const sdModelObject = sd_models.find(
             (model) => model.name === selectedFilters.sd_model
           );
@@ -149,7 +149,7 @@ function ImageGallery(props) {
     };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [images, loading]);
+  }, [images, loading, user]);
 
   // Images Details Modal
   const handleModalClose = (event) => {
