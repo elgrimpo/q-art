@@ -24,7 +24,6 @@ import theme from "../../styles/mui-theme";
 // App imports
 import { useImages } from "../../context/AppProvider";
 import SdModelsModal from "./SdModelsModal";
-import { useImageUtils } from "../../utils/ImageUtils";
 import { useGenerateUtils } from "../../utils/GenerateUtils";
 import { useUtils } from "../../utils/utils";
 
@@ -342,7 +341,7 @@ function Generate() {
                     objectFit: "contain",
                     maxHeight: "100%",
                   }}
-                  
+
                 />
               </Box>
             )}

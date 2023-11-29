@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import {
   Paper,
-  Fab,
   Backdrop,
   List,
   ListItemText,
@@ -12,9 +11,6 @@ import {
   Stack,
   Skeleton,
 } from "@mui/material";
-import ChevronRightTwoToneIcon from "@mui/icons-material/KeyboardArrowRightTwoTone";
-import ChevronLeftTwoToneIcon from "@mui/icons-material/ChevronLeftTwoTone";
-import CloseTwoToneIcon from "@mui/icons-material/CloseTwoTone";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import theme from "../../styles/mui-theme";
 import StyledIconButton from "../../components/StyledIconButton";
@@ -22,7 +18,6 @@ import StyledIconButton from "../../components/StyledIconButton";
 //App imports
 import { useImages } from "../../context/AppProvider";
 import { useImageUtils } from "../../utils/ImageUtils";
-import { useGenerateUtils } from "../../utils/GenerateUtils";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
@@ -40,9 +35,6 @@ function ImagesModal(props) {
 
   // Image fuctions
   const { downloadImage, deleteImage, upscaleImage } = useImageUtils();
-
-  // Copy Image function
-  const { copyGenerateFormValues } = useGenerateUtils();
 
   // Upscaling (loading)
   const [upscaling, setUpscaling] = useState(false);

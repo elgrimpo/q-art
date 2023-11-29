@@ -218,7 +218,7 @@ export const useImageUtils = () => {
     const images = imageType === "userImages" ? userImages : communityImages;
 
     /* -------------------------------- API CALL -------------------------------- */
-    const response = await axios.put(
+    axios.put(
       `${process.env.REACT_APP_BACKEND_URL}/api/images/like/${image._id}`,
       null,
       {

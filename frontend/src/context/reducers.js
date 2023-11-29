@@ -78,7 +78,7 @@ export const initialState = {
 
   // Alert
   alertOpen: false,
-  alertSeverity: "",
+  alertSeverity: "info",
   alertMessage: "",
 };
 
@@ -136,7 +136,7 @@ export const imagesReducer = (state, action) => {
       return {
         ...state,
         alertOpen: false,
-        alertSeverity: "",
+        alertSeverity: "info",
         alertMessage: "",
       };
 

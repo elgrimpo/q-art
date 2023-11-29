@@ -213,6 +213,7 @@ function ImageGallery(props) {
             <ImageCard
               item={item}
               index={index}
+              key={index}
               variant="image"
               onClick={() => handleModalOpen(index)}
               setTabValue={setTabValue}
@@ -238,12 +239,12 @@ function ImageGallery(props) {
       >
         {loading > 0 &&
           Array.from({ length: 12 }, (_, index) => index).map((_, index) => (
-            <ImageCard item={_} variant="skeleton" index={index} />
+            <ImageCard item={_} variant="skeleton" index={index} key={index}/>
           ))}
       </Grid>
 
       {/* ------------------------ IMAGE DETAILS MODAL ----------------------- */}
-      {images !== [] && (
+      {images != [] && (
         <ImageModal
           open={modalOpen}
           index={selectedImageIndex}

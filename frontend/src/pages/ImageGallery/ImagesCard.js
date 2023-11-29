@@ -65,7 +65,7 @@ function ImageCard(props) {
       >
         {/* Skeleton (if loading) */}
         {variant === "skeleton" || upscaling ? (
-          <SkeletonCard index={index} />
+          <SkeletonCard index={index} key={index}/>
         ) : (
           /* ------------------------------ IMAGE ------------------------------ */
           <div>
@@ -84,7 +84,7 @@ function ImageCard(props) {
               alignItems="center"
               spacing={3}
               sx={{ mt: "1rem" }}
-              key={index + "_6"}
+              key={index + "_3"}
             >
               {/* LIKE */}
               <Chip
@@ -94,6 +94,7 @@ function ImageCard(props) {
                 label={item?.likes && item.likes.length > 0 ? item.likes.length : "0"}
                 sx={{ height: "40px", borderRadius: "24px", color: isLiked ? "#FF8585" : theme.palette.primary.main }}
                 onClick={()=> likeImage(item, user._id, imageType)}
+                key={index + "_1"}
               />
 
               {/* COPY */}

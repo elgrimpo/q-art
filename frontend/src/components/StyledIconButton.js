@@ -17,7 +17,7 @@ import FavoriteTwoToneIcon from "@mui/icons-material/FavoriteTwoTone";
 function StyledIconButton(props) {
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
 
-  const { variant, color, type, handleClick, tooltip, sx } = props;
+  const { variant, color, type, handleClick, tooltip } = props;
 
   /* -------------------------------- FUNCTIONS ------------------------------- */
 

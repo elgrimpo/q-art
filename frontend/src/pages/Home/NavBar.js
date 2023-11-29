@@ -1,5 +1,5 @@
 // Libraries imports
-import * as React from "react";
+import React, {useState} from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Tab,
@@ -30,7 +30,7 @@ function BottomNavBar() {
   const location = useLocation();
 
   // Current Tab
-  const [tabValue, setTabValue] = React.useState("Generate");
+  const [tabValue, setTabValue] = useState("/generate");
 
   /* -------------------------------- FUNCTIONS ------------------------------- */
 
