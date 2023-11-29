@@ -82,13 +82,12 @@ function ImageCard(props) {
               sx={{ mt: "1rem" }}
               key={index + "_6"}
             >
-              {/* DOWNLOAD */}
+              {/* LIKE */}
               <StyledIconButton
-                type="download"
+                type="like"
                 variant="contained"
                 color="secondary"
                 tooltip="Download image"
-                handleClick={() => downloadImage(item)}
                 key={index + "_1"}
               />
 
@@ -102,29 +101,7 @@ function ImageCard(props) {
                 key={index + "_2"}
               />
 
-              {/* DELETE */}
-              {imageType === "userImages" && (
-                <StyledIconButton
-                  type="delete"
-                  variant="contained"
-                  color="secondary"
-                  tooltip="Delete image"
-                  handleClick={() => deleteImage(item._id, index)}
-                  key={index + "_3"}
-                />
-              )}
-
-              {/* UPSCALE */}
-              {item.width === 512 && imageType === "userImages" && (
-                <StyledIconButton
-                  type="upscale"
-                  variant="contained"
-                  color="secondary"
-                  tooltip="Upscale resolution to 1024 x 1024"
-                  handleClick={() => upscaleImage(item._id, setUpscaling)}
-                  key={index + "_4"}
-                />
-              )}
+   
             </Stack>
           </div>
         )}

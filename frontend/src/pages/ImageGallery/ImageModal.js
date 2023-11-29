@@ -1,4 +1,5 @@
 // Libraries imports
+import React, { useState } from "react";
 import {
   Paper,
   Fab,
@@ -8,6 +9,8 @@ import {
   Typography,
   Box,
   CardMedia,
+  Stack,
+  Skeleton,
 } from "@mui/material";
 import ChevronRightTwoToneIcon from "@mui/icons-material/KeyboardArrowRightTwoTone";
 import ChevronLeftTwoToneIcon from "@mui/icons-material/ChevronLeftTwoTone";
@@ -18,13 +21,15 @@ import StyledIconButton from "../../components/StyledIconButton";
 
 //App imports
 import { useImages } from "../../context/AppProvider";
+import { useImageUtils } from "../../utils/ImageUtils";
+import { useGenerateUtils } from "../../utils/GenerateUtils";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
 /* -------------------------------------------------------------------------- */
 
 function ImagesModal(props) {
-  const { userImages, communityImages } = useImages();
+  const { userImages, communityImages, user } = useImages();
 
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
 
@@ -32,6 +37,15 @@ function ImagesModal(props) {
     props;
   const isFullScreen = useMediaQuery(theme.breakpoints.down("lg"));
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
+  // Image fuctions
+  const { downloadImage, deleteImage, upscaleImage } = useImageUtils();
+
+  // Copy Image function
+  const { copyGenerateFormValues } = useGenerateUtils();
+
+  // Upscaling (loading)
+  const [upscaling, setUpscaling] = useState(false);
 
   const image =
     imageType === "userImages" ? userImages[index] : communityImages[index];
@@ -144,23 +158,35 @@ function ImagesModal(props) {
               maxHeight: "100%",
             }}
           >
-            <CardMedia
-              component="img"
-              image={image?.image_url}
-              sx={{
-                zIndex: "1",
-
-                objectFit: "fill",
-                // aspectRatio: "1/1",
-                borderRadius: { xs: "0px", lg: "16px" },
-                width: "100%",
-                height: "100%",
-              }}
-            />
+            {upscaling ? (
+              // TODO Skeleton sizing
+              <Skeleton
+                variant="rounded"
+                animation="wave"
+                sx={{
+                  borderRadius: { xs: "0px", lg: "16px" },
+                  width: "500px",
+                  height: "500px",
+                }}
+              />
+            ) : (
+              <CardMedia
+                component="img"
+                image={image?.image_url}
+                sx={{
+                  zIndex: "1",
+                  objectFit: "fill",
+                  borderRadius: { xs: "0px", lg: "16px" },
+                  width: "100%",
+                  height: "100%",
+                }}
+              />
+            )}
           </Box>
         </Box>
 
-        {/* ------------- Sidebar -------------- */}
+        {/* -------------------- Sidebar ------------------- */}
+
         <Box
           sx={{
             flex: "1",
@@ -173,6 +199,43 @@ function ImagesModal(props) {
             overflow: { md: "scroll" },
           }}
         >
+          {/* ------------------------------ ICON BUTTONS ------------------------------ */}
+          <Stack
+            direction="row"
+            justifyContent={{ xs: "center", md: "left" }}
+            alignItems="center"
+            spacing={3}
+            sx={{ mb: "1rem" }}
+          >
+            {/* DOWNLOAD */}
+            <StyledIconButton
+              variant="contained"
+              color="secondary"
+              type="download"
+              handleClick={() => downloadImage(image)}
+            />
+
+            {/* UPSCALE */}
+            {image?.width === 512 && imageType === "userImages" && (
+              <StyledIconButton
+                variant="contained"
+                color="secondary"
+                type="upscale"
+                handleClick={() => upscaleImage(image._id, setUpscaling)}
+              />
+            )}
+
+            {/* DELETE */}
+            {image?.user_id === user._id && (
+            <StyledIconButton
+              variant="contained"
+              color="secondary"
+              type="delete"
+              handleClick={() => deleteImage(image._id, index)}
+            />)}
+          </Stack>
+
+          {/* -------------------------------- METADATA -------------------------------- */}
           <div style={{ maxHeight: "100%" }}>
             <Typography variant="h5" align={isMobile ? "center" : "left"}>
               Image Details
