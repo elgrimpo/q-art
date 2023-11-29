@@ -118,7 +118,7 @@ function ImageGallery(props) {
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
-        if (entry.isIntersecting && user._id) {
+        if (entry.isIntersecting && (user._id || imageType === "communityImages")) {
           const sdModelObject = sd_models.find(
             (model) => model.name === selectedFilters.sd_model
           );
