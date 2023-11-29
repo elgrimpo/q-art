@@ -239,3 +239,33 @@ def delete_image(id: str):
         # Log unexpected errors and return a generic error message
         print(f"Error during image deletion: {str(unexpected_error)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
+    
+    # ---------------------------------------------------------------------------- #
+    #                               TOOGLE LIKE IMAGE                              #
+    # ---------------------------------------------------------------------------- #
+
+async def toggle_like(id, user_id):
+    
+    # ----------------------------- QUERY IMAGE IN DB ---------------------------- #
+    try:
+        image = images.find_one({"_id": ObjectId(id)})
+
+        if not image:
+            return {"message": "Image not found"}, 404
+
+    # -------------------------- UPDATE IMAGE DOC IN DB -------------------------- #
+
+        # Check if user_id is in "likes" array
+        likes = image.get("likes", [])
+        if user_id in likes:
+            likes.remove(user_id)
+        else:
+            likes.append(user_id)
+
+        # Update db with updated "likes" array
+        images.update_one({"_id": ObjectId(id)}, {"$set": {"likes": likes}})
+        
+        return {"message": "Like toggled successfully"}
+    
+    except Exception as e:
+        return {"message": f"Error toggling like: {e}"}, 500

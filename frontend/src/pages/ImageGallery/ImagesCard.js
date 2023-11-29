@@ -1,19 +1,17 @@
 //Libraries imports
 import React, { useState } from "react";
-import {
-  Card,
-  CardMedia,
-  Grid,
-  Stack,
-} from "@mui/material";
+import { Card, CardMedia, Grid, Stack, Chip } from "@mui/material";
 import theme from "../../styles/mui-theme.js";
 import { useNavigate } from "react-router-dom";
+import FavoriteTwoToneIcon from "@mui/icons-material/FavoriteTwoTone";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 
 // App imports
 import SkeletonCard from "./SkeletonCard.js";
 import { useImageUtils } from "../../utils/ImageUtils.js";
 import { useGenerateUtils } from "../../utils/GenerateUtils.js";
 import StyledIconButton from "../../components/StyledIconButton.js";
+import { useImages } from "../../context/AppProvider.js";
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
 /* -------------------------------------------------------------------------- */
@@ -23,11 +21,13 @@ function ImageCard(props) {
 
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
 
+  const { user } = useImages();
+
   // Initialize navigate function
   const navigate = useNavigate();
 
   // Image fuctions
-  const { downloadImage, deleteImage, upscaleImage } = useImageUtils();
+  const { likeImage } = useImageUtils();
 
   // Copy Image function
   const { copyGenerateFormValues } = useGenerateUtils();
@@ -37,10 +37,14 @@ function ImageCard(props) {
 
   /* -------------------------------- FUNCTIONS ------------------------------- */
 
+  // Copy formvalues to generate new image
   const handleCopy = (item) => {
     copyGenerateFormValues(item);
     navigate("/generate");
   };
+
+  // Check if image is liked by user
+  const isLiked = item?.likes?.includes(user?._id) ? true : false;
 
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
@@ -83,12 +87,13 @@ function ImageCard(props) {
               key={index + "_6"}
             >
               {/* LIKE */}
-              <StyledIconButton
-                type="like"
-                variant="contained"
+              <Chip
                 color="secondary"
-                tooltip="Download image"
-                key={index + "_1"}
+                variant="contained"
+                icon={isLiked ? <FavoriteIcon sx={{fill: "#FF8585"}}/> : <FavoriteTwoToneIcon color="primary"/>}
+                label={item?.likes && item.likes.length > 0 ? item.likes.length : "0"}
+                sx={{ height: "40px", borderRadius: "24px", color: isLiked ? "#FF8585" : theme.palette.primary.main }}
+                onClick={()=> likeImage(item, user._id, imageType)}
               />
 
               {/* COPY */}
@@ -100,8 +105,6 @@ function ImageCard(props) {
                 handleClick={() => handleCopy(item)}
                 key={index + "_2"}
               />
-
-   
             </Stack>
           </div>
         )}

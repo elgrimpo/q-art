@@ -205,11 +205,71 @@ export const useImageUtils = () => {
       });
   };
 
+  /* -------------------------------------------------------------------------- */
+  /*                                 LIKE IMAGE                                 */
+  /* -------------------------------------------------------------------------- */
+
+  const likeImage = async (image, userId, imageType) => {
+    // Check if userImages vs community images
+    const imagesActionType =
+      imageType === "userImages"
+        ? ActionTypes.SET_USER_IMAGES
+        : ActionTypes.SET_COMMUNITY_IMAGES;
+    const images = imageType === "userImages" ? userImages : communityImages;
+
+    /* -------------------------------- API CALL -------------------------------- */
+    const response = await axios.put(
+      `${process.env.REACT_APP_BACKEND_URL}/api/images/like/${image._id}`,
+      null,
+      {
+        params: { user_id: userId },
+      }
+    );
+
+    /* -------------------------- UPDATE LIKES ARRAY -------------------------- */
+
+    // Check if user_id appears in image's "Likes" array
+    const isLiked = image.likes?.includes(userId) ? true : false;
+
+    try {
+      let updatedLikes = [...(image.likes || [])];
+
+      if (isLiked) {
+        // Remove userId from likes
+        updatedLikes = updatedLikes.filter((id) => id !== userId);
+      } else {
+        // Add userId to likes
+        updatedLikes.push(userId);
+      }
+
+      /* ------------------------- UPDATE IMAGE IN REDUCER ------------------------ */
+      const updatedImage = { ...image, likes: updatedLikes };
+
+      // Find the index of the image in the current array
+      const index = images.findIndex((img) => img._id === image._id);
+
+      // Create a new array with the updated image at the same position
+      const updatedImages = [...images];
+      updatedImages[index] = updatedImage;
+
+      // Update reducer
+      dispatch({
+        type: imagesActionType,
+        payload: updatedImages,
+      });
+
+      /* ----------------------------- ERROR HANDLING ----------------------------- */
+    } catch (error) {
+      console.error("Error toggling like:", error);
+    }
+  };
+
   /* ---------------------------- FUNCTION RETURNS ---------------------------- */
   return {
     getMoreImages,
     downloadImage,
     deleteImage,
     upscaleImage,
+    likeImage,
   };
 };
