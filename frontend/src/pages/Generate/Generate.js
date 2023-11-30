@@ -26,7 +26,7 @@ import { useImages } from "../../context/AppProvider";
 import SdModelsModal from "./SdModelsModal";
 import { useGenerateUtils } from "../../utils/GenerateUtils";
 import { useUtils } from "../../utils/utils";
-import promptRandomizer from "../../utils/RandomPromptGenerator";
+import promptRandomizer from "../../utils/PromptGenerator";
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
 /* -------------------------------------------------------------------------- */
@@ -136,7 +136,7 @@ function Generate() {
       {/* TODO: MOVE FORM TO SEPARATE COMPONENT */}
       {!isMobile || (isMobile && !formSubmitted) ? (
         <Box className="sidebar">
-          <Box className="formfield">
+          {/* <Box className="formfield"> */}
             <Stack useFlexGap spacing={2}>
               <Typography
                 variant="h5"
@@ -170,10 +170,10 @@ function Generate() {
                 rows={4}
                 InputProps={{
                   endAdornment: (
-                    <InputAdornment position="end" sx={{alignItems: "flex-start"}}>
+                    <InputAdornment position="end" sx={{alignItems: "center", alignSelf: "flex-start", padding: "0.5rem 0rem"}}>
                       <Tooltip title="Set to Random">
                         <IconButton
-                          name="seed"
+                          name="prompt"
                           value={-1}
                           onClick={() =>
                             handleInputChange({
@@ -202,6 +202,28 @@ function Generate() {
                 variant="outlined"
                 multiline
                 rows={4}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end" sx={{alignItems: "center", alignSelf: "flex-start", padding: "0.5rem 0rem"}}>
+                      <Tooltip title="Set to Random">
+                        <IconButton
+                          name="prompt"
+                          value={-1}
+                          onClick={() =>
+                            handleInputChange({
+                              target: {
+                                name: "prompt",
+                                value: promptRandomizer(),
+                              },
+                            })
+                          }
+                        >
+                          <CasinoTwoToneIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </InputAdornment>
+                  ),
+                }}
               />
 
               {/* SEED */}
@@ -321,15 +343,15 @@ function Generate() {
               handleModelSelection={handleModelSelection}
             />
           </Box>
-        </Box>
+        // </Box>
       ) : (
         <></>
       )}
 
       {/* -------------------------------- QR IMAGE -------------------------------- */}
       {!isMobile || (isMobile && formSubmitted) ? ( // Mobile: Only shows when Form has been submitted
-        <div className="image-container">
-          <div className="image-card" elevation={0}>
+        <Box className="image-container">
+          <Box className="image-card">
             {isMobile && (
               <Typography
                 variant="h5"
@@ -347,25 +369,19 @@ function Generate() {
               </Box>
             ) : (
               // IMAGE
-              <Box
-                sx={{
-                  maxHeight: {
-                    xs: "calc(100% - 200px)",
-                    md: "calc(100% - 90px)",
-                  },
-                }}
-              >
-                <CardMedia
-                  component="img"
-                  image={generatedImage.image_url}
-                  sx={{
-                    borderRadius: { sm: "12px" },
-                    objectFit: "contain",
-                    maxHeight: "100%",
-                  }}
-
-                />
-              </Box>
+              <CardMedia
+              component="img"
+              image={generatedImage.image_url}
+              sx={{
+                borderRadius: { sm: "12px" },
+                objectFit: "contain",
+                maxWidth: "100%",
+                maxHeight: "100%",
+                width: "auto",
+                height: "auto",
+                aspectRatio:"1/1"
+              }}
+            ></CardMedia>
             )}
 
             {/* MOBILE: BACK TO FORM BUTTON */}
@@ -381,8 +397,8 @@ function Generate() {
                 Make another one
               </Fab>
             )}
-          </div>
-        </div>
+          </Box>
+        </Box>
       ) : (
         <></>
       )}

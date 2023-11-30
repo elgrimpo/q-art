@@ -131,34 +131,30 @@ function ImagesModal(props) {
         {/* ------------ Image ------------- */}
         <Box // Background fill
           sx={{
-            maxHeight: "100%",
+            height: "100%",
+            width: "100%",
             backgroundColor: "#70E195",
             display: "flex",
+            justifyContent: "center",
             borderRadius: { xs: "0px", lg: "16px 0px 0px 16px" },
-            maxWidth: "100%",
+            padding: { xs: "0rem", md: "0rem", lg: "2rem" },
             flex: { xs: "2", lg: "3" },
           }}
         >
-          <Box
-            sx={{
-              objectFit: "fill",
-              aspectRatio: "1/1",
-              margin: "auto",
-              padding: { xs: "0rem", md: "0rem", lg: "2rem" },
-              borderRadius: { xs: "0px", lg: "16px" },
-              maxWidth: "100%",
-              maxHeight: "100%",
-            }}
-          >
+
             {upscaling ? (
               // TODO Skeleton sizing
               <Skeleton
                 variant="rounded"
                 animation="wave"
                 sx={{
-                  borderRadius: { xs: "0px", lg: "16px" },
-                  width: "500px",
-                  height: "500px",
+                  borderRadius: { md: "12px" },
+                  objectFit: "contain",
+                  maxWidth: "100%",
+                  maxHeight: "100%",
+                  width: "auto",
+                  height: "auto",
+                  aspectRatio:"1/1"
                 }}
               />
             ) : (
@@ -166,15 +162,17 @@ function ImagesModal(props) {
                 component="img"
                 image={image?.image_url}
                 sx={{
-                  zIndex: "1",
-                  objectFit: "fill",
-                  borderRadius: { xs: "0px", lg: "16px" },
-                  width: "100%",
-                  height: "100%",
+                  borderRadius: { md: "12px" },
+                  objectFit: "contain",
+                  maxWidth: "100%",
+                  maxHeight: "100%",
+                  width: "auto",
+                  height: "auto",
+                  aspectRatio:"1/1"
                 }}
               />
             )}
-          </Box>
+
         </Box>
 
         {/* -------------------- Sidebar ------------------- */}

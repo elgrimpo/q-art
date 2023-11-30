@@ -60,7 +60,10 @@ body {
   /* max-width:550px; */
   max-height: 100%;
   padding: 0rem 2rem;
-  margin-bottom: 60px
+  justify-content: "center";
+  
+  height: 100%;
+  overflow: scroll
 }
 
 
@@ -74,23 +77,22 @@ body {
 .image-container {
   flex: 2;
   height: 100%;
-  padding: 2rem 2rem 2rem 0rem
+  padding: 2rem 2rem 2rem 0rem;
+  overflow: hidden
 }
 
 .image-card {
-
-  padding: 2rem 2rem 2rem 2rem;
-  align-items: center;
+  padding: 2rem;
+  /* align-items: center; */
+  width: 100%;
   height: 100%;
   background-color: #70E195;
   border-radius: 16px;
   text-align: center;
   justify-content: center;
-  align-items: center;
   overflow: hidden;
   display: flex;
-  flex-direction: column;
-  height: 100%
+  /* flex-direction: column; */
 }
 
 .loading-box {
@@ -161,7 +163,8 @@ body {
   }
   .sidebar {
     width: 100%;
-    padding: 0rem 1rem
+    padding: 0rem 1rem;
+    margin-bottom: 60px;
   }
   .image-container {
     margin: 0;
@@ -170,7 +173,9 @@ body {
   }
   .image-card {
     height: calc(100dvh - 180px);
-    padding: 0px;
+    padding: 2rem;
+    align-items: center;
+    flex-direction: column;
   }
   .loading-box {
     max-height: calc(100dvh - 320px);
