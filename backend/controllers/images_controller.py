@@ -13,6 +13,7 @@ from io import BytesIO
 
 # App imports
 from utils.utils import createImagesFilterQuery
+from schemas.schemas import ImageDoc
 
 load_dotenv()
 
@@ -44,9 +45,10 @@ async def insert_image(doc, image):
 
         try:
             # Create new image document
-            result = db["images"].insert_one(doc)
+            result = db["images"].insert_one(doc.dict())
         except Exception as insert_error:
             # Handle database insertion error
+            print(insert_error)
             raise HTTPException(status_code=500, detail="Database insertion failed")
 
         # Create name for image file
@@ -83,10 +85,8 @@ async def insert_image(doc, image):
             # Handle database update error
             raise HTTPException(status_code=500, detail="Database update failed")
 
-        # Convert ObjectIds to strings
-        inserted_image["_id"] = str(inserted_image["_id"])
 
-        return inserted_image
+        return ImageDoc(**inserted_image)
 
     except HTTPException as http_exception:
         # Reraise HTTP exceptions for FastAPI to handle

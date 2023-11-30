@@ -1,56 +1,22 @@
 # Libraries Import
 import requests as requests
-from dotenv import load_dotenv
 from fastapi import HTTPException
 from bson import ObjectId
 import datetime
 from starlette.exceptions import HTTPException
 import os
-from pymongo import MongoClient, ReturnDocument
-import json
-from pydantic import BaseModel, Field
-from typing import Dict, List, Optional
+from pymongo import MongoClient
 from datetime import datetime
-from typing_extensions import Annotated
-from pydantic.functional_validators import BeforeValidator
 
+
+# App imports 
+from schemas.schemas import PaymentHistory, User
 
 # ---------------------------- INITIALIAZE CLIENT ---------------------------- #
 mongo_url = os.environ["MONGO_URL"]
 client = MongoClient(mongo_url, ssl=True, ssl_cert_reqs="CERT_NONE")
 db = client.get_database("QART")
 users = db.get_collection("users")
-
-# ---------------------------------------------------------------------------- #
-#                                 USER CLASSES                                 #
-# ---------------------------------------------------------------------------- #
-PyObjectId = Annotated[str, BeforeValidator(str)]
-
-class ImageCounts(BaseModel):
-    medium: Optional[int] = None
-    low: Optional[int] = None
-    high: Optional[int] = None
-    upscale: Optional[int] = None
-
-class PaymentHistory(BaseModel):
-    date_time: datetime
-    transaction_amount: int
-    product_id: str
-    credit_amount: int
-    payment_intent_id: str
-
-class User(BaseModel):
-    id: Optional[PyObjectId] = Field(alias="_id", default=None)
-    google_id: str
-    name: str
-    picture: Optional[str] = None
-    email: str
-    image_counts: Optional[Dict[str, Dict[str, ImageCounts]]] = {}
-    last_image_created_at: Optional[datetime] = None
-    credits: Optional[int] = 10
-    payment_history: Optional[List[PaymentHistory]] = []
-
-
 
 # ---------------------------------------------------------------------------- #
 #                                 GET USER INFO                                #

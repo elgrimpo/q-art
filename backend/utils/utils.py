@@ -8,6 +8,7 @@ from novita_client import *
 
 
 # App imports
+from schemas.schemas import ImageDoc, ControlNet
 
 # ---------------------------------------------------------------------------- #
 #                                  PARSE SEED                                  #
@@ -92,42 +93,41 @@ def prepare_doc( req, info, website, image_quality, qr_weight, user_id):
     module_1 = req.controlnet_units[1].module.value
     resize_mode_1 = req.controlnet_units[1].resize_mode.value
 
-    doc = {
-        "user_id": user_id,
-        "created_at": datetime.utcnow(),
-        "prompt": req.prompt,
-        "negative_prompt": req.negative_prompt,
-        "content": website,
-        "presets": [""],
-        "sd_model": req.model_name,
-        "seed": info["seed"],
-        "image_quality": image_quality,
-        "qr_weight": qr_weight,
-        "width": req.width,
-        "height": req.height,
-        "query_type": "txt2img",
-        "steps": req.steps,
-        "cfg_scale": req.cfg_scale, 
-        "sampler_name": sampler_name,
-        "controlnet0": {
-            "control_mode": control_mode_0,
-            "model": model_0,
-            "module": module_0,
-            "weight": req.controlnet_units[0].weight,
-            "guidance_start": req.controlnet_units[0].guidance_start,
-            "guidance_end": req.controlnet_units[0].guidance_end,
-            "resize_mode": resize_mode_0,
-        },
-        "controlnet1": {
-            "control_mode": control_mode_1,
-            "model": model_1,
-            "module": module_1,
-            "weight": req.controlnet_units[0].weight,
-            "guidance_start": req.controlnet_units[0].guidance_start,
-            "guidance_end": req.controlnet_units[0].guidance_end,
-            "resize_mode": resize_mode_1,
-        },
-    }
+    doc = ImageDoc(
+        user_id = user_id,
+        created_at = datetime.utcnow(),
+        prompt = req.prompt,
+        negative_prompt = req.negative_prompt,
+        content = website,
+        sd_model = req.model_name,
+        seed = info["seed"],
+        image_quality = image_quality,
+        qr_weight = qr_weight,
+        width = req.width,
+        height = req.height,
+        query_type = "txt2img",
+        steps = req.steps,
+        cfg_scale = req.cfg_scale, 
+        sampler_name = sampler_name,
+        controlnet0 = ControlNet(
+            control_mode = control_mode_0,
+            model = model_0,
+            module = module_0,
+            weight = req.controlnet_units[0].weight,
+            guidance_start = req.controlnet_units[0].guidance_start,
+            guidance_end = req.controlnet_units[0].guidance_end,
+            resize_mode = resize_mode_0,
+        ),
+        controlnet1 = ControlNet(
+            control_mode = control_mode_1,
+            model = model_1,
+            module = module_1,
+            weight = req.controlnet_units[0].weight,
+            guidance_start = req.controlnet_units[0].guidance_start,
+            guidance_end = req.controlnet_units[0].guidance_end,
+            resize_mode = resize_mode_1,
+            )
+    )
     return doc
 
 # ---------------------------------------------------------------------------- #

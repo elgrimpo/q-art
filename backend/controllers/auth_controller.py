@@ -76,7 +76,7 @@ async def google_auth(request):
             if existing_user:
                 users.update_one({"google_id": google_user['google_id']}, {"$set": google_user})
             else:
-                users.insert_one(User(**google_user))
+                users.insert_one(User(**google_user).dict())
         except Exception:
             # Handle database operation error
             raise HTTPException(status_code=500, detail="Database operation failed")

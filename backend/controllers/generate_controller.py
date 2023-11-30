@@ -21,6 +21,7 @@ from utils.utils import (
     sufficient_credit,
 )
 from controllers.users_controller import increment_user_count
+from schemas.schemas import ImageDoc
 
 load_dotenv()
 
@@ -115,6 +116,7 @@ async def predict(
 
         except Exception as generation_error:
             # Handle image generation error
+            print(generation_error)
             raise HTTPException(status_code=500, detail="Image generation failed")
 
         # ------------------------------ UPDATE DATABASE ----------------------------- #
@@ -123,6 +125,7 @@ async def predict(
             inserted_image = await insert_image(doc, generated_image)
         except Exception as db_error:
             # Handle database insertion error
+            print(db_error)
             raise HTTPException(status_code=500, detail="Database insertion failed")
 
         # ---------------------- UPDATE USER CREDITS AND COUNT ---------------------- #
@@ -199,7 +202,7 @@ async def upscale(image_id, user_id):
             # Handle user count update error
             raise HTTPException(status_code=500, detail="User count update failed")
 
-        return updated_image
+        return ImageDoc(**updated_image)
 
     except HTTPException as http_exception:
         # Reraise HTTP exceptions for FastAPI to handle
