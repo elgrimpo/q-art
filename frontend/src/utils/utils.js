@@ -47,7 +47,7 @@ export const useUtils = () => {
         withCredentials: true,
       })
       .then((res) => {
-        const user = JSON.parse(res.data);
+        const user = res.data;
         if (user) {
           /* ----------------------------- User logged in ----------------------------- */
 

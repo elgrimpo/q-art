@@ -8,6 +8,11 @@ from starlette.exceptions import HTTPException
 import os
 from pymongo import MongoClient, ReturnDocument
 import json
+from pydantic import BaseModel, Field
+from typing import Dict, List, Optional
+from datetime import datetime
+from typing_extensions import Annotated
+from pydantic.functional_validators import BeforeValidator
 
 
 # ---------------------------- INITIALIAZE CLIENT ---------------------------- #
@@ -15,6 +20,37 @@ mongo_url = os.environ["MONGO_URL"]
 client = MongoClient(mongo_url, ssl=True, ssl_cert_reqs="CERT_NONE")
 db = client.get_database("QART")
 users = db.get_collection("users")
+
+# ---------------------------------------------------------------------------- #
+#                                 USER CLASSES                                 #
+# ---------------------------------------------------------------------------- #
+PyObjectId = Annotated[str, BeforeValidator(str)]
+
+class ImageCounts(BaseModel):
+    medium: Optional[int] = None
+    low: Optional[int] = None
+    high: Optional[int] = None
+    upscale: Optional[int] = None
+
+class PaymentHistory(BaseModel):
+    date_time: datetime
+    transaction_amount: int
+    product_id: str
+    credit_amount: int
+    payment_intent_id: str
+
+class User(BaseModel):
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    google_id: str
+    name: str
+    picture: Optional[str] = None
+    email: str
+    image_counts: Optional[Dict[str, Dict[str, ImageCounts]]] = {}
+    last_image_created_at: Optional[datetime] = None
+    credits: Optional[int] = 10
+    payment_history: Optional[List[PaymentHistory]] = []
+
+
 
 # ---------------------------------------------------------------------------- #
 #                                 GET USER INFO                                #
@@ -28,11 +64,10 @@ async def get_user_info(request):
         return {"message": "User information not found in session"}
     
     try:
-        logged_in_user = users.find_one({"_id": ObjectId(user_info.get("_id"))})
-        
+        logged_in_user = users.find_one({"_id": ObjectId(user_info.get("_id"))})    
         if logged_in_user:
-            serialized_user = json.dumps(logged_in_user, indent=4, sort_keys=True, default=str)
-            return serialized_user
+            user_instance = User(**logged_in_user)
+            return user_instance
         else:
             return {"message": "User not found in the database"}
     
@@ -49,8 +84,8 @@ async def get_user_info(request):
 async def increment_user_count(user_id, service_config, credits_deducted):
     try:
         # Increment user count for generated images
-        current_year = datetime.datetime.utcnow().year
-        current_month = datetime.datetime.utcnow().month
+        current_year = datetime.utcnow().year
+        current_month = datetime.utcnow().month
 
         # Increment user count for credits
         image_quality = service_config.get("image_quality")
@@ -64,7 +99,7 @@ async def increment_user_count(user_id, service_config, credits_deducted):
                     "$inc": {
                         f"image_counts.{current_year}.{current_month}.{image_quality}": 1,
                     },
-                    "$set": {"last_image_created_at": datetime.datetime.utcnow()},
+                    "$set": {"last_image_created_at": datetime.utcnow()},
                 },
                 upsert=True,
             )
@@ -95,6 +130,7 @@ async def increment_user_count(user_id, service_config, credits_deducted):
         )
 
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
 # ---------------------------------------------------------------------------- #
@@ -104,25 +140,26 @@ async def increment_user_count(user_id, service_config, credits_deducted):
 def add_user_payment(user_id, transaction_amount, product_id, credit_amount, payment_intent, timestamp):
 
     # Create a new payment history object
-    payment_history_obj = {
-        "date_time": timestamp,
-        "transaction_amount": int(transaction_amount),
-        "product_id": product_id,
-        "credit_amount": int(credit_amount),
-        "payment_intent_id": payment_intent
-    }
+    payment_history_instance = PaymentHistory(
+        date_time = datetime(timestamp),
+        transaction_amount = int(transaction_amount),
+        product_id = product_id,
+        credit_amount = int(credit_amount),
+        payment_intent_id = payment_intent
+    )
 
     try:
         # Find and update the user document
         db["users"].update_one(
             {"_id": ObjectId(user_id)},
             {
-                "$push": {"payment_history": payment_history_obj},
+                "$push": {"payment_history": payment_history_instance},
                 "$inc": {"credits": int(credit_amount)}
             },
             upsert=True  # Return the modified document
         )
     
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 

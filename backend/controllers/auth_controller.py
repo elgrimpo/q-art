@@ -9,6 +9,9 @@ from authlib.integrations.starlette_client import OAuth
 from starlette.config import Config
 from starlette.exceptions import HTTPException
 
+# App imports
+from controllers.users_controller import User
+
 load_dotenv()
 
 # ---------------------------- INITIALIZE CLIENTS ---------------------------- #
@@ -56,31 +59,31 @@ async def google_auth(request):
         # ------------------------------- AUTHENTICATE ------------------------------- #
         try:
             token = await oauth.google.authorize_access_token(request)
+
+            google_user = {
+                "google_id": token["userinfo"]["sub"],
+                "name": token["userinfo"]["name"],
+                "picture": token["userinfo"]["picture"],
+                "email": token["userinfo"]["email"],
+            }
+
         except Exception as e:
             # Handle authentication error
             raise HTTPException(status_code=401, detail=e)
-
-        google_user = {
-            "google_id": token["userinfo"]["sub"],
-            "name": token["userinfo"]["name"],
-            "picture": token["userinfo"]["picture"],
-            "email": token["userinfo"]["email"],
-        }
-
         # ----------------------------- UPDATE USER INFO ----------------------------- #
         try:
-            existing_user = users.find_one({"google_id": google_user["google_id"]})
+            existing_user = users.find_one({"google_id": google_user['google_id']})
             if existing_user:
-                users.update_one({"google_id": google_user["google_id"]}, {"$set": google_user})
+                users.update_one({"google_id": google_user['google_id']}, {"$set": google_user})
             else:
-                users.insert_one(google_user)
+                users.insert_one(User(**google_user))
         except Exception:
             # Handle database operation error
             raise HTTPException(status_code=500, detail="Database operation failed")
 
         # ----------------------------- CREATE USER SESSION ----------------------------- #
         try:
-            logged_in_user = users.find_one({"google_id": google_user["google_id"]})
+            logged_in_user = users.find_one({"google_id": google_user['google_id']})
             if logged_in_user:
                 user_info = {
                     "_id": str(logged_in_user["_id"]),
