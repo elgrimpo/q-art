@@ -1,5 +1,5 @@
 // Libraries imports
-import { Grid, Box } from "@mui/material";
+import { Grid, Box, Typography } from "@mui/material";
 import { useState, useEffect, useRef } from "react";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import theme from "../../styles/mui-theme";
@@ -81,6 +81,8 @@ function ImageGallery(props) {
   const loading =
     imageType === "userImages" ? loadingUserImages : loadingCommunityImages;
 
+  console.log(images);
+
   //Image Details Modal
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -101,7 +103,7 @@ function ImageGallery(props) {
       likes: newSelectedFilters.likes,
       time_period: newSelectedFilters.time_period,
       sd_model: sd_name,
-      sort_by: newSelectedFilters.sort
+      sort_by: newSelectedFilters.sort,
     };
     getMoreImages(imageType, params);
   };
@@ -118,7 +120,10 @@ function ImageGallery(props) {
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
-        if (entry.isIntersecting && (user._id || imageType === "communityImages")) {
+        if (
+          entry.isIntersecting &&
+          (user._id || imageType === "communityImages")
+        ) {
           const sdModelObject = sd_models.find(
             (model) => model.name === selectedFilters.sd_model
           );
@@ -148,7 +153,7 @@ function ImageGallery(props) {
       }
     };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [images, loading, user]);
 
   // Images Details Modal
@@ -180,7 +185,21 @@ function ImageGallery(props) {
   /*                              COMPONENT RENDER                              */
   /* -------------------------------------------------------------------------- */
 
-  return (
+  return !user._id && imageType === "userImages" ? (
+    /* --------------------------- USER NOT LOGGED IN --------------------------- */
+    <Box sx={{ padding: { xs: "0.5rem", sm: "1rem" } }}>
+      <Typography variant="h5" component="h2" sx={{ textAlign: "center" }}>
+        Please login to view your images.
+      </Typography>
+    </Box>
+  ) : images.length === 0 && page === -1 && imageType === "userImages" ? (
+    /* --------------------------- NO USER IMAGES --------------------------- */
+    <Box sx={{ padding: { xs: "0.5rem", sm: "1rem" } }}>
+      <Typography variant="h5" component="h2" sx={{ textAlign: "center" }}>
+        You don't have any images yet!
+      </Typography>
+    </Box>
+  ) : (
     <Box sx={{ padding: { xs: "0.5rem", sm: "1rem" } }}>
       {/* ----------------------------- FILTERS ----------------------------- */}
       {isMobile ? (
@@ -240,7 +259,7 @@ function ImageGallery(props) {
       >
         {loading > 0 &&
           Array.from({ length: 12 }, (_, index) => index).map((_, index) => (
-            <ImageCard item={_} variant="skeleton" index={index} key={index}/>
+            <ImageCard item={_} variant="skeleton" index={index} key={index} />
           ))}
       </Grid>
 
