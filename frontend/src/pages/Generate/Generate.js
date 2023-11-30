@@ -26,7 +26,7 @@ import { useImages } from "../../context/AppProvider";
 import SdModelsModal from "./SdModelsModal";
 import { useGenerateUtils } from "../../utils/GenerateUtils";
 import { useUtils } from "../../utils/utils";
-
+import promptRandomizer from "../../utils/RandomPromptGenerator";
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
 /* -------------------------------------------------------------------------- */
@@ -168,6 +168,28 @@ function Generate() {
                 variant="outlined"
                 multiline
                 rows={4}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end" sx={{alignItems: "flex-start"}}>
+                      <Tooltip title="Set to Random">
+                        <IconButton
+                          name="seed"
+                          value={-1}
+                          onClick={() =>
+                            handleInputChange({
+                              target: {
+                                name: "prompt",
+                                value: promptRandomizer(),
+                              },
+                            })
+                          }
+                        >
+                          <CasinoTwoToneIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </InputAdornment>
+                  ),
+                }}
               />
 
               {/* NEGATIVE PROMPT */}
