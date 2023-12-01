@@ -39,19 +39,23 @@ const theme = createTheme({
     MuiButton: {
       styleOverrides: {
         root: {
-          borderRadius: "24px"
+          borderRadius: "24px",
         },
         outlined: {
           color: palette.primary.dark,
           borderColor: palette.primary.dark,
-         }}
+        },
+      },
     },
     MuiChip: {
       styleOverrides: {
-        outlined: {
-          color: palette.primary.dark,
-          borderColor: palette.primary.dark,
-         }}
+        outlinedPrimary: {
+          "&.MuiChip-colorPrimary": {
+            color: palette.primary.dark,
+            borderColor: palette.primary.dark,
+          },
+        },
+      },
     },
     MuiBottomNavigationAction: {
       styleOverrides: {
@@ -66,11 +70,12 @@ const theme = createTheme({
     // class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium css-uhfczg-MuiButtonBase-root-MuiButton-root"
     MuiMenuItem: {
       styleOverrides: {
-        root: { 
+        root: {
           "&.Mui-selected": {
-          backgroundColor: palette.primary.light
-        }
-      }}
+            backgroundColor: palette.primary.light,
+          },
+        },
+      },
     },
     MuiTab: {
       styleOverrides: {
