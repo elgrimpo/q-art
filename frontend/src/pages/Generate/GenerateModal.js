@@ -10,16 +10,18 @@ import { useImages } from "../../context/AppProvider";
 import SdModelCard from "./SdModelsCard";
 import { useGenerateUtils } from "../../utils/GenerateUtils";
 import StyledIconButton from "../../components/StyledIconButton";
+import NegPromptCard from "./NegPromptCard";
+import {negativePrompts} from "../../utils/NegativePrompts";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
 /* -------------------------------------------------------------------------- */
 
-function SdModelsModal(props) {
+function GenerateModal(props) {
   /* ---------------------------- DECLARE VARIABLE ---------------------------- */
 
   // Props
-  const { open, handleClose, handleModelSelection } = props;
+  const { open, handleClose, handleModelSelection, variant } = props;
 
   // Context
   const { sd_models } = useImages();
@@ -67,7 +69,7 @@ function SdModelsModal(props) {
       <DialogContent sx={{ padding: { xs: "0px", sm: "1rem" } }} align="center">
         {/* TITLE */}
         <Typography variant="h5" align="center" style={{ margin: "1rem 0" }}>
-          Stable Diffusion Models
+          {variant === "sd_model" ? "Stable Diffusion Models" : "Negative Prompt Templates"}
         </Typography>
 
         {/* GRID */}
@@ -77,7 +79,8 @@ function SdModelsModal(props) {
           spacing={{ xs: 2, sm: 2, md: 2, lg: 3, xl: 3 }}
           sx={{ mb: "1.5rem" }}
         >
-          {sd_models.length > 0
+          {variant === "sd_model" ? (
+          sd_models.length > 0
             ? sd_models.map((item, index) => (
                 <SdModelCard
                   item={item}
@@ -97,11 +100,19 @@ function SdModelsModal(props) {
                     key={index}
                   />
                 )
-              )}
+              )) : (
+                negativePrompts.map((item, index) => (
+                <NegPromptCard
+                  item={item}
+                  index={index}
+                  key={index}
+                  handleClose={handleClose}
+                />
+              )))}
         </Masonry>
       </DialogContent>
     </Dialog>
   );
 }
 
-export default SdModelsModal;
+export default GenerateModal;
