@@ -2,7 +2,7 @@ import os
 from fastapi import HTTPException
 from dotenv import load_dotenv
 import stripe
-import datetime
+from datetime import datetime
 
 # App imports
 from controllers.users_controller import add_user_payment
@@ -63,10 +63,12 @@ async def stripe_webhook(request, stripe_signature):
             credit_amount = session["metadata"]["credit_amount"]
             payment_intent = session["payment_intent"]
             unix_timestamp = session["created"]
-            timestamp = datetime.datetime.utcfromtimestamp(unix_timestamp)
+            timestamp = datetime.utcfromtimestamp(unix_timestamp)
 
             # Update user doc with payment and credits
             add_user_payment(user_id, transaction_amount, product_id, credit_amount, payment_intent, timestamp)    
 
     except Exception as e:
+        print("error at stripe_webhook")
+        print(e)
         return {"error": str(e)}

@@ -107,11 +107,11 @@ def add_user_payment(user_id, transaction_amount, product_id, credit_amount, pay
 
     # Create a new payment history object
     payment_history_instance = PaymentHistory(
-        date_time = datetime(timestamp),
-        transaction_amount = int(transaction_amount),
-        product_id = product_id,
-        credit_amount = int(credit_amount),
-        payment_intent_id = payment_intent
+    date_time=timestamp,
+    transaction_amount=int(transaction_amount),
+    product_id=product_id,
+    credit_amount=int(credit_amount),
+    payment_intent_id=payment_intent
     )
 
     try:
@@ -119,13 +119,14 @@ def add_user_payment(user_id, transaction_amount, product_id, credit_amount, pay
         db["users"].update_one(
             {"_id": ObjectId(user_id)},
             {
-                "$push": {"payment_history": payment_history_instance},
+                "$push": {"payment_history": payment_history_instance.dict()},
                 "$inc": {"credits": int(credit_amount)}
             },
             upsert=True  # Return the modified document
         )
     
     except Exception as e:
+        print("error at add_user_payment")
         print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
