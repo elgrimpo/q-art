@@ -10,8 +10,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  box-sizing: border-box;}
-
+  box-sizing: border-box;
+}
 
 
 /*-------- App.js --------*/
@@ -37,7 +37,7 @@ body {
   /* TODO Remove for mobile */
   height: calc(100dvh - 75px); 
   background-color: #F5F5F5;
-  margin: 0px;
+  margin-top: 75px;
   overflow: scroll;
 }
 

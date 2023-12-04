@@ -1,8 +1,8 @@
 // Libraries imports
-import { Grid, Box, Typography } from "@mui/material";
 import { useState, useEffect, useRef } from "react";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import theme from "../../styles/mui-theme";
+import { Grid, Box, Typography, Button } from "@mui/material";
 
 // App imports
 import { useImages } from "../../context/AppProvider";
@@ -20,7 +20,7 @@ function ImageGallery(props) {
   /* --------------------------- DECLARE VARIABLES ---------------------------- */
 
   // Props
-  const { setTabValue, imageType } = props;
+  const { setTabValue, imageType, handleLogin } = props;
 
   // Context Variables
   const {
@@ -80,8 +80,6 @@ function ImageGallery(props) {
   const images = imageType === "userImages" ? userImages : communityImages;
   const loading =
     imageType === "userImages" ? loadingUserImages : loadingCommunityImages;
-
-  console.log(images);
 
   //Image Details Modal
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
@@ -187,14 +185,33 @@ function ImageGallery(props) {
 
   return !user._id && imageType === "userImages" ? (
     /* --------------------------- USER NOT LOGGED IN --------------------------- */
-    <Box sx={{ padding: { xs: "0.5rem", sm: "1rem" } }}>
-      <Typography variant="h5" component="h2" sx={{ textAlign: "center" }}>
-        Please login to view your images.
-      </Typography>
+    <Box
+      sx={{
+        padding: { xs: "0.5rem", sm: "1rem" },
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        flexDirection: "column",
+        height: "calc(100vh - 75px)",
+      }}
+    >
+      <Typography variant="h5" component="h2" sx={{ textAlign: "center", mb:2 }}>
+        Log in to your account and go QR-azy!
+      </Typography><Button variant='contained' onClick={handleLogin}>Login</Button>
     </Box>
   ) : images.length === 0 && page === -1 && imageType === "userImages" ? (
     /* --------------------------- NO USER IMAGES --------------------------- */
-    <Box sx={{ padding: { xs: "0.5rem", sm: "1rem" } }}>
+    <Box
+      sx={{
+        padding: { xs: "0.5rem", sm: "1rem" },
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        flexDirection: "column",
+        height: "100%",
+        height: "calc(100vh - 75px)",
+      }}
+    >
       <Typography variant="h5" component="h2" sx={{ textAlign: "center" }}>
         You don't have any images yet!
       </Typography>

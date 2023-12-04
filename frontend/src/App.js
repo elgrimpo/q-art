@@ -3,6 +3,8 @@ import * as React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import {
+  Container,
+  AppBar,
   Toolbar,
   Box,
   Button,
@@ -64,10 +66,12 @@ function App() {
   /* -------------------------------------------------------------------------- */
   return (
     <ThemeProvider theme={theme}>
-      <div className="app">
+      <div>
         {/*-------- App Bar --------*/}
 
         {/* ------------------------------ APP BAR ----------------------------- */}
+        <AppBar sx={{backgroundColor: "white", boxShadow:"none"}}>
+          <Container maxWidth='xl' sx={{padding: {xs:0, sm:0, md:0, lg:0, xl:0}}}>
         <Toolbar display="flex" className="header">
           {/* LOGO */}
           <img src={logo} alt="Logo" />
@@ -84,10 +88,13 @@ function App() {
             <Button onClick={handleLogin}>Login</Button>
           )}
         </Toolbar>
+        </Container>
+        </AppBar>
 
         {/* --------------------------- APP CONTENT -------------------------- */}
 
         <div className="body">
+        <Container maxWidth='xl' sx={{padding: {xs:0, sm:0, md:0, lg:0, xl:0}}}>
           <Routes>
             {/* GENERATE PAGE */}
             <Route path="/" element={<Navigate to="/generate" replace />} />
@@ -97,7 +104,7 @@ function App() {
             {/* MY CODES PAGE */}
             <Route
               path="mycodes"
-              element={<ImageGallery imageType="userImages" />}
+              element={<ImageGallery imageType="userImages" handleLogin={handleLogin}/>}
             />
 
             {/* EXPLORE PAGE */}
@@ -109,6 +116,7 @@ function App() {
             {/* ACCOUNT */}
             <Route path="account" element={<Account />} />
           </Routes>
+          </Container>
         </div>
 
         {/* ---------------------------- SNACKBAR -------------------------- */}
