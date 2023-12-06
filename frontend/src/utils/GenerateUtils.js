@@ -16,68 +16,81 @@ export const useGenerateUtils = () => {
   /*                               GENERATE IMAGE                               */
   /* -------------------------------------------------------------------------- */
 
-  const generateImage = async (generateFormValues) => {
-    // Set state to loading
-    dispatch({
-      type: ActionTypes.SET_LOADING_GENERATED_IMAGE,
-      payload: true,
-    });
-
-    /* -------------------------------- API Call -------------------------------- */
-    axios
-      .get(
-        `${process.env.REACT_APP_BACKEND_URL}/api/generate/?user_id=${user._id}`,
-        {
-          params: generateFormValues,
-          withCredentials: true,
-        }
-      )
-      .then((res) => {
-        // Update Generated Image in reducer
-        dispatch({
-          type: ActionTypes.SET_GENERATED_IMAGE,
-          payload: res.data,
-        });
-
-        // Set state to NOT loading
-        dispatch({
-          type: ActionTypes.SET_LOADING_GENERATED_IMAGE,
-          payload: false,
-        });
-
-        // Reset My Codes Images and Page
-        dispatch({
-          type: ActionTypes.SET_USER_IMAGES_PAGE,
-          payload: 0,
-        });
-        dispatch({
-          type: ActionTypes.SET_USER_IMAGES,
-          payload: [],
-        });
-
-        // Open Snackbar
-        openAlert("success", "Image Generated");
-      })
-
-      /* ----------------------------- Error Handling ----------------------------- */
-
-      .catch((err) => {
-        // Set state to NOT loading
-        dispatch({
-          type: ActionTypes.SET_LOADING_GENERATED_IMAGE,
-          payload: false,
-        });
-
-        // Open Snackbar
-        openAlert(
-          "error",
-          `Image Generation Failed: ${err.response.data.detail}`
-        );
-
-        console.log(err);
+  const generateImage = (generateFormValues) => {
+    return new Promise((resolve, reject) => {
+      // Set state to loading
+      dispatch({
+        type: ActionTypes.SET_LOADING_GENERATED_IMAGE,
+        payload: true,
       });
-  };
 
+      /* -------------------------------- API Call -------------------------------- */
+      axios
+        .get(
+          `${process.env.REACT_APP_BACKEND_URL}/api/generate/?user_id=${user._id}`,
+          {
+            params: generateFormValues,
+            withCredentials: true,
+          }
+        )
+        .then((res) => {
+          // Update Generated Image in reducer
+          dispatch({
+            type: ActionTypes.SET_GENERATED_IMAGE,
+            payload: res.data,
+          });
+
+          // Set state to NOT loading
+          dispatch({
+            type: ActionTypes.SET_LOADING_GENERATED_IMAGE,
+            payload: false,
+          });
+
+          // Reset My Codes Images and Page
+          dispatch({
+            type: ActionTypes.SET_USER_IMAGES_PAGE,
+            payload: 0,
+          });
+
+          dispatch({
+            type: ActionTypes.SET_USER_IMAGES,
+            payload: [],
+          });
+
+          // Open Snackbar
+          openAlert("success", "Image Generated");
+
+          resolve(res.data);
+        })
+
+        /* ----------------------------- Error Handling ----------------------------- */
+
+        .catch((err) => {
+          // Set state to NOT loading
+          dispatch({
+            type: ActionTypes.SET_LOADING_GENERATED_IMAGE,
+            payload: false,
+          });
+
+          // Insufficient Resources
+
+          if (
+            err.response &&
+            err.response.status === 403 &&
+            err.response.data.detail === "Insufficient credits"
+          ) {
+            reject({ success: false, detail: "InsufficientCredits" });
+          } else {
+            openAlert(
+              "error",
+              `Image Generation Failed: ${err.response.data.detail}`
+            );
+            console.error(err);
+            reject(err);
+          }
+        });
+    });
+  };
   /* -------------------------------------------------------------------------- */
   /*                              COPY FORM VALUES                              */
   /* -------------------------------------------------------------------------- */

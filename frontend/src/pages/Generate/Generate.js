@@ -15,6 +15,7 @@ import { useImages } from "../../context/AppProvider";
 import GenerateForm from "./GenerateForm";
 import SimpleDialog from "../../components/SimpleDialog";
 import { useGenerateUtils } from "../../utils/GenerateUtils";
+import { useNavigate } from "react-router-dom";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
@@ -27,6 +28,9 @@ function Generate() {
   const { generatedImage, generateFormValues, loadingGeneratedImage, user } =
     useImages();
 
+  // Navigate
+  const navigate = useNavigate();
+  
   // Utils functions
   const { generateImage } = useGenerateUtils();
 
@@ -59,7 +63,7 @@ function Generate() {
     setDialogOpen(false);
   };
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     if (!user._id) {
       setDialogContent({
         title: "Not logged in",
@@ -69,11 +73,27 @@ function Generate() {
         secondaryActionText: "Close",
         secondaryAction: handleDialogClose,
       });
-
       setDialogOpen(true);
     } else {
-      generateImage(generateFormValues);
-      setFormSubmitted(true);
+      try {
+        const result = await generateImage(generateFormValues);
+        setFormSubmitted(true);
+      } catch (error) {
+
+        if (error.detail === "InsufficientCredits") {
+          setDialogContent({
+            title: "Insufficient Credits",
+            description:
+              "You don't have enough credits to generate this image. Please go to your account to purchase additional credits.",
+            primaryActionText: "Add Credits",
+            primaryAction: () => navigate("/account"),
+            secondaryActionText: "Close",
+            secondaryAction: handleDialogClose,
+          });
+          setDialogOpen(true);
+        }
+        console.error("Error occurred:", error);
+      }
     }
   };
   /* -------------------------------------------------------------------------- */
