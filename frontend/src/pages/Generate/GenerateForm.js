@@ -1,10 +1,7 @@
 // Libraries imports
 import React, { useEffect, useState } from "react";
 import {
-  Fab,
-  CardMedia,
   Button,
-  CircularProgress,
   TextField,
   Box,
   Stack,
@@ -132,7 +129,7 @@ function GenerateForm(props) {
   /* -------------------------------------------------------------------------- */
 
   return (
-    <Box className="sidebar">
+    <Box className="sidebar" > 
       <Stack useFlexGap spacing={2}>
         <Typography
           variant="h5"
@@ -341,7 +338,7 @@ function GenerateForm(props) {
           disabled={submitDisabled || loadingGeneratedImage}
           aria-label="generate"
           onClick={(e) => handleGenerate()}
-          sx={{ mb: "1rem" }}
+          sx={{ mb: "2rem" }}
         >
           <Typography variant="body1" component="div">
             Generate QR Code ( {price}
