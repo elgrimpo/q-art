@@ -1,8 +1,7 @@
 // Libraries imports
 import React, { useState } from "react";
 import {
-  Paper,
-  Backdrop,
+  Dialog,
   List,
   ListItemText,
   Typography,
@@ -30,7 +29,7 @@ function ImagesModal(props) {
 
   const { open, index, handleClose, handleNext, handlePrevious, imageType } =
     props;
-  const isFullScreen = useMediaQuery(theme.breakpoints.down("lg"));
+  const isFullScreen = useMediaQuery(theme.breakpoints.down("md"));
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   // Image fuctions
@@ -47,103 +46,95 @@ function ImagesModal(props) {
   /* -------------------------------------------------------------------------- */
 
   return (
-    <Backdrop
-      sx={{
-        color: "#fff",
-        width: "100%",
-        zIndex: (theme) => theme.zIndex.drawer + 1,
-      }}
-      open={open}
-      onClick={handleClose}
-    >
-      {/* ------------------------ NAVIGATION BUTTONS ----------------------- */}
 
-      {/* PREVIOUS */}
-      <Box
-        sx={{
-          margin: { sx: "0rem", lg: "1rem" },
-          position: "absolute",
-          bottom: "auto",
-          left: { xs: "1rem", lg: "0.5rem", xl: "0.5rem" },
-          zIndex: "1",
-        }}
+      /* -------------------------- MODAL SCREEN -------------------------- */
+      <Dialog
+        fullScreen={isMobile}
+        maxWidth="xl"
+        open={open}
+        onClose={handleClose}
+        fullWidth
+        PaperProps={{ sx: { height: "100%" } }}
       >
-        <StyledIconButton
-          variant="contained"
-          color="secondary"
-          type="previous"
-          handleClick={handlePrevious}
-        />
-      </Box>
+        {/* ------------------------ NAVIGATION BUTTONS ----------------------- */}
 
-      {/* NEXT */}
-      <Box
-        sx={{
-          margin: { sx: "0rem", lg: "1rem" },
-          position: "absolute",
-          bottom: "auto",
-          right: { xs: "1rem", lg: "0.5rem", xl: "0.5rem" },
-          zIndex: "1",
-        }}
-      >
-        <StyledIconButton
-          variant="contained"
-          color="secondary"
-          type="next"
-          handleClick={handleNext}
-        />
-      </Box>
-
-      {/* CLOSE */}
-      {isFullScreen && (
+        {/* PREVIOUS */}
         <Box
           sx={{
-            margin: { sx: "0rem", lg: "1rem" },
-            position: "absolute",
-            top: { xs: "0.5rem" },
-            right: { xs: "0.5rem" },
-            zIndex: "1",
+            position: "fixed",
+            bottom: "50%",
+            left: { xs: "1rem", md:"0.5rem" },
+            zIndex: "2000",
           }}
         >
           <StyledIconButton
             variant="contained"
             color="secondary"
-            type="close"
-            handleClick={handleClose}
+            type="previous"
+            handleClick={handlePrevious}
           />
         </Box>
-      )}
 
-      {/* -------------------------- MODAL SCREEN -------------------------- */}
-      <Paper
-        elevation={10}
-        sx={{
-          width: { xs: "100%", lg: "85%", xl: "90%" },
-          maxWidth: "1400px",
-          height: { xs: "100%", lg: "90%" },
-          backgroundColor: "#ffffff",
-          display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          borderRadius: { xs: "0px", lg: "16px" },
-          overflowY: { xs: "scroll", md: "hidden" },
-        }}
-      >
-        {/* ------------ Image ------------- */}
-        <Box // Background fill
+        {/* NEXT */}
+        <Box
           sx={{
-            height: "100%",
-            width: "100%",
-            backgroundColor: "#70E195",
-            display: "flex",
-            justifyContent: "center",
-            borderRadius: { xs: "0px", lg: "16px 0px 0px 16px" },
-            padding: { xs: "0rem", md: "0rem", lg: "2rem" },
-            flex: { xs: "2", lg: "3" },
+
+            position: "fixed",
+            bottom: "50%",
+            right: { xs: "1rem", md:"0.5rem"},
+            zIndex: "2000",
           }}
         >
+          <StyledIconButton
+            variant="contained"
+            color="secondary"
+            type="next"
+            handleClick={handleNext}
+          />
+        </Box>
 
+        {/* CLOSE */}
+        {isFullScreen && (
+          <Box
+            sx={{
+              margin: { sx: "0rem", lg: "1rem" },
+              position: "fixed",
+              top: { xs: "0.5rem" },
+              right: { xs: "0.5rem" },
+              zIndex: "2000",
+            }}
+          >
+            <StyledIconButton
+              variant="contained"
+              color="secondary"
+              type="close"
+              handleClick={handleClose}
+            />
+          </Box>
+        )}
+
+        {/* ----------------------------- DIALOG CONTENT ----------------------------- */}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            overflowY: { xs: "scroll", md: "hidden" },
+            height: "100%",
+          }}
+        >
+          {/* ------------ Image ------------- */}
+          <Box // Image Background fill
+            sx={{
+              height: "100%",
+              width: "100%",
+              backgroundColor: "#70E195",
+              display: "flex",
+              justifyContent: "center",
+              padding: { xs: "0rem", md: "0rem", lg: "2rem" },
+              flex: { xs: "2", lg: "3" },
+            }}
+          >
             {upscaling ? (
-              // TODO Skeleton sizing
               <Skeleton
                 variant="rounded"
                 animation="wave"
@@ -154,7 +145,7 @@ function ImagesModal(props) {
                   maxHeight: "100%",
                   width: "auto",
                   height: "auto",
-                  aspectRatio:"1/1"
+                  aspectRatio: "1/1",
                 }}
               />
             ) : (
@@ -168,124 +159,125 @@ function ImagesModal(props) {
                   maxHeight: "100%",
                   width: "auto",
                   height: "auto",
-                  aspectRatio:"1/1"
+                  aspectRatio: "1/1",
                 }}
               />
             )}
+          </Box>
 
-        </Box>
+          {/* -------------------- Sidebar ------------------- */}
 
-        {/* -------------------- Sidebar ------------------- */}
-
-        <Box
-          sx={{
-            flex: "1",
-            height: "100%",
-            padding: "3rem",
-            minWidth: "230px",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            overflow: { md: "scroll" },
-          }}
-        >
-          {/* ------------------------------ ICON BUTTONS ------------------------------ */}
-          <Stack
-            direction="row"
-            justifyContent={{ xs: "center", md: "left" }}
-            alignItems="center"
-            spacing={3}
-            sx={{ mb: "1rem" }}
+          <Box
+            sx={{
+              flex: "1",
+              height: "100%",
+              padding: "3rem",
+              minWidth: "230px",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              overflow: { md: "scroll" },
+            }}
           >
-            {/* DOWNLOAD */}
-            <StyledIconButton
-              variant="contained"
-              color="secondary"
-              type="download"
-              handleClick={() => downloadImage(image)}
-            />
-
-            {/* UPSCALE */}
-            {image?.width === 512 && imageType === "userImages" && (
+            {/* ------------------------------ ICON BUTTONS ------------------------------ */}
+            <Stack
+              direction="row"
+              justifyContent={{ xs: "center", md: "left" }}
+              alignItems="center"
+              spacing={3}
+              sx={{ mb: "1rem" }}
+            >
+              {/* DOWNLOAD */}
               <StyledIconButton
                 variant="contained"
                 color="secondary"
-                type="upscale"
-                handleClick={() => upscaleImage(image._id, setUpscaling)}
+                type="download"
+                handleClick={() => downloadImage(image)}
               />
-            )}
 
-            {/* DELETE */}
-            {image?.user_id === user._id && (
-            <StyledIconButton
-              variant="contained"
-              color="secondary"
-              type="delete"
-              handleClick={() => deleteImage(image._id, index)}
-            />)}
-          </Stack>
+              {/* UPSCALE */}
+              {image?.width === 512 && imageType === "userImages" && (
+                <StyledIconButton
+                  variant="contained"
+                  color="secondary"
+                  type="upscale"
+                  handleClick={() => upscaleImage(image._id, setUpscaling)}
+                />
+              )}
 
-          {/* -------------------------------- METADATA -------------------------------- */}
-          <div style={{ maxHeight: "100%" }}>
-            <Typography variant="h5" align={isMobile ? "center" : "left"}>
-              Image Details
-            </Typography>
-            <List>
-              <ListItemText
-                primary="Date created"
-                secondary={image?.created_at}
-                align={isMobile ? "center" : "left"}
-              />
-              <ListItemText
-                primary="QR Content"
-                secondary={image?.content}
-                align={isMobile ? "center" : "left"}
-              />
-              <ListItemText
-                primary="Prompt"
-                secondary={image?.prompt}
-                align={isMobile ? "center" : "left"}
-              />
-              <ListItemText
-                primary="Negative prompt"
-                secondary={image?.negative_prompt}
-                align={isMobile ? "center" : "left"}
-              />
-              <ListItemText
-                primary="Seed"
-                secondary={image?.seed}
-                align={isMobile ? "center" : "left"}
-              />
-              <ListItemText
-                primary="Image Quality"
-                secondary={`${image?.image_quality} (${image?.steps} sampling steps)`}
-                align={isMobile ? "center" : "left"}
-              />
-              <ListItemText
-                primary="Image Dimensions"
-                secondary={`${image?.width} x ${image?.height} px`}
-                align={isMobile ? "center" : "left"}
-              />
-              <ListItemText
-                primary="QR Code Weight"
-                secondary={image?.qr_weight}
-                align={isMobile ? "center" : "left"}
-              />
-              <ListItemText
-                primary="Stable Diffusion Model"
-                secondary={image?.sd_model}
-                align={isMobile ? "center" : "left"}
-              />
-              <ListItemText
-                primary="Image Id"
-                secondary={image?._id}
-                align={isMobile ? "center" : "left"}
-              />
-            </List>
-          </div>
+              {/* DELETE */}
+              {image?.user_id === user._id && (
+                <StyledIconButton
+                  variant="contained"
+                  color="secondary"
+                  type="delete"
+                  handleClick={() => deleteImage(image._id, index)}
+                />
+              )}
+            </Stack>
+
+            {/* -------------------------------- METADATA -------------------------------- */}
+            <div style={{ maxHeight: "100%" }}>
+              <Typography variant="h5" align={isMobile ? "center" : "left"}>
+                Image Details
+              </Typography>
+              <List>
+                <ListItemText
+                  primary="Date created"
+                  secondary={image?.created_at}
+                  align={isMobile ? "center" : "left"}
+                />
+                <ListItemText
+                  primary="QR Content"
+                  secondary={image?.content}
+                  align={isMobile ? "center" : "left"}
+                />
+                <ListItemText
+                  primary="Prompt"
+                  secondary={image?.prompt}
+                  align={isMobile ? "center" : "left"}
+                />
+                <ListItemText
+                  primary="Negative prompt"
+                  secondary={image?.negative_prompt}
+                  align={isMobile ? "center" : "left"}
+                />
+                <ListItemText
+                  primary="Seed"
+                  secondary={image?.seed}
+                  align={isMobile ? "center" : "left"}
+                />
+                <ListItemText
+                  primary="Image Quality"
+                  secondary={`${image?.image_quality} (${image?.steps} sampling steps)`}
+                  align={isMobile ? "center" : "left"}
+                />
+                <ListItemText
+                  primary="Image Dimensions"
+                  secondary={`${image?.width} x ${image?.height} px`}
+                  align={isMobile ? "center" : "left"}
+                />
+                <ListItemText
+                  primary="QR Code Weight"
+                  secondary={image?.qr_weight}
+                  align={isMobile ? "center" : "left"}
+                />
+                <ListItemText
+                  primary="Stable Diffusion Model"
+                  secondary={image?.sd_model}
+                  align={isMobile ? "center" : "left"}
+                />
+                <ListItemText
+                  primary="Image Id"
+                  secondary={image?._id}
+                  align={isMobile ? "center" : "left"}
+                />
+              </List>
+            </div>
+          </Box>
         </Box>
-      </Paper>
-    </Backdrop>
+      </Dialog>
+
   );
 }
 

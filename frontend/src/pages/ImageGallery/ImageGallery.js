@@ -156,10 +156,10 @@ function ImageGallery(props) {
 
   // Images Details Modal
   const handleModalClose = (event) => {
-    if (event.target === event.currentTarget) {
+
       setModalOpen(false);
       setSelectedImageIndex(null);
-    }
+
   };
 
   const handleModalOpen = (imageIndex) => {
