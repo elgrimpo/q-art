@@ -1,9 +1,10 @@
 // Libraries imports
 import { Dialog, DialogContent, Typography, Box } from "@mui/material";
 import { useEffect, useState } from "react";
-import Masonry from "@mui/lab/Masonry";
+// import Masonry from "@mui/lab/Masonry";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import theme from "../../styles/mui-theme";
+import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 
 // App imports
 import { useImages, useImagesDispatch } from "../../context/AppProvider";
@@ -28,7 +29,7 @@ function GenerateModal(props) {
 
   // Context
   const { sd_models, generateFormValues } = useImages();
-  const dispatch = useImagesDispatch()
+  const dispatch = useImagesDispatch();
   // Utils
   const { getSdModels } = useGenerateUtils();
 
@@ -36,9 +37,11 @@ function GenerateModal(props) {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   // Prompt keywords
-    const [selectedKeywords, setSelectedKeywords] = useState(
+  const [selectedKeywords, setSelectedKeywords] = useState(
     generateFormValues.prompt.split(", ")
   );
+
+  const [promptKeywordss, setPromptKeywords] = useState(promptKeywords);
   /* -------------------------------- FUNCTIONS ------------------------------- */
 
   useEffect(() => {
@@ -49,6 +52,10 @@ function GenerateModal(props) {
     getSdModels();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    setPromptKeywords(promptKeywords);
+  }, [promptKeywords]);
 
   const getTitle = () => {
     if (variant === "sd_model") {
@@ -63,11 +70,10 @@ function GenerateModal(props) {
   const handleKeywordSelection = (keyword) => {
     let updatedKeywords = [...selectedKeywords];
 
-
     if (updatedKeywords.includes(keyword)) {
       updatedKeywords = updatedKeywords.filter((key) => key !== keyword);
     } else {
-      if (!updatedKeywords.length || updatedKeywords[0] === '') {
+      if (!updatedKeywords.length || updatedKeywords[0] === "") {
         updatedKeywords = [keyword];
       } else {
         updatedKeywords.push(keyword);
@@ -76,7 +82,7 @@ function GenerateModal(props) {
 
     setSelectedKeywords(updatedKeywords);
 
-    const updatedPrompt = updatedKeywords.join(', ');
+    const updatedPrompt = updatedKeywords.join(", ");
 
     dispatch({
       type: ActionTypes.SET_GENERATE_FORM_VALUES,
@@ -97,6 +103,7 @@ function GenerateModal(props) {
       maxWidth="xl"
       open={open}
       onClose={handleClose}
+      fullWidth
     >
       <Box
         sx={{
@@ -114,64 +121,66 @@ function GenerateModal(props) {
           handleClick={handleClose}
         />
       </Box>
-      <DialogContent sx={{ padding: { xs: "0px", sm: "1rem" } }} align="center">
+      <DialogContent
+        sx={{ padding: { xs: "0.5rem", sm: "1rem" }}}
+        align="center"
+      >
         {/* TITLE */}
         <Typography variant="h5" align="center" style={{ margin: "1rem 0" }}>
           {getTitle()}
         </Typography>
 
         {/* GRID */}
-        <Masonry
-          direction="row"
-          columns={{ xs: 1, sm: 2, md: 2, lg: 3, xl: 3 }}
-          spacing={{ xs: 2, sm: 2, md: 2, lg: 3, xl: 3 }}
-          sx={{ mb: "1.5rem" }}
-        >
-          {/* -------------------------------- SD MODELS ------------------------------- */}
-          {variant === "sd_model"
-            ? sd_models.length > 0
-              ? sd_models.map((item, index) => (
-                  <SdModelCard
+        <ResponsiveMasonry style={{ width: "100%" }} columnsCountBreakPoints={{ 350: 1, 750: 2, 900: 3 }}>
+          <Masonry
+            gutter="1rem"
+          >
+            {/* -------------------------------- SD MODELS ------------------------------- */}
+            {variant === "sd_model"
+              ? sd_models.length > 0
+                ? sd_models.map((item, index) => (
+                    <SdModelCard
+                      item={item}
+                      index={index}
+                      key={index}
+                      handleModelSelection={handleModelSelection}
+                      variant="image"
+                    />
+                  ))
+                : // SKELETON CARDS FOR LOADING IMAGES
+                  Array.from({ length: 12 }, (_, index) => index).map(
+                    (_, index) => (
+                      <SdModelCard
+                        item={_}
+                        variant="skeleton"
+                        index={index}
+                        key={index}
+                      />
+                    )
+                  )
+              : /* ------------------------ NEGATIVE PROMPT TEMPLATES ----------------------- */
+              variant === "negative_prompt"
+              ? negativePrompts.map((item, index) => (
+                  <NegPromptCard
                     item={item}
                     index={index}
                     key={index}
-                    handleModelSelection={handleModelSelection}
-                    variant="image"
+                    handleClose={handleClose}
                   />
                 ))
-              : // SKELETON CARDS FOR LOADING IMAGES
-                Array.from({ length: 12 }, (_, index) => index).map(
-                  (_, index) => (
-                    <SdModelCard
-                      item={_}
-                      variant="skeleton"
-                      index={index}
-                      key={index}
-                    />
-                  )
-                )
-            : /* ------------------------ NEGATIVE PROMPT TEMPLATES ----------------------- */
-            variant === "negative_prompt"
-            ? negativePrompts.map((item, index) => (
-                <NegPromptCard
-                  item={item}
-                  index={index}
-                  key={index}
-                  handleClose={handleClose}
-                />
-              ))
-            : /* ----------------------------- PROMPT KEYWORDS ---------------------------- */
-              promptKeywords.map((item, index) => (
-                <PromptKeywords
-                  item={item}
-                  index={index}
-                  key={index}
-                  handleClose={handleClose}
-                  selectedKeywords={selectedKeywords}
-                  handleKeywordSelection={handleKeywordSelection}
-                />
-              ))}
-        </Masonry>
+              : /* ----------------------------- PROMPT KEYWORDS ---------------------------- */
+                promptKeywordss?.map((item, index) => (
+                  <PromptKeywords
+                    item={item}
+                    index={index}
+                    key={index}
+                    handleClose={handleClose}
+                    selectedKeywords={selectedKeywords}
+                    handleKeywordSelection={handleKeywordSelection}
+                  />
+                ))}
+          </Masonry>
+        </ResponsiveMasonry>
       </DialogContent>
     </Dialog>
   );
