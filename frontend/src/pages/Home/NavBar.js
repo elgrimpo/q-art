@@ -174,7 +174,7 @@ function BottomNavBar() {
       {/* --------------------------- DESKTOP NAVIGATION --------------------------- */}
       <Tabs
         value={tabValue}
-        sx={{ display: { xs: "none", md: "flex" } }}
+        sx={{ display: { xs: "none", md: "flex" }, zIndex: 1000, position: "absolute", top: "3px", right: "50%", transform: "translate(50%, 0%)"}}
         centered
       >
         <Tab

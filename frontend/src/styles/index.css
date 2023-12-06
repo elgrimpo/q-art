@@ -23,7 +23,6 @@ body {
 
 .header {
   box-sizing: border-box;
-  padding-top: 8px
 }
 
 .menu-container {
@@ -35,10 +34,15 @@ body {
 .body {
   box-sizing: border-box;
   /* TODO Remove for mobile */
-  height: calc(100dvh - 75px); 
+  height: calc(100dvh - 75px);
   background-color: #F5F5F5;
-  margin-top: 75px;
+  margin-top: 64px;
   overflow: scroll;
+}
+
+.bottom-nav-mobile {
+  transform: translate3d(0, 80px, 0);
+  -webkit-transform: translate3d(0, 0, 0);
 }
 
 
@@ -61,7 +65,7 @@ body {
   max-height: 100%;
   padding: 0rem 2rem;
   justify-content: "center";
-  
+
   height: 100%;
   overflow: scroll
 }
@@ -157,26 +161,30 @@ body {
     height: auto;
     padding: 0px
   }
-  .generate-page {
-   height: auto
 
+  .generate-page {
+    height: auto
   }
+
   .sidebar {
     width: 100%;
     padding: 0rem 1rem;
     margin-bottom: 60px;
   }
+
   .image-container {
     margin: 0;
     padding: 1rem;
     height: calc(100dvh - 120px);
   }
+
   .image-card {
     height: calc(100dvh - 180px);
     padding: 2rem;
     align-items: center;
     flex-direction: column;
   }
+
   .loading-box {
     max-height: calc(100dvh - 320px);
 
@@ -195,10 +203,15 @@ body {
     border-radius: 0;
     height: 100%
   }
+
   .loading-box {
     margin: 0;
     padding: 0;
     border-radius: 0;
 
+  }
+
+  .body {
+    margin-top: 56px;
   }
 }

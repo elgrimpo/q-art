@@ -67,55 +67,66 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <div>
-        {/*-------- App Bar --------*/}
+        {/* ------------------------------- NAVIGATION ------------------------------- */}
+
+        <NavBar />
 
         {/* ------------------------------ APP BAR ----------------------------- */}
-        <AppBar sx={{backgroundColor: "white", boxShadow:"none"}}>
-          <Container maxWidth='xl' sx={{padding: {xs:0, sm:0, md:0, lg:0, xl:0}}}>
-        <Toolbar display="flex" className="header">
-          {/* LOGO */}
-          <img src={logo} alt="Logo" />
+        <AppBar
+          sx={{ backgroundColor: "white", boxShadow: "none", zIndex: 500 }}
+        >
+          <Container
+            maxWidth="xl"
+            sx={{ padding: { xs: 0, sm: 0, md: 0, lg: 0, xl: 0 } }}
+          >
+            <Toolbar display="flex" className="header">
+              {/* LOGO */}
+              <img src={logo} alt="Logo" />
+              <Box sx={{ flexGrow: 1 }}></Box>
 
-          {/* TABS */}
-          <Box className="menu-container">
-            <NavBar />
-          </Box>
-
-          {/* ACCOUNT */}
-          {user._id ? (
-            <AccountMenu handleLogout={logout} />
-          ) : (
-            <Button onClick={handleLogin}>Login</Button>
-          )}
-        </Toolbar>
-        </Container>
+              {/* ACCOUNT */}
+              {user._id ? (
+                <AccountMenu handleLogout={logout} />
+              ) : (
+                <Button onClick={handleLogin}>Login</Button>
+              )}
+            </Toolbar>
+          </Container>
         </AppBar>
 
         {/* --------------------------- APP CONTENT -------------------------- */}
 
         <div className="body">
-        <Container maxWidth='xl' sx={{padding: {xs:0, sm:0, md:0, lg:0, xl:0}}}>
-          <Routes>
-            {/* GENERATE PAGE */}
-            <Route path="/" element={<Navigate to="/generate" replace />} />
+          <Container
+            maxWidth="xl"
+            sx={{ padding: { xs: 0, sm: 0, md: 0, lg: 0, xl: 0 } }}
+          >
+            <Routes>
+              {/* GENERATE PAGE */}
+              <Route path="/" element={<Navigate to="/generate" replace />} />
 
-            <Route path="generate" element={<Generate />} />
+              <Route path="generate" element={<Generate />} />
 
-            {/* MY CODES PAGE */}
-            <Route
-              path="mycodes"
-              element={<ImageGallery imageType="userImages" handleLogin={handleLogin}/>}
-            />
+              {/* MY CODES PAGE */}
+              <Route
+                path="mycodes"
+                element={
+                  <ImageGallery
+                    imageType="userImages"
+                    handleLogin={handleLogin}
+                  />
+                }
+              />
 
-            {/* EXPLORE PAGE */}
-            <Route
-              path="explore"
-              element={<ImageGallery imageType="communityImages" />}
-            />
+              {/* EXPLORE PAGE */}
+              <Route
+                path="explore"
+                element={<ImageGallery imageType="communityImages" />}
+              />
 
-            {/* ACCOUNT */}
-            <Route path="account" element={<Account />} />
-          </Routes>
+              {/* ACCOUNT */}
+              <Route path="account" element={<Account />} />
+            </Routes>
           </Container>
         </div>
 
