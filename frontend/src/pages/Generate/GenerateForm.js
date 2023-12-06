@@ -32,10 +32,9 @@ import promptRandomizer from "../../utils/PromptGenerator";
 function GenerateForm(props) {
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
 
-  const { formSubmitted, setFormSubmitted } = props;
+  const { handleGenerate } = props;
   // Context variables
   const {
-    generatedImage,
     loadingGeneratedImage,
     generateFormValues,
     sd_models,
@@ -43,7 +42,7 @@ function GenerateForm(props) {
 
   // Utils functions
   const { calculateCredits } = useUtils();
-  const { generateImage, selectSdModel, handleInputChange } =
+  const { selectSdModel, handleInputChange } =
     useGenerateUtils();
 
   // Submit Button state
@@ -79,17 +78,6 @@ function GenerateForm(props) {
   const handleModelSelection = (sd_model) => {
     selectSdModel(sd_model);
     setModalOpen(false);
-  };
-
-  // Initiate QR Code Art generation
-  const handleGenerate = () => {
-    generateImage(generateFormValues);
-    setFormSubmitted(true);
-  };
-
-  // Switch to Form view for mobile view
-  const handleFormUnsubmit = () => {
-    setFormSubmitted(false);
   };
 
   // Set display text for slider

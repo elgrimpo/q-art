@@ -13,6 +13,8 @@ import theme from "../../styles/mui-theme";
 // App imports
 import { useImages } from "../../context/AppProvider";
 import GenerateForm from "./GenerateForm";
+import SimpleDialog from "../../components/SimpleDialog";
+import { useGenerateUtils } from "../../utils/GenerateUtils";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
@@ -22,11 +24,11 @@ function Generate() {
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
 
   // Context variables
-  const {
-    generatedImage,
-    loadingGeneratedImage,
-  } = useImages();
+  const { generatedImage, generateFormValues, loadingGeneratedImage, user } =
+    useImages();
 
+  // Utils functions
+  const { generateImage } = useGenerateUtils();
 
   // Screen size
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -34,14 +36,46 @@ function Generate() {
   // Switch between Form and Image view for mobile screen
   const [formSubmitted, setFormSubmitted] = useState(false);
 
+  // Dialog Content
+  const [dialogContent, setDialogContent] = useState({});
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   /* -------------------------------- FUNCTIONS ------------------------------- */
+
+  // Login
+  const handleLogin = async () => {
+    window.open(
+      `${process.env.REACT_APP_BACKEND_URL}/api/login/google`,
+      "_self"
+    );
+  };
 
   // Switch to Form view for mobile view
   const handleFormUnsubmit = () => {
     setFormSubmitted(false);
   };
 
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+  };
+
+  const handleGenerate = () => {
+    if (!user._id) {
+      setDialogContent({
+        title: "Not logged in",
+        description: "Please log in to generate a QC Code image.",
+        primaryActionText: "Log In",
+        primaryAction: handleLogin,
+        secondaryActionText: "Close",
+        secondaryAction: handleDialogClose,
+      });
+
+      setDialogOpen(true);
+    } else {
+      generateImage(generateFormValues);
+      setFormSubmitted(true);
+    }
+  };
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
   /* -------------------------------------------------------------------------- */
@@ -49,9 +83,11 @@ function Generate() {
   return (
     <div className="generate-page">
       {/* ------------------------------ GENERATE FORM ----------------------------- */}
-      {/* TODO: MOVE FORM TO SEPARATE COMPONENT */}
       {!isMobile || (isMobile && !formSubmitted) ? (
-        <GenerateForm setFormSubmitted={setFormSubmitted} />
+        <GenerateForm
+          handleGenerate={handleGenerate}
+          setFormSubmitted={setFormSubmitted}
+        />
       ) : (
         <></>
       )}
@@ -110,6 +146,20 @@ function Generate() {
       ) : (
         <></>
       )}
+
+      {/* --------------------------------- DIALOG --------------------------------- */}
+
+      {/* USER NOT LOGGED IN */}
+      <SimpleDialog
+        title={dialogContent.title}
+        description={dialogContent.description}
+        primaryActionText={dialogContent.primaryActionText}
+        primaryAction={dialogContent.primaryAction}
+        secondaryActionText={dialogContent.secondaryActionText}
+        secondaryAction={dialogContent.secondaryAction}
+        dialogOpen={dialogOpen}
+        handleClose={handleDialogClose}
+      />
     </div>
   );
 }
