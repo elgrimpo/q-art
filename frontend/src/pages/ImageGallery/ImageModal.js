@@ -68,10 +68,6 @@ function ImagesModal(props) {
     },
   });
 
-  //Transition effect for Dialog
-  const Transition = React.forwardRef(function Transition(props, ref) {
-    return <Grow ref={ref} {...props} />;
-  });
 
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
@@ -82,7 +78,7 @@ function ImagesModal(props) {
 
     <Dialog
       fullScreen={isMobile}
-      TransitionComponent={Transition}
+      TransitionComponent={Grow}
       maxWidth="xl"
       open={open}
       onClose={handleClose}

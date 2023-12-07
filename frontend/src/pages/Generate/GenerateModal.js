@@ -106,7 +106,7 @@ function GenerateModal(props) {
   return (
     <Dialog
       fullScreen={isMobile}
-      TransitionComponent={Transition}
+      TransitionComponent={Grow}
       maxWidth="xl"
       open={open}
       onClose={handleClose}
