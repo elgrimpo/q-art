@@ -29,7 +29,7 @@ function ImagesModal(props) {
 
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
 
-  const { open, index, handleClose, handleNext, handlePrevious, imageType } =
+  const { open, index, handleClose, handleNext, handlePrevious, imageType, upscaling, setUpscaling } =
     props;
   const isFullScreen = useMediaQuery(theme.breakpoints.down("md"));
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -37,8 +37,6 @@ function ImagesModal(props) {
   // Image fuctions
   const { downloadImage, deleteImage, upscaleImage } = useImageUtils();
 
-  // Upscaling (loading)
-  const [upscaling, setUpscaling] = useState(false);
 
   const image =
     imageType === "userImages" ? userImages[index] : communityImages[index];
@@ -163,7 +161,7 @@ function ImagesModal(props) {
             flex: { xs: "2", lg: "3" },
           }}
         >
-          {upscaling ? (
+          {upscaling.includes(image?._id) ? (
             <Skeleton
               variant="rounded"
               animation="wave"
@@ -231,7 +229,7 @@ function ImagesModal(props) {
                 variant="contained"
                 color="secondary"
                 type="upscale"
-                handleClick={() => upscaleImage(image._id, setUpscaling)}
+                handleClick={() => upscaleImage(image._id, upscaling, setUpscaling)}
               />
             )}
 

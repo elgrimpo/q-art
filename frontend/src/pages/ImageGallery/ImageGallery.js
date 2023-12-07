@@ -74,6 +74,9 @@ function ImageGallery(props) {
     sort: "Newest",
   });
 
+   // Upscaling (loading)
+   const [upscaling, setUpscaling] = useState([]);
+
   // Set userImages vs communityImages
   const page =
     imageType === "userImages" ? userImagesPage : communityImagesPage;
@@ -255,6 +258,7 @@ function ImageGallery(props) {
               onClick={() => handleModalOpen(index)}
               setTabValue={setTabValue}
               imageType={imageType}
+              upscaling={upscaling}
             />
           ))}
       </Grid>
@@ -289,6 +293,8 @@ function ImageGallery(props) {
           handlePrevious={showPreviousImage}
           handleNext={showNextImage}
           imageType={imageType}
+          upscaling={upscaling}
+          setUpscaling={setUpscaling}
         />
       )}
     </Box>

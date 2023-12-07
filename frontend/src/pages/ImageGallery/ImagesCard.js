@@ -17,7 +17,7 @@ import { useImages } from "../../context/AppProvider.js";
 /* -------------------------------------------------------------------------- */
 
 function ImageCard(props) {
-  const { variant, item, index, onClick, imageType } = props;
+  const { variant, item, index, onClick, imageType, upscaling } = props;
 
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
 
@@ -32,8 +32,6 @@ function ImageCard(props) {
   // Copy Image function
   const { copyGenerateFormValues } = useGenerateUtils();
 
-  // Upscaling (loading)
-  const [upscaling, setUpscaling] = useState(false);
 
   /* -------------------------------- FUNCTIONS ------------------------------- */
 
@@ -64,7 +62,7 @@ function ImageCard(props) {
         color="primary"
       >
         {/* Skeleton (if loading) */}
-        {variant === "skeleton" || upscaling ? (
+        {variant === "skeleton" || upscaling.includes(item?._id) ? (
           <SkeletonCard index={index} key={index}/>
         ) : (
           /* ------------------------------ IMAGE ------------------------------ */

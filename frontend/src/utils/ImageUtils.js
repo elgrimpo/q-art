@@ -165,10 +165,9 @@ export const useImageUtils = () => {
   /*                                UPSCALE IMAGE                               */
   /* -------------------------------------------------------------------------- */
 
-  const upscaleImage = (id, setUpscaling) => {
+  const upscaleImage = (id, upscaling, setUpscaling) => {
     // Set the state loading
-    setUpscaling(true);
-
+    setUpscaling([...upscaling, id]);
     /* -------------------------------- API Call -------------------------------- */
     axios
       .get(`${process.env.REACT_APP_BACKEND_URL}/api/upscale/${id}`, {
@@ -201,7 +200,7 @@ export const useImageUtils = () => {
       })
       .finally(() => {
         // Set the state to NOT loading
-        setUpscaling(false);
+        setUpscaling(upscaling.filter((imageId) => imageId !== id));
       });
   };
 
