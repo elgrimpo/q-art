@@ -11,10 +11,14 @@ import {
   DialogContent,
   DialogActions,
   Fab,
+  Grow
 } from "@mui/material";
 import FilterAltTwoToneIcon from "@mui/icons-material/FilterAltTwoTone";
 // App imports
 import StyledIconButton from "../../components/StyledIconButton";
+
+
+
 
 /* -------------------------------------------------------------------------- */
 /*                                  COMPONENT                                 */
@@ -78,6 +82,11 @@ function FilterPanelMobile({
     setFilterOpen(false);
   };
 
+  // Transition effect for Dialog
+  const Transition = React.forwardRef(function Transition(props, ref) {
+    return <Grow ref={ref} {...props} />;
+  });
+
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
   /* -------------------------------------------------------------------------- */
@@ -115,6 +124,8 @@ function FilterPanelMobile({
         onClose={() => setFilterOpen(false)}
         fullScreen
         sx={{ maxHeight: "100%", overflow: "hidden" }}
+        TransitionComponent={Transition}
+
       >
         <DialogTitle>
           <Typography variant="h5" align="center">

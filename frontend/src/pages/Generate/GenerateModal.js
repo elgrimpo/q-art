@@ -1,10 +1,11 @@
 // Libraries imports
-import { Dialog, DialogContent, Typography, Box } from "@mui/material";
-import { useEffect, useState } from "react";
+import { Dialog, DialogContent, Typography, Box, Zoom, Grow } from "@mui/material";
+import React, { useEffect, useState, forwardRef } from "react";
 // import Masonry from "@mui/lab/Masonry";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import theme from "../../styles/mui-theme";
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
+import Slide from '@mui/material/Slide';
 
 // App imports
 import { useImages, useImagesDispatch } from "../../context/AppProvider";
@@ -25,7 +26,7 @@ function GenerateModal(props) {
   /* ---------------------------- DECLARE VARIABLE ---------------------------- */
 
   // Props
-  const { open, handleClose, handleModelSelection, variant } = props;
+  const { open, handleClose, handleModelSelection, variant, ref } = props;
 
   // Context
   const { sd_models, generateFormValues } = useImages();
@@ -93,6 +94,11 @@ function GenerateModal(props) {
     });
   };
 
+  // Transition effect for Dialog
+  const Transition = React.forwardRef(function Transition(props, ref) {
+    return <Grow ref={ref} {...props} />;
+  });  
+
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
   /* -------------------------------------------------------------------------- */
@@ -100,6 +106,7 @@ function GenerateModal(props) {
   return (
     <Dialog
       fullScreen={isMobile}
+      TransitionComponent={Transition}
       maxWidth="xl"
       open={open}
       onClose={handleClose}

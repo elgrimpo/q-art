@@ -9,6 +9,7 @@ import {
   CardMedia,
   Stack,
   Skeleton,
+  Grow
 } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import theme from "../../styles/mui-theme";
@@ -66,6 +67,12 @@ function ImagesModal(props) {
       }
     },
   });
+
+  //Transition effect for Dialog
+  const Transition = React.forwardRef(function Transition(props, ref) {
+    return <Grow ref={ref} {...props} />;
+  });
+
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
   /* -------------------------------------------------------------------------- */
@@ -75,6 +82,7 @@ function ImagesModal(props) {
 
     <Dialog
       fullScreen={isMobile}
+      TransitionComponent={Transition}
       maxWidth="xl"
       open={open}
       onClose={handleClose}
