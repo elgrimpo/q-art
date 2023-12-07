@@ -84,7 +84,11 @@ function ImageCard(props) {
               sx={{ mt: "1rem" }}
               key={index + "_3"}
             >
+
+              
               {/* LIKE */}
+
+              {user._id &&
               <Chip
                 color="secondary"
                 variant="contained"
@@ -93,7 +97,7 @@ function ImageCard(props) {
                 sx={{ height: "40px", borderRadius: "24px", color: isLiked ? "#FF8585" : theme.palette.primary.main }}
                 onClick={()=> likeImage(item, user._id, imageType)}
                 key={index + "_1"}
-              />
+              />}
 
               {/* COPY */}
               <StyledIconButton
