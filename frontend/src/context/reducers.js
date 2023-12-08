@@ -5,6 +5,7 @@ export const ActionTypes = {
 
   // User
   SET_USER: "SET_USER",
+  SET_LOADING_USER: "SET_LOADING_USER",
 
   // Generate
   SET_GENERATED_IMAGE: "SET_GENERATED_IMAGE",
@@ -37,6 +38,9 @@ export const ActionTypes = {
 export const initialState = {
   // User
   user: {},
+  loadingUser: true,
+  //TODO: Add userLoggedIn state
+  // userLoggedIn: false,
 
   // Generate
   generatedImage: {
@@ -89,8 +93,8 @@ export const initialState = {
 export const imagesReducer = (state, action) => {
   switch (action.type) {
     // User
-    case ActionTypes.SET_LOGGED_IN:
-      return { ...state, isLoggedIn: action.payload };
+    case ActionTypes.SET_LOADING_USER:
+      return { ...state, loadingUser: action.payload };
     case ActionTypes.SET_USER:
       return { ...state, user: action.payload };
 

@@ -25,6 +25,7 @@ function ImageGallery(props) {
   // Context Variables
   const {
     userImages,
+    loadingUser,
     loadingUserImages,
     userImagesPage,
     user,
@@ -74,8 +75,8 @@ function ImageGallery(props) {
     sort: "Newest",
   });
 
-   // Upscaling (loading)
-   const [upscaling, setUpscaling] = useState([]);
+  // Upscaling (loading)
+  const [upscaling, setUpscaling] = useState([]);
 
   // Set userImages vs communityImages
   const page =
@@ -106,63 +107,61 @@ function ImageGallery(props) {
       sd_model: sd_name,
       sort_by: newSelectedFilters.sort,
     };
+
     getMoreImages(imageType, params);
   };
 
   // Infinite scrolling and load Image
   useEffect(() => {
-    const options = {
-      root: null,
-      rootMargin: "5px",
-      threshold: 1,
-    };
+    if (!loadingUser) {
+      const options = {
+        root: null,
+        rootMargin: "5px",
+        threshold: 1,
+      };
 
-    const currentLoadMoreRef = loadMoreRef.current;
+      const currentLoadMoreRef = loadMoreRef.current;
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (
-          entry.isIntersecting &&
-          (user._id || imageType === "communityImages")
-        ) {
-          const sdModelObject = sd_models.find(
-            (model) => model.name === selectedFilters.sd_model
-          );
-          const sd_name = sdModelObject ? sdModelObject.sd_name : null;
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (
+            entry.isIntersecting
+          ) {
+            const sdModelObject = sd_models.find(
+              (model) => model.name === selectedFilters.sd_model
+            );
+            const sd_name = sdModelObject ? sdModelObject.sd_name : null;
+            const params = {
+              page: page + 1,
+              user_id: imageType === "userImages" ? user._id : null,
+              exclude_user_id: imageType === "userImages" ? null : user._id,
+              likes: selectedFilters.likes,
+              time_period: selectedFilters.time_period,
+              sd_model: sd_name,
+            };
+            getMoreImages(imageType, params);
+          }
+        });
+      }, options);
 
-          const params = {
-            page: page + 1,
-            user_id: imageType === "userImages" ? user._id : null,
-            exclude_user_id: imageType === "userImages" ? null : user._id,
-            likes: selectedFilters.likes,
-            time_period: selectedFilters.time_period,
-            sd_model: sd_name,
-          };
-
-          getMoreImages(imageType, params);
-        }
-      });
-    }, options);
-
-    if (currentLoadMoreRef) {
-      observer.observe(currentLoadMoreRef);
-    }
-
-    return () => {
       if (currentLoadMoreRef) {
-        observer.unobserve(currentLoadMoreRef);
+        observer.observe(currentLoadMoreRef);
       }
-    };
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [images, loading, user]);
+      return () => {
+        if (currentLoadMoreRef) {
+          observer.unobserve(currentLoadMoreRef);
+        }
+      };
+
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }
+  }, [images, loading, loadingUser, user]);
 
   // Images Details Modal
   const handleModalClose = (event) => {
-
-      setModalOpen(false);
-      setSelectedImageIndex(null);
-
+    setModalOpen(false);
+    setSelectedImageIndex(null);
   };
 
   const handleModalOpen = (imageIndex) => {
@@ -198,9 +197,16 @@ function ImageGallery(props) {
         height: "calc(100vh - 75px)",
       }}
     >
-      <Typography variant="h5" component="h2" sx={{ textAlign: "center", mb:2 }}>
+      <Typography
+        variant="h5"
+        component="h2"
+        sx={{ textAlign: "center", mb: 2 }}
+      >
         Log in to your account and go QR-azy!
-      </Typography><Button variant='contained' onClick={handleLogin}>Login</Button>
+      </Typography>
+      <Button variant="contained" onClick={handleLogin}>
+        Login
+      </Button>
     </Box>
   ) : images.length === 0 && page === -1 && imageType === "userImages" ? (
     /* --------------------------- NO USER IMAGES --------------------------- */
