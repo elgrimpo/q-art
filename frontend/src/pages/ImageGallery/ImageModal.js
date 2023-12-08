@@ -15,6 +15,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import theme from "../../styles/mui-theme";
 import StyledIconButton from "../../components/StyledIconButton";
 import { useSwipeable } from "react-swipeable";
+import dayjs from 'dayjs';
 
 //App imports
 import { useImages } from "../../context/AppProvider";
@@ -252,7 +253,7 @@ function ImagesModal(props) {
             <List>
               <ListItemText
                 primary="Date created"
-                secondary={image?.created_at}
+                secondary={dayjs(image?.created_at).format('MMMM D, YYYY')}
                 align={isMobile ? "center" : "left"}
               />
               <ListItemText
