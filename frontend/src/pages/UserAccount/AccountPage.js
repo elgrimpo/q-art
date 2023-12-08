@@ -110,7 +110,6 @@ export default function Account() {
       <Toolbar
         display="flex"
         className="header"
-        sx={{ backgroundColor: theme.palette.primary.main }}
       >
         {/* LOGO */}
         <img src={logo} alt="Logo" />
@@ -140,7 +139,6 @@ export default function Account() {
 
       <DialogContent
         sx={{
-          backgroundColor: theme.palette.primary.main,
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
@@ -162,7 +160,7 @@ export default function Account() {
             width: "100%",
             height: "350px",
             borderRadius: "16px",
-            backgroundColor: "#FFFFFF",
+            backgroundColor: theme.palette.primary.main,
             maxWidth: "600px",
             padding: "1rem",
           }}

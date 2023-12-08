@@ -7,6 +7,7 @@ import {
   CardMedia,
   Grid
 } from "@mui/material";
+import theme from "../../styles/mui-theme";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
@@ -25,7 +26,7 @@ export default function PurchaseCard(props) {
     <Card
       // raised={true}
       sx={{
-        backgroundColor: "#000000",
+        backgroundColor: theme.palette.primary.main,
         borderRadius: "16px",
         maxWidth: "400px",
         margin: "0px auto"
@@ -34,7 +35,7 @@ export default function PurchaseCard(props) {
       <Typography
         align="center"
         variant="h5"
-        sx={{ color: "#FFFFFF", fontSize: "4rem", mt: "1rem" }}
+        sx={{ fontSize: "4rem", mt: "1rem" }}
       >
         {purchaseItem.creditAmount}
       </Typography>
@@ -43,6 +44,7 @@ export default function PurchaseCard(props) {
         <Button
           align="center"
           variant="contained"
+          color="secondary"
           onClick={() => handleCheckout(purchaseItem)}
           sx={{ padding: "0.5rem 4rem" }}
         >
