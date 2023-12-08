@@ -68,9 +68,9 @@ def prepare_txt2img_request( image_quality, prompt, negative_prompt, sd_model, s
                 model="control_v1p_sd15_qrcode_monster_v2",
                 module=ControlNetPreprocessor.INPAINT,
                 resize_mode=ControlNetResizeMode.RESIZE_OR_CORP,
-                weight=1.0 + float(qr_weight) * 0.1,
-                guidance_start=0.2 - float(qr_weight) * 0.05,
-                guidance_end=0.85 + float(qr_weight) * 0.05,
+                weight=1.0 + float(qr_weight) * 0.2,
+                guidance_start=0.4 - float(qr_weight) * 0.03,
+                guidance_end=0.85 
             ),
         ],
     )
