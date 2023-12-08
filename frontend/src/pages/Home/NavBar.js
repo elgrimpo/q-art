@@ -30,7 +30,7 @@ function BottomNavBar() {
   const location = useLocation();
 
   // Current Tab
-  const [tabValue, setTabValue] = useState("/generate");
+  const [tabValue, setTabValue] = useState("/generate/");
 
   /* -------------------------------- FUNCTIONS ------------------------------- */
 
@@ -74,21 +74,21 @@ function BottomNavBar() {
             component={Link}
             label="My codes"
             value="/mycodes"
-            to="/mycodes"
+            to="/mycodes/"
             sx={{
               flexDirection: "column",
               justifyContent: "center",
               alignItems: "center",
               width: "33%",
               height: "100%",
-              color: getColor("/mycodes"),
+              color: getColor("/mycodes/"),
             }}
           >
             <IconButton
               aria-label="close"
               size="small"
               value="/mycodes"
-              sx={{ m: 0, padding: "0px", color: getColor("/mycodes") }}
+              sx={{ m: 0, padding: "0px", color: getColor("/mycodes/") }}
             >
               <ImageTwoToneIcon />
             </IconButton>
@@ -105,12 +105,12 @@ function BottomNavBar() {
               alignItems: "center",
               width: "33%",
               height: "100%",
-              color: getColor("/generate"),
+              color: getColor("/generate/"),
             }}
             component={Link}
             label="Generate"
             value="/generate"
-            to="/generate"
+            to="/generate/"
           >
             <Box
               sx={{
@@ -124,7 +124,7 @@ function BottomNavBar() {
                 alignItems: "center",
                 // boxShadow: "0px 20px 20px 0px rgba(0, 0, 0, 0.25)",
                 border: "#262626 6px solid",
-                backgroundColor: getColor("/generate"),
+                backgroundColor: getColor("/generate/"),
               }}
             >
               <IconButton
@@ -149,18 +149,18 @@ function BottomNavBar() {
               alignItems: "center",
               width: "33%",
               height: "100%",
-              color: getColor("/explore"),
+              color: getColor("/explore/"),
             }}
             component={Link}
             label="Explore"
             value="/explore"
-            to="/explore"
+            to="/explore/"
           >
             <IconButton
               aria-label="close"
               color="primary"
               size="small"
-              sx={{ m: 0, padding: "0px", color: getColor("/explore") }}
+              sx={{ m: 0, padding: "0px", color: getColor("/explore/") }}
             >
               <Diversity1TwoToneIcon />
             </IconButton>
@@ -180,11 +180,11 @@ function BottomNavBar() {
         <Tab
           component={Link}
           label="Generate"
-          value="/generate"
-          to="/generate"
+          value="/generate/"
+          to="/generate/"
         />
-        <Tab component={Link} label="My codes" value="/mycodes" to="/mycodes" />
-        <Tab component={Link} label="Explore" value="/explore" to="/explore" />
+        <Tab component={Link} label="My codes" value="/mycodes/" to="/mycodes/" />
+        <Tab component={Link} label="Explore" value="/explore/" to="/explore/" />
       </Tabs>
     </div>
   );
