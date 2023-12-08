@@ -103,7 +103,7 @@ function App() {
           >
             <Routes>
               {/* GENERATE PAGE */}
-              <Route path="/" element={<Navigate to="/generate" replace />} />
+              <Route path="/" element={<Navigate to="/generate/" replace />} />
 
               <Route path="generate" element={<Generate />} />
 
