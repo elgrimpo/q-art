@@ -76,8 +76,9 @@ function Generate() {
       setDialogOpen(true);
     } else {
       try {
-        const result = await generateImage(generateFormValues);
         setFormSubmitted(true);
+        const result = await generateImage(generateFormValues);
+        
       } catch (error) {
 
         if (error.detail === "InsufficientCredits") {
