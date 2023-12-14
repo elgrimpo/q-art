@@ -59,6 +59,7 @@ async def predict(
     qr_weight,
     sd_model,
     user_id,
+    style_prompt
 ):
     try:
         # --------------------------------- CHECK FUNDS ------------------------------- #
@@ -95,14 +96,13 @@ async def predict(
             seed,
             image_base64_str,
             qr_weight,
+            style_prompt
         )
 
         try:
             res = client.sync_txt2img(req)
             if res.data.status != ProgressResponseStatusCode.SUCCESSFUL:
-                raise Exception(
-                    "Failed to generate image with error: " + res.data.failed_reason
-                )
+                raise Exception("Failed to generate image with error: " + res.data.failed_reason)
 
             generated_image = Image.open(BytesIO(res.data.imgs_bytes[0]))
 

@@ -58,6 +58,7 @@ async def generate_endpoint(
     qr_weight,
     sd_model,
     user_id,
+    style_prompt
 ):
     return await predict(
         prompt,
@@ -68,6 +69,7 @@ async def generate_endpoint(
         qr_weight,
         sd_model,
         user_id,
+        style_prompt
     )
 
 # UPSCALE IMAGE

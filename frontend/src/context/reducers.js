@@ -54,6 +54,8 @@ export const initialState = {
   generateFormValues: {
     website: "",
     prompt: "",
+    style_id: 1,
+    style_prompt: "",
     image_quality: "medium",
     qr_weight: 0.0,
     negative_prompt: "",

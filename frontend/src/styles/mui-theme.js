@@ -34,6 +34,12 @@ const theme = createTheme({
       fontWeight: 900,
       fontStyle: "italic",
     },
+    h6: {
+      // fontFamily: "Roboto Serif",
+      fontWeight: 300,
+      // fontStyle: "italic",
+      color: palette.secondary.main
+    },
   },
   components: {
     MuiButton: {

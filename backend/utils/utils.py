@@ -31,7 +31,7 @@ def parse_seed(metadata):
 #                            PREPARE TXT2IMG REQUEST                           #
 # ---------------------------------------------------------------------------- #
 
-def prepare_txt2img_request( image_quality, prompt, negative_prompt, sd_model, seed, image_base64_str, qr_weight ):
+def prepare_txt2img_request( image_quality, prompt, negative_prompt, sd_model, seed, image_base64_str, qr_weight, style_prompt ):
 
     if image_quality == "low":
         steps = 13
@@ -41,7 +41,7 @@ def prepare_txt2img_request( image_quality, prompt, negative_prompt, sd_model, s
         steps = 30
 
     req = Txt2ImgRequest(
-        prompt=prompt,
+        prompt=prompt + ", " + style_prompt,
         negative_prompt=negative_prompt,
         sampler_name=Samplers.DPMPP_M_KARRAS,
         model_name=sd_model,
@@ -68,8 +68,8 @@ def prepare_txt2img_request( image_quality, prompt, negative_prompt, sd_model, s
                 model="control_v1p_sd15_qrcode_monster_v2",
                 module=ControlNetPreprocessor.INPAINT,
                 resize_mode=ControlNetResizeMode.RESIZE_OR_CORP,
-                weight=1.0 + float(qr_weight) * 0.2,
-                guidance_start=0.4 - float(qr_weight) * 0.03,
+                weight=round(1.0 + float(qr_weight) * 0.2, 2),
+                guidance_start=round(0.4 - float(qr_weight) * 0.03, 2),
                 guidance_end=0.85 
             ),
         ],

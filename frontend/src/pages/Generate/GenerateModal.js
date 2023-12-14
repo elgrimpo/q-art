@@ -1,11 +1,16 @@
 // Libraries imports
-import { Dialog, DialogContent, Typography, Box, Zoom, Grow } from "@mui/material";
-import React, { useEffect, useState, forwardRef } from "react";
+import {
+  Dialog,
+  DialogContent,
+  Typography,
+  Box,
+  Grow,
+} from "@mui/material";
+import React, { useEffect, useState } from "react";
 // import Masonry from "@mui/lab/Masonry";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import theme from "../../styles/mui-theme";
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
-import Slide from '@mui/material/Slide';
 
 // App imports
 import { useImages, useImagesDispatch } from "../../context/AppProvider";
@@ -26,7 +31,14 @@ function GenerateModal(props) {
   /* ---------------------------- DECLARE VARIABLE ---------------------------- */
 
   // Props
-  const { open, handleClose, handleModelSelection, variant, ref } = props;
+  const {
+    open,
+    handleClose,
+    handleModelSelection,
+    variant,
+    customStyle,
+    setCustomStyle,
+  } = props;
 
   // Context
   const { sd_models, generateFormValues } = useImages();
@@ -39,18 +51,21 @@ function GenerateModal(props) {
 
   // Prompt keywords
   const [selectedKeywords, setSelectedKeywords] = useState(
-    generateFormValues.prompt.split(", ")
+    customStyle.prompt.split(", ")
   );
 
   const [promptKeywordss, setPromptKeywords] = useState(promptKeywords);
   /* -------------------------------- FUNCTIONS ------------------------------- */
 
   useEffect(() => {
-    setSelectedKeywords(generateFormValues.prompt.split(", "));
+    setSelectedKeywords(customStyle.prompt.split(", "));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [generateFormValues.prompt]);
+  }, [customStyle.prompt]);
+
+  //TODO remove
   useEffect(() => {
     getSdModels();
+    console.log(sd_models);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -71,8 +86,8 @@ function GenerateModal(props) {
   const handleKeywordSelection = (keyword) => {
     let updatedKeywords = [...selectedKeywords];
 
-    if (updatedKeywords.includes(keyword)) {
-      updatedKeywords = updatedKeywords.filter((key) => key !== keyword);
+    if (updatedKeywords?.includes(keyword)) {
+      updatedKeywords = updatedKeywords?.filter((key) => key !== keyword);
     } else {
       if (!updatedKeywords.length || updatedKeywords[0] === "") {
         updatedKeywords = [keyword];
@@ -84,20 +99,23 @@ function GenerateModal(props) {
     setSelectedKeywords(updatedKeywords);
 
     const updatedPrompt = updatedKeywords.join(", ");
+    setCustomStyle({
+      ...customStyle,
+      prompt: updatedPrompt,
+      keywords: updatedKeywords,
+    });
 
     dispatch({
       type: ActionTypes.SET_GENERATE_FORM_VALUES,
       payload: {
         ...generateFormValues,
-        prompt: updatedPrompt,
+        style_id: customStyle.id,
+        style_prompt: updatedPrompt,
+        sd_model: customStyle.sd_model,
       },
     });
   };
 
-  // Transition effect for Dialog
-  const Transition = React.forwardRef(function Transition(props, ref) {
-    return <Grow ref={ref} {...props} />;
-  });  
 
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
@@ -129,7 +147,7 @@ function GenerateModal(props) {
         />
       </Box>
       <DialogContent
-        sx={{ padding: { xs: "0.5rem", sm: "1rem" }}}
+        sx={{ padding: { xs: "0.5rem", sm: "1rem" } }}
         align="center"
       >
         {/* TITLE */}
@@ -138,10 +156,11 @@ function GenerateModal(props) {
         </Typography>
 
         {/* GRID */}
-        <ResponsiveMasonry style={{ width: "100%" }} columnsCountBreakPoints={{ 350: 1, 750: 2, 900: 3 }}>
-          <Masonry
-            gutter="1rem"
-          >
+        <ResponsiveMasonry
+          style={{ width: "100%" }}
+          columnsCountBreakPoints={{ 350: 1, 750: 2, 900: 3 }}
+        >
+          <Masonry gutter="1rem">
             {/* -------------------------------- SD MODELS ------------------------------- */}
             {variant === "sd_model"
               ? sd_models.length > 0

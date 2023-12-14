@@ -4,10 +4,10 @@ import {
   Button,
   TextField,
   Box,
+  Card,
+  Chip,
   Stack,
   Typography,
-  ToggleButtonGroup,
-  ToggleButton,
   Slider,
   IconButton,
   Tooltip,
@@ -17,14 +17,21 @@ import CasinoTwoToneIcon from "@mui/icons-material/CasinoTwoTone";
 import DiamondTwoToneIcon from "@mui/icons-material/DiamondTwoTone";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import theme from "../../styles/mui-theme";
-import AutoFixHighTwoToneIcon from "@mui/icons-material/AutoFixHighTwoTone";
+
+import QrCode2TwoToneIcon from "@mui/icons-material/QrCode2TwoTone";
+import PhotoTwoToneIcon from "@mui/icons-material/PhotoTwoTone";
+import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 
 // App imports
-import { useImages } from "../../context/AppProvider";
+import { useImages, useImagesDispatch } from "../../context/AppProvider";
+import { ActionTypes } from "../../context/reducers";
+
 import GenerateModal from "./GenerateModal";
 import { useGenerateUtils } from "../../utils/GenerateUtils";
 import { useUtils } from "../../utils/utils";
 import promptRandomizer from "../../utils/PromptGenerator";
+import { styles } from "../../utils/PromptGenerator";
+import StylesCard from "./StylesCard";
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
 /* -------------------------------------------------------------------------- */
@@ -34,17 +41,12 @@ function GenerateForm(props) {
 
   const { handleGenerate } = props;
   // Context variables
-  const {
-    loadingGeneratedImage,
-    generateFormValues,
-    sd_models,
-  } = useImages();
+  const { loadingGeneratedImage, generateFormValues, sd_models } = useImages();
 
   // Utils functions
   const { calculateCredits } = useUtils();
-  const { selectSdModel, handleInputChange } =
-    useGenerateUtils();
-
+  const { selectSdModel, handleInputChange } = useGenerateUtils();
+  const dispatch = useImagesDispatch();
   // Submit Button state
   const [submitDisabled, setSubmitDisabled] = useState(true);
 
@@ -61,16 +63,18 @@ function GenerateForm(props) {
   );
 
   // Slider for (QR Code Weight)
-  const qrWeight = [
-    {
-      value: -3,
-      label: "Low",
-    },
-    {
-      value: 3,
-      label: "High",
-    },
-  ];
+  const qrWeight = [{ value: -3 }, { value: 3 }];
+
+  // Custom Style
+  const [customStyle, setCustomStyle] = useState({
+    id: 0,
+    title: "Custom Style",
+    prompt: "",
+    image_url:
+      "https://qrartimages.s3.us-west-1.amazonaws.com/customStyleTile.png",
+    keywords: [],
+    sd_model: "neverendingDreamNED_v122BakedVae.safetensors",
+  });
 
   /* -------------------------------- FUNCTIONS ------------------------------- */
 
@@ -112,22 +116,48 @@ function GenerateForm(props) {
     }
   }, [generateFormValues, calculateCredits, price]);
 
+  // Select Style
+  const handleStyleClick = (item) => {
+    dispatch({
+      type: ActionTypes.SET_GENERATE_FORM_VALUES,
+      payload: {
+        ...generateFormValues,
+        style_id: item.id,
+        style_prompt: item.prompt,
+        sd_model: item.sd_model,
+      },
+    });
+  };
+
+  // Use Custom Style
+  const handleCustomStyleClick = () => {
+    dispatch({
+      type: ActionTypes.SET_GENERATE_FORM_VALUES,
+      payload: {
+        ...generateFormValues,
+        style_id: customStyle.id,
+        style_prompt: customStyle.prompt,
+        sd_model: customStyle.sd_model,
+      },
+    });
+    handleSdModalOpen("prompt_keywords");
+  };
+
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
   /* -------------------------------------------------------------------------- */
 
   return (
-    <Box className="sidebar" > 
-      <Stack useFlexGap spacing={2}>
-        <Typography
-          variant="h5"
-          align={isMobile ? "center" : "left"}
-          sx={{ mt: "1rem" }}
-        >
+    <Box className="sidebar">
+      <Stack useFlexGap flexWrap="wrap" spacing={1}>
+        <Typography variant="h5" align="center" sx={{ mt: "1rem" }}>
           Generate QR Art
         </Typography>
 
         {/* --------------------------------- WEBSITE -------------------------------- */}
+        <Typography variant="h6" align="center">
+          Enter your website URL
+        </Typography>
         <TextField
           required
           id="website"
@@ -139,6 +169,9 @@ function GenerateForm(props) {
         />
 
         {/* --------------------------------- PROMPT --------------------------------- */}
+        <Typography variant="h6" align="center" sx={{ mt: "1rem" }}>
+          What do you want to see in your QR Code?
+        </Typography>
         <TextField
           required
           id="prompt"
@@ -160,16 +193,6 @@ function GenerateForm(props) {
                 }}
               >
                 <Box sx={{ display: "flex", flexDirection: "column" }}>
-                  {/*---- GET KEYWORDS ----*/}
-                  <Tooltip title="Select keywords from templates">
-                    <IconButton
-                      name="prompt_keywords"
-                      onClick={() => handleSdModalOpen("prompt_keywords")}
-                    >
-                      <AutoFixHighTwoToneIcon />
-                    </IconButton>
-                  </Tooltip>
-
                   {/* --- RANDOM PROMPT ---- */}
                   <Tooltip title="Generate random prompt">
                     <IconButton
@@ -192,8 +215,137 @@ function GenerateForm(props) {
           }}
         />
 
+        {/* ----------------------------- QR CODE WEIGHT ----------------------------- */}
+        <Stack direction="row" useFlexGap alignItems="stretch" spacing={4}>
+          <Box sx={{ width: "100%" }}>
+            <Typography variant="h6" align="center" sx={{ mt: "1rem" }}>
+              How strong should the QR Code be?
+            </Typography>
+
+            {/* LEFT ICON */}
+            <Stack flexDirection="row">
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  margin: "0rem 1rem",
+                }}
+              >
+                <IconButton sx={{ padding: "0" }} size="large">
+                  <PhotoTwoToneIcon />
+                </IconButton>
+                <Typography variant="subtitle2" align="center">
+                  Weak
+                </Typography>
+              </Box>
+
+              {/* SLIDER */}
+              <Slider
+                aria-label="QR Code Weight"
+                defaultValue={generateFormValues.qr_weight}
+                getAriaValueText={sliderText}
+                step={0.1}
+                valueLabelDisplay="auto"
+                marks={qrWeight}
+                min={-3.0}
+                max={3.0}
+                track={false}
+                color="secondary"
+                name="qr_weight"
+                onChange={handleInputChange}
+                sx={{ width: "95%", margin: "auto" }}
+              />
+
+              {/* RIGHT ICON */}
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  margin: "0rem 1rem",
+                }}
+              >
+                <IconButton size="large" sx={{ padding: "0" }}>
+                  <QrCode2TwoToneIcon />
+                </IconButton>
+                <Typography variant="subtitle2" align="center">
+                  Strong
+                </Typography>
+              </Box>
+            </Stack>
+          </Box>
+
+          <Box sx={{ width: "100%" }}>
+            {/* ---------------------------------- SEED ---------------------------------- */}
+            <Typography variant="h6" align="center" sx={{ mt: "1rem" }}>
+              Do you want to use a seed?
+            </Typography>
+
+            <TextField
+              id="seed"
+              label="Seed"
+              name="seed"
+              value={generateFormValues.seed}
+              onChange={handleInputChange}
+              variant="outlined"
+              fullWidth
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <Tooltip title="Set to Random">
+                      <IconButton
+                        name="seed"
+                        value={-1}
+                        onClick={() =>
+                          handleInputChange({
+                            target: {
+                              name: "seed",
+                              value: -1,
+                            },
+                          })
+                        }
+                      >
+                        <CasinoTwoToneIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Box>
+        </Stack>
+
+        {/* --------------------------------- Styles --------------------------------- */}
+        {/* TODO: */}
+
+        <Typography variant="h6" align="center" sx={{ mt: "1rem" }}>
+          Select a Style for your QR Code
+        </Typography>
+        <ResponsiveMasonry
+          style={{ width: "100%" }}
+          columnsCountBreakPoints={{ 350: 2, 750: 3, 1200: 4 }}
+        >
+          <Masonry gutter="1rem">
+            <StylesCard
+              item={customStyle}
+              index={0}
+              handleClick={() => handleCustomStyleClick()}
+            />
+            {styles.map((item, index) => (
+              <StylesCard
+                item={item}
+                index={index}
+                handleClick={handleStyleClick}
+              />
+            ))}
+          </Masonry>
+        </ResponsiveMasonry>
+
+        {/* TODO: */}
+
         {/* ----------------------------- NEGATIVE PROMPT ---------------------------- */}
-        <TextField
+        {/* <TextField
           id="negative_prompt"
           label="Negative Prompt"
           name="negative_prompt"
@@ -225,42 +377,10 @@ function GenerateForm(props) {
               </InputAdornment>
             ),
           }}
-        />
-
-        {/* ---------------------------------- SEED ---------------------------------- */}
-        <TextField
-          id="seed"
-          label="Seed"
-          name="seed"
-          value={generateFormValues.seed}
-          onChange={handleInputChange}
-          variant="outlined"
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <Tooltip title="Set to Random">
-                  <IconButton
-                    name="seed"
-                    value={-1}
-                    onClick={() =>
-                      handleInputChange({
-                        target: {
-                          name: "seed",
-                          value: -1,
-                        },
-                      })
-                    }
-                  >
-                    <CasinoTwoToneIcon />
-                  </IconButton>
-                </Tooltip>
-              </InputAdornment>
-            ),
-          }}
-        />
+        /> */}
 
         {/* ------------------------------ IMAGE QUALITY ----------------------------- */}
-        <Typography variant="subtitle2" align="center">
+        {/* <Typography variant="h6" align="center">
           Image Quality
         </Typography>
         <ToggleButtonGroup
@@ -281,30 +401,10 @@ function GenerateForm(props) {
           <ToggleButton name="image_quality" value="high">
             High
           </ToggleButton>
-        </ToggleButtonGroup>
-
-        {/* ----------------------------- QR CODE WEIGHT ----------------------------- */}
-        <Typography variant="subtitle2" align="center">
-          QR Code Weight
-        </Typography>
-        <Slider
-          aria-label="QR Code Weight"
-          defaultValue={generateFormValues.qr_weight}
-          getAriaValueText={sliderText}
-          step={0.1}
-          valueLabelDisplay="auto"
-          marks={qrWeight}
-          min={-3.0}
-          max={3.0}
-          track={false}
-          color="secondary"
-          name="qr_weight"
-          onChange={handleInputChange}
-          sx={{ width: "90%", margin: "auto" }}
-        />
+        </ToggleButtonGroup> */}
 
         {/* ------------------------- MODAL SCREEN------------------------- */}
-        <Typography variant="subtitle2" align="center">
+        {/* <Typography variant="h6" align="center">
           Stable Diffusion Model
         </Typography>
         <Button
@@ -317,20 +417,20 @@ function GenerateForm(props) {
               (model) => model.sd_name === generateFormValues.sd_model
             )?.name
           }
-        </Button>
+        </Button> */}
 
         {/* --------------------------------- SUBMIT --------------------------------- */}
         <Button
           variant="contained"
-          color="primary"
+          color="secondary"
           disabled={submitDisabled || loadingGeneratedImage}
           aria-label="generate"
           onClick={(e) => handleGenerate()}
-          sx={{ mb: "2rem" }}
+          sx={{ mb: "2rem", position: "sticky", bottom: "0rem" }}
         >
           <Typography variant="body1" component="div">
             Generate QR Code ( {price}
-            <IconButton size="small">
+            <IconButton size="small" color="primary">
               <DiamondTwoToneIcon />
             </IconButton>
             )
@@ -343,6 +443,8 @@ function GenerateForm(props) {
         handleClose={handleModalClose}
         handleModelSelection={handleModelSelection}
         variant={modalVariant}
+        customStyle={customStyle}
+        setCustomStyle={setCustomStyle}
       />
     </Box>
   );

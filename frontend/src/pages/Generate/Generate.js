@@ -1,14 +1,21 @@
 // Libraries imports
 import React, { useState } from "react";
 import {
-  Fab,
   CardMedia,
   CircularProgress,
   Box,
   Typography,
+  ListItemText,
+  Stack,
+  List,
+  Button,
+
 } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import ReplayTwoToneIcon from '@mui/icons-material/ReplayTwoTone';
 import theme from "../../styles/mui-theme";
+import dayjs from 'dayjs';
+
 
 // App imports
 import { useImages } from "../../context/AppProvider";
@@ -16,6 +23,7 @@ import GenerateForm from "./GenerateForm";
 import SimpleDialog from "../../components/SimpleDialog";
 import { useGenerateUtils } from "../../utils/GenerateUtils";
 import { useNavigate } from "react-router-dom";
+import StyledIconButton from "../../components/StyledIconButton";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
@@ -30,7 +38,7 @@ function Generate() {
 
   // Navigate
   const navigate = useNavigate();
-  
+
   // Utils functions
   const { generateImage } = useGenerateUtils();
 
@@ -38,7 +46,7 @@ function Generate() {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   // Switch between Form and Image view for mobile screen
-  const [formSubmitted, setFormSubmitted] = useState(false);
+  const [formSubmitted, setFormSubmitted] = useState(true);
 
   // Dialog Content
   const [dialogContent, setDialogContent] = useState({});
@@ -78,9 +86,7 @@ function Generate() {
       try {
         setFormSubmitted(true);
         const result = await generateImage(generateFormValues);
-        
       } catch (error) {
-
         if (error.detail === "InsufficientCredits") {
           setDialogContent({
             title: "Insufficient Credits",
@@ -104,7 +110,7 @@ function Generate() {
   return (
     <div className="generate-page">
       {/* ------------------------------ GENERATE FORM ----------------------------- */}
-      {!isMobile || (isMobile && !formSubmitted) ? (
+      {!formSubmitted ? (
         <GenerateForm
           handleGenerate={handleGenerate}
           setFormSubmitted={setFormSubmitted}
@@ -114,7 +120,7 @@ function Generate() {
       )}
 
       {/* -------------------------------- QR IMAGE -------------------------------- */}
-      {!isMobile || (isMobile && formSubmitted) ? ( // Mobile: Only shows when Form has been submitted
+      {formSubmitted ? ( // Mobile: Only shows when Form has been submitted
         <Box className="image-container">
           <Box className="image-card">
             {isMobile && (
@@ -150,19 +156,133 @@ function Generate() {
             )}
 
             {/* MOBILE: BACK TO FORM BUTTON */}
-            {isMobile && !loadingGeneratedImage && (
-              <Fab
-                variant="extended"
+
+          </Box>
+          <Box
+          sx={{
+            flex: "2",
+            height: "100%",
+            padding: "3rem",
+            minWidth: "230px",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            overflowY: { md: "scroll" },
+            overflowX: "hidden"
+
+          }}
+        >
+          {/* ------------------------------ ICON BUTTONS ------------------------------ */}
+          <Stack
+            direction="row"
+            justifyContent={{ xs: "center", md: "left" }}
+            alignItems="center"
+            spacing={3}
+            sx={{ mb: "1rem" }}
+          >
+            {/* DOWNLOAD */}
+            <StyledIconButton
+              variant="contained"
+              color="secondary"
+              type="download"
+              // handleClick={() => downloadImage(generatedImage)}
+            />
+
+            {/* UPSCALE */}
+            {generatedImage?.width === 512 && generatedImage.user_id === user._id && (
+              <StyledIconButton
+                variant="contained"
+                color="secondary"
+                type="upscale"
+                // handleClick={() => upscaleImage(generatedImage._id, upscaling, setUpscaling)}
+              />
+            )}
+
+            {/* DELETE */}
+            {generatedImage?.user_id === user._id && (
+              <StyledIconButton
+                variant="contained"
+                color="secondary"
+                type="delete"
+                //handleClick={() => deleteImage(generatedImage._id, index)}
+              />
+            )}
+          </Stack>
+
+          {/* -------------------------------- METADATA -------------------------------- */}
+          <div style={{ maxHeight: "100%" }}>
+            <Typography variant="h5" align={isMobile ? "center" : "left"}>
+              Image Details
+            </Typography>
+            <List>
+              <ListItemText
+                primary="Date created"
+                secondary={dayjs(generatedImage?.created_at).format('MMMM D, YYYY')}
+                align={isMobile ? "center" : "left"}
+              />
+              <ListItemText
+                primary="QR Content"
+                secondary={generatedImage?.content}
+                align={isMobile ? "center" : "left"}
+              />
+              <ListItemText
+                primary="Prompt"
+                secondary={generatedImage?.prompt}
+                align={isMobile ? "center" : "left"}
+              />
+              <ListItemText
+                primary="Negative prompt"
+                secondary={generatedImage?.negative_prompt}
+                align={isMobile ? "center" : "left"}
+              />
+              <ListItemText
+                primary="Seed"
+                secondary={generatedImage?.seed}
+                align={isMobile ? "center" : "left"}
+              />
+              <ListItemText
+                primary="Image Quality"
+                secondary={`${generatedImage?.image_quality} (${generatedImage?.steps} sampling steps)`}
+                align={isMobile ? "center" : "left"}
+              />
+              <ListItemText
+                primary="Image Dimensions"
+                secondary={`${generatedImage?.width} x ${generatedImage?.height} px`}
+                align={isMobile ? "center" : "left"}
+              />
+              <ListItemText
+                primary="QR Code Weight"
+                secondary={generatedImage?.qr_weight}
+                align={isMobile ? "center" : "left"}
+              />
+              <ListItemText
+                primary="Stable Diffusion Model"
+                secondary={generatedImage?.sd_model}
+                align={isMobile ? "center" : "left"}
+              />
+              <ListItemText
+                primary="Image Id"
+                secondary={generatedImage?._id}
+                align={isMobile ? "center" : "left"}
+              />
+            </List>
+
+            {!loadingGeneratedImage && (
+              <Button
+                variant="contained"
                 size="medium"
                 color="secondary"
-                sx={{ margin: "24px", zIndex: 900 }}
+                sx={{ mb: "3rem", width:"100%", zIndex: 900 }}
                 aria-label="share"
                 onClick={() => handleFormUnsubmit()}
+                startIcon={<ReplayTwoToneIcon/>}
               >
                 Make another one
-              </Fab>
+              </Button>
             )}
-          </Box>
+          </div>
+        </Box>
+
         </Box>
       ) : (
         <></>
