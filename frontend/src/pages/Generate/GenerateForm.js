@@ -73,7 +73,7 @@ function GenerateForm(props) {
     image_url:
       "https://qrartimages.s3.us-west-1.amazonaws.com/customStyleTile.png",
     keywords: [],
-    sd_model: "neverendingDreamNED_v122BakedVae.safetensors",
+    sd_model: "cyberrealistic_v40_151857.safetensors",
   });
 
   /* -------------------------------- FUNCTIONS ------------------------------- */
@@ -216,7 +216,7 @@ function GenerateForm(props) {
         />
 
         {/* ----------------------------- QR CODE WEIGHT ----------------------------- */}
-        <Stack direction="row" useFlexGap alignItems="stretch" spacing={4}>
+        <Stack direction={{xs: "column", md: "row"}} useFlexGap alignItems="stretch" spacing={4}>
           <Box sx={{ width: "100%" }}>
             <Typography variant="h6" align="center" sx={{ mt: "1rem" }}>
               How strong should the QR Code be?

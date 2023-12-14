@@ -9,16 +9,16 @@ import {
   Stack,
   List,
   Button,
-
 } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import ReplayTwoToneIcon from '@mui/icons-material/ReplayTwoTone';
+import ReplayTwoToneIcon from "@mui/icons-material/ReplayTwoTone";
 import theme from "../../styles/mui-theme";
-import dayjs from 'dayjs';
-
+import EditTwoToneIcon from "@mui/icons-material/EditTwoTone";
 
 // App imports
-import { useImages } from "../../context/AppProvider";
+import { useImages, useImagesDispatch } from "../../context/AppProvider";
+import { ActionTypes } from "../../context/reducers";
+
 import GenerateForm from "./GenerateForm";
 import SimpleDialog from "../../components/SimpleDialog";
 import { useGenerateUtils } from "../../utils/GenerateUtils";
@@ -35,6 +35,7 @@ function Generate() {
   // Context variables
   const { generatedImage, generateFormValues, loadingGeneratedImage, user } =
     useImages();
+  const dispatch = useImagesDispatch();
 
   // Navigate
   const navigate = useNavigate();
@@ -46,7 +47,7 @@ function Generate() {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   // Switch between Form and Image view for mobile screen
-  const [formSubmitted, setFormSubmitted] = useState(true);
+  const [formSubmitted, setFormSubmitted] = useState(false);
 
   // Dialog Content
   const [dialogContent, setDialogContent] = useState({});
@@ -62,13 +63,33 @@ function Generate() {
     );
   };
 
-  // Switch to Form view for mobile view
-  const handleFormUnsubmit = () => {
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+  };
+
+  // Modify image
+  const handleImageEdit = () => {
     setFormSubmitted(false);
   };
 
-  const handleDialogClose = () => {
-    setDialogOpen(false);
+  //Create new image (reset Form Values)
+  const handleNewImage = () => {
+    dispatch({
+      type: ActionTypes.SET_GENERATE_FORM_VALUES,
+      payload: {
+        website: "",
+        prompt: "",
+        style_id: 1,
+        style_prompt: "",
+        image_quality: "medium",
+        qr_weight: 0.0,
+        negative_prompt: "",
+        seed: -1,
+        sd_model: "cyberrealistic_v40_151857.safetensors",
+      },
+    });
+
+    setFormSubmitted(false);
   };
 
   const handleGenerate = async () => {
@@ -156,133 +177,116 @@ function Generate() {
             )}
 
             {/* MOBILE: BACK TO FORM BUTTON */}
-
           </Box>
-          <Box
-          sx={{
-            flex: "2",
-            height: "100%",
-            padding: "3rem",
-            minWidth: "230px",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            overflowY: { md: "scroll" },
-            overflowX: "hidden"
 
-          }}
-        >
-          {/* ------------------------------ ICON BUTTONS ------------------------------ */}
-          <Stack
-            direction="row"
-            justifyContent={{ xs: "center", md: "left" }}
-            alignItems="center"
-            spacing={3}
-            sx={{ mb: "1rem" }}
-          >
-            {/* DOWNLOAD */}
-            <StyledIconButton
-              variant="contained"
-              color="secondary"
-              type="download"
-              // handleClick={() => downloadImage(generatedImage)}
-            />
-
-            {/* UPSCALE */}
-            {generatedImage?.width === 512 && generatedImage.user_id === user._id && (
-              <StyledIconButton
-                variant="contained"
-                color="secondary"
-                type="upscale"
-                // handleClick={() => upscaleImage(generatedImage._id, upscaling, setUpscaling)}
-              />
-            )}
-
-            {/* DELETE */}
-            {generatedImage?.user_id === user._id && (
-              <StyledIconButton
-                variant="contained"
-                color="secondary"
-                type="delete"
-                //handleClick={() => deleteImage(generatedImage._id, index)}
-              />
-            )}
-          </Stack>
-
-          {/* -------------------------------- METADATA -------------------------------- */}
-          <div style={{ maxHeight: "100%" }}>
-            <Typography variant="h5" align={isMobile ? "center" : "left"}>
-              Image Details
-            </Typography>
-            <List>
-              <ListItemText
-                primary="Date created"
-                secondary={dayjs(generatedImage?.created_at).format('MMMM D, YYYY')}
-                align={isMobile ? "center" : "left"}
-              />
-              <ListItemText
-                primary="QR Content"
-                secondary={generatedImage?.content}
-                align={isMobile ? "center" : "left"}
-              />
-              <ListItemText
-                primary="Prompt"
-                secondary={generatedImage?.prompt}
-                align={isMobile ? "center" : "left"}
-              />
-              <ListItemText
-                primary="Negative prompt"
-                secondary={generatedImage?.negative_prompt}
-                align={isMobile ? "center" : "left"}
-              />
-              <ListItemText
-                primary="Seed"
-                secondary={generatedImage?.seed}
-                align={isMobile ? "center" : "left"}
-              />
-              <ListItemText
-                primary="Image Quality"
-                secondary={`${generatedImage?.image_quality} (${generatedImage?.steps} sampling steps)`}
-                align={isMobile ? "center" : "left"}
-              />
-              <ListItemText
-                primary="Image Dimensions"
-                secondary={`${generatedImage?.width} x ${generatedImage?.height} px`}
-                align={isMobile ? "center" : "left"}
-              />
-              <ListItemText
-                primary="QR Code Weight"
-                secondary={generatedImage?.qr_weight}
-                align={isMobile ? "center" : "left"}
-              />
-              <ListItemText
-                primary="Stable Diffusion Model"
-                secondary={generatedImage?.sd_model}
-                align={isMobile ? "center" : "left"}
-              />
-              <ListItemText
-                primary="Image Id"
-                secondary={generatedImage?._id}
-                align={isMobile ? "center" : "left"}
-              />
-            </List>
-
-            {!loadingGeneratedImage && (
-              <Button
-                variant="contained"
-                size="medium"
-                color="secondary"
-                sx={{ mb: "3rem", width:"100%", zIndex: 900 }}
-                aria-label="share"
-                onClick={() => handleFormUnsubmit()}
-                startIcon={<ReplayTwoToneIcon/>}
+          {!loadingGeneratedImage && (
+            <Box
+              sx={{
+                flex: "2",
+                height: "100%",
+                padding: "3rem",
+                minWidth: "230px",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                overflowY: { md: "scroll" },
+                overflowX: "hidden",
+              }}
+            >
+              {/* ------------------------------ ICON BUTTONS ------------------------------ */}
+              <Stack
+                direction="row"
+                justifyContent={{ xs: "center", md: "left" }}
+                alignItems="center"
+                spacing={3}
+                sx={{ mb: "1rem" }}
               >
-                Make another one
-              </Button>
-            )}
-          </div>
-        </Box>
+                {/* DOWNLOAD */}
+                <StyledIconButton
+                  variant="contained"
+                  color="secondary"
+                  type="download"
+                  // handleClick={() => downloadImage(generatedImage)}
+                />
 
+                {/* UPSCALE */}
+                {generatedImage?.width === 512 &&
+                  generatedImage.user_id === user._id && (
+                    <StyledIconButton
+                      variant="contained"
+                      color="secondary"
+                      type="upscale"
+                      // handleClick={() => upscaleImage(generatedImage._id, upscaling, setUpscaling)}
+                    />
+                  )}
+
+                {/* DELETE */}
+                {generatedImage?.user_id === user._id && (
+                  <StyledIconButton
+                    variant="contained"
+                    color="secondary"
+                    type="delete"
+                    //handleClick={() => deleteImage(generatedImage._id, index)}
+                  />
+                )}
+              </Stack>
+
+              {/* -------------------------------- METADATA -------------------------------- */}
+              <div style={{ maxHeight: "100%" }}>
+                <Typography variant="h5" align={isMobile ? "center" : "left"}>
+                  Image Details
+                </Typography>
+                <List>
+                  <ListItemText
+                    primary="QR Content"
+                    secondary={generatedImage?.content}
+                    align={isMobile ? "center" : "left"}
+                  />
+                  <ListItemText
+                    primary="Prompt"
+                    secondary={generatedImage?.prompt}
+                    align={isMobile ? "center" : "left"}
+                  />
+                  <ListItemText
+                    primary="Seed"
+                    secondary={generatedImage?.seed}
+                    align={isMobile ? "center" : "left"}
+                  />
+                  <ListItemText
+                    primary="QR Code Weight"
+                    secondary={generatedImage?.qr_weight}
+                    align={isMobile ? "center" : "left"}
+                  />
+                </List>
+
+                <Stack spacing={2} sx={{ mb: "3rem" }}>
+                  <Button
+                    variant="outlined"
+                    size="medium"
+                    color="secondary"
+                    sx={{ width: "100%", zIndex: 900 }}
+                    aria-label="share"
+                    onClick={() => handleImageEdit()}
+                    startIcon={<EditTwoToneIcon />}
+                  >
+                    Modify
+                  </Button>
+
+                  <Button
+                    variant="contained"
+                    size="medium"
+                    color="secondary"
+                    sx={{ width: "100%", zIndex: 900 }}
+                    aria-label="share"
+                    onClick={() => handleNewImage()}
+                    startIcon={<ReplayTwoToneIcon />}
+                  >
+                    New Image
+                  </Button>
+                </Stack>
+              </div>
+            </Box>
+          )}
         </Box>
       ) : (
         <></>

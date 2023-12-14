@@ -180,6 +180,7 @@ body {
     padding: 1rem;
     /* height: calc(100dvh - 120px); */
     flex-direction: column;
+    width:100%
   }
 
   .image-card {

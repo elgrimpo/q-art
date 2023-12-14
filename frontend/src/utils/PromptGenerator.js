@@ -424,7 +424,7 @@ export const styles = [{
   prompt: "",
   image_url: "https://qrartimages.s3.us-west-1.amazonaws.com/6575fc6828c914471b835383.png",
   keywords: [],
-  sd_model: "neverendingDreamNED_v122BakedVae.safetensors"
+  sd_model: "cyberrealistic_v40_151857.safetensors"
 
 },
 {
@@ -442,7 +442,7 @@ export const styles = [{
   prompt: "abstract expressionist painting, award-winning photo, energetic brushwork, bold colors, abstract forms, expressive",
   image_url: "https://qrartimages.s3.us-west-1.amazonaws.com/6574d4b69961d5a54e2ff50f.png",
   keywords: ["Expressionism", "Bold colors"],
-  sd_model: "dreamshaper_8_93211.safetensors"
+  sd_model: "colorful_v31_62333.safetensors"
 
 }, {
   id: 4,
@@ -450,7 +450,7 @@ export const styles = [{
   prompt: "digital painting, extremely smooth, fluid, 3d fractals, light particles, dreamy, shimmering, dreamy glow, HQ, 4K",
   image_url: "https://qrartimages.s3.us-west-1.amazonaws.com/6574d5f69961d5a54e2ff514.png",
   keywords: ["Dreamy glow", "Light particles"],
-  sd_model: "neverendingDreamNED_v122BakedVae.safetensors"
+  sd_model: "colorful_v31_62333.safetensors"
 
 
 },{
@@ -459,7 +459,7 @@ export const styles = [{
   prompt: "Low-Poly Art, Origami, Painting By Salvador Dali, Scene, Dramatic, Cinematic, Establishing Shot, 4k, UHD",
   image_url: "https://qrartimages.s3.us-west-1.amazonaws.com/6574d6939961d5a54e2ff517.png",
   keywords: ["Origami", "Low-Poly"],
-  sd_model: "neverendingDreamNED_v122BakedVae.safetensors"
+  sd_model: "epicrealism_pureEvolutionV5_97793.safetensors"
 
 }, {
   id: 6,
@@ -467,7 +467,7 @@ export const styles = [{
   prompt: "Photography, Happy Colors, Epic Composition, Cinematic, Detailed, 4k",
   image_url: "https://qrartimages.s3.us-west-1.amazonaws.com/6574d75a9961d5a54e2ff519.png",
   keywords: ["Photography", "Cinematic"],
-  sd_model: "neverendingDreamNED_v122BakedVae.safetensors"
+  sd_model: "cyberrealistic_v40_151857.safetensors"
 
 
 },{

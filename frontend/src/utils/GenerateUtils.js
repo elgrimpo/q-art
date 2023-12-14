@@ -40,6 +40,12 @@ export const useGenerateUtils = () => {
             payload: res.data,
           });
 
+          dispatch({
+            type: ActionTypes.SET_GENERATE_FORM_VALUES,
+            payload: {... generateFormValues,
+            seed: res.data.seed},
+          });
+
           // Set state to NOT loading
           dispatch({
             type: ActionTypes.SET_LOADING_GENERATED_IMAGE,

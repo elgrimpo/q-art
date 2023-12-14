@@ -60,7 +60,7 @@ export const initialState = {
     qr_weight: 0.0,
     negative_prompt: "",
     seed: -1,
-    sd_model: "dreamshaper_8_93211.safetensors",
+    sd_model: "cyberrealistic_v40_151857.safetensors",
   },
 
   // User Images
