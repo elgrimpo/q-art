@@ -433,7 +433,7 @@ export const styles = [{
   prompt: "Detailed, Graphic Novel, Cinematic, Ukiyo-e Flat Design, Dramatic, Scene, Establishing Shot, Proportion",
   image_url: "https://qrartimages.s3.us-west-1.amazonaws.com/6574d4189961d5a54e2ff50e.png",
   keywords: ["Flat Design", "Ukiyo-e"],
-  sd_model: "epicrealism_pureEvolutionV5_97793.safetensors"
+  sd_model: "colorful_v31_62333.safetensors"
 
 
 }, {
