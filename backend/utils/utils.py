@@ -55,7 +55,7 @@ def prepare_txt2img_request( image_quality, prompt, negative_prompt, sd_model, s
             ControlnetUnit(
                 input_image=image_base64_str,
                 control_mode=ControlNetMode.BALANCED,
-                model="controlV1pSd15_v10_92404",
+                model="control_v1p_sd15_brightness.safetensors ",
                 module=ControlNetPreprocessor.INPAINT,
                 resize_mode=ControlNetResizeMode.RESIZE_OR_CORP,
                 weight=0.35,
