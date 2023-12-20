@@ -70,7 +70,7 @@ def prepare_txt2img_request( image_quality, prompt, negative_prompt, sd_model, s
                 resize_mode=ControlNetResizeMode.RESIZE_OR_CORP,
                 weight=round(1.0 + float(qr_weight) * 0.2, 2),
                 guidance_start=round(0.4 - float(qr_weight) * 0.03, 2),
-                guidance_end=0.85 
+                guidance_end=0.85
             ),
         ],
     )
