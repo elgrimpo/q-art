@@ -4,8 +4,6 @@ import {
   Button,
   TextField,
   Box,
-  Card,
-  Chip,
   Stack,
   Typography,
   Slider,
@@ -41,7 +39,7 @@ function GenerateForm(props) {
 
   const { handleGenerate } = props;
   // Context variables
-  const { loadingGeneratedImage, generateFormValues, sd_models } = useImages();
+  const { loadingGeneratedImage, generateFormValues } = useImages();
 
   // Utils functions
   const { calculateCredits } = useUtils();
@@ -116,6 +114,13 @@ function GenerateForm(props) {
     }
   }, [generateFormValues, calculateCredits, price]);
 
+  // set Custom Style in case values are copied from another picture
+  useEffect(() => {
+    if (generateFormValues.style_title === "Custom Style") {
+      setCustomStyle({...customStyle, prompt: generateFormValues.style_prompt, keywords: generateFormValues.style_prompt.split(", ")})
+    }
+  }, [generateFormValues.style_title])
+
   // Select Style
   const handleStyleClick = (item) => {
     dispatch({
@@ -124,6 +129,7 @@ function GenerateForm(props) {
         ...generateFormValues,
         style_id: item.id,
         style_prompt: item.prompt,
+        style_title: item.title,
         sd_model: item.sd_model,
       },
     });
@@ -136,6 +142,7 @@ function GenerateForm(props) {
       payload: {
         ...generateFormValues,
         style_id: customStyle.id,
+        style_title: customStyle.title,
         style_prompt: customStyle.prompt,
         sd_model: customStyle.sd_model,
       },

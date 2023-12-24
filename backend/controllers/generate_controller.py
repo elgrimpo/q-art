@@ -59,7 +59,8 @@ async def predict(
     qr_weight,
     sd_model,
     user_id,
-    style_prompt
+    style_prompt,
+    style_title
 ):
     try:
         # --------------------------------- CHECK FUNDS ------------------------------- #
@@ -121,7 +122,7 @@ async def predict(
 
         # ------------------------------ UPDATE DATABASE ----------------------------- #
         try:
-            doc = prepare_doc(req, info, website, image_quality, qr_weight, user_id)
+            doc = prepare_doc(req, info, website, image_quality, qr_weight, user_id, prompt, style_prompt, style_title)
             inserted_image = await insert_image(doc, generated_image)
         except Exception as db_error:
             # Handle database insertion error

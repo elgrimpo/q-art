@@ -55,6 +55,7 @@ export const initialState = {
     website: "",
     prompt: "",
     style_id: 1,
+    style_title: "Default",
     style_prompt: "",
     image_quality: "medium",
     qr_weight: 0.0,

@@ -80,6 +80,7 @@ function Generate() {
         website: "",
         prompt: "",
         style_id: 1,
+        style_title: "Default",
         style_prompt: "",
         image_quality: "medium",
         qr_weight: 0.0,
@@ -245,6 +246,11 @@ function Generate() {
                   <ListItemText
                     primary="Prompt"
                     secondary={generatedImage?.prompt}
+                    align={isMobile ? "center" : "left"}
+                  />
+                  <ListItemText
+                    primary="Style"
+                    secondary={generatedImage?.style_title}
                     align={isMobile ? "center" : "left"}
                   />
                   <ListItemText

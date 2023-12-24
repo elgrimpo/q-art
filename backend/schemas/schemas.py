@@ -67,6 +67,8 @@ class ImageDoc(BaseModel):
     created_at: datetime
     prompt: str
     negative_prompt: Optional[str] = None
+    style_title: Optional[str] = "Default"
+    style_prompt: Optional[str] = None
     content: str
     sd_model: str
     seed: int

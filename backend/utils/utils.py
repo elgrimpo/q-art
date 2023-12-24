@@ -84,7 +84,7 @@ def prepare_txt2img_request( image_quality, prompt, negative_prompt, sd_model, s
 #                                  PREPARE IMAGE DOC                           #
 # ---------------------------------------------------------------------------- #
 
-def prepare_doc( req, info, website, image_quality, qr_weight, user_id):
+def prepare_doc( req, info, website, image_quality, qr_weight, user_id, prompt, style_prompt, style_title):
     sampler_name = req.sampler_name
     control_mode_0 = req.controlnet_units[0].control_mode.value
     model_0 = req.controlnet_units[0].model
@@ -99,8 +99,10 @@ def prepare_doc( req, info, website, image_quality, qr_weight, user_id):
     doc = ImageDoc(
         user_id = user_id,
         created_at = datetime.utcnow(),
-        prompt = req.prompt,
+        prompt = prompt,
         negative_prompt = req.negative_prompt,
+        style_title = style_title,
+        style_prompt = style_prompt,
         content = website,
         sd_model = req.model_name,
         seed = info["seed"],

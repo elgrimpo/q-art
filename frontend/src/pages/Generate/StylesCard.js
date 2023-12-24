@@ -29,7 +29,7 @@ function StylesCard(props) {
 
 
 
-  const selected = item.id === generateFormValues.style_id ? true : false;
+  const selected = item.title === generateFormValues.style_title ? true : false;
 
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */

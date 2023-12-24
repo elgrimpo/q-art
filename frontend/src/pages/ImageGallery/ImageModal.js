@@ -57,7 +57,6 @@ function ImagesModal(props) {
 
       if (modalElement) {
         const modalTopPosition = modalElement.getBoundingClientRect().top;
-        console.log(modalTopPosition);
         const sensitivity = 50; // Adjust this value based on your needs for swipe sensitivity
 
         if (Math.abs(deltaY) > sensitivity && modalTopPosition >= 0) {
@@ -267,8 +266,8 @@ function ImagesModal(props) {
                 align={isMobile ? "center" : "left"}
               />
               <ListItemText
-                primary="Negative prompt"
-                secondary={image?.negative_prompt}
+                primary="Style"
+                secondary={image?.style_title}
                 align={isMobile ? "center" : "left"}
               />
               <ListItemText

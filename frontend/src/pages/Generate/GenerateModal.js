@@ -62,12 +62,6 @@ function GenerateModal(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customStyle.prompt]);
 
-  //TODO remove
-  useEffect(() => {
-    getSdModels();
-    console.log(sd_models);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   useEffect(() => {
     setPromptKeywords(promptKeywords);
@@ -110,6 +104,7 @@ function GenerateModal(props) {
       payload: {
         ...generateFormValues,
         style_id: customStyle.id,
+        style_title: customStyle.title,
         style_prompt: updatedPrompt,
         sd_model: customStyle.sd_model,
       },

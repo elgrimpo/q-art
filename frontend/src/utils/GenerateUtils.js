@@ -110,9 +110,11 @@ export const useGenerateUtils = () => {
       qr_weight: item.qr_weight,
       negative_prompt: item.negative_prompt,
       seed: item.seed,
+      style_id: item.id,
+      style_prompt: item.style_prompt,
+      style_title: item.style_title,
       sd_model: item.sd_model,
     };
-
     // Update Form values in reducer
     dispatch({
       type: ActionTypes.SET_GENERATE_FORM_VALUES,
