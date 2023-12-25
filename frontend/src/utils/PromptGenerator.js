@@ -424,7 +424,7 @@ export const styles = [{
   prompt: "",
   image_url: "https://qrartimages.s3.us-west-1.amazonaws.com/6575fc6828c914471b835383.png",
   keywords: [],
-  sd_model: "cyberrealistic_v40_151857.safetensors"
+  sd_model: "colorful_v31_62333.safetensors"
 
 },
 {
@@ -476,7 +476,7 @@ export const styles = [{
   prompt: "Chinese traditional, Flexographic Ink, Ink, canvas, monochromatic",
   image_url: "https://qrartimages.s3.us-west-1.amazonaws.com/6574d88f9961d5a54e2ff51a.png",
   keywords: ["Flexographic inc", "Low-poly art"],
-  sd_model: "neverendingDreamNED_v122BakedVae.safetensors"
+  sd_model: "colorful_v31_62333.safetensors"
 
 }, {
   id: 8,
@@ -484,7 +484,7 @@ export const styles = [{
   prompt: "Japonism, Outlined, Closeup-View",
   image_url: "https://qrartimages.s3.us-west-1.amazonaws.com/6574e2af9961d5a54e2ff51e.png",  
   keywords: ["Japonism", "Kitsch"],
-  sd_model: "neverendingDreamNED_v122BakedVae.safetensors"
+  sd_model: "colorful_v31_62333.safetensors"
 
 
 },{
@@ -493,7 +493,7 @@ export const styles = [{
   prompt: "Flat Design, Vector Art, illustrator",
   image_url: "https://qrartimages.s3.us-west-1.amazonaws.com/6576499b56ae6bad355304cc.png",  
   keywords: ["Flat Design", "Illustrator"],
-  sd_model: "neverendingDreamNED_v122BakedVae.safetensors"
+  sd_model: "colorful_v31_62333.safetensors"
 
 }, {
   id: 10,
@@ -501,16 +501,16 @@ export const styles = [{
   prompt: "Art Nouveau, Sticker, Turkish-Style, Miniature Faking",
   image_url: "https://qrartimages.s3.us-west-1.amazonaws.com/6574e5ae9961d5a54e2ff525.png",  
   keywords: ["Miniature Faking", "Art Nouveau"],
-  sd_model: "neverendingDreamNED_v122BakedVae.safetensors"
+  sd_model: "colorful_v31_62333.safetensors"
 
 
 },{
   id: 11,
-  title: "Rainbox",
+  title: "Rainbow",
   prompt: "Abstract, Rainbowcore, Color Blend",
   image_url: "https://qrartimages.s3.us-west-1.amazonaws.com/657619f756ae6bad355304bf.png",  
   keywords: ["Rainbow Core", "Color Blend"],
-  sd_model: "neverendingDreamNED_v122BakedVae.safetensors"
+  sd_model: "colorful_v31_62333.safetensors"
 
 }, 
 ]
