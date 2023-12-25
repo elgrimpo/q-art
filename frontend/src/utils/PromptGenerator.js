@@ -414,7 +414,7 @@ export const promptRandomizer = () => {
   const WhereRandomNum = Math.floor(Math.random() * listWhere.length);
   const WhenRandomNum = Math.floor(Math.random() * listWhen.length);
   //output
-  return `${listWho[WhoRandomNum]} ${listWhat[WhatRandomNum]} ${listWhere[WhereRandomNum]} ${listWhen[WhenRandomNum]}, ${selectedItems.join(', ')}`
+  return `${listWho[WhoRandomNum]} ${listWhat[WhatRandomNum]} ${listWhere[WhereRandomNum]} ${listWhen[WhenRandomNum]}`
 };
 
 
