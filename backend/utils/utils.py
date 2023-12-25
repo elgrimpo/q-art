@@ -31,7 +31,7 @@ def parse_seed(metadata):
 #                            PREPARE TXT2IMG REQUEST                           #
 # ---------------------------------------------------------------------------- #
 
-def prepare_txt2img_request( image_quality, prompt, negative_prompt, sd_model, seed, image_base64_str, qr_weight, style_prompt ):
+def prepare_txt2img_request( image_quality, prompt, negative_prompt, sd_model, seed, image_base64_str, qr_weight, style_prompt):
 
     if image_quality == "low":
         steps = 13
@@ -40,11 +40,12 @@ def prepare_txt2img_request( image_quality, prompt, negative_prompt, sd_model, s
     elif image_quality == "high":
         steps = 30
 
+    full_prompt = prompt + ", " + style_prompt
     weight = round(1.0 + float(qr_weight) * 0.2, 2)
     guidance_start = round(0.4 - float(qr_weight) * 0.03, 2)
 
     req = Txt2ImgRequest(
-        prompt=prompt + ", " + style_prompt,
+        prompt=full_prompt,
         negative_prompt=negative_prompt,
         sampler_name=Samplers.DPMPP_M_KARRAS,
         model_name=sd_model,
@@ -68,7 +69,7 @@ def prepare_txt2img_request( image_quality, prompt, negative_prompt, sd_model, s
             ControlnetUnit(
                 input_image=image_base64_str,
                 control_mode=ControlNetMode.BALANCED,
-                model="control_v1p_sd15_qrcode_monster_v2",
+                model="qrCodeMonster_v20_87894",
                 module=ControlNetPreprocessor.INPAINT,
                 resize_mode=ControlNetResizeMode.RESIZE_OR_CORP,
                 weight=weight,
@@ -182,7 +183,7 @@ def sufficient_credit(user, service):
 def createImagesFilterQuery(
     likes: Optional[str] = None,
     time_period: Optional[str] = None,
-    sd_model: Optional[str] = None,
+    image_style: Optional[str] = None,
     user_id: Optional[str] = None,
     exclude_user_id: Optional[str] = None
 ):
@@ -213,8 +214,8 @@ def createImagesFilterQuery(
         query["created_at"] = {"$gte": start_of_year, "$lte": end_of_year}
 
     #  SD Model
-    if sd_model:
-        query["sd_model"] = sd_model
+    if image_style:
+        query["style_title"] = image_style
 
     # Likes
     if likes == "Liked by me":

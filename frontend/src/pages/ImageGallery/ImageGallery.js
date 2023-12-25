@@ -11,6 +11,7 @@ import ImageModal from "./ImageModal";
 import { useImageUtils } from "../../utils/ImageUtils";
 import FilterPanelDesktop from "./FilterPanelDesktop";
 import FilterPanelMobile from "./FilterPanelMobile";
+import { styles } from "../../utils/PromptGenerator";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
@@ -32,7 +33,6 @@ function ImageGallery(props) {
     communityImages,
     loadingCommunityImages,
     communityImagesPage,
-    sd_models,
   } = useImages();
 
   const { getMoreImages } = useImageUtils();
@@ -61,9 +61,9 @@ function ImageGallery(props) {
       options: ["Today", "This Week", "This Month", "This Year"],
     },
     {
-      id: "sd_model",
-      name: "SD Model",
-      options: sd_models.map((model) => model.name),
+      id: "image_style",
+      name: "Style",
+      options: styles.map((style) => style.title),
     },
   ];
 
@@ -71,7 +71,7 @@ function ImageGallery(props) {
   const [selectedFilters, setSelectedFilters] = useState({
     likes: null,
     time_period: null,
-    sd_model: null,
+    image_style: null,
     sort: "Newest",
   });
 
@@ -93,10 +93,6 @@ function ImageGallery(props) {
 
   // Apply Filter & Sort and load Images
   const applyFilters = async (newSelectedFilters) => {
-    const sdModelObject = sd_models.find(
-      (model) => model.name === newSelectedFilters.sd_model
-    );
-    const sd_name = sdModelObject ? sdModelObject.sd_name : null;
 
     const params = {
       page: 1,
@@ -104,7 +100,7 @@ function ImageGallery(props) {
       exclude_user_id: imageType === "userImages" ? null : user._id,
       likes: newSelectedFilters.likes,
       time_period: newSelectedFilters.time_period,
-      sd_model: sd_name,
+      image_style: newSelectedFilters.image_style,
       sort_by: newSelectedFilters.sort,
     };
 
@@ -127,17 +123,13 @@ function ImageGallery(props) {
           if (
             entry.isIntersecting
           ) {
-            const sdModelObject = sd_models.find(
-              (model) => model.name === selectedFilters.sd_model
-            );
-            const sd_name = sdModelObject ? sdModelObject.sd_name : null;
             const params = {
               page: page + 1,
               user_id: imageType === "userImages" ? user._id : null,
               exclude_user_id: imageType === "userImages" ? null : user._id,
               likes: selectedFilters.likes,
               time_period: selectedFilters.time_period,
-              sd_model: sd_name,
+              image_style: selectedFilters.image_style,
             };
             getMoreImages(imageType, params);
           }
