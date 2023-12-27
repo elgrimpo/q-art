@@ -1,7 +1,9 @@
 # Libraries Import
 import qrcode
+import requests
 from dotenv import load_dotenv
 import os
+import json
 from novita_client import *
 import boto3
 import base64
@@ -60,7 +62,7 @@ async def predict(
     sd_model,
     user_id,
     style_prompt,
-    style_title
+    style_title,
 ):
     try:
         # --------------------------------- CHECK FUNDS ------------------------------- #
@@ -97,23 +99,33 @@ async def predict(
             seed,
             image_base64_str,
             qr_weight,
-            style_prompt
+            style_prompt,
         )
-
         try:
-            res = client.sync_txt2img(req)
+            response = client.txt2img(req)
+
+            if response.data is None:
+                raise NovitaResponseError(
+                    f"Text to Image generation failed with response {response.msg}, code: {response.code}"
+                )
+
+            # print("task id:" + response.data.task_id)
+            res = client.wait_for_task(response.data.task_id, callback=None)
+            info_dict = json.loads(res.data.info)
+            seed = info_dict.get("seed")
+
+            # info = json.dumps(info_dict, indent=4)
+            # print(info)
+
             if res.data.status != ProgressResponseStatusCode.SUCCESSFUL:
-                raise Exception("Failed to generate image with error: " + res.data.failed_reason)
+                raise Exception(
+                    "Failed to generate image with error: " + res.data.failed_reason
+                )
 
-            generated_image = Image.open(BytesIO(res.data.imgs_bytes[0]))
-
-            metadata_str = generated_image.info.get("parameters")
-            parsed_seed = parse_seed(metadata_str)
-
-            if parsed_seed is not None:
-                info = {"seed": parsed_seed}
-            else:
-                info = {"seed": -1}  # Placeholder if parsing fails
+            # Open generated image
+            image_url = res.data.imgs[0]
+            image_data = requests.get(image_url)
+            generated_image = Image.open(BytesIO(image_data.content))
 
         except Exception as generation_error:
             # Handle image generation error
@@ -122,7 +134,17 @@ async def predict(
 
         # ------------------------------ UPDATE DATABASE ----------------------------- #
         try:
-            doc = prepare_doc(req, info, website, image_quality, qr_weight, user_id, prompt, style_prompt, style_title)
+            doc = prepare_doc(
+                req,
+                seed,
+                website,
+                image_quality,
+                qr_weight,
+                user_id,
+                prompt,
+                style_prompt,
+                style_title,
+            )
             inserted_image = await insert_image(doc, generated_image)
         except Exception as db_error:
             # Handle database insertion error

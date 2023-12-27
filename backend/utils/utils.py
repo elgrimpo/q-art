@@ -85,7 +85,7 @@ def prepare_txt2img_request( image_quality, prompt, negative_prompt, sd_model, s
 #                                  PREPARE IMAGE DOC                           #
 # ---------------------------------------------------------------------------- #
 
-def prepare_doc( req, info, website, image_quality, qr_weight, user_id, prompt, style_prompt, style_title):
+def prepare_doc( req, seed, website, image_quality, qr_weight, user_id, prompt, style_prompt, style_title):
     sampler_name = req.sampler_name
     control_mode_0 = req.controlnet_units[0].control_mode.value
     model_0 = req.controlnet_units[0].model
@@ -106,7 +106,7 @@ def prepare_doc( req, info, website, image_quality, qr_weight, user_id, prompt, 
         style_prompt = style_prompt,
         content = website,
         sd_model = req.model_name,
-        seed = info["seed"],
+        seed = seed,
         image_quality = image_quality,
         qr_weight = qr_weight,
         width = req.width,
