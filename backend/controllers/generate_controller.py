@@ -154,7 +154,7 @@ async def predict(
         # ---------------------- UPDATE USER CREDITS AND COUNT ---------------------- #
         try:
             await increment_user_count(user_id, service_config, credits_required)
-        except Exception as user_count_error:
+        except Exception as user_count_error: 
             # Handle user count update error
             raise HTTPException(status_code=500, detail="User count update failed")
 
