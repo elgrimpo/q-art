@@ -28,7 +28,7 @@ import GenerateModal from "./GenerateModal";
 import { useGenerateUtils } from "../../utils/GenerateUtils";
 import { useUtils } from "../../utils/utils";
 import promptRandomizer from "../../utils/PromptGenerator";
-import { styles } from "../../utils/PromptGenerator";
+import { styles } from "../../utils/ImageStyles";
 import StylesCard from "./StylesCard";
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
@@ -74,7 +74,7 @@ function GenerateForm(props) {
     image_url:
       "https://qrartimages.s3.us-west-1.amazonaws.com/customStyleTile.png",
     keywords: [],
-    sd_model: "cyberrealistic_v40_151857.safetensors",
+    sd_model: "colorful_v31_62333.safetensors",
   });
 
   /* -------------------------------- FUNCTIONS ------------------------------- */
@@ -123,7 +123,6 @@ function GenerateForm(props) {
   }, [generateFormValues.style_title]);
 
   // Select Style
-  // TODO: combine handleStyle & handleCustomStyle
   const handleStyleClick = (item) => {
     dispatch({
       type: ActionTypes.SET_GENERATE_FORM_VALUES,
@@ -135,21 +134,9 @@ function GenerateForm(props) {
         sd_model: item.sd_model,
       },
     });
-  };
-
-  // Use Custom Style
-  const handleCustomStyleClick = () => {
-    dispatch({
-      type: ActionTypes.SET_GENERATE_FORM_VALUES,
-      payload: {
-        ...generateFormValues,
-        style_id: customStyle.id,
-        style_title: customStyle.title,
-        style_prompt: customStyle.prompt,
-        sd_model: customStyle.sd_model,
-      },
-    });
-    handleSdModalOpen("prompt_keywords");
+    if (item.title === "Custom Style") {
+      handleSdModalOpen("prompt_keywords");
+    }
   };
 
   /* -------------------------------------------------------------------------- */
@@ -343,7 +330,7 @@ function GenerateForm(props) {
             <StylesCard
               item={customStyle}
               index={0}
-              handleClick={() => handleCustomStyleClick()}
+              handleClick={handleStyleClick}
             />
             {styles.map((item, index) => (
               <StylesCard

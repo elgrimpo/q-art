@@ -11,7 +11,7 @@ import ImageModal from "./ImageModal";
 import { useImageUtils } from "../../utils/ImageUtils";
 import FilterPanelDesktop from "./FilterPanelDesktop";
 import FilterPanelMobile from "./FilterPanelMobile";
-import { styles } from "../../utils/PromptGenerator";
+import { styles } from "../../utils/ImageStyles";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
