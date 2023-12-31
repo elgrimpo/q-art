@@ -42,7 +42,7 @@ export const useGenerateUtils = () => {
 
           dispatch({
             type: ActionTypes.SET_GENERATE_FORM_VALUES,
-            payload: {... generateFormValues,
+            payload: {...generateFormValues,
             seed: res.data.seed},
           });
 
@@ -129,64 +129,6 @@ export const useGenerateUtils = () => {
   };
 
   /* -------------------------------------------------------------------------- */
-  /*                                GET SD MODELS                               */
-  /* -------------------------------------------------------------------------- */
-
-  const getSdModels = async () => {
-    // Set State to Loading
-    dispatch({
-      type: ActionTypes.SET_LOADING_SD_MODELS,
-      payload: true,
-    });
-
-    /* -------------------------------- API Call -------------------------------- */
-    await axios
-      .get(`${process.env.REACT_APP_BACKEND_URL}/api/models/get`)
-      .then((res) => {
-        // Update sd_models in reducer
-        dispatch({
-          type: ActionTypes.SET_SD_MODELS,
-          payload: res.data,
-        });
-
-        // Set state to NOT loading
-        dispatch({
-          type: ActionTypes.SET_LOADING_SD_MODELS,
-          payload: false,
-        });
-      })
-
-      /* ----------------------------- Error handling ----------------------------- */
-      .catch((err) => {
-        // Set state to not loading
-        dispatch({
-          type: ActionTypes.SET_LOADING_SD_MODELS,
-          payload: false,
-        });
-
-        // Open Snackbar
-        openAlert("error", "Stable Diffusion Models could not be loaded");
-
-        console.log(err);
-      });
-  };
-
-  /* -------------------------------------------------------------------------- */
-  /*                               SELECT SD MODEL                              */
-  /* -------------------------------------------------------------------------- */
-
-  const selectSdModel = (sd_model) => {
-    // Update generateFormValues.sd_model with new selection
-    dispatch({
-      type: ActionTypes.SET_GENERATE_FORM_VALUES,
-      payload: {
-        ...generateFormValues,
-        sd_model: sd_model,
-      },
-    });
-  };
-
-  /* -------------------------------------------------------------------------- */
   /*                          HANDLE FORM INPUT CHANGE                          */
   /* -------------------------------------------------------------------------- */
 
@@ -205,8 +147,6 @@ export const useGenerateUtils = () => {
   return {
     generateImage,
     copyGenerateFormValues,
-    selectSdModel,
     handleInputChange,
-    getSdModels,
   };
 };

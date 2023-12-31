@@ -14,8 +14,6 @@ import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 
 // App imports
 import { useImages, useImagesDispatch } from "../../context/AppProvider";
-import SdModelCard from "./SdModelsCard";
-import { useGenerateUtils } from "../../utils/GenerateUtils";
 import StyledIconButton from "../../components/StyledIconButton";
 import NegPromptCard from "./NegPromptCard";
 import { negativePrompts } from "../../utils/NegativePrompts";
@@ -34,17 +32,14 @@ function GenerateModal(props) {
   const {
     open,
     handleClose,
-    handleModelSelection,
     variant,
     customStyle,
     setCustomStyle,
   } = props;
 
   // Context
-  const { sd_models, generateFormValues } = useImages();
+  const { generateFormValues } = useImages();
   const dispatch = useImagesDispatch();
-  // Utils
-  const { getSdModels } = useGenerateUtils();
 
   // Screen size
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -66,16 +61,6 @@ function GenerateModal(props) {
   useEffect(() => {
     setPromptKeywords(promptKeywords);
   }, [promptKeywords]);
-
-  const getTitle = () => {
-    if (variant === "sd_model") {
-      return "Stable Diffusion Model";
-    } else if (variant === "negative_prompt") {
-      return "Negative Prompt Templates";
-    } else if (variant === "prompt_keywords") {
-      return "Select keywords";
-    }
-  };
 
   const handleKeywordSelection = (keyword) => {
     let updatedKeywords = [...selectedKeywords];
@@ -147,7 +132,7 @@ function GenerateModal(props) {
       >
         {/* TITLE */}
         <Typography variant="h5" align="center" style={{ margin: "1rem 0" }}>
-          {getTitle()}
+        Select keywords
         </Typography>
 
         {/* GRID */}
@@ -157,30 +142,7 @@ function GenerateModal(props) {
         >
           <Masonry gutter="1rem">
             {/* -------------------------------- SD MODELS ------------------------------- */}
-            {variant === "sd_model"
-              ? sd_models.length > 0
-                ? sd_models.map((item, index) => (
-                    <SdModelCard
-                      item={item}
-                      index={index}
-                      key={index}
-                      handleModelSelection={handleModelSelection}
-                      variant="image"
-                    />
-                  ))
-                : // SKELETON CARDS FOR LOADING IMAGES
-                  Array.from({ length: 12 }, (_, index) => index).map(
-                    (_, index) => (
-                      <SdModelCard
-                        item={_}
-                        variant="skeleton"
-                        index={index}
-                        key={index}
-                      />
-                    )
-                  )
-              : /* ------------------------ NEGATIVE PROMPT TEMPLATES ----------------------- */
-              variant === "negative_prompt"
+            {variant === "negative_prompt"
               ? negativePrompts.map((item, index) => (
                   <NegPromptCard
                     item={item}

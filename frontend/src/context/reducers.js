@@ -22,10 +22,6 @@ export const ActionTypes = {
   SET_LOADING_COMMUNITY_IMAGES: "SET_LOADING_COMMUNITY_IMAGES",
   SET_COMMUNITY_IMAGES_PAGE: "SET_COMMUNITY_IMAGES_PAGE",
 
-  // Models
-  SET_LOADING_SD_MODELS: "SET_LOADING_SD_MODELS",
-  SET_SD_MODELS: "SET_SD_MODELS",
-
   // Alert
   OPEN_ALERT: "OPEN_ALERT",
   CLOSE_ALERT: "CLOSE_ALERT",
@@ -74,15 +70,6 @@ export const initialState = {
   loadingCommunityImages: false,
   communityImagesPage: 0,
 
-  // Models
-  loadingSdModels: false,
-  sd_models: [
-    {
-      sd_model: "dreamshaper_8_93211.safetensors",
-      name: "DreamShaper",
-    },
-  ],
-
   // Alert
   alertOpen: false,
   alertSeverity: "info",
@@ -124,12 +111,6 @@ export const imagesReducer = (state, action) => {
       return { ...state, loadingCommunityImages: action.payload };
     case ActionTypes.SET_COMMUNITY_IMAGES_PAGE:
       return { ...state, communityImagesPage: action.payload };
-
-    // Models
-    case ActionTypes.SET_LOADING_SD_MODELS:
-      return { ...state, loadingSdModels: action.payload };
-    case ActionTypes.SET_SD_MODELS:
-      return { ...state, sd_models: action.payload };
 
     // Alert
     case ActionTypes.OPEN_ALERT:

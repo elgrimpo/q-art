@@ -11,7 +11,6 @@ from starlette.requests import Request
 # App imports
 from controllers.images_controller import get_images, toggle_like, delete_image
 from controllers.generate_controller import predict, upscale
-from controllers.models_controller import get_models
 from controllers.auth_controller import google_login, google_auth, google_logout
 from controllers.users_controller import get_user_info
 from controllers.payment_controller import create_checkout_session, stripe_webhook
@@ -114,13 +113,6 @@ async def toggle_like_endpoint(id: Optional[str] = None, user_id: Optional[str] 
 @app.delete("/api/images/delete/{id}")
 async def delete_image_endpoint(id: str):
     return delete_image(id)
-
-# ------------------------------- MODELS ROUTES ------------------------------ #
-
-# GET MODEL
-@app.get("/api/models/get")
-async def get_models_endpoint():
-    return get_models()
 
 
 # -------------------------------- AUTH ROUTES ------------------------------- #

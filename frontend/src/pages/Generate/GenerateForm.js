@@ -40,16 +40,19 @@ function GenerateForm(props) {
   const { handleGenerate } = props;
   // Context variables
   const { loadingGeneratedImage, generateFormValues } = useImages();
+  const dispatch = useImagesDispatch();
 
   // Utils functions
   const { calculateCredits } = useUtils();
-  const { selectSdModel, handleInputChange } = useGenerateUtils();
-  const dispatch = useImagesDispatch();
+  const { handleInputChange } = useGenerateUtils();
+
   // Submit Button state
   const [submitDisabled, setSubmitDisabled] = useState(true);
 
   // Modules Modal (Prompt keywords, Negative Prompt, SD Models)
   const [modalOpen, setModalOpen] = useState(false);
+
+  //TODO: Remove
   const [modalVariant, setModalVariant] = useState("sd_model");
 
   // Screen size
@@ -75,12 +78,6 @@ function GenerateForm(props) {
   });
 
   /* -------------------------------- FUNCTIONS ------------------------------- */
-
-  // SD Model selection in Modal window
-  const handleModelSelection = (sd_model) => {
-    selectSdModel(sd_model);
-    setModalOpen(false);
-  };
 
   // Set display text for slider
   function sliderText(value) {
@@ -117,11 +114,16 @@ function GenerateForm(props) {
   // set Custom Style in case values are copied from another picture
   useEffect(() => {
     if (generateFormValues.style_title === "Custom Style") {
-      setCustomStyle({...customStyle, prompt: generateFormValues.style_prompt, keywords: generateFormValues.style_prompt.split(", ")})
+      setCustomStyle({
+        ...customStyle,
+        prompt: generateFormValues.style_prompt,
+        keywords: generateFormValues.style_prompt.split(", "),
+      });
     }
-  }, [generateFormValues.style_title])
+  }, [generateFormValues.style_title]);
 
   // Select Style
+  // TODO: combine handleStyle & handleCustomStyle
   const handleStyleClick = (item) => {
     dispatch({
       type: ActionTypes.SET_GENERATE_FORM_VALUES,
@@ -223,7 +225,12 @@ function GenerateForm(props) {
         />
 
         {/* ----------------------------- QR CODE WEIGHT ----------------------------- */}
-        <Stack direction={{xs: "column", md: "row"}} useFlexGap alignItems="stretch" spacing={4}>
+        <Stack
+          direction={{ xs: "column", md: "row" }}
+          useFlexGap
+          alignItems="stretch"
+          spacing={4}
+        >
           <Box sx={{ width: "100%" }}>
             <Typography variant="h6" align="center" sx={{ mt: "1rem" }}>
               How strong should the QR Code be?
@@ -324,7 +331,6 @@ function GenerateForm(props) {
         </Stack>
 
         {/* --------------------------------- Styles --------------------------------- */}
-        {/* TODO: */}
 
         <Typography variant="h6" align="center" sx={{ mt: "1rem" }}>
           Select a Style for your QR Code
@@ -348,8 +354,6 @@ function GenerateForm(props) {
             ))}
           </Masonry>
         </ResponsiveMasonry>
-
-        {/* TODO: */}
 
         {/* ----------------------------- NEGATIVE PROMPT ---------------------------- */}
         {/* <TextField
@@ -410,22 +414,6 @@ function GenerateForm(props) {
           </ToggleButton>
         </ToggleButtonGroup> */}
 
-        {/* ------------------------- MODAL SCREEN------------------------- */}
-        {/* <Typography variant="h6" align="center">
-          Stable Diffusion Model
-        </Typography>
-        <Button
-          variant="outlined"
-          color="secondary"
-          onClick={() => handleSdModalOpen("sd_model")}
-        >
-          {
-            sd_models?.find(
-              (model) => model.sd_name === generateFormValues.sd_model
-            )?.name
-          }
-        </Button> */}
-
         {/* --------------------------------- SUBMIT --------------------------------- */}
         <Button
           variant="contained"
@@ -448,7 +436,6 @@ function GenerateForm(props) {
       <GenerateModal
         open={modalOpen}
         handleClose={handleModalClose}
-        handleModelSelection={handleModelSelection}
         variant={modalVariant}
         customStyle={customStyle}
         setCustomStyle={setCustomStyle}
