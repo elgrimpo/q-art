@@ -69,7 +69,7 @@ def prepare_txt2img_request( image_quality, prompt, negative_prompt, sd_model, s
             ControlnetUnit(
                 input_image=image_base64_str,
                 control_mode=ControlNetMode.BALANCED,
-                model="qrCodeMonster_v20_87894",
+                model="control_v1p_sd15_qrcode_monster_v2",
                 module=ControlNetPreprocessor.INPAINT,
                 resize_mode=ControlNetResizeMode.RESIZE_OR_CORP,
                 weight=weight,

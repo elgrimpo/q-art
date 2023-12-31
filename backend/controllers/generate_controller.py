@@ -109,13 +109,13 @@ async def predict(
                     f"Text to Image generation failed with response {response.msg}, code: {response.code}"
                 )
 
-            # print("task id:" + response.data.task_id)
+            print("task id:" + response.data.task_id)
             res = client.wait_for_task(response.data.task_id, callback=None)
             info_dict = json.loads(res.data.info)
             seed = info_dict.get("seed")
 
-            # info = json.dumps(info_dict, indent=4)
-            # print(info)
+            info = json.dumps(info_dict, indent=4)
+            print(info)
 
             if res.data.status != ProgressResponseStatusCode.SUCCESSFUL:
                 raise Exception(
