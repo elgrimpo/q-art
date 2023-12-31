@@ -173,6 +173,7 @@ function Generate() {
                   width: "auto",
                   height: "auto",
                   aspectRatio: "1/1",
+                  pointerEvents: "none",
                 }}
               ></CardMedia>
             )}

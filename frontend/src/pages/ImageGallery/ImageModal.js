@@ -187,6 +187,7 @@ function ImagesModal(props) {
                 width: "auto",
                 height: "auto",
                 aspectRatio: "1/1",
+                pointerEvents: "none",
               }}
               ref={modalRef}
             />

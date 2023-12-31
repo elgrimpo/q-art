@@ -44,6 +44,11 @@ function ImageCard(props) {
   // Check if image is liked by user
   const isLiked = item?.likes?.includes(user?._id) ? true : false;
 
+  // Prevent right click for image download
+  const preventRightClick = (event) => {
+    event.preventDefault();
+  };
+
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
   /* -------------------------------------------------------------------------- */
@@ -72,6 +77,7 @@ function ImageCard(props) {
               image={item?.image_url}
               sx={{ borderRadius: "5px" }}
               onClick={onClick}
+              onContextMenu={(e) => preventRightClick(e)}
               key={index}
             />
 
