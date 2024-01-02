@@ -1,13 +1,6 @@
 # Libraries Import
 import requests as requests
-from dotenv import load_dotenv
-from fastapi import HTTPException
-from bson import ObjectId
 import datetime
-from starlette.exceptions import HTTPException
-import os
-from pymongo import MongoClient, ReturnDocument
-import json
 from pydantic import BaseModel, Field
 from typing import Dict, List, Optional
 from datetime import datetime
