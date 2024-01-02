@@ -107,10 +107,8 @@ export const useUtils = () => {
   function calculateCredits(service, option) {
     // Declare credits for each service
     const priceList = {
-      imageQuality: {
-        low: 1,
-        medium: 2,
-        high: 3,
+      generate: {
+        1: 1,
       },
       upscaleResize: {
         2: 2,

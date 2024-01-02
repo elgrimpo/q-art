@@ -31,14 +31,7 @@ def parse_seed(metadata):
 #                            PREPARE TXT2IMG REQUEST                           #
 # ---------------------------------------------------------------------------- #
 
-def prepare_txt2img_request( image_quality, prompt, negative_prompt, sd_model, seed, image_base64_str, qr_weight, style_prompt):
-
-    if image_quality == "low":
-        steps = 13
-    elif image_quality == "medium":
-        steps = 20
-    elif image_quality == "high":
-        steps = 30
+def prepare_txt2img_request( prompt, negative_prompt, sd_model, seed, image_base64_str, qr_weight, style_prompt):
 
     full_prompt = prompt + ", " + style_prompt
     weight = round(1.0 + float(qr_weight) * 0.2, 2)
@@ -51,7 +44,7 @@ def prepare_txt2img_request( image_quality, prompt, negative_prompt, sd_model, s
         model_name=sd_model,
         width=512,
         height=512,
-        steps=steps,
+        steps=30,
         batch_size=1,
         cfg_scale=9,
         seed=int(seed),
@@ -85,7 +78,7 @@ def prepare_txt2img_request( image_quality, prompt, negative_prompt, sd_model, s
 #                                  PREPARE IMAGE DOC                           #
 # ---------------------------------------------------------------------------- #
 
-def prepare_doc( req, seed, website, image_quality, qr_weight, user_id, prompt, style_prompt, style_title):
+def prepare_doc( req, seed, website, qr_weight, user_id, prompt, style_prompt, style_title):
     sampler_name = req.sampler_name
     control_mode_0 = req.controlnet_units[0].control_mode.value
     model_0 = req.controlnet_units[0].model
@@ -107,7 +100,6 @@ def prepare_doc( req, seed, website, image_quality, qr_weight, user_id, prompt, 
         content = website,
         sd_model = req.model_name,
         seed = seed,
-        image_quality = image_quality,
         qr_weight = qr_weight,
         width = req.width,
         height = req.height,
@@ -142,11 +134,8 @@ def prepare_doc( req, seed, website, image_quality, qr_weight, user_id, prompt, 
 
 def calculate_credits(service):
     price = {
-        'image_quality': {
-            'none': 0,
-            'low': 1,
-            'medium': 2,
-            'high': 3
+        'generate': {
+            '1': 1,
         },
         'upscale_resize': {
             '0': 0,
@@ -157,8 +146,8 @@ def calculate_credits(service):
     total_credits = 0
 
     # Calculate credits based on image quality
-    image_quality = service.get('image_quality', 'none')
-    total_credits += price['image_quality'].get(image_quality, 0)
+    generate = service.get('generate', 'none')
+    total_credits += price['generate'].get(generate, 0)
 
     # Calculate credits based on upscale_resize
     upscale_resize = service.get('upscale_resize', "0")

@@ -20,7 +20,6 @@ import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 // App imports
 import { useImages, useImagesDispatch } from "../../context/AppProvider";
 import { ActionTypes } from "../../context/reducers";
-
 import GenerateModal from "./GenerateModal";
 import { useGenerateUtils } from "../../utils/GenerateUtils";
 import { useUtils } from "../../utils/utils";
@@ -54,7 +53,7 @@ function GenerateForm(props) {
 
   // Track user credits
   const [price, setPrice] = useState(
-    calculateCredits("imageQuality", generateFormValues.image_quality)
+    calculateCredits("generate", 1)
   );
 
   // Slider for (QR Code Weight)
@@ -92,8 +91,8 @@ function GenerateForm(props) {
   //Keep track of Form Values
   useEffect(() => {
     const newPrice = calculateCredits(
-      "imageQuality",
-      generateFormValues.image_quality
+      "generate",
+      1
     );
     if (newPrice !== price) {
       setPrice(newPrice);
@@ -335,30 +334,6 @@ function GenerateForm(props) {
             ))}
           </Masonry>
         </ResponsiveMasonry>
-
-        {/* ------------------------------ IMAGE QUALITY ----------------------------- */}
-        {/* <Typography variant="h6" align="center">
-          Image Quality
-        </Typography>
-        <ToggleButtonGroup
-          color="secondary"
-          value={generateFormValues.image_quality}
-          exclusive
-          onChange={handleInputChange}
-          aria-label="image-quality"
-          fullWidth={true}
-          name="image_quality"
-        >
-          <ToggleButton name="image_quality" value="low">
-            Low
-          </ToggleButton>
-          <ToggleButton name="image_quality" value="medium">
-            Medium
-          </ToggleButton>
-          <ToggleButton name="image_quality" value="high">
-            High
-          </ToggleButton>
-        </ToggleButtonGroup> */}
 
         {/* --------------------------------- SUBMIT --------------------------------- */}
         <Button

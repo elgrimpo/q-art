@@ -57,7 +57,6 @@ async def predict(
     website,
     negative_prompt,
     seed,
-    image_quality,
     qr_weight,
     sd_model,
     user_id,
@@ -66,7 +65,7 @@ async def predict(
 ):
     try:
         # --------------------------------- CHECK FUNDS ------------------------------- #
-        service_config = {"image_quality": image_quality}
+        service_config = {"generate": "1"}
         credits_required = calculate_credits(service_config)
 
         user_data = users.find_one({"_id": ObjectId(user_id)})
@@ -92,7 +91,6 @@ async def predict(
         # -------------------------- GENERATE IMAGE AND SAVE ------------------------- #
 
         req = prepare_txt2img_request(
-            image_quality,
             prompt,
             negative_prompt,
             sd_model,
@@ -138,7 +136,6 @@ async def predict(
                 req,
                 seed,
                 website,
-                image_quality,
                 qr_weight,
                 user_id,
                 prompt,

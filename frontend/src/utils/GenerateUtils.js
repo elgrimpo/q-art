@@ -106,7 +106,6 @@ export const useGenerateUtils = () => {
     const copyValues = {
       website: item.content,
       prompt: item.prompt,
-      image_quality: item.image_quality,
       qr_weight: item.qr_weight,
       negative_prompt: item.negative_prompt,
       seed: item.seed,

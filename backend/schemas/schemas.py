@@ -65,7 +65,6 @@ class ImageDoc(BaseModel):
     content: str
     sd_model: str
     seed: int
-    image_quality: str
     qr_weight: float
     width: int
     height: int

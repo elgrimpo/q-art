@@ -277,11 +277,6 @@ function ImagesModal(props) {
                 align={isMobile ? "center" : "left"}
               />
               <ListItemText
-                primary="Image Quality"
-                secondary={`${image?.image_quality} (${image?.steps} sampling steps)`}
-                align={isMobile ? "center" : "left"}
-              />
-              <ListItemText
                 primary="Image Dimensions"
                 secondary={`${image?.width} x ${image?.height} px`}
                 align={isMobile ? "center" : "left"}

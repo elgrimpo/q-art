@@ -82,7 +82,6 @@ function Generate() {
         style_id: 1,
         style_title: "Default",
         style_prompt: "",
-        image_quality: "medium",
         qr_weight: 0.0,
         negative_prompt: "",
         seed: -1,

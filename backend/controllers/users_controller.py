@@ -54,16 +54,16 @@ async def increment_user_count(user_id, service_config, credits_deducted):
         current_month = datetime.utcnow().month
 
         # Increment user count for credits
-        image_quality = service_config.get("image_quality")
+        generate = service_config.get("generate")
         upscale_resize = service_config.get("upscale_resize")
 
         # ---------------------- UPDATE IMAGE QUALITY INCREMENT ---------------------- #
-        if image_quality:
+        if generate:
             db["users"].update_one(
                 {"_id": ObjectId(user_id)},
                 {
                     "$inc": {
-                        f"image_counts.{current_year}.{current_month}.{image_quality}": 1,
+                        f"image_counts.{current_year}.{current_month}.{generate}": 1,
                     },
                     "$set": {"last_image_created_at": datetime.utcnow()},
                 },
