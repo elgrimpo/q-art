@@ -13,9 +13,6 @@ import {
 } from "@mui/material";
 import CasinoTwoToneIcon from "@mui/icons-material/CasinoTwoTone";
 import DiamondTwoToneIcon from "@mui/icons-material/DiamondTwoTone";
-import useMediaQuery from "@mui/material/useMediaQuery";
-import theme from "../../styles/mui-theme";
-
 import QrCode2TwoToneIcon from "@mui/icons-material/QrCode2TwoTone";
 import PhotoTwoToneIcon from "@mui/icons-material/PhotoTwoTone";
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
@@ -53,10 +50,7 @@ function GenerateForm(props) {
   const [modalOpen, setModalOpen] = useState(false);
 
   //TODO: Remove
-  const [modalVariant, setModalVariant] = useState("sd_model");
-
-  // Screen size
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const [modalVariant, setModalVariant] = useState("prompt_keywords");
 
   // Track user credits
   const [price, setPrice] = useState(
@@ -341,41 +335,6 @@ function GenerateForm(props) {
             ))}
           </Masonry>
         </ResponsiveMasonry>
-
-        {/* ----------------------------- NEGATIVE PROMPT ---------------------------- */}
-        {/* <TextField
-          id="negative_prompt"
-          label="Negative Prompt"
-          name="negative_prompt"
-          value={generateFormValues.negative_prompt}
-          onChange={handleInputChange}
-          variant="outlined"
-          multiline
-          rows={4}
-          InputProps={{
-            endAdornment: (
-              // --- Get Keywords from template --- //
-              <InputAdornment
-                position="end"
-                sx={{
-                  alignItems: "center",
-                  alignSelf: "flex-start",
-                  padding: "0.5rem 0rem",
-                }}
-              >
-                <Tooltip title="Select keywords from templates">
-                  <IconButton
-                    name="prompt"
-                    value={-1}
-                    onClick={() => handleSdModalOpen("negative_prompt")}
-                  >
-                    <AutoFixHighTwoToneIcon />
-                  </IconButton>
-                </Tooltip>
-              </InputAdornment>
-            ),
-          }}
-        /> */}
 
         {/* ------------------------------ IMAGE QUALITY ----------------------------- */}
         {/* <Typography variant="h6" align="center">

@@ -15,8 +15,6 @@ import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 // App imports
 import { useImages, useImagesDispatch } from "../../context/AppProvider";
 import StyledIconButton from "../../components/StyledIconButton";
-import NegPromptCard from "./NegPromptCard";
-import { negativePrompts } from "../../utils/NegativePrompts";
 import PromptKeywords from "./PromptKeywords";
 import { promptKeywords } from "../../utils/PromptGenerator";
 import { ActionTypes } from "../../context/reducers";
@@ -32,7 +30,6 @@ function GenerateModal(props) {
   const {
     open,
     handleClose,
-    variant,
     customStyle,
     setCustomStyle,
   } = props;
@@ -141,18 +138,8 @@ function GenerateModal(props) {
           columnsCountBreakPoints={{ 350: 1, 750: 2, 900: 3 }}
         >
           <Masonry gutter="1rem">
-            {/* -------------------------------- SD MODELS ------------------------------- */}
-            {variant === "negative_prompt"
-              ? negativePrompts.map((item, index) => (
-                  <NegPromptCard
-                    item={item}
-                    index={index}
-                    key={index}
-                    handleClose={handleClose}
-                  />
-                ))
-              : /* ----------------------------- PROMPT KEYWORDS ---------------------------- */
-                promptKeywordss?.map((item, index) => (
+            /* ----------------------------- PROMPT KEYWORDS ---------------------------- */
+                {promptKeywordss?.map((item, index) => (
                   <PromptKeywords
                     item={item}
                     index={index}
