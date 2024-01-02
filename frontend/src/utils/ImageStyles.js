@@ -39,7 +39,7 @@ export const styles = [{
   prompt: "Low-Poly Art, Origami, Painting By Salvador Dali, Scene, Dramatic, Cinematic, Establishing Shot, 4k, UHD",
   image_url: "https://qrartimages.s3.us-west-1.amazonaws.com/6574d6939961d5a54e2ff517.png",
   keywords: ["Origami", "Low-Poly"],
-  sd_model: "colorful_v31_62333.safetensors"
+  sd_model: "epicrealism_pureEvolutionV5_97793.safetensors"
 
 }, {
   id: 6,
