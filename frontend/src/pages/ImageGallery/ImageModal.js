@@ -272,6 +272,7 @@ function ImagesModal(props) {
               color="secondary"
               type="download"
               handleClick={() => handleDownloadOpen()}
+              disabled={upscaling.includes(image?._id)}
             />
 
             {/* DELETE */}
@@ -281,6 +282,7 @@ function ImagesModal(props) {
                 color="secondary"
                 type="delete"
                 handleClick={() => deleteImage(image._id, index)}
+                disabled={upscaling.includes(image?._id)}
               />
             )}
           </Stack>
