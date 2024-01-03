@@ -76,10 +76,12 @@ async def generate_endpoint(
 async def upscale_endpoint(
     image_id,
     user_id,
+    resolution
 ):
     return await upscale(
         image_id,
         user_id,
+        resolution
     )
 
 

@@ -2,6 +2,10 @@
 import React, { useState, useRef } from "react";
 import {
   Dialog,
+  Button,
+  DialogContentText,
+  DialogTitle,
+  DialogActions,
   List,
   ListItemText,
   Typography,
@@ -9,17 +13,23 @@ import {
   CardMedia,
   Stack,
   Skeleton,
-  Grow
+  Grow,
+  DialogContent,
+  ToggleButton,
+  ToggleButtonGroup,
+  IconButton,
 } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import theme from "../../styles/mui-theme";
 import StyledIconButton from "../../components/StyledIconButton";
 import { useSwipeable } from "react-swipeable";
-import dayjs from 'dayjs';
+import dayjs from "dayjs";
+import DiamondTwoToneIcon from "@mui/icons-material/DiamondTwoTone";
 
 //App imports
 import { useImages } from "../../context/AppProvider";
 import { useImageUtils } from "../../utils/ImageUtils";
+import { useUtils } from "../../utils/utils";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
@@ -30,14 +40,23 @@ function ImagesModal(props) {
 
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
 
-  const { open, index, handleClose, handleNext, handlePrevious, imageType, upscaling, setUpscaling } =
-    props;
+  const {
+    open,
+    index,
+    handleClose,
+    handleNext,
+    handlePrevious,
+    imageType,
+    upscaling,
+    setUpscaling,
+  } = props;
   const isFullScreen = useMediaQuery(theme.breakpoints.down("md"));
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   // Image fuctions
-  const { downloadImage, deleteImage, upscaleImage } = useImageUtils();
-
+  const { downloadImage, deleteImage, upscaleImage, upscaleDownload } =
+    useImageUtils();
+  const { calculateCredits } = useUtils();
 
   const image =
     imageType === "userImages" ? userImages[index] : communityImages[index];
@@ -45,7 +64,38 @@ function ImagesModal(props) {
   // Ref for CardMedia component
   const modalRef = useRef(null);
 
+  // States for Download dialog
+  const [downloadOpen, setDownloadOpen] = useState(false);
+  const [resolution, setResolution] = useState(512);
+  const [downloadCredits, setDownloadCredits] = useState(
+    calculateCredits("download", resolution)
+  );
+
   /* -------------------------------- FUNCTIONS ------------------------------- */
+  // Open Download Dialog
+  const handleDownloadOpen = () => {
+    setResolution(image.width);
+    setDownloadCredits(calculateCredits("download", image.width));
+    setDownloadOpen(true);
+  };
+
+  // Close Download Dialog
+  const handleDownloadClose = () => {
+    setDownloadOpen(false);
+  };
+
+  // Change resolution in Download dialog
+  const handleResolutionChange = (event, newResolution) => {
+    if (newResolution !== null) {
+      setResolution(newResolution);
+      setDownloadCredits(calculateCredits("download", newResolution));
+    }
+  };
+
+  const handleDownload = () => {
+    setDownloadOpen(false);
+    upscaleDownload(image, resolution, upscaling, setUpscaling);
+  };
 
   const handlers = useSwipeable({
     // Other handlers for left, right, up, etc.
@@ -65,7 +115,6 @@ function ImagesModal(props) {
       }
     },
   });
-
 
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
@@ -216,23 +265,14 @@ function ImagesModal(props) {
             spacing={3}
             sx={{ mb: "1rem" }}
           >
+            {/* TODO: disable icon buttons when upscaling */}
             {/* DOWNLOAD */}
             <StyledIconButton
               variant="contained"
               color="secondary"
               type="download"
-              handleClick={() => downloadImage(image)}
+              handleClick={() => handleDownloadOpen()}
             />
-
-            {/* UPSCALE */}
-            {image?.width === 512 && imageType === "userImages" && (
-              <StyledIconButton
-                variant="contained"
-                color="secondary"
-                type="upscale"
-                handleClick={() => upscaleImage(image._id, upscaling, setUpscaling)}
-              />
-            )}
 
             {/* DELETE */}
             {image?.user_id === user._id && (
@@ -253,7 +293,7 @@ function ImagesModal(props) {
             <List>
               <ListItemText
                 primary="Date created"
-                secondary={dayjs(image?.created_at).format('MMMM D, YYYY')}
+                secondary={dayjs(image?.created_at).format("MMMM D, YYYY")}
                 align={isMobile ? "center" : "left"}
               />
               <ListItemText
@@ -300,6 +340,61 @@ function ImagesModal(props) {
           </div>
         </Box>
       </Box>
+
+      {/* ----------------------------- DOWNLOAD DIALOG ---------------------------- */}
+      <Dialog open={downloadOpen} onClose={handleDownloadClose}>
+        <DialogTitle>{"Download QR Image"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Upscale your image to a desired image resolution and download to
+            your computer
+          </DialogContentText>
+          <ToggleButtonGroup
+            color="secondary"
+            value={resolution}
+            exclusive
+            onChange={handleResolutionChange}
+            aria-label="Platform"
+            sx={{ mt: 2 }}
+          >
+            <ToggleButton value={512} disabled={image?.width > 512}>
+              512 x 512
+            </ToggleButton>
+            <ToggleButton value={1024} disabled={image?.width > 1024}>
+              1024 x 1024
+            </ToggleButton>
+            <ToggleButton value={2048} disabled={image?.width > 2048}>
+              2048 x 2048
+            </ToggleButton>
+            <ToggleButton value={4096} disabled={image?.width > 4096}>
+              4096 x 4096
+            </ToggleButton>
+          </ToggleButtonGroup>
+
+          <Typography sx={{ mt: 2 }}>
+            Required credits: {downloadCredits}
+            <IconButton size="small" color="secondary">
+              <DiamondTwoToneIcon />
+            </IconButton>
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ padding: "0rem 1rem 1rem 1rem" }}>
+          <Button variant="outlined" onClick={handleDownloadClose}>
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            onClick={() => handleDownload(resolution)}
+            autoFocus
+          >
+            Download ( {downloadCredits}
+            <IconButton size="small" color="secondary">
+              <DiamondTwoToneIcon />
+            </IconButton>
+            )
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Dialog>
   );
 }

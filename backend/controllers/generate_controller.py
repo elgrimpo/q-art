@@ -171,11 +171,11 @@ async def predict(
 # ---------------------------------------------------------------------------- #
 
 
-async def upscale(image_id, user_id):
+async def upscale(image_id, user_id, resolution):
     try:
         # -------------------------------- CHECK FUNDS ------------------------------- #
         service_config = {
-            "upscale_resize": "2",
+            "upscale_resize": resolution,
         }
         credits_required = calculate_credits(service_config)
 
@@ -197,7 +197,7 @@ async def upscale(image_id, user_id):
 
         # ------------------------------ UPSCALE IMAGE ----------------------------- #
         try:
-            upscale_request = UpscaleRequest(image=base64_image, upscaling_resize=2.0)
+            upscale_request = UpscaleRequest(image=base64_image, upscaling_resize_w=int(resolution), upscaling_resize_h=int(resolution), resize_mode=UpscaleResizeMode.SIZE)
             upscale_response = client.sync_upscale(upscale_request)
         except Exception as upscale_error:
             # Handle image upscaling error
@@ -209,7 +209,7 @@ async def upscale(image_id, user_id):
             s3_client.put_object(
                 Bucket=s3_bucket_name, Key=object_name, Body=upscaled_image_content
             )
-            update_data = {"width": 1024, "height": 1024}
+            update_data = {"width": int(resolution), "height": int(resolution)}
             updated_image = await update_image(image_id, update_data)
         except Exception as db_update_error:
             # Handle database update error

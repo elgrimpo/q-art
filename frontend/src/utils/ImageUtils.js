@@ -116,19 +116,6 @@ export const useImageUtils = () => {
   };
 
   /* -------------------------------------------------------------------------- */
-  /*                               DOWNLOAD IMAGE                               */
-  /* -------------------------------------------------------------------------- */
-
-  const downloadImage = (item) => {
-    const link = document.createElement("a");
-    link.href = item.image_url;
-    link.download = "QR-art.png";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  /* -------------------------------------------------------------------------- */
   /*                                DELETE IMAGE                                */
   /* -------------------------------------------------------------------------- */
 
@@ -161,47 +148,70 @@ export const useImageUtils = () => {
       });
   };
 
+
   /* -------------------------------------------------------------------------- */
-  /*                                UPSCALE IMAGE                               */
+  /*                               DOWNLOAD IMAGE                               */
+  /* -------------------------------------------------------------------------- */
+  const downloadImage = (item) => {
+    const link = document.createElement("a");
+    link.href = item.image_url;
+    link.download = "QR-art.png";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(() => {
+      openAlert("success", "Image downloaded");
+    }, 1000);
+  };
+
+  /* -------------------------------------------------------------------------- */
+  /*                            UPSCALE AND DOWNLOAD                            */
   /* -------------------------------------------------------------------------- */
 
-  const upscaleImage = (id, upscaling, setUpscaling) => {
-    // Set the state loading
-    setUpscaling([...upscaling, id]);
-    /* -------------------------------- API Call -------------------------------- */
-    axios
-      .get(`${process.env.REACT_APP_BACKEND_URL}/api/upscale/${id}`, {
-        params: { user_id: user._id },
-        withCredentials: true,
-      })
-      .then((response) => {
-        // Find updated image in userImages and replace with new image
-        const updatedImage = response.data;
-        const updatedImages = userImages.map((img) =>
-          img._id === id ? updatedImage : img
-        );
+  const upscaleDownload = (image, resolution, upscaling, setUpscaling) => {
+    console.log(image.width === resolution);
+    openAlert("info", "Image is being prepared for download");
 
-        // Update userImages in reducer
-        dispatch({
-          type: ActionTypes.SET_USER_IMAGES,
-          payload: updatedImages,
+    if (image.width === resolution) {
+      downloadImage(image);
+    } else {
+      setUpscaling([...upscaling, image._id]);
+      /* -------------------------------- API Call -------------------------------- */
+      axios
+        .get(`${process.env.REACT_APP_BACKEND_URL}/api/upscale/${image._id}`, {
+          params: { user_id: user._id, resolution: resolution },
+          withCredentials: true,
+        })
+        .then((response) => {
+          // Download upscaled image
+          const updatedImage = response.data;
+          downloadImage(updatedImage);
+
+          // Find updated image in userImages and replace with new image
+          const updatedImages = userImages.map((img) =>
+            img._id === image._id ? updatedImage : img
+          );
+
+          // Update userImages in reducer
+          dispatch({
+            type: ActionTypes.SET_USER_IMAGES,
+            payload: updatedImages,
+          });
+
+        })
+
+        /* ----------------------------- Error Handling ----------------------------- */
+        .catch((error) => {
+          console.error("Error downloading image:", error);
+
+          // Open Snackbar
+          openAlert("error", "Image could not be downloaded");
+        })
+        .finally(() => {
+          // Set the state to NOT loading
+          setUpscaling(upscaling.filter((imageId) => imageId !== image._id));
         });
-
-        // Open Snackbar
-        openAlert("success", "Image Upscaled");
-      })
-
-      /* ----------------------------- Error Handling ----------------------------- */
-      .catch((error) => {
-        console.error("Error upscaling image:", error);
-
-        // Open Snackbar
-        openAlert("error", "Image could not be upscaled");
-      })
-      .finally(() => {
-        // Set the state to NOT loading
-        setUpscaling(upscaling.filter((imageId) => imageId !== id));
-      });
+    }
   };
 
   /* -------------------------------------------------------------------------- */
@@ -268,7 +278,7 @@ export const useImageUtils = () => {
     getMoreImages,
     downloadImage,
     deleteImage,
-    upscaleImage,
+    upscaleDownload,
     likeImage,
   };
 };

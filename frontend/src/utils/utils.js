@@ -110,8 +110,11 @@ export const useUtils = () => {
       generate: {
         1: 1,
       },
-      upscaleResize: {
-        2: 2,
+      download: {
+        512: 10,
+        1024: 15,
+        2048: 20,
+        4096: 25
       },
     };
 
