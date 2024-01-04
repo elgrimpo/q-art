@@ -133,15 +133,21 @@ def prepare_doc( req, seed, website, qr_weight, user_id, prompt, style_prompt, s
 # ---------------------------------------------------------------------------- #
 
 def calculate_credits(service):
+
     price = {
         'generate': {
             '1': 1,
         },
+        'download' : {
+            False: 0,
+            True: 10
+        },
         'upscale_resize': {
-            '512': 10,
-            '1024': 15,
-            '2048': 20,
-            '4096': 25
+            0: 0,
+            512: 10,
+            1024: 15,
+            2048: 20,
+            4096: 25
         }
     }
 
@@ -150,6 +156,10 @@ def calculate_credits(service):
     # Calculate credits based on image quality
     generate = service.get('generate', 'none')
     total_credits += price['generate'].get(generate, 0)
+
+    # Calculate credits based on download
+    download = service.get('download', 'none')
+    total_credits += price['download'].get(download, False)
 
     # Calculate credits based on upscale_resize
     upscale_resize = service.get('upscale_resize', "0")

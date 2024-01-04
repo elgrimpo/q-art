@@ -76,3 +76,4 @@ class ImageDoc(BaseModel):
     controlnet1: ControlNet
     image_url: Optional[str] = None
     likes: Optional[List[str]] = []
+    downloaded: Optional[bool] = False

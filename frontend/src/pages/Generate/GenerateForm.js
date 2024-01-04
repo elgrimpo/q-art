@@ -48,13 +48,10 @@ function GenerateForm(props) {
   // Modules Modal (Prompt keywords, Negative Prompt, SD Models)
   const [modalOpen, setModalOpen] = useState(false);
 
-  //TODO: Remove
   const [modalVariant, setModalVariant] = useState("prompt_keywords");
 
   // Track user credits
-  const [price, setPrice] = useState(
-    calculateCredits("generate", 1)
-  );
+  const [price, setPrice] = useState(calculateCredits({"generate": 1}));
 
   // Slider for (QR Code Weight)
   const qrWeight = [{ value: -3 }, { value: 3 }];
@@ -90,19 +87,12 @@ function GenerateForm(props) {
 
   //Keep track of Form Values
   useEffect(() => {
-    const newPrice = calculateCredits(
-      "generate",
-      1
-    );
-    if (newPrice !== price) {
-      setPrice(newPrice);
-    }
     if (generateFormValues.website && generateFormValues.prompt) {
       setSubmitDisabled(false);
     } else {
       setSubmitDisabled(true);
     }
-  }, [generateFormValues, calculateCredits, price]);
+  }, [generateFormValues]);
 
   // set Custom Style in case values are copied from another picture
   useEffect(() => {

@@ -53,26 +53,26 @@ async def increment_user_count(user_id, service_config, credits_deducted):
         current_year = datetime.utcnow().year
         current_month = datetime.utcnow().month
 
-        # Increment user count for credits
-        generate = service_config.get("generate")
+        # Get values from service_config
         upscale_resize = service_config.get("upscale_resize")
+        download = service_config.get("download")
 
-        # ---------------------- UPDATE IMAGE QUALITY INCREMENT ---------------------- #
+        # ------------------------ INCREMENT IMAGE GENERATIOM ------------------------ #
+        generate = service_config.get("generate")
         if generate:
             db["users"].update_one(
                 {"_id": ObjectId(user_id)},
                 {
                     "$inc": {
-                        f"image_counts.{current_year}.{current_month}.{generate}": 1,
+                        f"image_counts.{current_year}.{current_month}.generate": 1,
                     },
                     "$set": {"last_image_created_at": datetime.utcnow()},
                 },
                 upsert=True,
             )
 
-        # ------------------------- UPDATE UPSCALE INCREMENT ------------------------- #
-
-        if upscale_resize:
+        # ----------------------------- INCREMENT UPSCALE ---------------------------- #
+        if upscale_resize and upscale_resize != 0:
             db["users"].update_one(
                 {"_id": ObjectId(user_id)},
                 {
@@ -83,8 +83,19 @@ async def increment_user_count(user_id, service_config, credits_deducted):
                 upsert=True,
             )
 
-        # ------------------------------ UPDATE CREDITS ------------------------------ #
+        # ---------------------------- INCREMENT DOWNLOAD ---------------------------- #
+        if download:
+            db["users"].update_one(
+                {"_id": ObjectId(user_id)},
+                {
+                    "$inc": {
+                        f"image_counts.{current_year}.{current_month}.download": 1,
+                    }
+                },
+                upsert=True,
+            )
 
+        # ---------------------------- UPDATE USER CREDITS --------------------------- #
         db["users"].update_one(
             {"_id": ObjectId(user_id)},
             {

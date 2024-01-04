@@ -75,7 +75,7 @@ function ImagesModal(props) {
   // Open Download Dialog
   const handleDownloadOpen = () => {
     setResolution(image.width);
-    setDownloadCredits(calculateCredits("download", image.width));
+    setDownloadCredits(calculateCredits({ download: !image.downloaded }));
     setDownloadOpen(true);
   };
 
@@ -88,7 +88,12 @@ function ImagesModal(props) {
   const handleResolutionChange = (event, newResolution) => {
     if (newResolution !== null) {
       setResolution(newResolution);
-      setDownloadCredits(calculateCredits("download", newResolution));
+      setDownloadCredits(
+        calculateCredits({
+          download: !image.downloaded,
+          upscale: newResolution === image.width ? 0 : newResolution,
+        })
+      );
     }
   };
 
@@ -265,7 +270,6 @@ function ImagesModal(props) {
             spacing={3}
             sx={{ mb: "1rem" }}
           >
-            {/* TODO: disable icon buttons when upscaling */}
             {/* DOWNLOAD */}
             <StyledIconButton
               variant="contained"

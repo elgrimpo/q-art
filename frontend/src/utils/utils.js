@@ -104,32 +104,38 @@ export const useUtils = () => {
   /*                              CALCULATE CREDITS                             */
   /* -------------------------------------------------------------------------- */
 
-  function calculateCredits(service, option) {
+  function calculateCredits(input) {
     // Declare credits for each service
     const priceList = {
       generate: {
         1: 1,
       },
       download: {
+        false: 0,
+        true: 10,
+      },
+      upscale: {
+        0: 0,
         512: 10,
         1024: 15,
         2048: 20,
-        4096: 25
+        4096: 25,
       },
     };
-
-    // Check if the service exists in the priceList
-    if (priceList[service]) {
-      // Check if the option exists within the service
-      if (priceList[service][option]) {
-        // Return credits needed for service / option
-        return priceList[service][option];
+  
+    let totalCredits = 0;
+  
+    Object.keys(input).forEach((service) => {
+      const option = input[service];
+  
+      if (priceList[service] && priceList[service][option]) {
+        totalCredits += priceList[service][option];
       } else {
-        console.error(`Option '${option}' not found in service '${service}'.`);
+        console.error(`Service '${service}' with option '${option}' not found in the price list.`);
       }
-    } else {
-      console.error(`Service '${service}' not found in the price list.`);
-    }
+    });
+  
+    return totalCredits;
   }
 
   return {

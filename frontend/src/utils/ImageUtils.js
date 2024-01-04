@@ -148,7 +148,6 @@ export const useImageUtils = () => {
       });
   };
 
-
   /* -------------------------------------------------------------------------- */
   /*                               DOWNLOAD IMAGE                               */
   /* -------------------------------------------------------------------------- */
@@ -169,49 +168,43 @@ export const useImageUtils = () => {
   /* -------------------------------------------------------------------------- */
 
   const upscaleDownload = (image, resolution, upscaling, setUpscaling) => {
-    console.log(image.width === resolution);
     openAlert("info", "Image is being prepared for download");
 
-    if (image.width === resolution) {
-      downloadImage(image);
-    } else {
-      setUpscaling([...upscaling, image._id]);
-      /* -------------------------------- API Call -------------------------------- */
-      axios
-        .get(`${process.env.REACT_APP_BACKEND_URL}/api/upscale/${image._id}`, {
-          params: { user_id: user._id, resolution: resolution },
-          withCredentials: true,
-        })
-        .then((response) => {
-          // Download upscaled image
-          const updatedImage = response.data;
-          downloadImage(updatedImage);
+    setUpscaling([...upscaling, image._id]);
+    /* -------------------------------- API Call -------------------------------- */
+    axios
+      .get(`${process.env.REACT_APP_BACKEND_URL}/api/upscale/${image._id}`, {
+        params: { user_id: user._id, resolution: resolution },
+        withCredentials: true,
+      })
+      .then((response) => {
+        // Download upscaled image
+        const updatedImage = response.data;
+        downloadImage(updatedImage);
 
-          // Find updated image in userImages and replace with new image
-          const updatedImages = userImages.map((img) =>
-            img._id === image._id ? updatedImage : img
-          );
+        // Find updated image in userImages and replace with new image
+        const updatedImages = userImages.map((img) =>
+          img._id === image._id ? updatedImage : img
+        );
 
-          // Update userImages in reducer
-          dispatch({
-            type: ActionTypes.SET_USER_IMAGES,
-            payload: updatedImages,
-          });
-
-        })
-
-        /* ----------------------------- Error Handling ----------------------------- */
-        .catch((error) => {
-          console.error("Error downloading image:", error);
-
-          // Open Snackbar
-          openAlert("error", "Image could not be downloaded");
-        })
-        .finally(() => {
-          // Set the state to NOT loading
-          setUpscaling(upscaling.filter((imageId) => imageId !== image._id));
+        // Update userImages in reducer
+        dispatch({
+          type: ActionTypes.SET_USER_IMAGES,
+          payload: updatedImages,
         });
-    }
+      })
+
+      /* ----------------------------- Error Handling ----------------------------- */
+      .catch((error) => {
+        console.error("Error downloading image:", error);
+
+        // Open Snackbar
+        openAlert("error", "Image could not be downloaded");
+      })
+      .finally(() => {
+        // Set the state to NOT loading
+        setUpscaling(upscaling.filter((imageId) => imageId !== image._id));
+      });
   };
 
   /* -------------------------------------------------------------------------- */
