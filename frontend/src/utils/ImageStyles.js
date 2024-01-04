@@ -53,9 +53,9 @@ export const styles = [{
 },{
   id: 7,
   title: "Ink",
-  prompt: "Chinese traditional, Flexographic Ink, Ink, canvas, monochromatic",
+  prompt: "<lora:zyd232_InkStyle_v1_0_53697:1>, monochrome, ink sketch, watercolors, brush strokes",
   image_url: "https://qrartimages.s3.us-west-1.amazonaws.com/6574d88f9961d5a54e2ff51a.png",
-  keywords: ["Flexographic inc", "Low-poly art"],
+  keywords: ["Ink sketch", "monochrome"],
   sd_model: "colorful_v31_62333.safetensors"
 }, {
   id: 8,
