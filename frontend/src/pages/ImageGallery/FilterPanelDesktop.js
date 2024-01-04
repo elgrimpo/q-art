@@ -115,7 +115,7 @@ function FilterPanelDesktop({
                     <FavoriteTwoToneIcon />
                   ) : filter.name === "Time Period" ? (
                     <CalendarMonthTwoToneIcon />
-                  ) : filter.name === "SD Model" ? (
+                  ) : filter.name === "Style" ? (
                     <ColorLensTwoToneIcon />
                   ) : (
                     <SortTwoToneIcon />
