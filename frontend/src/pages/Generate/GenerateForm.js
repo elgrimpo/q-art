@@ -307,7 +307,7 @@ function GenerateForm(props) {
         </Typography>
         <ResponsiveMasonry
           style={{ width: "100%" }}
-          columnsCountBreakPoints={{ 350: 2, 750: 3, 1200: 4 }}
+          columnsCountBreakPoints={{ 350: 1, 750: 2, 1200: 3 }}
         >
           <Masonry gutter="1rem">
             <StylesCard
