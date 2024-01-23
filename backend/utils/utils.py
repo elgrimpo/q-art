@@ -83,22 +83,25 @@ def create_watermark_b64(generated_image):
         watermark_image_path = "utils/watermark.png"
         watermark = Image.open(watermark_image_path)
 
+        # Create a copy of the original image
+        watermarked_image = generated_image.copy()
+
         # Place the watermark in the bottom right corner
-        width, height = generated_image.size
+        width, height = watermarked_image.size
         watermark_size = watermark.size
         position = (width - watermark_size[0], height - watermark_size[1] - 25)
 
-        generated_image.paste(watermark, position, watermark)
+        watermarked_image.paste(watermark, position, watermark)
 
         # Convert to base64
         buffered = BytesIO()
-        generated_image.save(buffered, format="PNG")
+        watermarked_image.save(buffered, format="PNG")
         base64_image = base64.b64encode(buffered.getvalue()).decode("utf-8")
 
         return base64_image
 
     except Exception as e:
-        print(f"Error adding watermark and converting to base64: {str(e)}")
+        print(f"Error creating watermarked base64: {str(e)}")
         return None
 
 # ---------------------------------------------------------------------------- #
