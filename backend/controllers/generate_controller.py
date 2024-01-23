@@ -142,6 +142,7 @@ async def predict(
                 prompt,
                 style_prompt,
                 style_title,
+                generated_image
             )
             inserted_image = await insert_image(doc, generated_image)
         except Exception as db_error:

@@ -75,10 +75,37 @@ def prepare_txt2img_request( prompt, negative_prompt, sd_model, seed, image_base
     return req
 
 # ---------------------------------------------------------------------------- #
+#                            CREATE WATERMARKED B64 IMAGE                            #
+# ---------------------------------------------------------------------------- #
+
+def create_watermark_b64(generated_image):
+    try:
+        watermark_image_path = "utils/watermark.png"
+        watermark = Image.open(watermark_image_path)
+
+        # Place the watermark in the bottom right corner
+        width, height = generated_image.size
+        watermark_size = watermark.size
+        position = (width - watermark_size[0], height - watermark_size[1] - 25)
+
+        generated_image.paste(watermark, position, watermark)
+
+        # Convert to base64
+        buffered = BytesIO()
+        generated_image.save(buffered, format="PNG")
+        base64_image = base64.b64encode(buffered.getvalue()).decode("utf-8")
+
+        return base64_image
+
+    except Exception as e:
+        print(f"Error adding watermark and converting to base64: {str(e)}")
+        return None
+
+# ---------------------------------------------------------------------------- #
 #                                  PREPARE IMAGE DOC                           #
 # ---------------------------------------------------------------------------- #
 
-def prepare_doc( req, seed, website, qr_weight, user_id, prompt, style_prompt, style_title):
+def prepare_doc( req, seed, website, qr_weight, user_id, prompt, style_prompt, style_title, generated_image):
     sampler_name = req.sampler_name
     control_mode_0 = req.controlnet_units[0].control_mode.value
     model_0 = req.controlnet_units[0].model
@@ -89,10 +116,12 @@ def prepare_doc( req, seed, website, qr_weight, user_id, prompt, style_prompt, s
     model_1 = req.controlnet_units[1].model
     module_1 = req.controlnet_units[1].module.value
     resize_mode_1 = req.controlnet_units[1].resize_mode.value
+    image_b64 = create_watermark_b64(generated_image)
 
     doc = ImageDoc(
         user_id = user_id,
         created_at = datetime.utcnow(),
+        image_b64 = image_b64,
         prompt = prompt,
         negative_prompt = req.negative_prompt,
         style_title = style_title,

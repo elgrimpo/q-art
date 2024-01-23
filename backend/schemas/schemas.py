@@ -58,6 +58,7 @@ class ImageDoc(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     user_id: str
     created_at: datetime
+    image_b64: str
     prompt: str
     negative_prompt: Optional[str] = None
     style_title: Optional[str] = "Default"

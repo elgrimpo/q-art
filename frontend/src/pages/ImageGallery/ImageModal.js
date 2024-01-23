@@ -232,7 +232,7 @@ function ImagesModal(props) {
           ) : (
             <CardMedia
               component="img"
-              image={image?.image_url}
+              image={`data:image/png;base64, ${image?.image_b64}`}
               sx={{
                 borderRadius: { md: "12px" },
                 objectFit: "contain",

@@ -163,7 +163,7 @@ function Generate() {
               // IMAGE
               <CardMedia
                 component="img"
-                image={generatedImage.image_url}
+                image={`data:image/png;base64, ${generatedImage?.image_b64}`}
                 sx={{
                   borderRadius: { sm: "12px" },
                   objectFit: "contain",

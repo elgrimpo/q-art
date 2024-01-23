@@ -74,7 +74,7 @@ function ImageCard(props) {
           <div>
             <CardMedia
               component="img"
-              image={item?.image_url}
+              image={`data:image/png;base64, ${item?.image_b64}`}
               sx={{ borderRadius: "5px" }}
               onClick={onClick}
               onContextMenu={(e) => preventRightClick(e)}
