@@ -69,6 +69,7 @@ function ImagePage(props) {
       <Helmet>
         <meta property="og:image" content={image.image_url} />
         <meta name="twitter:image" content={image.image_url} />
+        <meta property="twitter:card" content="summary_large_image" />
       </Helmet>
 
       {/* ------------------------ NAVIGATION BUTTON ----------------------- */}
