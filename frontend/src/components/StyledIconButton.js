@@ -9,6 +9,7 @@ import DiamondTwoToneIcon from "@mui/icons-material/DiamondTwoTone";
 import DeleteForeverTwoToneIcon from "@mui/icons-material/DeleteForeverTwoTone";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import FavoriteTwoToneIcon from "@mui/icons-material/FavoriteTwoTone";
+import ShareTwoToneIcon from '@mui/icons-material/ShareTwoTone';
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
@@ -38,6 +39,8 @@ function StyledIconButton(props) {
       return <ChevronRightTwoToneIcon />;
     } else if (type === "like") {
       return <FavoriteTwoToneIcon />;
+    } else if (type === "share") {
+      return <ShareTwoToneIcon />;
     } else {
       return null;
     }

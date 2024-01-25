@@ -16,6 +16,7 @@ import theme from "../../styles/mui-theme";
 import StyledIconButton from "../../components/StyledIconButton";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet";
 
 //App imports
 import { useImageUtils } from "../../utils/ImageUtils";
@@ -64,6 +65,12 @@ function ImagePage(props) {
       fullWidth
       PaperProps={{ sx: { height: "100%" } }}
     >
+      {/* ---------------------------- META TAGS --------------------------- */}
+      <Helmet>
+        <meta property="og:image" content={image.image_url} />
+        <meta name="twitter:image" content={image.image_url} />
+      </Helmet>
+
       {/* ------------------------ NAVIGATION BUTTON ----------------------- */}
 
       {/* CLOSE */}

@@ -1,10 +1,11 @@
 //Libraries imports
 import React, { useState } from "react";
-import { Card, CardMedia, Grid, Stack, Chip } from "@mui/material";
+import { Card, CardMedia, Grid, Stack, Chip, Button } from "@mui/material";
 import theme from "../../styles/mui-theme.js";
 import { useNavigate } from "react-router-dom";
 import FavoriteTwoToneIcon from "@mui/icons-material/FavoriteTwoTone";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import { TwitterShareButton } from "react-share";
 
 // App imports
 import SkeletonCard from "./SkeletonCard.js";
@@ -31,7 +32,6 @@ function ImageCard(props) {
 
   // Copy Image function
   const { copyGenerateFormValues } = useGenerateUtils();
-
 
   /* -------------------------------- FUNCTIONS ------------------------------- */
 
@@ -94,16 +94,31 @@ function ImageCard(props) {
               
               {/* LIKE */}
 
-              {user._id &&
-              <Chip
-                color="secondary"
-                variant="contained"
-                icon={isLiked ? <FavoriteIcon sx={{fill: "#FF8585"}}/> : <FavoriteTwoToneIcon color="primary"/>}
-                label={item?.likes && item.likes.length > 0 ? item.likes.length : "0"}
-                sx={{ height: "40px", borderRadius: "24px", color: isLiked ? "#FF8585" : theme.palette.primary.main }}
-                onClick={()=> likeImage(item, user._id, imageType)}
-                key={index + "_1"}
-              />}
+              {user._id && (
+                <Chip
+                  color="secondary"
+                  variant="contained"
+                  icon={
+                    isLiked ? (
+                      <FavoriteIcon sx={{ fill: "#FF8585" }} />
+                    ) : (
+                      <FavoriteTwoToneIcon color="primary" />
+                    )
+                  }
+                  label={
+                    item?.likes && item.likes.length > 0
+                      ? item.likes.length
+                      : "0"
+                  }
+                  sx={{
+                    height: "40px",
+                    borderRadius: "24px",
+                    color: isLiked ? "#FF8585" : theme.palette.primary.main,
+                  }}
+                  onClick={() => likeImage(item, user._id, imageType)}
+                  key={index + "_1"}
+                />
+              )}
 
               {/* COPY */}
               <StyledIconButton
@@ -114,6 +129,21 @@ function ImageCard(props) {
                 handleClick={() => handleCopy(item)}
                 key={index + "_2"}
               />
+
+              <TwitterShareButton
+                url={`http://www.qr-ai.co/images/${item?._id}`}
+                title="@qrai"
+                className="twitter-share-button"
+              >
+                <StyledIconButton
+                  type="share"
+                  variant="contained"
+                  color="secondary"
+                  tooltip="Copy data to generate similar image"
+                  handleClick={() => {}}
+                  key={index + "_3"}
+                />
+              </TwitterShareButton>
             </Stack>
           </div>
         )}
