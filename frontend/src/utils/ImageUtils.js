@@ -20,6 +20,30 @@ export const useImageUtils = () => {
   const { openAlert } = useUtils();
 
   /* -------------------------------------------------------------------------- */
+  /*                               GET IMAGE BY ID                              */
+  /* -------------------------------------------------------------------------- */
+
+  const getImageById = (imageId) => {
+    // API Call
+    return axios
+      .get(`${process.env.REACT_APP_BACKEND_URL}/api/images/get/${imageId}`)
+      .then((response) => {
+        return response.data;
+      })
+      .catch((error) => {
+        // Handle error
+        console.error(error);
+
+        // Open alert
+        openAlert("error", "Error", "Error loading image");
+
+        return error;
+      });
+  };
+  /* -------------------------------------------------------------------------- */
+  /*                               GET IMAGE BY ID                              */
+
+  /* -------------------------------------------------------------------------- */
   /*                               GET MORE IMAGES                              */
   /* -------------------------------------------------------------------------- */
 
@@ -268,6 +292,7 @@ export const useImageUtils = () => {
 
   /* ---------------------------- FUNCTION RETURNS ---------------------------- */
   return {
+    getImageById,
     getMoreImages,
     downloadImage,
     deleteImage,

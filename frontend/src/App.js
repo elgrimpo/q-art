@@ -26,6 +26,7 @@ import ImageGallery from "./pages/ImageGallery/ImageGallery";
 import { useUtils } from "./utils/utils";
 import Account from "./pages/UserAccount/AccountPage";
 import NavBar from "./pages/Home/NavBar";
+import ImagePage from "./pages/ImageGallery/ImagePage";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
@@ -124,6 +125,10 @@ function App() {
                 element={<ImageGallery imageType="communityImages" />}
               />
 
+              {/* IMAGE PAGE */}
+              <Route path="images/:id"
+              element={<ImagePage />}/>
+            
               {/* ACCOUNT */}
               <Route path="account" element={<Account />} />
             </Routes>

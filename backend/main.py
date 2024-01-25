@@ -9,7 +9,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
 
 # App imports
-from controllers.images_controller import get_images, toggle_like, delete_image
+from controllers.images_controller import get_images, get_image, toggle_like, delete_image
 from controllers.generate_controller import predict, upscale
 from controllers.auth_controller import google_login, google_auth, google_logout
 from controllers.users_controller import get_user_info
@@ -103,6 +103,11 @@ async def images_endpoint(
     return get_images(
         page, user_id, exclude_user_id, likes, time_period, image_style, images_per_page, sort_by
     )
+
+# GET IMAGE BY ID
+@app.get("/api/images/get/{id}")
+async def image_endpoint(id: str):
+    return get_image(id)
 
 # LIKE IMAGE
 @app.put("/api/images/like/{id}")
