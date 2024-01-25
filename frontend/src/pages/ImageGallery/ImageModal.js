@@ -68,7 +68,7 @@ function ImagesModal(props) {
   const [downloadOpen, setDownloadOpen] = useState(false);
   const [resolution, setResolution] = useState(512);
   const [downloadCredits, setDownloadCredits] = useState(
-    calculateCredits("download", resolution)
+    calculateCredits({download: !image?.downloaded})
   );
 
   /* -------------------------------- FUNCTIONS ------------------------------- */
