@@ -14,6 +14,8 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import ReplayTwoToneIcon from "@mui/icons-material/ReplayTwoTone";
 import theme from "../../styles/mui-theme";
 import EditTwoToneIcon from "@mui/icons-material/EditTwoTone";
+import { Helmet } from "react-helmet";
+
 
 // App imports
 import { useImages, useImagesDispatch } from "../../context/AppProvider";
@@ -130,6 +132,28 @@ function Generate() {
 
   return (
     <div className="generate-page">
+      <Helmet>
+        <meta property="og:image" content="https://qrartimages.s3.us-west-1.amazonaws.com/656e2d37e3aafee4354c812b.png" />
+        <meta name="twitter:image" content="https://qrartimages.s3.us-west-1.amazonaws.com/656e2d37e3aafee4354c812b.png" />
+        <meta property="twitter:card" content="summary_large_image" />
+        {/* <!-- Primary Meta Tags --> */}
+        <meta name="title" content="QR AI" />
+        <meta name="description" content="Create artsy QR Codes" />
+
+        {/* <!-- Open Graph / Facebook --> */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://www.qr-ai.co/generate/" />
+        <meta property="og:title" content="QR AI" />
+        <meta property="og:description" content="Create artsy QR Codes" />
+        <meta property="og:image" content="https://qrartimages.s3.us-west-1.amazonaws.com/656e2d37e3aafee4354c812b.png" />
+
+        {/* <!-- Twitter --> */}
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content="https://www.qr-ai.co/generate/" />
+        <meta property="twitter:title" content="QR AI" />
+        <meta property="twitter:description" content="Create artsy QR Codes" />
+        <meta property="twitter:image" content="https://qrartimages.s3.us-west-1.amazonaws.com/656e2d37e3aafee4354c812b.png" />
+      </Helmet>
       {/* ------------------------------ GENERATE FORM ----------------------------- */}
       {!formSubmitted ? (
         <GenerateForm
