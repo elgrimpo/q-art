@@ -70,6 +70,23 @@ function ImagePage(props) {
         <meta property="og:image" content={image.image_url} />
         <meta name="twitter:image" content={image.image_url} />
         <meta property="twitter:card" content="summary_large_image" />
+        {/* <!-- Primary Meta Tags --> */}
+        <meta name="title" content="QR AI" />
+        <meta name="description" content="Create artsy QR Codes" />
+
+        {/* <!-- Open Graph / Facebook --> */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://www.qr-ai.co/" />
+        <meta property="og:title" content="QR AI" />
+        <meta property="og:description" content="Create artsy QR Codes" />
+        <meta property="og:image" content={image.image_url} />
+
+        {/* <!-- Twitter --> */}
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content="https://www.qr-ai.co/" />
+        <meta property="twitter:title" content="QR AI" />
+        <meta property="twitter:description" content="Create artsy QR Codes" />
+        <meta property="twitter:image" content={image.image_url} />
       </Helmet>
 
       {/* ------------------------ NAVIGATION BUTTON ----------------------- */}
