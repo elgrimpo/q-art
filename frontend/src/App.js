@@ -35,7 +35,7 @@ import ImagePage from "./pages/ImageGallery/ImagePage";
 function App() {
   /* ---------------------------- DECLARE VARIABLE ---------------------------- */
 
-  // Context
+  // Contexts
   const {
     user,
     alertOpen,
