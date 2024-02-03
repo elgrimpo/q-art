@@ -1,9 +1,9 @@
 
-export default function Home() {
+export default function Generate() {
   return (
       <div>
         <p>
-          Home
+          Generate
         </p>
       </div>
 

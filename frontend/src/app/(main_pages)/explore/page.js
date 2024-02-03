@@ -1,9 +1,9 @@
 
-export default function Home() {
+export default function Explore() {
   return (
       <div>
         <p>
-          Home
+          Explore
         </p>
       </div>
 

@@ -1,9 +1,9 @@
 
-export default function Home() {
+export default function MyCodes() {
   return (
       <div>
         <p>
-          Home
+          MyCodes
         </p>
       </div>
 
