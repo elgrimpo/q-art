@@ -13,8 +13,7 @@ import {
 import Link from "next/link";
 
 import theme from "../../styles/theme";
-import NavBar from "../../components/NavBar";
-
+import NavBar from "../components/NavBar";
 
 const inter = Inter({ subsets: ["latin"] });
 

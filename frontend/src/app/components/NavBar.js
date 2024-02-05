@@ -2,7 +2,7 @@
 // Libraries imports
 import React, { useState } from "react";
 import Link from "next/link";
-import { usePathname } from 'next/navigation';
+import { usePathname } from "next/navigation";
 
 // import { Link, useLocation } from "react-router-dom";
 import {
@@ -18,9 +18,9 @@ import ImageTwoToneIcon from "@mui/icons-material/ImageTwoTone";
 import Diversity1TwoToneIcon from "@mui/icons-material/Diversity1TwoTone";
 import { useEffect } from "react";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import theme from "../styles/theme";
+import theme from "../../styles/theme";
 import QrCodeTwoToneIcon from "@mui/icons-material/QrCodeTwoTone";
-import "../app/globals.css";
+import "../globals.css";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
@@ -38,7 +38,7 @@ function BottomNavBar() {
 
   // Change selected Tab based on URL path
   useEffect(() => {
-      setTabValue(pathname);
+    setTabValue(pathname);
   }, [pathname]);
 
   const getColor = (value) => {
@@ -183,14 +183,13 @@ function BottomNavBar() {
           transform: "translate(50%, 0%)",
         }}
         direction="row"
-        
       >
         <Link href="/generate" passHref legacyBehavior>
-          <Tab label="Generate" 
-          value="/generate"
-          selected={tabValue === "/generate"}/>
-
-          
+          <Tab
+            label="Generate"
+            value="/generate"
+            selected={tabValue === "/generate"}
+          />
         </Link>
 
         <Link href="/mycodes" passHref legacyBehavior>

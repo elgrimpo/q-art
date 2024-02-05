@@ -1,5 +1,3 @@
-"use client";
-
 // Libraries imports
 import React, { useState } from "react";
 import {
@@ -14,8 +12,10 @@ import {
 } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import ReplayTwoToneIcon from "@mui/icons-material/ReplayTwoTone";
-import theme from "../../../styles/theme";
+import theme from "../../styles/mui-theme";
 import EditTwoToneIcon from "@mui/icons-material/EditTwoTone";
+import { Helmet } from "react-helmet";
+
 
 // App imports
 import { useImages, useImagesDispatch } from "../../context/AppProvider";
@@ -24,18 +24,23 @@ import { ActionTypes } from "../../context/reducers";
 import GenerateForm from "./GenerateForm";
 import SimpleDialog from "../../components/SimpleDialog";
 import { useGenerateUtils } from "../../utils/GenerateUtils";
+import { useNavigate } from "react-router-dom";
 import StyledIconButton from "../../components/StyledIconButton";
 
-export default function Generate() {
+/* -------------------------------------------------------------------------- */
+/*                               COMPONENT START                              */
+/* -------------------------------------------------------------------------- */
+
+function Generate() {
+  /* ---------------------------- DECLARE VARIABLES --------------------------- */
+
   // Context variables
   const { generatedImage, generateFormValues, loadingGeneratedImage, user } =
     useImages();
   const dispatch = useImagesDispatch();
 
   // Navigate
-  // TODO: NAVIGATE TO ACCOUNT
-
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
   // Utils functions
   const { generateImage } = useGenerateUtils();
@@ -111,8 +116,7 @@ export default function Generate() {
             description:
               "You don't have enough credits to generate this image. Please go to your account to purchase additional credits.",
             primaryActionText: "Add Credits",
-            // TODO: NAVIGATE TO ACCOUNT
-            // primaryAction: () => navigate("/account"),
+            primaryAction: () => navigate("/account"),
             secondaryActionText: "Close",
             secondaryAction: handleDialogClose,
           });
@@ -312,3 +316,5 @@ export default function Generate() {
     </div>
   );
 }
+
+export default Generate;
