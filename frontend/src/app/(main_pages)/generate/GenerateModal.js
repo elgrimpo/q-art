@@ -1,3 +1,4 @@
+"use client";
 // Libraries imports
 import { Dialog, DialogContent, Typography, Box, Grow } from "@mui/material";
 import React, { useEffect, useState } from "react";

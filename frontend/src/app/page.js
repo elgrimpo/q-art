@@ -1,11 +1,5 @@
+import { permanentRedirect } from "next/navigation";
 
 export default function Home() {
-  return (
-      <div>
-        <p>
-          Home
-        </p>
-      </div>
-
-  );
+  permanentRedirect("/generate");
 }

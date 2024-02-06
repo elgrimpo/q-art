@@ -1,3 +1,4 @@
+"use client";
 // Libraries imports
 import React, { useEffect, useState } from "react";
 import {
@@ -319,6 +320,7 @@ function GenerateForm(props) {
               <StylesCard
                 item={item}
                 index={index}
+                key={index}
                 handleClick={handleStyleClick}
               />
             ))}
@@ -334,13 +336,15 @@ function GenerateForm(props) {
           onClick={(e) => handleGenerate()}
           sx={{ mb: "2rem", position: "sticky", bottom: "0rem" }}
         >
-          <Typography variant="body1" component="div">
+          {/* TODO: Find workaround for HTML Nesting issue */}
+          Generate QR Code
+          {/* <Typography variant="body1" component="div">
             Generate QR Code ( {price}
             <IconButton size="small" color="primary">
               <DiamondTwoToneIcon />
             </IconButton>
             )
-          </Typography>
+          </Typography> */}
         </Button>
       </Stack>
 

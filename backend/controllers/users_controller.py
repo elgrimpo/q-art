@@ -9,7 +9,8 @@ from pymongo import MongoClient
 from datetime import datetime
 
 
-# App imports 
+
+# App imports
 from schemas.schemas import PaymentHistory, User
 
 # ---------------------------- INITIALIAZE CLIENT ---------------------------- #
@@ -23,23 +24,21 @@ users = db.get_collection("users")
 # ---------------------------------------------------------------------------- #
 
 
-async def get_user_info(request):
-    user_info = request.session.get("user_info")
-    
-    if not user_info:
-        return {"message": "User information not found in session"}
-    
+async def get_user_info(email):
+
     try:
-        logged_in_user = users.find_one({"_id": ObjectId(user_info.get("_id"))})    
+        logged_in_user = users.find_one({"email": email})
+        print(logged_in_user)
         if logged_in_user:
             user_instance = User(**logged_in_user)
+
             return user_instance
         else:
-            return {"message": "User not found in the database"}
-    
-    except Exception as e:
-        # Handle specific exceptions such as database connection issues, etc.
-        return {"message": f"Error retrieving user information: {str(e)}"}
+            raise HTTPException(status_code=404, detail="User not found")
+
+    except Exception:
+        # Log unexpected errors and return a generic error message
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
 # ---------------------------------------------------------------------------- #
@@ -110,19 +109,23 @@ async def increment_user_count(user_id, service_config, credits_deducted):
         print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
+
 # ---------------------------------------------------------------------------- #
 #                               Add User Payment                               #
 # ---------------------------------------------------------------------------- #
 
-def add_user_payment(user_id, transaction_amount, product_id, credit_amount, payment_intent, timestamp):
+
+def add_user_payment(
+    user_id, transaction_amount, product_id, credit_amount, payment_intent, timestamp
+):
 
     # Create a new payment history object
     payment_history_instance = PaymentHistory(
-    date_time=timestamp,
-    transaction_amount=int(transaction_amount),
-    product_id=product_id,
-    credit_amount=int(credit_amount),
-    payment_intent_id=payment_intent
+        date_time=timestamp,
+        transaction_amount=int(transaction_amount),
+        product_id=product_id,
+        credit_amount=int(credit_amount),
+        payment_intent_id=payment_intent,
     )
 
     try:
@@ -131,13 +134,12 @@ def add_user_payment(user_id, transaction_amount, product_id, credit_amount, pay
             {"_id": ObjectId(user_id)},
             {
                 "$push": {"payment_history": payment_history_instance.dict()},
-                "$inc": {"credits": int(credit_amount)}
+                "$inc": {"credits": int(credit_amount)},
             },
-            upsert=True  # Return the modified document
+            upsert=True,  # Return the modified document
         )
-    
+
     except Exception as e:
         print("error at add_user_payment")
         print(e)
         raise HTTPException(status_code=500, detail=str(e))
-

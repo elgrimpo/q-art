@@ -1,3 +1,5 @@
+'use client'
+
 //Libraries imports
 import { useTheme } from "@mui/material/styles";
 import {
@@ -70,8 +72,8 @@ function StylesCard(props) {
           >
             {item?.title}
           </Typography>
-
-          <Stack
+{/* TODO: Find workaround for HTML Nesting issue */}
+          {/* <Stack
             direction="row"
             spacing={1}
             useFlexGap
@@ -86,7 +88,7 @@ function StylesCard(props) {
                 size="small"
               />
             ))}
-          </Stack>
+          </Stack> */}
         </CardActionArea>
       </Card>
     </Grid>

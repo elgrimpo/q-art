@@ -1,21 +1,13 @@
-import { Inter } from "next/font/google";
+// Libraries
 import "../globals.css";
-import {
-  Container,
-  AppBar,
-  Toolbar,
-  Box,
-  Button,
-  Snackbar,
-  Alert,
-  IconButton,
-} from "@mui/material";
-import Link from "next/link";
+import { Container } from "@mui/material";
 
-import theme from "../../styles/theme";
+// App imports
 import NavBar from "../components/NavBar";
 
-const inter = Inter({ subsets: ["latin"] });
+/* -------------------------------------------------------------------------- */
+/*                               COMPONENT START                              */
+/* -------------------------------------------------------------------------- */
 
 export const metadata = {
   title: "QR AI",
@@ -25,32 +17,6 @@ export const metadata = {
 export default function Layout({ children }) {
   /* ---------------------------- DECLARE VARIABLE ---------------------------- */
 
-  // Context
-  // const {
-  //   user,
-  //   alertOpen,
-  //   alertSeverity,
-  //   alertMessage,
-  //   generatedImage,
-  //   userImages,
-  // } = useImages();
-
-  // Utils functions
-  // const { getUserInfo, logout, closeAlert } = useUtils();
-
-  /* -------------------------------- FUNCTIONS ------------------------------- */
-
-  // Login
-  // const handleLogin = async () => {
-  //   window.open(
-  //     `${process.env.REACT_APP_BACKEND_URL}/api/login/google`,
-  //     "_self"
-  //   );
-  // };
-  // // Check if user session exists
-  // useEffect(() => {
-  //   getUserInfo();
-  // }, [generatedImage, userImages, getUserInfo]);
 
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
@@ -62,31 +28,6 @@ export default function Layout({ children }) {
       <NavBar />
 
       {/* ------------------------------ APP BAR ----------------------------- */}
-      <AppBar sx={{ backgroundColor: "white", boxShadow: "none", zIndex: 500 }}>
-        <Container
-          maxWidth="xl"
-          sx={{
-            padding: { xs: 0, sm: 0, md: 0, lg: 0, xl: 0 },
-          }}
-        >
-          <Toolbar display="flex" className="header">
-            {/* LOGO */}
-            <img src="/logo.png" alt="Logo" />
-            <Box sx={{ flexGrow: 1 }}></Box>
-
-            {/* ACCOUNT */}
-            {/* {user._id ? ( */}
-            {/* <AccountMenu handleLogout={logout} /> */}
-            {/* ) : ( */}
-            <Button
-            // onClick={handleLogin}
-            >
-              Login
-            </Button>
-            {/* )} */}
-          </Toolbar>
-        </Container>
-      </AppBar>
 
       {/* --------------------------- APP CONTENT -------------------------- */}
 

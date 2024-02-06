@@ -1,5 +1,5 @@
 "use client";
-
+// TODO : Convert to SSR component
 // Libraries imports
 import React, { useState } from "react";
 import {
@@ -24,11 +24,12 @@ import { ActionTypes } from "../../context/reducers";
 import GenerateForm from "./GenerateForm";
 import SimpleDialog from "../../components/SimpleDialog";
 import { useGenerateUtils } from "../../utils/GenerateUtils";
+
 import StyledIconButton from "../../components/StyledIconButton";
 
 export default function Generate() {
   // Context variables
-  const { generatedImage, generateFormValues, loadingGeneratedImage, user } =
+  const { generatedImage, generateFormValues, loadingGeneratedImage } =
     useImages();
   const dispatch = useImagesDispatch();
 
@@ -39,7 +40,6 @@ export default function Generate() {
 
   // Utils functions
   const { generateImage } = useGenerateUtils();
-
   // Screen size
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -51,14 +51,6 @@ export default function Generate() {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   /* -------------------------------- FUNCTIONS ------------------------------- */
-
-  // Login
-  const handleLogin = async () => {
-    window.open(
-      `${process.env.REACT_APP_BACKEND_URL}/api/login/google`,
-      "_self"
-    );
-  };
 
   const handleDialogClose = () => {
     setDialogOpen(false);

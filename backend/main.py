@@ -142,8 +142,8 @@ async def logout_endpoint(request: Request):
 
 # GET USER INFO
 @app.get("/api/user/info")
-async def get_user_info_endpoint(request: Request):
-    return await get_user_info(request)
+async def get_user_info_endpoint(email: Optional[str] = None):
+    return await get_user_info(email)
 
 # ------------------------------ PAYMENTS ROUTES ----------------------------- #
 

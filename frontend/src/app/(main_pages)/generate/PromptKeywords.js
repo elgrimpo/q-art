@@ -1,9 +1,10 @@
+'use client'
 //Libraries imports
 import { useTheme } from "@mui/material/styles";
 import { Card, Grid, Typography, Stack, Chip } from "@mui/material";
 
 // App imports
-import { useImages, useImagesDispatch } from "../../context/AppProvider";
+
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */

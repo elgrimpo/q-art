@@ -2,8 +2,8 @@
 
 
 # old project
-/old_project
-/old_project/*
+/_old_project
+/_old_project/*
 
 # dependencies
 /node_modules

@@ -38,49 +38,6 @@ export const useUtils = () => {
     });
   };
 
-  /* -------------------------------------------------------------------------- */
-  /*                            GET USER FROM SESSION                           */
-  /* -------------------------------------------------------------------------- */
-  const getUserInfo = useCallback(() => {
-    // Update user info
-    dispatch({
-      type: ActionTypes.SET_LOADING_USER,
-      payload: true,
-    });
-
-    axios
-      .get(`${process.env.REACT_APP_BACKEND_URL}/api/user/info`, {
-        withCredentials: true,
-      })
-      .then((res) => {
-        const user = res.data;
-        if (user) {
-          /* ----------------------------- User logged in ----------------------------- */
-
-          // Update user info
-          dispatch({
-            type: ActionTypes.SET_USER,
-            payload: user,
-          });
-
-          dispatch({
-            type: ActionTypes.SET_LOADING_USER,
-            payload: false,
-          });
-        } else {
-          /* --------------------------- User not logged in --------------------------- */
-          console.log("not logged in");
-        }
-      })
-
-      /* ----------------------------- Error handling ----------------------------- */
-      .catch((err) => {
-        // Open snackbar
-        // openAlert("error", "User info could not be loaded");
-        console.log(err);
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [openAlert]);
 
   /* -------------------------------------------------------------------------- */
   /*                                   LOGOUT                                   */
@@ -140,7 +97,6 @@ export const useUtils = () => {
   }
 
   return {
-    getUserInfo,
     logout,
     calculateCredits,
     openAlert,
