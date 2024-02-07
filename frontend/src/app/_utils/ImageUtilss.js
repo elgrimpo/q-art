@@ -2,8 +2,8 @@
 import axios from "axios";
 
 // App imports
-import { ActionTypes } from "../context/reducers";
-import { useImages, useImagesDispatch } from "../context/AppProvider";
+import { ActionTypes } from "../_context/reducers";
+import { useImages, useImagesDispatch } from "../_context/AppProvider";
 import { useUtils } from "./utils";
 
 export const useImageUtils = () => {

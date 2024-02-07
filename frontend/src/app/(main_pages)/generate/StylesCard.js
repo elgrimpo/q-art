@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 //Libraries imports
 import { useTheme } from "@mui/material/styles";
@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 
 // App imports
-import { useImages } from "../../context/AppProvider";
+import { useImages } from "../../_context/AppProvider";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
@@ -72,7 +72,7 @@ function StylesCard(props) {
           >
             {item?.title}
           </Typography>
-{/* TODO: Find workaround for HTML Nesting issue */}
+          {/* TODO: Find workaround for HTML Nesting issue */}
           {/* <Stack
             direction="row"
             spacing={1}

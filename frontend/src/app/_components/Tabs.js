@@ -17,7 +17,7 @@ import ImageTwoToneIcon from "@mui/icons-material/ImageTwoTone";
 import Diversity1TwoToneIcon from "@mui/icons-material/Diversity1TwoTone";
 import { useEffect } from "react";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import theme from "../../styles/theme";
+import theme from "../_styles/theme";
 import QrCodeTwoToneIcon from "@mui/icons-material/QrCodeTwoTone";
 import "../globals.css";
 

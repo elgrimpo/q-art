@@ -3,18 +3,12 @@ import "server-only";
 // Libraries imports
 import React from "react";
 
-import {
-  AppBar,
-  Container,
-  Button,
-  Toolbar,
-  Box,
-} from "@mui/material";
+import { AppBar, Container, Button, Toolbar, Box } from "@mui/material";
 import ImageTwoToneIcon from "@mui/icons-material/ImageTwoTone";
 import Diversity1TwoToneIcon from "@mui/icons-material/Diversity1TwoTone";
 import useMediaQuery from "@mui/material/useMediaQuery";
 // App Imports
-import { getUserInfo } from "../utils/userUtils";
+import { getUserInfo } from "../_utils/userUtils";
 import "../globals.css";
 import Tabs from "./Tabs";
 import Account from "./Account";
@@ -58,4 +52,3 @@ export default async function NavBar() {
     </div>
   );
 }
-

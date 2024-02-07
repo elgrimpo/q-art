@@ -12,8 +12,8 @@ import Link from "next/link";
 import dayjs from "dayjs";
 
 //App imports
-import { getImageById } from "@/app/utils/ImagesUtils";
-import StyledIconButton from "../../components/StyledIconButton";
+import { getImageById } from "@/app/_utils/ImagesUtils";
+import StyledIconButton from "../../_components/StyledIconButton";
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
 /* -------------------------------------------------------------------------- */
@@ -37,9 +37,7 @@ async function ImagePage({ params }) {
   return (
     /* -------------------------- MODAL SCREEN -------------------------- */
 
-    <Box
-      sx={{ height: "100vh" }}
-    >
+    <Box sx={{ height: "100vh" }}>
       {/* ---------------------------- META TAGS --------------------------- */}
       {/* <Helmet>
         <meta property="og:image" content={image.image_url} />

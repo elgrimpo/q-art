@@ -1,10 +1,10 @@
-'use client'
+"use client";
 //Libraries imports
 import axios from "axios";
 
 // App imports
-import { ActionTypes } from "../context/reducers";
-import { useImages, useImagesDispatch } from "../context/AppProvider";
+import { ActionTypes } from "../_context/reducers";
+import { useImages, useImagesDispatch } from "../_context/AppProvider";
 import { useUtils } from "./utils";
 import { useStore } from "@/store";
 
@@ -29,13 +29,10 @@ export const useGenerateUtils = () => {
 
       /* -------------------------------- API Call -------------------------------- */
       axios
-        .get(
-          `http://localhost:8000/api/generate/?user_id=${user._id}`,
-          {
-            params: generateFormValues,
-            withCredentials: true,
-          }
-        )
+        .get(`http://localhost:8000/api/generate/?user_id=${user._id}`, {
+          params: generateFormValues,
+          withCredentials: true,
+        })
         .then((res) => {
           // Update Generated Image in reducer
           dispatch({

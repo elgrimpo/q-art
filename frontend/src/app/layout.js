@@ -1,10 +1,10 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@mui/material/styles";
-import theme from "../styles/theme";
-import { ContextProvider } from "./context/AppProvider";
-import { StoreInitializer } from "./components/StoreInitializer";
-import { getUserInfo } from "./utils/userUtils";
+import theme from "./_styles/theme";
+import { ContextProvider } from "./_context/AppProvider";
+import { StoreInitializer } from "./_components/StoreInitializer";
+import { getUserInfo } from "./_utils/userUtils";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,16 +16,13 @@ export const metadata = {
 export default async function RootLayout({ children }) {
   const user = await getUserInfo();
 
-
   return (
     <html lang="en">
       <body className={inter.className}>
         <ThemeProvider theme={theme}>
           <StoreInitializer user={user}>
-          <ContextProvider>
-            {children}
-            </ContextProvider>
-            </StoreInitializer>
+            <ContextProvider>{children}</ContextProvider>
+          </StoreInitializer>
         </ThemeProvider>
       </body>
     </html>

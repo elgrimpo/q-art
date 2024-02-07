@@ -3,8 +3,8 @@ import axios from "axios";
 import { useCallback } from "react";
 
 // App imports
-import { ActionTypes } from "../context/reducers";
-import { useImagesDispatch } from "../context/AppProvider";
+import { ActionTypes } from "../_context/reducers";
+import { useImagesDispatch } from "../_context/AppProvider";
 
 export const useUtils = () => {
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
@@ -37,7 +37,6 @@ export const useUtils = () => {
       type: ActionTypes.CLOSE_ALERT,
     });
   };
-
 
   /* -------------------------------------------------------------------------- */
   /*                                   LOGOUT                                   */

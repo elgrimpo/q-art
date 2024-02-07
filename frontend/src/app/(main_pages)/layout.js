@@ -3,7 +3,7 @@ import "../globals.css";
 import { Container } from "@mui/material";
 
 // App imports
-import NavBar from "../components/NavBar";
+import NavBar from "../_components/NavBar";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
@@ -16,7 +16,6 @@ export const metadata = {
 
 export default function Layout({ children }) {
   /* ---------------------------- DECLARE VARIABLE ---------------------------- */
-
 
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */

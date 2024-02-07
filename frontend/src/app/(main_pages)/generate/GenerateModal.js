@@ -4,15 +4,15 @@ import { Dialog, DialogContent, Typography, Box, Grow } from "@mui/material";
 import React, { useEffect, useState } from "react";
 // import Masonry from "@mui/lab/Masonry";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import theme from "../../../styles/theme";
+import theme from "../../_styles/theme";
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 
 // App imports
-import { useImages, useImagesDispatch } from "../../context/AppProvider";
-import StyledIconButton from "../../components/StyledIconButton";
+import { useImages, useImagesDispatch } from "../../_context/AppProvider";
+import StyledIconButton from "../../_components/StyledIconButton";
 import PromptKeywords from "./PromptKeywords";
-import { promptKeywords } from "../../utils/PromptGenerator";
-import { ActionTypes } from "../../context/reducers";
+import { promptKeywords } from "../../_utils/PromptGenerator";
+import { ActionTypes } from "../../_context/reducers";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
