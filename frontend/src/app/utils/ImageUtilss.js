@@ -26,7 +26,7 @@ export const useImageUtils = () => {
   const getImageById = (imageId) => {
     // API Call
     return axios
-      .get(`${process.env.REACT_APP_BACKEND_URL}/api/images/get/${imageId}`)
+      .get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/images/get/${imageId}`)
       .then((response) => {
         return response.data;
       })

@@ -1,6 +1,6 @@
+
 import React from "react";
 import { Tooltip, IconButton } from "@mui/material";
-import theme from "../../styles/theme";
 import CloseTwoToneIcon from "@mui/icons-material/CloseTwoTone";
 import DownloadTwoToneIcon from "@mui/icons-material/DownloadTwoTone";
 import ChevronRightTwoToneIcon from "@mui/icons-material/KeyboardArrowRightTwoTone";
@@ -11,15 +11,29 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import FavoriteTwoToneIcon from "@mui/icons-material/FavoriteTwoTone";
 import ShareTwoToneIcon from "@mui/icons-material/ShareTwoTone";
 
+//app imports
+
+
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
 /* -------------------------------------------------------------------------- */
 
 function StyledIconButton(props) {
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
+const { variant, color, type, handleClick, tooltip, disabled } = props;
 
-  const { variant, color, type, handleClick, tooltip, disabled } = props;
-
+const palette = {
+  primary: {
+    main: "#70E195",
+    light: "#c5f2d2",
+    dark: "#00ac4f",
+  },
+  secondary: {
+    main: "#333333",
+    light: "#8b8b8b",
+    dark: "#000000",
+  },
+};
   /* -------------------------------- FUNCTIONS ------------------------------- */
 
   const getIcon = () => {
@@ -51,9 +65,9 @@ function StyledIconButton(props) {
       return null;
     } else if (variant === "contained") {
       if (color === "primary") {
-        return theme.palette.primary.main;
+        return palette.primary.main;
       } else if (color === "secondary") {
-        return theme.palette.secondary.main;
+        return palette.secondary.main;
       }
     } else {
       return null;
@@ -65,9 +79,9 @@ function StyledIconButton(props) {
       return null;
     } else if (variant === "outlined") {
       if (color === "primary") {
-        return theme.palette.primary.dark;
+        return palette.primary.dark;
       } else if (color === "secondary") {
-        return theme.palette.secondary.main;
+        return palette.secondary.main;
       }
     } else {
       return null;
@@ -77,15 +91,15 @@ function StyledIconButton(props) {
   const getIconColor = () => {
     if (variant === "outlined") {
       if (color === "primary") {
-        return theme.palette.primary.dark;
+        return palette.primary.dark;
       } else if (color === "secondary") {
-        return theme.palette.secondary.main;
+        return palette.secondary.main;
       }
     } else if (variant === "contained") {
       if (color === "primary") {
-        return theme.palette.secondary.main;
+        return palette.secondary.main;
       } else if (color === "secondary") {
-        return theme.palette.primary.main;
+        return palette.primary.main;
       }
     } else {
       return null;
@@ -109,7 +123,8 @@ function StyledIconButton(props) {
           },
         }}
         disabled={disabled}
-        onClick={(e) => handleClick(e)}
+        // TODO: Deal with interactivity
+        // onClick={(e) => handleClick(e)}
       >
         {getIcon()}
       </IconButton>
