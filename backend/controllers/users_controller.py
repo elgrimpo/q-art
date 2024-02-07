@@ -28,7 +28,7 @@ async def get_user_info(email):
 
     try:
         logged_in_user = users.find_one({"email": email})
-        print(logged_in_user)
+        # print(logged_in_user)
         if logged_in_user:
             user_instance = User(**logged_in_user)
 

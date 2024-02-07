@@ -1,8 +1,10 @@
-import "server-only";
+'use server'
 import { cookies } from "next/headers";
 import { getServerSession } from "next-auth";
+import { useStore } from "@/store";
 
 export const getUserInfo = async () => {
+  'use server'
   try {
     // Retrieve the user session
     const session = await getServerSession();
@@ -24,6 +26,8 @@ export const getUserInfo = async () => {
     // Handle response from the API
     if (response.ok) {
       const user = await response.json();
+      useStore.setState({ user: user });
+
       // console.log("User found:", user);
       return user || {}; // Return user object if found, otherwise return an empty object
     } else {

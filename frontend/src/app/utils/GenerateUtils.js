@@ -1,3 +1,4 @@
+'use client'
 //Libraries imports
 import axios from "axios";
 
@@ -5,10 +6,12 @@ import axios from "axios";
 import { ActionTypes } from "../context/reducers";
 import { useImages, useImagesDispatch } from "../context/AppProvider";
 import { useUtils } from "./utils";
+import { useStore } from "@/store";
 
 export const useGenerateUtils = () => {
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
-  const { user, generateFormValues } = useImages();
+  const { generateFormValues } = useImages();
+  const { user } = useStore.getState();
   const dispatch = useImagesDispatch();
   const { openAlert } = useUtils();
 
@@ -27,7 +30,7 @@ export const useGenerateUtils = () => {
       /* -------------------------------- API Call -------------------------------- */
       axios
         .get(
-          `${process.env.REACT_APP_BACKEND_URL}/api/generate/?user_id=${user._id}`,
+          `http://localhost:8000/api/generate/?user_id=${user._id}`,
           {
             params: generateFormValues,
             withCredentials: true,

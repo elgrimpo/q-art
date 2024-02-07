@@ -4,7 +4,7 @@
 import React from "react";
 import Link from "next/link";
 import { Button } from "@mui/material";
-
+import { useStore } from "@/store";
 // App import
 
 /* -------------------------------------------------------------------------- */
@@ -15,7 +15,7 @@ export default function Account(props) {
   /* ---------------------------- DECLARE VARIABLE ---------------------------- */
 
   // User
-  const { user } = props;
+  const user = useStore.getState().user;
 
 
   /* -------------------------------------------------------------------------- */

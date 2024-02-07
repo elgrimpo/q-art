@@ -24,6 +24,7 @@ import { ActionTypes } from "../../context/reducers";
 import GenerateForm from "./GenerateForm";
 import SimpleDialog from "../../components/SimpleDialog";
 import { useGenerateUtils } from "../../utils/GenerateUtils";
+import { useStore } from "@/store";
 
 import StyledIconButton from "../../components/StyledIconButton";
 
@@ -37,7 +38,7 @@ export default function Generate() {
   // TODO: NAVIGATE TO ACCOUNT
 
   // const navigate = useNavigate();
-
+  const user = useStore.getState().user;
   // Utils functions
   const { generateImage } = useGenerateUtils();
   // Screen size
