@@ -11,7 +11,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import { getUserInfo } from "../_utils/userUtils";
 import "../globals.css";
 import Tabs from "./Tabs";
-import Account from "./Account";
+import Account from "./AccountMenu";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */

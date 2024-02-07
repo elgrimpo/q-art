@@ -26,8 +26,8 @@ def create_checkout_session(stripeId, credit_amount, user_id):
                 },
             ],
             mode="payment",
-            success_url=frontend_url + "/account" + "?success=true",
-            cancel_url=frontend_url + "/account" + "?canceled=true",
+            success_url=frontend_url + "/profile" + "?success=true",
+            cancel_url=frontend_url + "/profile" + "?canceled=true",
             client_reference_id=user_id,
             metadata={
                 "product_id": stripeId,

@@ -5,6 +5,7 @@ import theme from "./_styles/theme";
 import { ContextProvider } from "./_context/AppProvider";
 import { StoreInitializer } from "./_components/StoreInitializer";
 import { getUserInfo } from "./_utils/userUtils";
+import { Toaster } from "./_components/Toaster";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,7 +22,10 @@ export default async function RootLayout({ children }) {
       <body className={inter.className}>
         <ThemeProvider theme={theme}>
           <StoreInitializer user={user}>
-            <ContextProvider>{children}</ContextProvider>
+            <ContextProvider>
+              <Toaster />
+              {children}
+            </ContextProvider>
           </StoreInitializer>
         </ThemeProvider>
       </body>
