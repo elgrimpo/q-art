@@ -2,8 +2,8 @@
 import axios from "axios";
 
 // App imports
-import { ActionTypes } from "../_context/reducers";
-import { useImages, useImagesDispatch } from "../_context/AppProvider";
+import { ActionTypes } from "@/_context/reducers";
+import { useImages, useImagesDispatch } from "@/_context/AppProvider";
 import { useUtils } from "./utils";
 
 export const useImageUtils = () => {
@@ -18,126 +18,8 @@ export const useImageUtils = () => {
   } = useImages();
   const dispatch = useImagesDispatch();
   const { openAlert } = useUtils();
+                               
 
-  /* -------------------------------------------------------------------------- */
-  /*                               GET IMAGE BY ID                              */
-  /* -------------------------------------------------------------------------- */
-
-  const getImageById = (imageId) => {
-    // API Call
-    return axios
-      .get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/images/get/${imageId}`)
-      .then((response) => {
-        return response.data;
-      })
-      .catch((error) => {
-        // Handle error
-        console.error(error);
-
-        // Open alert
-        openAlert("error", "Error", "Error loading image");
-
-        return error;
-      });
-  };
-  /* -------------------------------------------------------------------------- */
-  /*                               GET IMAGE BY ID                              */
-
-  /* -------------------------------------------------------------------------- */
-  /*                               GET MORE IMAGES                              */
-  /* -------------------------------------------------------------------------- */
-
-  const getMoreImages = (pathname, params) => {
-    /* ----------------- Check if userImages vs community images ---------------- */
-    const loadingActionType =
-      pathname === "/mycodes"
-        ? ActionTypes.SET_LOADING_USER_IMAGES
-        : ActionTypes.SET_LOADING_COMMUNITY_IMAGES;
-    const imagesActionType =
-      pathname === "/mycodes"
-        ? ActionTypes.SET_USER_IMAGES
-        : ActionTypes.SET_COMMUNITY_IMAGES;
-    const pageActionType =
-      pathname === "/mycodes"
-        ? ActionTypes.SET_USER_IMAGES_PAGE
-        : ActionTypes.SET_COMMUNITY_IMAGES_PAGE;
-    const page =
-      pathname === "/mycodes" ? userImagesPage : communityImagesPage;
-    const images = pathname === "/mycodes" ? userImages : communityImages;
-
-    /* -------------------------------- API Call -------------------------------- */
-
-    // Set state to "loading images"
-    dispatch({ type: loadingActionType, payload: true });
-
-    // API Call
-    axios
-      .get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/images/get`, {
-        params: params,
-      })
-      .then((res) => {
-        /* ------------------------- No images are returned ------------------------- */
-        if (res.data.length === 0) {
-          // Set state to NOT loading
-          dispatch({
-            type: loadingActionType,
-            payload: false,
-          });
-
-          // Set page to -1
-          // (will prevent from GetMoreImages to be retriggered)
-          dispatch({
-            type: pageActionType,
-            payload: -1,
-          });
-
-          // No images at the initial Query:
-          if (params.page === 1) {
-            // Set userImages / communityImage to empty
-            dispatch({
-              type: imagesActionType,
-              payload: [],
-            });
-          }
-        } else {
-          /* --------------------------- Images are returned -------------------------- */
-
-          dispatch({
-            type: imagesActionType,
-            payload:
-              params.page === 1 ? [...res.data] : [...images, ...res.data], // Remove loaded data for initial (re)Query
-          });
-          dispatch({
-            type: loadingActionType,
-            payload: false,
-          });
-          dispatch({
-            type: pageActionType,
-            payload: params.page === 1 ? 1 : page + 1, // Handle initial query
-          });
-        }
-      })
-
-      /* ----------------------------- Error handling ----------------------------- */
-      .catch((err) => {
-        // Set state to NOT loading
-        dispatch({
-          type: loadingActionType,
-          payload: false,
-        });
-
-        // Set page to -1
-        // (will prevent from GetMoreImages to be retriggered)
-        dispatch({
-          type: pageActionType,
-          payload: -1,
-        });
-
-        // Open Snackbar
-        openAlert("error", "Images could not be loaded");
-        console.log(err);
-      });
-  };
 
   /* -------------------------------------------------------------------------- */
   /*                                DELETE IMAGE                                */
@@ -292,8 +174,6 @@ export const useImageUtils = () => {
 
   /* ---------------------------- FUNCTION RETURNS ---------------------------- */
   return {
-    getImageById,
-    getMoreImages,
     downloadImage,
     deleteImage,
     upscaleDownload,

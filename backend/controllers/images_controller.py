@@ -85,7 +85,6 @@ async def insert_image(doc, image):
             # Handle database update error
             raise HTTPException(status_code=500, detail="Database update failed")
 
-
         return ImageDoc(**inserted_image)
 
     except HTTPException as http_exception:
@@ -130,6 +129,7 @@ async def update_image(document_id, update_data):
 #                                  GET IMAGE BY ID                             #
 # ---------------------------------------------------------------------------- #
 
+
 def get_image(id):
     try:
         object_id = ObjectId(id)
@@ -139,7 +139,7 @@ def get_image(id):
 
         if not image:
             raise HTTPException(status_code=404, detail=f"Image with id {id} not found")
-        
+
         # Convert ObjectIds to strings
         image["_id"] = str(image["_id"])
 
@@ -151,7 +151,7 @@ def get_image(id):
 
 # ---------------------------------------------------------------------------- #
 #                                  GET IMAGES                                  #
-# ---------------------------------------------------------------------------- #
+# ---------------------------------------------------------------------------- 
 
 def get_images(
     page: int = Query(1, alias="page"),
@@ -165,7 +165,6 @@ def get_images(
 ):
     # -------------------------- CREATE QUERY PARAMETERS ------------------------- #
     try:
-        
         # Create query
         query = createImagesFilterQuery(
             likes, time_period, image_style, user_id, exclude_user_id
@@ -180,10 +179,8 @@ def get_images(
         elif sort_by == "Most Liked":
             sort_statement = [("likes", DESCENDING), ("created_at", DESCENDING)]
 
-
         # Calculate the offset based on the current page
         offset = (page - 1) * images_per_page
-
 
         # ------------------------------ QUERY DATABASE ------------------------------ #
         images_result = (
@@ -201,6 +198,9 @@ def get_images(
         for image in images_list:
             image["_id"] = str(image["_id"])
 
+            # TODO: Remove image_b64 from DB
+            if "image_b64" in image:
+                del image["image_b64"]
         return images_list
 
     except Exception as e:
@@ -247,13 +247,14 @@ def delete_image(id: str):
         # Log unexpected errors and return a generic error message
         print(f"Error during image deletion: {str(unexpected_error)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
-    
+
     # ---------------------------------------------------------------------------- #
     #                               TOOGLE LIKE IMAGE                              #
     # ---------------------------------------------------------------------------- #
 
+
 async def toggle_like(id, user_id):
-    
+
     # ----------------------------- QUERY IMAGE IN DB ---------------------------- #
     try:
         image = images.find_one({"_id": ObjectId(id)})
@@ -261,7 +262,7 @@ async def toggle_like(id, user_id):
         if not image:
             return {"message": "Image not found"}, 404
 
-    # -------------------------- UPDATE IMAGE DOC IN DB -------------------------- #
+        # -------------------------- UPDATE IMAGE DOC IN DB -------------------------- #
 
         # Check if user_id is in "likes" array
         likes = image.get("likes", [])
@@ -272,8 +273,8 @@ async def toggle_like(id, user_id):
 
         # Update db with updated "likes" array
         images.update_one({"_id": ObjectId(id)}, {"$set": {"likes": likes}})
-        
+
         return {"message": "Like toggled successfully"}
-    
+
     except Exception as e:
         return {"message": f"Error toggling like: {e}"}, 500

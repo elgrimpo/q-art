@@ -2,50 +2,36 @@
 // Libraries imports
 import { useState, useEffect, useRef } from "react";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import { usePathname } from 'next/navigation'
+import { usePathname } from "next/navigation";
+import { useInView } from "react-intersection-observer";
 
 import { Grid, Box, Typography, Button } from "@mui/material";
 
 // App imports
-import { useImages } from "@/app/_context/AppProvider";
+import { useImages } from "@/_context/AppProvider";
 import ImageCard from "./ImagesCard";
 import ImageModal from "./ImageModal";
-import { useImageUtils } from "@/app/_utils/ImageUtilss";
 import FilterPanelDesktop from "./FilterPanelDesktop";
 import FilterPanelMobile from "./FilterPanelMobile";
-import { styles } from "@/app/_utils/ImageStyles";
-import theme from "@/app/_styles/theme";
+import { styles } from "@/_utils/ImageStyles";
+import theme from "@/_styles/theme";
 import { useStore } from "@/store";
+import { getImages } from "@/_utils/ImagesUtils";
 
 export default function MyCodes() {
   /* --------------------------- DECLARE VARIABLES ---------------------------- */
-  
-  const pathname = usePathname()
 
-  // Props
-  //TODO: fix loadingUser
-  const loadingUser = false
-  // Context Variables
-  const {
-    userImages,
-    // loadingUser,
-    loadingUserImages,
-    userImagesPage,
-    communityImages,
-    loadingCommunityImages,
-    communityImagesPage,
-  } = useImages();
+  const pathname = usePathname();
 
-
+// User
   const user = useStore.getState().user;
-  const { getMoreImages } = useImageUtils();
-
   // Screen size
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const [images, setImages] = useState([]);
+  const [page, setPage] = useState(0);
 
-  // Ref for infinite scrolling
-  const loadMoreRef = useRef(null);
-
+  // Intersection Observer
+  const { ref, inView } = useInView({});
   // Sort & Filter Options
   const filters = [
     {
@@ -72,21 +58,14 @@ export default function MyCodes() {
 
   // Selected Filters
   const [selectedFilters, setSelectedFilters] = useState({
-    likes: null,
-    time_period: null,
-    image_style: null,
+    likes: undefined,
+    time_period: undefined,
+    image_style: undefined,
     sort: "Newest",
   });
 
   // Upscaling (loading)
   const [upscaling, setUpscaling] = useState([]);
-
-  // Set userImages vs communityImages
-  const page =
-    pathname === "/mycodes" ? userImagesPage : communityImagesPage;
-  const images = pathname === "/mycodes" ? userImages : communityImages;
-  const loading =
-    pathname === "/mycodes" ? loadingUserImages : loadingCommunityImages;
 
   //Image Details Modal
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
@@ -94,66 +73,38 @@ export default function MyCodes() {
 
   /* -------------------------------- FUNCTIONS ------------------------------- */
 
-  // Apply Filter & Sort and load Images
-  const applyFilters = async (newSelectedFilters) => {
-    const params = {
-      page: 1,
-      user_id: pathname === "/mycodes" ? user._id : null,
-      exclude_user_id: pathname === "/mycodes" ? null : user._id,
-      likes: newSelectedFilters.likes,
-      time_period: newSelectedFilters.time_period,
-      image_style: newSelectedFilters.image_style,
-      sort_by: newSelectedFilters.sort,
-    };
 
-    getMoreImages(pathname, params);
+  const loadMoreImages = async (params) => {
+    const newImages = await getImages(params);
+    setImages([...images, ...newImages]);
+    if (newImages.length < 12) {
+      setPage(-1);
+    } else {
+      setPage(page + 1);
+      
+    }
+  };
+
+  // Apply Filter & Sort and load Images
+  const applyFilters = () => {
+    setPage(0);
+    setImages([]);
   };
 
   // Infinite scrolling and load Image
   useEffect(() => {
-    console.log("useEffect");
-    console.log(loadingUser)
-    if (!loadingUser) {
-      console.log("!loadingUser");
-      const options = {
-        root: null,
-        rootMargin: "5px",
-        threshold: 1,
+    if (inView) {
+      const params = {
+        page: page + 1,
+        user_id: pathname === "/mycodes" ? user._id : undefined,
+        exclude_user_id: pathname === "/mycodes" ? undefined : user._id,
+        likes: selectedFilters.likes,
+        time_period: selectedFilters.time_period,
+        image_style: selectedFilters.image_style,
       };
-
-      const currentLoadMoreRef = loadMoreRef.current;
-
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            console.log("isIntersecting");
-            const params = {
-              page: page + 1,
-              user_id: pathname === '/mycodes' ? user._id : null,
-              exclude_user_id: pathname === '/mycodes' ? null : user._id,
-              likes: selectedFilters.likes,
-              time_period: selectedFilters.time_period,
-              image_style: selectedFilters.image_style,
-            };
-            getMoreImages(pathname, params);
-          }
-        });
-      }, options);
-
-      if (currentLoadMoreRef) {
-        observer.observe(currentLoadMoreRef);
-      }
-
-      return () => {
-        if (currentLoadMoreRef) {
-          console.log("return");
-          observer.unobserve(currentLoadMoreRef);
-        }
-      };
-
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+      loadMoreImages(params);
     }
-  }, [images, loading, loadingUser, user]);
+  }, [inView]);
 
   // Images Details Modal
   const handleModalClose = (event) => {
@@ -178,16 +129,11 @@ export default function MyCodes() {
     );
   };
 
-  console.log(user._id);
-  console.log(pathname);
-  console.log(images.length);
-  console.log(page);
-
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
   /* -------------------------------------------------------------------------- */
 
-  return !user._id && pathname === '/mycodes' ? (
+  return !user._id && pathname === "/mycodes" ? (
     /* --------------------------- USER NOT LOGGED IN --------------------------- */
     <Box
       sx={{
@@ -214,7 +160,7 @@ export default function MyCodes() {
         Login
       </Button>
     </Box>
-  ) : images.length === 0 && page === -1 && pathname === '/mycodes' ? (
+  ) : images.length === 0 && page === -1 && pathname === "/mycodes" ? (
     /* --------------------------- NO USER IMAGES --------------------------- */
     <Box
       sx={{
@@ -275,26 +221,23 @@ export default function MyCodes() {
           ))}
       </Grid>
 
-      {/* Trigger for loading more images */}
-      {!loading && page >= 0 && (
-        <div ref={loadMoreRef} style={{ height: "10px" }}></div>
-      )}
-
       {/* --------------------------- SKELETON CARDS -------------------------- */}
-      <Grid
-        container
-        direction="row"
-        justifyContent="center"
-        alignItems="stretch"
-        columns={{ xs: 1, sm: 2, md: 2, lg: 3, xl: 4 }}
-        spacing={{ xs: 1, sm: 2, md: 2, lg: 3, xl: 3 }}
-        sx={{ mb: "1.5rem" }}
-      >
-        {loading > 0 &&
-          Array.from({ length: 12 }, (_, index) => index).map((_, index) => (
+      {page >= 0 && (
+        <Grid
+          ref={ref}
+          container
+          direction="row"
+          justifyContent="center"
+          alignItems="stretch"
+          columns={{ xs: 1, sm: 2, md: 2, lg: 3, xl: 4 }}
+          spacing={{ xs: 1, sm: 2, md: 2, lg: 3, xl: 3 }}
+          sx={{ mb: "1.5rem" }}
+        >
+          {Array.from({ length: 12 }, (_, index) => index).map((_, index) => (
             <ImageCard item={_} variant="skeleton" index={index} key={index} />
           ))}
-      </Grid>
+        </Grid>
+      )}
 
       {/* ------------------------ IMAGE DETAILS MODAL ----------------------- */}
       {images != [] && (
