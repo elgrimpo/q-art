@@ -7,7 +7,7 @@ import axios from "axios";
 
 // App imports
 import theme from "@/app/_styles/theme";
-import { useUtils } from "@/app/_utils/utils";
+import { useStore } from "@/store";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
@@ -16,9 +16,9 @@ import { useUtils } from "@/app/_utils/utils";
 export default function PurchaseCard(props) {
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
 
-  const { purchaseItem, user } = props;
+  const { purchaseItem } = props;
 
-  const { openAlert } = useUtils();
+  const {user, openAlert} = useStore()
 
 
   const handleCheckout = (item) => {
@@ -93,7 +93,6 @@ export default function PurchaseCard(props) {
         >
           {`${purchaseItem.price} USD`}
         </Button>
-        {/* </CardActionArea> */}
       </Card>
     </Grid>
   );

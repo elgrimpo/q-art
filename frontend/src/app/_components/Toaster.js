@@ -5,9 +5,7 @@ import { Snackbar, Alert, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
 // App imports
-import { useImages } from "@/app/_context/AppProvider";
-import { useUtils } from "@/app/_utils/utils";
-
+import { useStore } from "@/store";
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
 /* -------------------------------------------------------------------------- */
@@ -16,20 +14,17 @@ export const Toaster = () => {
   /* ---------------------------- DECLARE VARIABLE ---------------------------- */
 
   // Contexts
-  const { alertOpen, alertSeverity, alertMessage } = useImages();
-
-  // Utils functions
-  const { closeAlert } = useUtils();
+  const {alert, closeAlert} = useStore()
 
   return (
     <Snackbar
-      open={alertOpen}
+      open={alert.open}
       anchorOrigin={{ vertical: "top", horizontal: "right" }}
       autoHideDuration={6000}
       onClose={closeAlert}
     >
       <Alert
-        severity={alertSeverity}
+        severity={alert.severity}
         sx={{ width: "100%" }}
         variant="filled"
         action={
@@ -43,7 +38,7 @@ export const Toaster = () => {
           </IconButton>
         }
       >
-        {alertMessage}
+        {alert.message}
       </Alert>
     </Snackbar>
   );
