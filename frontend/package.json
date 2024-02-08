@@ -20,6 +20,8 @@
     "react": "^18",
     "react-dom": "^18",
     "react-responsive-masonry": "^2.1.7",
+    "react-share": "^5.0.3",
+    "react-swipeable": "^7.0.1",
     "server-only": "^0.0.1",
     "zustand": "^4.5.0"
   },

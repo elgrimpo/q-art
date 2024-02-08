@@ -72,7 +72,7 @@ export const useImageUtils = () => {
 
     // API Call
     axios
-      .get(`${process.env.REACT_APP_BACKEND_URL}/api/images/get`, {
+      .get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/images/get`, {
         params: params,
       })
       .then((res) => {
@@ -145,7 +145,7 @@ export const useImageUtils = () => {
 
   const deleteImage = (id, index) => {
     axios
-      .delete(`${process.env.REACT_APP_BACKEND_URL}/api/images/delete/${id}`)
+      .delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/images/delete/${id}`)
       .then(() => {
         if (index > -1) {
           // Remove image from array
@@ -197,7 +197,7 @@ export const useImageUtils = () => {
     setUpscaling([...upscaling, image._id]);
     /* -------------------------------- API Call -------------------------------- */
     axios
-      .get(`${process.env.REACT_APP_BACKEND_URL}/api/upscale/${image._id}`, {
+      .get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/upscale/${image._id}`, {
         params: { user_id: user._id, resolution: resolution },
         withCredentials: true,
       })
@@ -245,7 +245,7 @@ export const useImageUtils = () => {
 
     /* -------------------------------- API CALL -------------------------------- */
     axios.put(
-      `${process.env.REACT_APP_BACKEND_URL}/api/images/like/${image._id}`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/images/like/${image._id}`,
       null,
       {
         params: { user_id: userId },

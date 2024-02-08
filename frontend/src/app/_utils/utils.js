@@ -44,7 +44,7 @@ export const useUtils = () => {
 
   const logout = async () => {
     axios
-      .get(`${process.env.REACT_APP_BACKEND_URL}/api/logout`, {
+      .get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/logout`, {
         withCredentials: true,
       })
       .then(window.location.reload())
