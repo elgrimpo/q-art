@@ -22,11 +22,11 @@ import { useImages, useImagesDispatch } from "../../_context/AppProvider";
 import { ActionTypes } from "../../_context/reducers";
 
 import GenerateForm from "./GenerateForm";
-import SimpleDialog from "../../_components/SimpleDialog";
+import SimpleDialog from "../../../_components/SimpleDialog";
 import { useGenerateUtils } from "../../_utils/GenerateUtils";
 import { useStore } from "@/store";
 
-import StyledIconButton from "../../_components/StyledIconButton";
+import StyledIconButton from "../../../_components/StyledIconButton";
 
 export default function Generate() {
   // Context variables

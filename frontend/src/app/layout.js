@@ -3,9 +3,9 @@ import "./globals.css";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "./_styles/theme";
 import { ContextProvider } from "./_context/AppProvider";
-import { StoreInitializer } from "./_components/StoreInitializer";
+import { StoreInitializer } from "../_components/StoreInitializer";
 import { getUserInfo } from "./_utils/userUtils";
-import { Toaster } from "./_components/Toaster";
+import { Toaster } from "../_components/Toaster";
 
 const inter = Inter({ subsets: ["latin"] });
 

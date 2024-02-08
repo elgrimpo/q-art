@@ -3,7 +3,7 @@ import "../globals.css";
 import { Container } from "@mui/material";
 
 // App imports
-import NavBar from "../_components/NavBar";
+import NavBar from "./NavBar";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
@@ -22,13 +22,8 @@ export default function Layout({ children }) {
   /* -------------------------------------------------------------------------- */
   return (
     <div>
-      {/* ------------------------------- NAVIGATION ------------------------------- */}
 
       <NavBar />
-
-      {/* ------------------------------ APP BAR ----------------------------- */}
-
-      {/* --------------------------- APP CONTENT -------------------------- */}
 
       <div className="body">
         <Container
@@ -37,33 +32,7 @@ export default function Layout({ children }) {
         >
           {children}
         </Container>
-      </div>
-
-      {/* ---------------------------- SNACKBAR -------------------------- */}
-      {/* <Snackbar
-          open={alertOpen}
-          anchorOrigin={{ vertical: "top", horizontal: "right" }}
-          autoHideDuration={6000}
-          onClose={closeAlert}
-        >
-          <Alert
-            severity={alertSeverity}
-            sx={{ width: "100%" }}
-            variant="filled"
-            action={
-              <IconButton
-                aria-label="close"
-                color="inherit"
-                size="small"
-                onClick={closeAlert}
-              >
-                <CloseIcon fontSize="inherit" />
-              </IconButton>
-            }
-          >
-            {alertMessage}
-          </Alert>
-        </Snackbar> */}
+      </div>      
     </div>
   );
 }

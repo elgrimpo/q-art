@@ -1,5 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    async rewrites() {
+        return [
+          {
+            source: '/explore',
+            destination: '/mycodes',
+          },
+        ]}
     // rewrites: async () => {
     //     return [
     //       {

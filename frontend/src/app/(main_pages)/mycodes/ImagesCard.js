@@ -11,7 +11,7 @@ import SkeletonCard from "./SkeletonCard.js";
 import theme from "@/app/_styles/theme.js";
 import { useImageUtils } from "@/app/_utils/ImageUtilss.js";
 import { useGenerateUtils } from "@/app/_utils/GenerateUtils.js";
-import StyledIconButton from "@/app/_components/StyledIconButton.js";
+import StyledIconButton from "@/_components/StyledIconButton.js";
 import { useImages } from "@/app/_context/AppProvider.js";
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
@@ -70,7 +70,7 @@ function ImageCard(props) {
       >
         {/* Skeleton (if loading) */}
         {variant === "skeleton" || upscaling.includes(item?._id) ? (
-          <SkeletonCard index={index} key={index}/>
+          <SkeletonCard index={index} key={index} />
         ) : (
           /* ------------------------------ IMAGE ------------------------------ */
           <div>
@@ -92,8 +92,6 @@ function ImageCard(props) {
               sx={{ mt: "1rem" }}
               key={index + "_3"}
             >
-
-              
               {/* LIKE */}
 
               {user._id && (

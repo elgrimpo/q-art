@@ -2,6 +2,7 @@
 // Libraries imports
 import { useState, useEffect, useRef } from "react";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { usePathname } from 'next/navigation'
 
 import { Grid, Box, Typography, Button } from "@mui/material";
 
@@ -18,10 +19,10 @@ import { useStore } from "@/store";
 
 export default function MyCodes() {
   /* --------------------------- DECLARE VARIABLES ---------------------------- */
+  
+  const pathname = usePathname()
 
   // Props
-  //TODO: make dynamic
-  const imageType = "userImages";
   //TODO: fix loadingUser
   const loadingUser = false
   // Context Variables
@@ -82,10 +83,10 @@ export default function MyCodes() {
 
   // Set userImages vs communityImages
   const page =
-    imageType === "userImages" ? userImagesPage : communityImagesPage;
-  const images = imageType === "userImages" ? userImages : communityImages;
+    pathname === "/mycodes" ? userImagesPage : communityImagesPage;
+  const images = pathname === "/mycodes" ? userImages : communityImages;
   const loading =
-    imageType === "userImages" ? loadingUserImages : loadingCommunityImages;
+    pathname === "/mycodes" ? loadingUserImages : loadingCommunityImages;
 
   //Image Details Modal
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
@@ -97,15 +98,15 @@ export default function MyCodes() {
   const applyFilters = async (newSelectedFilters) => {
     const params = {
       page: 1,
-      user_id: imageType === "userImages" ? user._id : null,
-      exclude_user_id: imageType === "userImages" ? null : user._id,
+      user_id: pathname === "/mycodes" ? user._id : null,
+      exclude_user_id: pathname === "/mycodes" ? null : user._id,
       likes: newSelectedFilters.likes,
       time_period: newSelectedFilters.time_period,
       image_style: newSelectedFilters.image_style,
       sort_by: newSelectedFilters.sort,
     };
 
-    getMoreImages(imageType, params);
+    getMoreImages(pathname, params);
   };
 
   // Infinite scrolling and load Image
@@ -128,13 +129,13 @@ export default function MyCodes() {
             console.log("isIntersecting");
             const params = {
               page: page + 1,
-              user_id: imageType === "userImages" ? user._id : null,
-              exclude_user_id: imageType === "userImages" ? null : user._id,
+              user_id: pathname === '/mycodes' ? user._id : null,
+              exclude_user_id: pathname === '/mycodes' ? null : user._id,
               likes: selectedFilters.likes,
               time_period: selectedFilters.time_period,
               image_style: selectedFilters.image_style,
             };
-            getMoreImages(imageType, params);
+            getMoreImages(pathname, params);
           }
         });
       }, options);
@@ -178,7 +179,7 @@ export default function MyCodes() {
   };
 
   console.log(user._id);
-  console.log(imageType);
+  console.log(pathname);
   console.log(images.length);
   console.log(page);
 
@@ -186,7 +187,7 @@ export default function MyCodes() {
   /*                              COMPONENT RENDER                              */
   /* -------------------------------------------------------------------------- */
 
-  return !user._id && imageType === "userImages" ? (
+  return !user._id && pathname === '/mycodes' ? (
     /* --------------------------- USER NOT LOGGED IN --------------------------- */
     <Box
       sx={{
@@ -213,7 +214,7 @@ export default function MyCodes() {
         Login
       </Button>
     </Box>
-  ) : images.length === 0 && page === -1 && imageType === "userImages" ? (
+  ) : images.length === 0 && page === -1 && pathname === '/mycodes' ? (
     /* --------------------------- NO USER IMAGES --------------------------- */
     <Box
       sx={{
@@ -268,7 +269,7 @@ export default function MyCodes() {
               variant="image"
               onClick={() => handleModalOpen(index)}
               // setTabValue={setTabValue}
-              imageType={imageType}
+              pathname={pathname}
               upscaling={upscaling}
             />
           ))}
@@ -303,7 +304,7 @@ export default function MyCodes() {
           handleClose={handleModalClose}
           handlePrevious={showPreviousImage}
           handleNext={showNextImage}
-          imageType={imageType}
+          pathname={pathname}
           upscaling={upscaling}
           setUpscaling={setUpscaling}
         />

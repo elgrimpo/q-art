@@ -13,7 +13,7 @@ import dayjs from "dayjs";
 
 //App imports
 import { getImageById } from "@/app/_utils/ImagesUtils";
-import StyledIconButton from "../../_components/StyledIconButton";
+import StyledIconButton from "../../../_components/StyledIconButton";
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
 /* -------------------------------------------------------------------------- */

@@ -1,4 +1,3 @@
-
 // Libraries imports
 import React from "react";
 import {
@@ -14,7 +13,7 @@ import Link from "next/link";
 
 //App imports
 import PurchaseCard from "./PurchaseCard";
-import StyledIconButton from "@/app/_components/StyledIconButton";
+import StyledIconButton from "@/_components/StyledIconButton";
 import { getUserInfo } from "../_utils/userUtils";
 import { palette } from "../_styles/palette";
 
@@ -23,7 +22,6 @@ import { palette } from "../_styles/palette";
 /* -------------------------------------------------------------------------- */
 
 export default async function Profile() {
-  
   const user = await getUserInfo();
 
   const purchaseItems = [
@@ -47,17 +45,13 @@ export default async function Profile() {
     },
   ];
 
-
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
   /* -------------------------------------------------------------------------- */
   return (
     <Box>
       {/* --------------------------------- APP BAR -------------------------------- */}
-      <Toolbar
-        display="flex"
-        className="header"
-      >
+      <Toolbar display="flex" className="header">
         {/* LOGO */}
         <img src="/logo.png" alt="Logo" />
 
@@ -72,11 +66,11 @@ export default async function Profile() {
           }}
         >
           <Link href="/generate">
-          <StyledIconButton
-            variant="contained"
-            color="secondary"
-            type="close"
-          />
+            <StyledIconButton
+              variant="contained"
+              color="secondary"
+              type="close"
+            />
           </Link>
         </Box>
       </Toolbar>
@@ -159,11 +153,7 @@ export default async function Profile() {
           sx={{ display: "flex", flexDirection: "row", maxWidth: "900px" }}
         >
           {purchaseItems.map((item, index) => (
-            <PurchaseCard
-              purchaseItem={item}
-              index={index}
-              user={user}
-            />
+            <PurchaseCard purchaseItem={item} index={index} user={user} />
           ))}
         </Grid>
       </DialogContent>

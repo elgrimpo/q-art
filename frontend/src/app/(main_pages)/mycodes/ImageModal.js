@@ -25,7 +25,7 @@ import dayjs from "dayjs";
 import DiamondTwoToneIcon from "@mui/icons-material/DiamondTwoTone";
 
 //App imports
-import StyledIconButton from "@/app/_components/StyledIconButton";
+import StyledIconButton from "@/_components/StyledIconButton";
 import theme from "@/app/_styles/theme";
 import { useImages } from "@/app/_context/AppProvider";
 import { useImageUtils } from "@/app/_utils/ImageUtilss";
@@ -46,7 +46,7 @@ function ImagesModal(props) {
     handleClose,
     handleNext,
     handlePrevious,
-    imageType,
+    pathname,
     upscaling,
     setUpscaling,
   } = props;
@@ -59,7 +59,7 @@ function ImagesModal(props) {
   const { calculateCredits } = useUtils();
 
   const image =
-    imageType === "userImages" ? userImages[index] : communityImages[index];
+  pathname === "/mycodes" ? userImages[index] : communityImages[index];
 
   // Ref for CardMedia component
   const modalRef = useRef(null);
@@ -68,7 +68,7 @@ function ImagesModal(props) {
   const [downloadOpen, setDownloadOpen] = useState(false);
   const [resolution, setResolution] = useState(512);
   const [downloadCredits, setDownloadCredits] = useState(
-    calculateCredits({download: !image?.downloaded})
+    calculateCredits({ download: !image?.downloaded })
   );
 
   /* -------------------------------- FUNCTIONS ------------------------------- */

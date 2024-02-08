@@ -47,23 +47,23 @@ export const useImageUtils = () => {
   /*                               GET MORE IMAGES                              */
   /* -------------------------------------------------------------------------- */
 
-  const getMoreImages = (imageType, params) => {
+  const getMoreImages = (pathname, params) => {
     /* ----------------- Check if userImages vs community images ---------------- */
     const loadingActionType =
-      imageType === "userImages"
+      pathname === "/mycodes"
         ? ActionTypes.SET_LOADING_USER_IMAGES
         : ActionTypes.SET_LOADING_COMMUNITY_IMAGES;
     const imagesActionType =
-      imageType === "userImages"
+      pathname === "/mycodes"
         ? ActionTypes.SET_USER_IMAGES
         : ActionTypes.SET_COMMUNITY_IMAGES;
     const pageActionType =
-      imageType === "userImages"
+      pathname === "/mycodes"
         ? ActionTypes.SET_USER_IMAGES_PAGE
         : ActionTypes.SET_COMMUNITY_IMAGES_PAGE;
     const page =
-      imageType === "userImages" ? userImagesPage : communityImagesPage;
-    const images = imageType === "userImages" ? userImages : communityImages;
+      pathname === "/mycodes" ? userImagesPage : communityImagesPage;
+    const images = pathname === "/mycodes" ? userImages : communityImages;
 
     /* -------------------------------- API Call -------------------------------- */
 

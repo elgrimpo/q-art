@@ -9,7 +9,7 @@ import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 
 // App imports
 import { useImages, useImagesDispatch } from "../../_context/AppProvider";
-import StyledIconButton from "../../_components/StyledIconButton";
+import StyledIconButton from "../../../_components/StyledIconButton";
 import PromptKeywords from "./PromptKeywords";
 import { promptKeywords } from "../../_utils/PromptGenerator";
 import { ActionTypes } from "../../_context/reducers";

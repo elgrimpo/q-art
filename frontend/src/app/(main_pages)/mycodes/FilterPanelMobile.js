@@ -11,14 +11,11 @@ import {
   DialogContent,
   DialogActions,
   Fab,
-  Grow
+  Grow,
 } from "@mui/material";
 import FilterAltTwoToneIcon from "@mui/icons-material/FilterAltTwoTone";
 // App imports
-import StyledIconButton from "@/app/_components/StyledIconButton";
-
-
-
+import StyledIconButton from "@/_components/StyledIconButton";
 
 /* -------------------------------------------------------------------------- */
 /*                                  COMPONENT                                 */
@@ -120,7 +117,6 @@ function FilterPanelMobile({
         fullScreen
         sx={{ maxHeight: "100%", overflow: "hidden" }}
         TransitionComponent={Grow}
-
       >
         <DialogTitle>
           <Typography variant="h5" align="center">
