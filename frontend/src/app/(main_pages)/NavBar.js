@@ -8,7 +8,7 @@ import ImageTwoToneIcon from "@mui/icons-material/ImageTwoTone";
 import Diversity1TwoToneIcon from "@mui/icons-material/Diversity1TwoTone";
 import useMediaQuery from "@mui/material/useMediaQuery";
 // App Imports
-import { getUserInfo } from "../_utils/userUtils";
+import { getUserInfo } from "@/_utils/userUtils";
 import "../globals.css";
 import Tabs from "./Tabs";
 import Account from "./AccountMenu";

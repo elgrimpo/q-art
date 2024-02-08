@@ -19,13 +19,13 @@ import PhotoTwoToneIcon from "@mui/icons-material/PhotoTwoTone";
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 
 // App imports
-import { useImages, useImagesDispatch } from "../../_context/AppProvider";
-import { ActionTypes } from "../../_context/reducers";
+import { useImages, useImagesDispatch } from "@/_context/AppProvider";
+import { ActionTypes } from "@/_context/reducers";
 import GenerateModal from "./GenerateModal";
-import { useGenerateUtils } from "../../_utils/GenerateUtils";
-import { useUtils } from "../../_utils/utils";
-import promptRandomizer from "../../_utils/PromptGenerator";
-import { styles } from "../../_utils/ImageStyles";
+import { useGenerateUtils } from "@/_utils/GenerateUtils";
+import { useUtils } from "@/_utils/utils";
+import promptRandomizer from "@/_utils/PromptGenerator";
+import { styles } from "@/_utils/ImageStyles";
 import StylesCard from "./StylesCard";
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */

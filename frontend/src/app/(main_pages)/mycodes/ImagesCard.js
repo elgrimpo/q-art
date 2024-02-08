@@ -8,11 +8,11 @@ import { TwitterShareButton } from "react-share";
 
 // App imports
 import SkeletonCard from "./SkeletonCard.js";
-import theme from "@/app/_styles/theme.js";
-import { useImageUtils } from "@/app/_utils/ImageUtilss.js";
-import { useGenerateUtils } from "@/app/_utils/GenerateUtils.js";
+import theme from "@/_styles/theme.js";
+import { useImageUtils } from "@/_utils/ImageUtilss.js";
+import { useGenerateUtils } from "@/_utils/GenerateUtils.js";
 import StyledIconButton from "@/_components/StyledIconButton.js";
-import { useImages } from "@/app/_context/AppProvider.js";
+import { useImages } from "@/_context/AppProvider.js";
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
 /* -------------------------------------------------------------------------- */
@@ -76,7 +76,7 @@ function ImageCard(props) {
           <div>
             <CardMedia
               component="img"
-              image={`data:image/png;base64, ${item?.image_b64}`}
+              image={item.image_url}
               sx={{ borderRadius: "5px" }}
               onClick={onClick}
               onContextMenu={(e) => preventRightClick(e)}

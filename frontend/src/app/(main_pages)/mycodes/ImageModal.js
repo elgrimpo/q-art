@@ -26,10 +26,10 @@ import DiamondTwoToneIcon from "@mui/icons-material/DiamondTwoTone";
 
 //App imports
 import StyledIconButton from "@/_components/StyledIconButton";
-import theme from "@/app/_styles/theme";
-import { useImages } from "@/app/_context/AppProvider";
-import { useImageUtils } from "@/app/_utils/ImageUtilss";
-import { useUtils } from "@/app/_utils/utils";
+import theme from "@/_styles/theme";
+import { useImages } from "@/_context/AppProvider";
+import { useImageUtils } from "@/_utils/ImageUtilss";
+import { useUtils } from "@/_utils/utils";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */

@@ -3,8 +3,8 @@ import axios from "axios";
 import { useCallback } from "react";
 
 // App imports
-import { ActionTypes } from "../_context/reducers";
-import { useImagesDispatch } from "../_context/AppProvider";
+import { ActionTypes } from "@/_context/reducers";
+import { useImagesDispatch } from "@/_context/AppProvider";
 
 export const useUtils = () => {
   /* ---------------------------- DECLARE VARIABLES --------------------------- */

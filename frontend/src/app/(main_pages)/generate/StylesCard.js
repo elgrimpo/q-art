@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 
 // App imports
-import { useImages } from "../../_context/AppProvider";
+import { useImages } from "@/_context/AppProvider";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */

@@ -3,8 +3,8 @@
 import axios from "axios";
 
 // App imports
-import { ActionTypes } from "../_context/reducers";
-import { useImages, useImagesDispatch } from "../_context/AppProvider";
+import { ActionTypes } from "@/_context/reducers";
+import { useImages, useImagesDispatch } from "@/_context/AppProvider";
 import { useUtils } from "./utils";
 import { useStore } from "@/store";
 

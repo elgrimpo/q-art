@@ -14,8 +14,8 @@ import Link from "next/link";
 //App imports
 import PurchaseCard from "./PurchaseCard";
 import StyledIconButton from "@/_components/StyledIconButton";
-import { getUserInfo } from "../_utils/userUtils";
-import { palette } from "../_styles/palette";
+import { getUserInfo } from "@/_utils/userUtils";
+import { palette } from "@/_styles/palette";
 
 /* -------------------------------------------------------------------------- */
 /*                              COMPONENT RENDER                              */

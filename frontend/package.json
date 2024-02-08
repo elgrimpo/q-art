@@ -19,6 +19,7 @@
     "next-auth": "^4.24.5",
     "react": "^18",
     "react-dom": "^18",
+    "react-intersection-observer": "^9.7.0",
     "react-responsive-masonry": "^2.1.7",
     "react-share": "^5.0.3",
     "react-swipeable": "^7.0.1",

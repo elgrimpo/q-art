@@ -6,7 +6,7 @@ import { Typography, Button, Card, CardMedia, Grid } from "@mui/material";
 import axios from "axios";
 
 // App imports
-import theme from "@/app/_styles/theme";
+import theme from "@/_styles/theme";
 import { useStore } from "@/store";
 
 /* -------------------------------------------------------------------------- */

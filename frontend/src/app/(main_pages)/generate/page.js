@@ -14,19 +14,19 @@ import {
 } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import ReplayTwoToneIcon from "@mui/icons-material/ReplayTwoTone";
-import theme from "../../_styles/theme";
+import theme from "@/_styles/theme";
 import EditTwoToneIcon from "@mui/icons-material/EditTwoTone";
 
 // App imports
-import { useImages, useImagesDispatch } from "../../_context/AppProvider";
-import { ActionTypes } from "../../_context/reducers";
+import { useImages, useImagesDispatch } from "@/_context/AppProvider";
+import { ActionTypes } from "@/_context/reducers";
 
 import GenerateForm from "./GenerateForm";
-import SimpleDialog from "../../../_components/SimpleDialog";
-import { useGenerateUtils } from "../../_utils/GenerateUtils";
+import SimpleDialog from "@/_components/SimpleDialog";
+import { useGenerateUtils } from "@/_utils/GenerateUtils";
 import { useStore } from "@/store";
 
-import StyledIconButton from "../../../_components/StyledIconButton";
+import StyledIconButton from "@/_components/StyledIconButton";
 
 export default function Generate() {
   // Context variables

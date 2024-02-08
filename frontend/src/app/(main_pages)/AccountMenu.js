@@ -17,7 +17,7 @@ import {
 import ListItemIcon from "@mui/material/ListItemIcon";
 import DiamondTwoToneIcon from "@mui/icons-material/DiamondTwoTone";
 import Logout from "@mui/icons-material/Logout";
-import theme from "@/app/_styles/theme";
+import theme from "@/_styles/theme";
 import { useRouter } from "next/navigation";
 
 // App import
