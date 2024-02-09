@@ -4,13 +4,12 @@ import axios from "axios";
 
 // App imports
 import { ActionTypes } from "@/_context/reducers";
-import { useImages, useImagesDispatch } from "@/_context/AppProvider";
+import { useImagesDispatch } from "@/_context/AppProvider";
 import { useUtils } from "./utils";
 import { useStore } from "@/store";
 
 export const useGenerateUtils = () => {
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
-  const { generateFormValues } = useImages();
   const { user } = useStore.getState();
   const dispatch = useImagesDispatch();
   const { openAlert } = useUtils();
@@ -96,55 +95,9 @@ export const useGenerateUtils = () => {
         });
     });
   };
-  /* -------------------------------------------------------------------------- */
-  /*                              COPY FORM VALUES                              */
-  /* -------------------------------------------------------------------------- */
-
-  const copyGenerateFormValues = (item) => {
-    // Declare form values
-    const copyValues = {
-      website: item.content,
-      prompt: item.prompt,
-      qr_weight: item.qr_weight,
-      negative_prompt: item.negative_prompt,
-      seed: item.seed,
-      style_id: item.id,
-      style_prompt: item.style_prompt,
-      style_title: item.style_title,
-      sd_model: item.sd_model,
-    };
-    // Update Form values in reducer
-    dispatch({
-      type: ActionTypes.SET_GENERATE_FORM_VALUES,
-      payload: copyValues,
-    });
-
-    // Show Images to be copied in Generate Page
-    dispatch({
-      type: ActionTypes.SET_GENERATED_IMAGE,
-      payload: item,
-    });
-  };
-
-  /* -------------------------------------------------------------------------- */
-  /*                          HANDLE FORM INPUT CHANGE                          */
-  /* -------------------------------------------------------------------------- */
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    dispatch({
-      type: ActionTypes.SET_GENERATE_FORM_VALUES,
-      payload: {
-        ...generateFormValues,
-        [name]: value,
-      },
-    });
-  };
 
   /* ---------------------------- RETURN FUNCTIONS ---------------------------- */
   return {
     generateImage,
-    copyGenerateFormValues,
-    handleInputChange,
   };
 };

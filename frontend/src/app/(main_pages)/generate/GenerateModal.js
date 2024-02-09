@@ -8,11 +8,11 @@ import theme from "@/_styles/theme";
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 
 // App imports
-import { useImages, useImagesDispatch } from "@/_context/AppProvider";
+import { useImagesDispatch } from "@/_context/AppProvider";
 import StyledIconButton from "@/_components/StyledIconButton";
 import PromptKeywords from "./PromptKeywords";
 import { promptKeywords } from "@/_utils/PromptGenerator";
-import { ActionTypes } from "@/_context/reducers";
+import { useStore } from "@/store";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
@@ -25,8 +25,7 @@ function GenerateModal(props) {
   const { open, handleClose, customStyle, setCustomStyle } = props;
 
   // Context
-  const { generateFormValues } = useImages();
-  const dispatch = useImagesDispatch();
+  const { generateFormValues, setGenerateFormValues } = useStore();
 
   // Screen size
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -69,16 +68,12 @@ function GenerateModal(props) {
       prompt: updatedPrompt,
       keywords: updatedKeywords,
     });
-
-    dispatch({
-      type: ActionTypes.SET_GENERATE_FORM_VALUES,
-      payload: {
-        ...generateFormValues,
-        style_id: customStyle.id,
-        style_title: customStyle.title,
-        style_prompt: updatedPrompt,
-        sd_model: customStyle.sd_model,
-      },
+    setGenerateFormValues({
+      ...generateFormValues,
+      style_id: customStyle.id,
+      style_title: customStyle.title,
+      style_prompt: updatedPrompt,
+      sd_model: customStyle.sd_model,
     });
   };
 

@@ -18,9 +18,7 @@ import theme from "@/_styles/theme";
 import EditTwoToneIcon from "@mui/icons-material/EditTwoTone";
 
 // App imports
-import { useImages, useImagesDispatch } from "@/_context/AppProvider";
-import { ActionTypes } from "@/_context/reducers";
-
+import { useImages } from "@/_context/AppProvider";
 import GenerateForm from "./GenerateForm";
 import SimpleDialog from "@/_components/SimpleDialog";
 import { useGenerateUtils } from "@/_utils/GenerateUtils";
@@ -30,17 +28,15 @@ import StyledIconButton from "@/_components/StyledIconButton";
 
 export default function Generate() {
   // Context variables
-  const { generatedImage, generateFormValues, loadingGeneratedImage } =
+  const { generatedImage, loadingGeneratedImage } =
     useImages();
-  const dispatch = useImagesDispatch();
+    const { user, generateFormValues, setGenerateFormValues } = useStore();
 
-  // Navigate
-  // TODO: NAVIGATE TO ACCOUNT
 
-  // const navigate = useNavigate();
-  const user = useStore.getState().user;
+
   // Utils functions
   const { generateImage } = useGenerateUtils();
+
   // Screen size
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -64,9 +60,8 @@ export default function Generate() {
 
   //Create new image (reset Form Values)
   const handleNewImage = () => {
-    dispatch({
-      type: ActionTypes.SET_GENERATE_FORM_VALUES,
-      payload: {
+
+    setGenerateFormValues({
         website: "",
         prompt: "",
         style_id: 1,
@@ -76,9 +71,7 @@ export default function Generate() {
         negative_prompt: "",
         seed: -1,
         sd_model: "cyberrealistic_v40_151857.safetensors",
-      },
-    });
-
+    })
     setFormSubmitted(false);
   };
 

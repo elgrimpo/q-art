@@ -13,8 +13,7 @@ import {
 } from "@mui/material";
 
 // App imports
-import { useImages } from "@/_context/AppProvider";
-
+import { useStore } from "@/store";
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
 /* -------------------------------------------------------------------------- */
@@ -24,7 +23,7 @@ function StylesCard(props) {
 
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
 
-  const { generateFormValues } = useImages();
+  const { generateFormValues } = useStore();
   const theme = useTheme();
   const primaryColor = theme.palette.primary.main;
   const secondaryColor = theme.palette.secondary.main;

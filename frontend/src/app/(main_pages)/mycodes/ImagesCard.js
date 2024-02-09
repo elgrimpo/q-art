@@ -13,6 +13,8 @@ import { useGenerateUtils } from "@/_utils/GenerateUtils.js";
 import StyledIconButton from "@/_components/StyledIconButton.js";
 import { useImages } from "@/_context/AppProvider.js";
 import ShareButton from "@/_components/actions/Share.js";
+import CopyButton from "@/_components/actions/CopyButton";
+
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
 /* -------------------------------------------------------------------------- */
@@ -23,12 +25,6 @@ function ImageCard(props) {
 
   const { user } = useImages();
 
-
-
-  // Initialize navigate function
-  //TODO Navigate
-
-  // const navigate = useNavigate();
 
   // Image fuctions
   const { likeImage } = useImageUtils();
@@ -122,15 +118,7 @@ function ImageCard(props) {
                 />
               )}
 
-              {/* COPY */}
-              <StyledIconButton
-                type="copy"
-                variant="contained"
-                color="secondary"
-                tooltip="Copy data to generate similar image"
-                handleClick={() => handleCopy(item)}
-                key={index + "_2"}
-              />
+              <CopyButton index={index} item={item} />
 
               <ShareButton index={index} item={item}/>
             </Stack>

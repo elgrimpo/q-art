@@ -20,13 +20,12 @@ import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 
 // App imports
 import { useImages, useImagesDispatch } from "@/_context/AppProvider";
-import { ActionTypes } from "@/_context/reducers";
 import GenerateModal from "./GenerateModal";
-import { useGenerateUtils } from "@/_utils/GenerateUtils";
 import { useUtils } from "@/_utils/utils";
 import promptRandomizer from "@/_utils/PromptGenerator";
 import { styles } from "@/_utils/ImageStyles";
 import StylesCard from "./StylesCard";
+import { useStore } from "@/store";
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
 /* -------------------------------------------------------------------------- */
@@ -36,12 +35,13 @@ function GenerateForm(props) {
 
   const { handleGenerate } = props;
   // Context variables
-  const { loadingGeneratedImage, generateFormValues } = useImages();
+  const { loadingGeneratedImage } = useImages();
+  const { generateFormValues, setGenerateFormValues } = useStore();
+
   const dispatch = useImagesDispatch();
 
   // Utils functions
   const { calculateCredits } = useUtils();
-  const { handleInputChange } = useGenerateUtils();
 
   // Submit Button state
   const [submitDisabled, setSubmitDisabled] = useState(true);
@@ -69,6 +69,11 @@ function GenerateForm(props) {
   });
 
   /* -------------------------------- FUNCTIONS ------------------------------- */
+  // Handle input change
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setGenerateFormValues({ ...generateFormValues, [name]: value });
+  };
 
   // Set display text for slider
   function sliderText(value) {
@@ -108,15 +113,12 @@ function GenerateForm(props) {
 
   // Select Style
   const handleStyleClick = (item) => {
-    dispatch({
-      type: ActionTypes.SET_GENERATE_FORM_VALUES,
-      payload: {
-        ...generateFormValues,
-        style_id: item.id,
-        style_prompt: item.prompt,
-        style_title: item.title,
-        sd_model: item.sd_model,
-      },
+    setGenerateFormValues({
+      ...generateFormValues,
+      style_id: item.id,
+      style_prompt: item.prompt,
+      style_title: item.title,
+      sd_model: item.sd_model,
     });
     if (item.title === "Custom Style") {
       handleSdModalOpen("prompt_keywords");
