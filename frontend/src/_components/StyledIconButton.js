@@ -1,4 +1,4 @@
-
+"use client";
 import React from "react";
 import { Tooltip, IconButton } from "@mui/material";
 import CloseTwoToneIcon from "@mui/icons-material/CloseTwoTone";
@@ -13,27 +13,26 @@ import ShareTwoToneIcon from "@mui/icons-material/ShareTwoTone";
 
 //app imports
 
-
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
 /* -------------------------------------------------------------------------- */
 
 function StyledIconButton(props) {
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
-const { variant, color, type, handleClick, tooltip, disabled } = props;
+  const { variant, color, type, handleClick, tooltip, disabled } = props;
 
-const palette = {
-  primary: {
-    main: "#70E195",
-    light: "#c5f2d2",
-    dark: "#00ac4f",
-  },
-  secondary: {
-    main: "#333333",
-    light: "#8b8b8b",
-    dark: "#000000",
-  },
-};
+  const palette = {
+    primary: {
+      main: "#70E195",
+      light: "#c5f2d2",
+      dark: "#00ac4f",
+    },
+    secondary: {
+      main: "#333333",
+      light: "#8b8b8b",
+      dark: "#000000",
+    },
+  };
   /* -------------------------------- FUNCTIONS ------------------------------- */
 
   const getIcon = () => {
@@ -106,6 +105,11 @@ const palette = {
     }
   };
 
+  const handleButtonClick = (e) => {
+    if (handleClick) {
+      handleClick(e);
+    }
+  };
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
   /* -------------------------------------------------------------------------- */
@@ -123,8 +127,7 @@ const palette = {
           },
         }}
         disabled={disabled}
-        // TODO: Deal with interactivity
-        // onClick={(e) => handleClick(e)}
+        onClick={(e) => handleButtonClick(e)}
       >
         {getIcon()}
       </IconButton>

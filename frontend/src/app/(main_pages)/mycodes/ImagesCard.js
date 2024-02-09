@@ -1,10 +1,9 @@
 //Libraries imports
 import React, { useState } from "react";
-import { Card, CardMedia, Grid, Stack, Chip, Button } from "@mui/material";
+import { Card, CardMedia, Grid, Stack, Chip } from "@mui/material";
 
 import FavoriteTwoToneIcon from "@mui/icons-material/FavoriteTwoTone";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import { TwitterShareButton } from "react-share";
 
 // App imports
 import SkeletonCard from "./SkeletonCard.js";
@@ -13,19 +12,22 @@ import { useImageUtils } from "@/_utils/ImageUtilss.js";
 import { useGenerateUtils } from "@/_utils/GenerateUtils.js";
 import StyledIconButton from "@/_components/StyledIconButton.js";
 import { useImages } from "@/_context/AppProvider.js";
+import ShareButton from "@/_components/actions/Share.js";
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
 /* -------------------------------------------------------------------------- */
 
 function ImageCard(props) {
-  const { variant, item, index, onClick, imageType, upscaling } = props;
-
+  const { variant, item, index, handleCardClick, imageType, upscaling, images } = props;
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
 
   const { user } = useImages();
 
+
+
   // Initialize navigate function
   //TODO Navigate
+
   // const navigate = useNavigate();
 
   // Image fuctions
@@ -78,7 +80,7 @@ function ImageCard(props) {
               component="img"
               image={item.image_url}
               sx={{ borderRadius: "5px" }}
-              onClick={onClick}
+              onClick={handleCardClick}
               onContextMenu={(e) => preventRightClick(e)}
               key={index}
             />
@@ -130,20 +132,7 @@ function ImageCard(props) {
                 key={index + "_2"}
               />
 
-              <TwitterShareButton
-                url={`http://www.qr-ai.co/images/${item?._id}`}
-                title="@qrai"
-                className="twitter-share-button"
-              >
-                <StyledIconButton
-                  type="share"
-                  variant="contained"
-                  color="secondary"
-                  tooltip="Copy data to generate similar image"
-                  handleClick={() => {}}
-                  key={index + "_3"}
-                />
-              </TwitterShareButton>
+              <ShareButton index={index} item={item}/>
             </Stack>
           </div>
         )}

@@ -1,6 +1,6 @@
 "use client";
 // Libraries imports
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { usePathname } from "next/navigation";
 import { useInView } from "react-intersection-observer";
@@ -8,7 +8,6 @@ import { useInView } from "react-intersection-observer";
 import { Grid, Box, Typography, Button } from "@mui/material";
 
 // App imports
-import { useImages } from "@/_context/AppProvider";
 import ImageCard from "./ImagesCard";
 import ImageModal from "./ImageModal";
 import FilterPanelDesktop from "./FilterPanelDesktop";
@@ -213,8 +212,7 @@ export default function MyCodes() {
               index={index}
               key={index}
               variant="image"
-              onClick={() => handleModalOpen(index)}
-              // setTabValue={setTabValue}
+              handleCardClick={() => handleModalOpen(index)}
               pathname={pathname}
               upscaling={upscaling}
             />
@@ -250,6 +248,7 @@ export default function MyCodes() {
           pathname={pathname}
           upscaling={upscaling}
           setUpscaling={setUpscaling}
+          images={images}
         />
       )}
     </Box>
