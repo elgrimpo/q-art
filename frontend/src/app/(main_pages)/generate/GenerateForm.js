@@ -19,7 +19,6 @@ import PhotoTwoToneIcon from "@mui/icons-material/PhotoTwoTone";
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 
 // App imports
-import { useImages, useImagesDispatch } from "@/_context/AppProvider";
 import GenerateModal from "./GenerateModal";
 import { useUtils } from "@/_utils/utils";
 import promptRandomizer from "@/_utils/PromptGenerator";
@@ -34,11 +33,7 @@ function GenerateForm(props) {
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
 
   const { handleGenerate } = props;
-  // Context variables
-  const { loadingGeneratedImage } = useImages();
   const { generateFormValues, setGenerateFormValues } = useStore();
-
-  const dispatch = useImagesDispatch();
 
   // Utils functions
   const { calculateCredits } = useUtils();
@@ -230,7 +225,7 @@ function GenerateForm(props) {
               {/* SLIDER */}
               <Slider
                 aria-label="QR Code Weight"
-                defaultValue={generateFormValues.qr_weight}
+                value={generateFormValues.qr_weight}
                 getAriaValueText={sliderText}
                 step={0.1}
                 valueLabelDisplay="auto"
@@ -333,7 +328,7 @@ function GenerateForm(props) {
         <Button
           variant="contained"
           color="secondary"
-          disabled={submitDisabled || loadingGeneratedImage}
+          disabled={submitDisabled}
           aria-label="generate"
           onClick={(e) => handleGenerate()}
           sx={{ mb: "2rem", position: "sticky", bottom: "0rem" }}

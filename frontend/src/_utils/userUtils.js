@@ -15,27 +15,25 @@ export const getUserInfo = async () => {
       return {};
     }
 
-    // Execute the fetch function with the user's email as a query parameter
+    // Fetch User
     const response = await fetch(`http://localhost:8000/api/user/info?email=${encodeURIComponent(session.user.email)}`, {
       method: "GET",
       headers: { Cookie: cookies().toString() },
       credentials: "include",
-      next: { revalidate: 3600 }
+      // next: { revalidate: 3600 }
     });
 
-    // Handle response from the API
+    // Handle response
     if (response.ok) {
       const user = await response.json();
       useStore.setState({ user: user });
 
-      // console.log("User found:", user);
+
       return user || {}; // Return user object if found, otherwise return an empty object
     } else {
-      // console.error("User info could not be loaded");
       throw new Error("User info could not be loaded");
     }
   } catch (error) {
-    // console.error("Error while fetching user info:", error);
-    throw error; // Rethrow the error for handling in the calling function
+    throw error;
   }
 };

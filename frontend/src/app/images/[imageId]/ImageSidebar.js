@@ -32,7 +32,7 @@ export default function ImageSidebar( props ) {
         <Box
           sx={{
             flex: "1",
-            height: "100%",
+            // height: "100%",
             padding: "3rem",
             minWidth: "230px",
             display: "flex",
