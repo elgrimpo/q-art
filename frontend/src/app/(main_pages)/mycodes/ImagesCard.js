@@ -1,16 +1,13 @@
 //Libraries imports
-import React, { useState } from "react";
-import { Card, CardMedia, Grid, Stack, Chip } from "@mui/material";
-
-import FavoriteTwoToneIcon from "@mui/icons-material/FavoriteTwoTone";
-import FavoriteIcon from "@mui/icons-material/Favorite";
+import React from "react";
+import { Card, CardMedia, Grid, Stack } from "@mui/material";
 
 // App imports
 import SkeletonCard from "./SkeletonCard.js";
 import theme from "@/_styles/theme.js";
-import { useImageUtils } from "@/_utils/ImageUtilss.js";
 import ShareButton from "@/_components/actions/ShareButton.js";
 import CopyButton from "@/_components/actions/CopyButton";
+import LikeButton from "@/_components/actions/LikeButton.js";
 import { useStore } from "@/store.js";
 
 /* -------------------------------------------------------------------------- */
@@ -18,20 +15,14 @@ import { useStore } from "@/store.js";
 /* -------------------------------------------------------------------------- */
 
 function ImageCard(props) {
-  const { variant, item, index, handleCardClick, imageType, upscaling, images } = props;
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
+  const { variant, image, index, handleCardClick, upscaling, customLikeAction } =
+    props;
 
   const { user } = useStore();
 
 
-  // Image fuctions
-  const { likeImage } = useImageUtils();
-
   /* -------------------------------- FUNCTIONS ------------------------------- */
-
-
-  // Check if image is liked by user
-  const isLiked = item?.likes?.includes(user?._id) ? true : false;
 
   // Prevent right click for image download
   const preventRightClick = (event) => {
@@ -56,14 +47,14 @@ function ImageCard(props) {
         color="primary"
       >
         {/* Skeleton (if loading) */}
-        {variant === "skeleton" || upscaling.includes(item?._id) ? (
+        {variant === "skeleton" || upscaling.includes(image?._id) ? (
           <SkeletonCard index={index} key={index} />
         ) : (
           /* ------------------------------ IMAGE ------------------------------ */
           <div>
             <CardMedia
               component="img"
-              image={item.image_url}
+              image={image.image_url}
               sx={{ borderRadius: "5px" }}
               onClick={handleCardClick}
               onContextMenu={(e) => preventRightClick(e)}
@@ -81,35 +72,15 @@ function ImageCard(props) {
             >
               {/* LIKE */}
 
-              {user._id && (
-                <Chip
-                  color="secondary"
-                  variant="contained"
-                  icon={
-                    isLiked ? (
-                      <FavoriteIcon sx={{ fill: "#FF8585" }} />
-                    ) : (
-                      <FavoriteTwoToneIcon color="primary" />
-                    )
-                  }
-                  label={
-                    item?.likes && item.likes.length > 0
-                      ? item.likes.length
-                      : "0"
-                  }
-                  sx={{
-                    height: "40px",
-                    borderRadius: "24px",
-                    color: isLiked ? "#FF8585" : theme.palette.primary.main,
-                  }}
-                  onClick={() => likeImage(item, user._id, imageType)}
-                  key={index + "_1"}
-                />
-              )}
+              <LikeButton
+                image={image}
+                user={user}
+                customLikeAction={customLikeAction}
+              />
 
-              <CopyButton index={index} image={item} />
+              <CopyButton index={index} image={image} />
 
-              <ShareButton index={index} image={item}/>
+              <ShareButton index={index} image={image} />
             </Stack>
           </div>
         )}

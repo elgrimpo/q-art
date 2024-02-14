@@ -9,6 +9,7 @@ import theme from "@/_styles/theme";
 import StyledIconButton from "@/_components/StyledIconButton";
 import ImageFill from "../../images/[imageId]/ImageFill";
 import ImageSidebar from "../../images/[imageId]/ImageSidebar";
+import { useStore } from "@/store";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
@@ -21,10 +22,10 @@ export default function ImageModal(props) {
     images,
     setImages,
     index,
-    user,
     handleClose,
     handleNext, // TODO move to this component
     handlePrevious, // TODO move to this component
+    customLikeAction
     // upscaling,
     // setUpscaling, //TODO upscaling into Zustand - sth more generic
   } = props;
@@ -32,8 +33,10 @@ export default function ImageModal(props) {
   const isFullScreen = useMediaQuery(theme.breakpoints.down("md"));
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
+  const { user } = useStore();
   // Ref for CardMedia component
   const modalRef = useRef(null);
+
   /* -------------------------------- FUNCTIONS ------------------------------- */
 
   const handlers = useSwipeable({
@@ -65,7 +68,6 @@ export default function ImageModal(props) {
         ...images.slice(0, index),
         ...images.slice(index + 1),
       ];
-      console.log(updatedImages);
       setImages(updatedImages);
     }
   };
@@ -160,6 +162,7 @@ export default function ImageModal(props) {
           image={image}
           user={user}
           customDeleteAction={customDeleteAction}
+          customLikeAction={customLikeAction}
         />
       </Box>
     </Dialog>

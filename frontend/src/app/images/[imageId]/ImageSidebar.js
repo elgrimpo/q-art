@@ -6,6 +6,7 @@ import dayjs from "dayjs";
 //App imports
 import DeleteButton from "@/_components/actions/DeleteButton";
 import CopyButton from "@/_components/actions/CopyButton";
+import LikeButton from "@/_components/actions/LikeButton";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
@@ -16,7 +17,7 @@ export default function ImageSidebar(props) {
   // TODO: Put in
   const isMobile = false;
   // const { handleClose } = props;
-  const { image, user, customDeleteAction } = props;
+  const { image, user, customDeleteAction, customLikeAction } = props;
   /* -------------------------------- FUNCTIONS ------------------------------- */
 
   /* -------------------------------------------------------------------------- */
@@ -46,6 +47,11 @@ export default function ImageSidebar(props) {
           spacing={3}
           sx={{ mb: "1rem" }}
         >
+          <LikeButton
+            image={image}
+            user={user}
+            customLikeAction={customLikeAction}
+          />
           <DeleteButton image={image} customDeleteAction={customDeleteAction} />
 
           <CopyButton image={image} />

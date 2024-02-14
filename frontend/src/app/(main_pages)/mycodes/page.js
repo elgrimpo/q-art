@@ -128,6 +128,17 @@ export default function MyCodes() {
     );
   };
 
+  // update Likes
+  const customLikeAction = (imageId, updatedLikes) => {
+    const index = images.findIndex((img) => img._id === imageId);
+    const updatedImage = { ...images[index], likes: updatedLikes };
+
+    // Create a new array with the updated image
+    const updatedImages = [...images];
+    updatedImages[index] = updatedImage;
+    setImages(updatedImages);
+  }
+
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
   /* -------------------------------------------------------------------------- */
@@ -206,15 +217,15 @@ export default function MyCodes() {
         sx={{ mb: "1.5rem" }}
       >
         {images &&
-          images.map((item, index) => (
+          images.map((image, index) => (
             <ImageCard
-              item={item}
+              image={image}
               index={index}
               key={index}
               variant="image"
               handleCardClick={() => handleModalOpen(index)}
-              pathname={pathname}
               upscaling={upscaling}
+              customLikeAction={customLikeAction}
             />
           ))}
       </Grid>
@@ -250,6 +261,7 @@ export default function MyCodes() {
           setUpscaling={setUpscaling}
           images={images}
           setImages={setImages}
+          customLikeAction={customLikeAction}
         />
       )}
     </Box>

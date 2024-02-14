@@ -100,3 +100,26 @@ export const deleteImage = (id) => {
       });
   });
 };
+
+
+/* -------------------------------------------------------------------------- */
+/*                                 LIKE IMAGE                                 */
+/* -------------------------------------------------------------------------- */
+
+export const likeImage = async (imageId, userId) => {
+  return new Promise((resolve, reject) => {
+    axios.put(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/images/like/${imageId}`,
+      null,
+      {
+        params: { user_id: userId },
+      }
+    )
+      .then(() => {
+        resolve(true);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
