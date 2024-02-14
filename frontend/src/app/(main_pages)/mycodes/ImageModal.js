@@ -1,5 +1,5 @@
 // Libraries imports
-import React, { useState, useRef } from "react";
+import React, { useRef } from "react";
 import { Box, Dialog, Grow } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useSwipeable } from "react-swipeable";
@@ -19,6 +19,7 @@ export default function ImageModal(props) {
   const {
     open,
     images,
+    setImages,
     index,
     user,
     handleClose,
@@ -53,6 +54,21 @@ export default function ImageModal(props) {
       }
     },
   });
+
+  const customDeleteAction = () => {
+    if (index > -1) {
+      console.log("customDeleteAction");
+      console.log("index: " + index);
+
+      // Remove image from array
+      const updatedImages = [
+        ...images.slice(0, index),
+        ...images.slice(index + 1),
+      ];
+      console.log(updatedImages);
+      setImages(updatedImages);
+    }
+  };
 
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
@@ -140,7 +156,11 @@ export default function ImageModal(props) {
 
         {/* -------------------- Sidebar ------------------- */}
 
-        <ImageSidebar image={image} user={user} />
+        <ImageSidebar
+          image={image}
+          user={user}
+          customDeleteAction={customDeleteAction}
+        />
       </Box>
     </Dialog>
   );

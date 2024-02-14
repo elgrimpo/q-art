@@ -12,11 +12,11 @@ import StyledIconButton from "@/_components/StyledIconButton.js";
 /* -------------------------------------------------------------------------- */
 export default function ShareButton(props) {
 
-const {index, item} = props
+const {index, image} = props
 
   return (
     <TwitterShareButton
-      url={`http://www.qr-ai.co/images/${item?._id}`}
+      url={`http://www.qr-ai.co/images/${image?._id}`}
       title="@qrai"
       className="twitter-share-button"
     >

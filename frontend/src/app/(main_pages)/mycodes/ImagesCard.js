@@ -9,11 +9,9 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import SkeletonCard from "./SkeletonCard.js";
 import theme from "@/_styles/theme.js";
 import { useImageUtils } from "@/_utils/ImageUtilss.js";
-import { useGenerateUtils } from "@/_utils/GenerateUtils.js";
-import StyledIconButton from "@/_components/StyledIconButton.js";
-import { useImages } from "@/_context/AppProvider.js";
-import ShareButton from "@/_components/actions/Share.js";
+import ShareButton from "@/_components/actions/ShareButton.js";
 import CopyButton from "@/_components/actions/CopyButton";
+import { useStore } from "@/store.js";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
@@ -23,23 +21,14 @@ function ImageCard(props) {
   const { variant, item, index, handleCardClick, imageType, upscaling, images } = props;
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
 
-  const { user } = useImages();
+  const { user } = useStore();
 
 
   // Image fuctions
   const { likeImage } = useImageUtils();
 
-  // Copy Image function
-  const { copyGenerateFormValues } = useGenerateUtils();
-
   /* -------------------------------- FUNCTIONS ------------------------------- */
 
-  // Copy formvalues to generate new image
-  // TODO Copy form values
-  const handleCopy = (item) => {
-    copyGenerateFormValues(item);
-    navigate("/generate");
-  };
 
   // Check if image is liked by user
   const isLiked = item?.likes?.includes(user?._id) ? true : false;
@@ -118,9 +107,9 @@ function ImageCard(props) {
                 />
               )}
 
-              <CopyButton index={index} item={item} />
+              <CopyButton index={index} image={item} />
 
-              <ShareButton index={index} item={item}/>
+              <ShareButton index={index} image={item}/>
             </Stack>
           </div>
         )}

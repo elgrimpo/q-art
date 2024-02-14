@@ -12,21 +12,21 @@ import { useStore } from "@/store";
 /*                               COMPONENT START                              */
 /* -------------------------------------------------------------------------- */
 export default function CopyButton(props) {
-  const { index, item } = props;
+  const { index, image } = props;
   const router = useRouter()
   const { setGenerateFormValues } = useStore();
 
-  const handleCopy = (item) => {
+  const handleCopy = (image) => {
     const copyValues = {
-      website: item.content,
-      prompt: item.prompt,
+      website: image.content,
+      prompt: image.prompt,
       // style_id: 1,
-      style_title: item.style_title,
-      style_prompt: item.style_prompt,
-      qr_weight: item.qr_weight,
-      negative_prompt: item.negative_prompt,
-      seed: item.seed,
-      sd_model: item.sd_model,
+      style_title: image.style_title,
+      style_prompt: image.style_prompt,
+      qr_weight: image.qr_weight,
+      negative_prompt: image.negative_prompt,
+      seed: image.seed,
+      sd_model: image.sd_model,
     };
     setGenerateFormValues(copyValues);
 
@@ -39,7 +39,7 @@ export default function CopyButton(props) {
       variant="contained"
       color="secondary"
       tooltip="Copy data to generate similar image"
-      handleClick={() => handleCopy(item)}
+      handleClick={() => handleCopy(image)}
       key={index}
     />
   );

@@ -145,6 +145,9 @@ def get_image(id):
 
         return image
 
+    except HTTPException as http_exception:
+        raise http_exception
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

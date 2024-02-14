@@ -249,6 +249,7 @@ export default function MyCodes() {
           upscaling={upscaling}
           setUpscaling={setUpscaling}
           images={images}
+          setImages={setImages}
         />
       )}
     </Box>

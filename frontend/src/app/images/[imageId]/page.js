@@ -2,6 +2,7 @@
 import React from "react";
 import { Box } from "@mui/material";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 //App imports
 import { getImageById } from "@/_utils/ImagesUtils";
@@ -17,10 +18,14 @@ import ImageSidebar from "./ImageSidebar";
 export default async function ImagePage({ params }) {
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
   const { imageId } = params;
-  /* -------------------------------- FUNCTIONS ------------------------------- */
   const image = await getImageById(imageId);
   const user = await getUserInfo();
+  /* -------------------------------- FUNCTIONS ------------------------------- */
 
+  const customDeleteAction = async () => {
+    "use server";
+    redirect("/generate");
+  };
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
   /* -------------------------------------------------------------------------- */
@@ -63,7 +68,11 @@ export default async function ImagePage({ params }) {
 
         {/* -------------------- Sidebar ------------------- */}
 
-        <ImageSidebar image={image} user={user} />
+        <ImageSidebar
+          image={image}
+          user={user}
+          customDeleteAction={customDeleteAction}
+        />
       </Box>
     </Box>
   );

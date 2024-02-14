@@ -2,6 +2,7 @@
 //Libraries imports
 
 import axios from "axios";
+import { notFound } from "next/navigation";
 
 // App imports
 
@@ -10,20 +11,16 @@ import axios from "axios";
 /* -------------------------------------------------------------------------- */
 
 export const getImageById = (imageId) => {
-  "use server";
-  // API Call
   return axios
     .get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/images/get/${imageId}`)
     .then((response) => {
+      
       return response.data;
     })
     .catch((error) => {
-      // Handle error
-      console.error(error);
-
-      // Open alert
-      openAlert("error", "Error", "Error loading image");
-
+      if (error.response.status === 404) {
+        notFound();
+      }
       return error;
     });
 };
@@ -83,6 +80,23 @@ export const generateImage = (generateFormValues, user) => {
       })
       .catch((error) => {
         reject(error); // Reject with the error
+      });
+  });
+};
+
+/* -------------------------------------------------------------------------- */
+/*                                DELETE IMAGE                                */
+/* -------------------------------------------------------------------------- */
+
+export const deleteImage = (id) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/images/delete/${id}`)
+      .then(() => {
+        resolve(true);
+      })
+      .catch((err) => {
+        reject(err);
       });
   });
 };

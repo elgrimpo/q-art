@@ -23,13 +23,12 @@ export default function ImagePage({ params }) {
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
   const { imageId } = params;
   const [image, setImage] = useState(null);
-  const {user, resetGenerateFormValues} = useStore()
+  const { user, resetGenerateFormValues } = useStore();
 
   const router = useRouter();
 
   /* -------------------------------- FUNCTIONS ------------------------------- */
 
- 
   useEffect(() => {
     const getImage = async () => {
       const image = await getImageById(imageId);
@@ -43,10 +42,13 @@ export default function ImagePage({ params }) {
   };
 
   const handleReset = () => {
-    resetGenerateFormValues()
+    resetGenerateFormValues();
     router.back();
-  }
+  };
 
+  const customDeleteAction = () => {
+    router.back();
+  };
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
   /* -------------------------------------------------------------------------- */
@@ -97,14 +99,25 @@ export default function ImagePage({ params }) {
 
         {/* -------------------- Sidebar ------------------- */}
 
-        <div>
-          <ImageSidebar image={image} user={user} />
+        <Box
+          sx={{
+            flex: "1",
+            // height: "100%",
+            minWidth: "230px",
+            overflow: { md: "scroll" },
+          }}
+        >
+          <ImageSidebar
+            image={image}
+            user={user}
+            customDeleteAction={customDeleteAction}
+          />
           <Stack spacing={2} sx={{ mb: "3rem", padding: "0rem 3rem" }}>
             <Button
               variant="outlined"
               size="medium"
               color="secondary"
-              sx={{ width: "100%", zIndex: 900 }}
+              sx={{ maxWidth: "100%", zIndex: 900 }}
               aria-label="share"
               onClick={handleClose}
               startIcon={<EditTwoToneIcon />}
@@ -124,7 +137,7 @@ export default function ImagePage({ params }) {
               New Image
             </Button>
           </Stack>
-        </div>
+        </Box>
       </Box>
     </Dialog>
   );
