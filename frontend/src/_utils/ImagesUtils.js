@@ -3,6 +3,8 @@
 
 import axios from "axios";
 import { notFound } from "next/navigation";
+import { revalidateTag } from 'next/cache'
+
 
 // App imports
 
@@ -17,7 +19,7 @@ export const getImageById = async (imageId) => {
       {
         method: "GET",
         credentials: "include",
-        // next: { revalidate: 3600 },
+        next: { revalidate: 3600, tags: ["images"] },
       }
     );
     if (!response.ok) {
@@ -31,8 +33,8 @@ export const getImageById = async (imageId) => {
     }
     console.error("Error fetching images:", error);
     throw error;
-  }}
-
+  }
+};
 
 // /* -------------------------------------------------------------------------- */
 /*                                 GET IMAGES                                 */
@@ -48,7 +50,7 @@ export const getImages = async (params) => {
       {
         method: "GET",
         credentials: "include",
-        // next: { revalidate: 3600 },
+        next: { revalidate: 3600, tags: ["images"] },
       }
     );
     if (!response.ok) {
@@ -85,6 +87,9 @@ export const generateImage = (generateFormValues, user) => {
         if (data.detail && data.detail === "Insufficient credits") {
           reject(new Error("InsufficientCredits"));
         } else {
+          revalidateTag('images')
+          revalidateTag('user')
+
           resolve(data); // Resolve with the image data
         }
       })
@@ -103,6 +108,7 @@ export const deleteImage = (id) => {
     axios
       .delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/images/delete/${id}`)
       .then(() => {
+        revalidateTag('images')
         resolve(true);
       })
       .catch((err) => {
@@ -126,6 +132,7 @@ export const likeImage = async (imageId, userId) => {
         }
       )
       .then(() => {
+        revalidateTag('images')
         resolve(true);
       })
       .catch((err) => {
@@ -139,20 +146,21 @@ export const likeImage = async (imageId, userId) => {
 /* -------------------------------------------------------------------------- */
 
 export const upscaleImage = (imageId, resolution, userId) => {
-
   return new Promise((resolve, reject) => {
     axios
-    .get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/upscale/${imageId}`, {
-      params: { user_id: userId, resolution: resolution },
-      withCredentials: true,
-    })
-    .then((response) => {
-      const upscaledImage = response.data;
-      resolve(upscaledImage)
-    })
+      .get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/upscale/${imageId}`, {
+        params: { user_id: userId, resolution: resolution },
+        withCredentials: true,
+      })
+      .then((response) => {
+        revalidateTag('images')
+        revalidateTag('user')
+
+        const upscaledImage = response.data;
+        resolve(upscaledImage);
+      })
       .catch((err) => {
         reject(err);
       });
-  })
-}
-  
+  });
+};

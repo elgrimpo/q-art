@@ -20,7 +20,7 @@ export const getUserInfo = async () => {
       method: "GET",
       headers: { Cookie: cookies().toString() },
       credentials: "include",
-      // next: { revalidate: 3600 }
+      next: { revalidate: 3600, tags: ["images"] },
     });
 
     // Handle response
