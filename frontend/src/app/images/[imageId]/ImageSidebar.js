@@ -1,3 +1,4 @@
+'use client'
 // Libraries imports
 import React from "react";
 import { List, ListItemText, Typography, Box, Stack } from "@mui/material";
@@ -7,6 +8,8 @@ import dayjs from "dayjs";
 import DeleteButton from "@/_components/actions/DeleteButton";
 import CopyButton from "@/_components/actions/CopyButton";
 import LikeButton from "@/_components/actions/LikeButton";
+import DownloadButton from "@/_components/actions/DownloadButton";
+import { useStore } from "@/store";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
@@ -14,10 +17,14 @@ import LikeButton from "@/_components/actions/LikeButton";
 
 export default function ImageSidebar(props) {
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
-  // TODO: Put in
+
   const isMobile = false;
   // const { handleClose } = props;
   const { image, user, customDeleteAction, customLikeAction } = props;
+
+  const { processingImages } = useStore();
+
+  const isImageProcessing = processingImages.includes(image?._id)
   /* -------------------------------- FUNCTIONS ------------------------------- */
 
   /* -------------------------------------------------------------------------- */
@@ -40,6 +47,8 @@ export default function ImageSidebar(props) {
       {/* -------------------------------- METADATA -------------------------------- */}
       <div style={{ maxHeight: "100%" }}>
         {/* ------------------------------ ICON BUTTONS ------------------------------ */}
+        {/* TODO: Disable buttons instead of hide */}
+        { !isImageProcessing && (
         <Stack
           direction="row"
           justifyContent={{ xs: "center", md: "left" }}
@@ -55,7 +64,9 @@ export default function ImageSidebar(props) {
           <DeleteButton image={image} customDeleteAction={customDeleteAction} />
 
           <CopyButton image={image} />
-        </Stack>
+
+          <DownloadButton image={image} user={user}/>
+        </Stack>)}
         <Typography variant="h5" align={isMobile ? "center" : "left"}>
           Image Details
         </Typography>

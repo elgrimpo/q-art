@@ -1,65 +1,16 @@
 //Libraries imports
-import axios from "axios";
-import { useCallback } from "react";
+
 
 // App imports
-import { ActionTypes } from "@/_context/reducers";
-import { useImagesDispatch } from "@/_context/AppProvider";
 
-export const useUtils = () => {
-  /* ---------------------------- DECLARE VARIABLES --------------------------- */
 
-  const dispatch = useImagesDispatch();
 
-  /* -------------------------------------------------------------------------- */
-  /*                                OPEN SNACKBAR                               */
-  /* -------------------------------------------------------------------------- */
-
-  const openAlert = useCallback((severity, message) => {
-    // Set Snackbar open with severity and message
-    dispatch({
-      type: ActionTypes.OPEN_ALERT,
-      payload: {
-        severity: severity,
-        message: message,
-      },
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  /* -------------------------------------------------------------------------- */
-  /*                               CLOSE SNACKBAR                               */
-  /* -------------------------------------------------------------------------- */
-
-  const closeAlert = () => {
-    // Set Snackbar to closed
-    dispatch({
-      type: ActionTypes.CLOSE_ALERT,
-    });
-  };
-
-  /* -------------------------------------------------------------------------- */
-  /*                                   LOGOUT                                   */
-  /* -------------------------------------------------------------------------- */
-
-  const logout = async () => {
-    axios
-      .get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/logout`, {
-        withCredentials: true,
-      })
-      .then(window.location.reload())
-      .catch((err) => {
-        // Open Snackbar
-        openAlert("error", "User info could not be loaded");
-        console.log(err);
-      });
-  };
 
   /* -------------------------------------------------------------------------- */
   /*                              CALCULATE CREDITS                             */
   /* -------------------------------------------------------------------------- */
 
-  function calculateCredits(input) {
+  export function calculateCredits(input) {
     // Declare credits for each service
     const priceList = {
       generate: {
@@ -94,11 +45,3 @@ export const useUtils = () => {
 
     return totalCredits;
   }
-
-  return {
-    logout,
-    calculateCredits,
-    openAlert,
-    closeAlert,
-  };
-};

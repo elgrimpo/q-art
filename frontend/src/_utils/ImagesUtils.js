@@ -10,21 +10,31 @@ import { notFound } from "next/navigation";
 /*                               GET IMAGE BY ID                              */
 /* -------------------------------------------------------------------------- */
 
-export const getImageById = (imageId) => {
-  return axios
-    .get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/images/get/${imageId}`)
-    .then((response) => {
-      
-      return response.data;
-    })
-    .catch((error) => {
-      if (error.response.status === 404) {
-        notFound();
+export const getImageById = async (imageId) => {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/images/get/${imageId}`,
+      {
+        method: "GET",
+        credentials: "include",
+        // next: { revalidate: 3600 },
       }
-      return error;
-    });
-};
-/* -------------------------------------------------------------------------- */
+    );
+    if (!response.ok) {
+      throw new Error("Failed to fetch images");
+    }
+    const image = await response.json();
+    return image;
+  } catch (error) {
+    if (error.response.status === 404) {
+      notFound();
+    }
+    console.error("Error fetching images:", error);
+    throw error;
+  }}
+
+
+// /* -------------------------------------------------------------------------- */
 /*                                 GET IMAGES                                 */
 /* -------------------------------------------------------------------------- */
 export const getImages = async (params) => {
@@ -101,20 +111,20 @@ export const deleteImage = (id) => {
   });
 };
 
-
 /* -------------------------------------------------------------------------- */
 /*                                 LIKE IMAGE                                 */
 /* -------------------------------------------------------------------------- */
 
 export const likeImage = async (imageId, userId) => {
   return new Promise((resolve, reject) => {
-    axios.put(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/images/like/${imageId}`,
-      null,
-      {
-        params: { user_id: userId },
-      }
-    )
+    axios
+      .put(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/images/like/${imageId}`,
+        null,
+        {
+          params: { user_id: userId },
+        }
+      )
       .then(() => {
         resolve(true);
       })
@@ -123,3 +133,26 @@ export const likeImage = async (imageId, userId) => {
       });
   });
 };
+
+/* -------------------------------------------------------------------------- */
+/*                            UPSCALE Image                                   */
+/* -------------------------------------------------------------------------- */
+
+export const upscaleImage = (imageId, resolution, userId) => {
+
+  return new Promise((resolve, reject) => {
+    axios
+    .get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/upscale/${imageId}`, {
+      params: { user_id: userId, resolution: resolution },
+      withCredentials: true,
+    })
+    .then((response) => {
+      const upscaledImage = response.data;
+      resolve(upscaledImage)
+    })
+      .catch((err) => {
+        reject(err);
+      });
+  })
+}
+  

@@ -16,11 +16,12 @@ import { useStore } from "@/store.js";
 
 function ImageCard(props) {
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
-  const { variant, image, index, handleCardClick, upscaling, customLikeAction } =
+  const { variant, image, index, handleCardClick, customLikeAction } =
     props;
 
-  const { user } = useStore();
+  const { user, processingImages } = useStore();
 
+  const isImageProcessing = processingImages.includes(image?._id)
 
   /* -------------------------------- FUNCTIONS ------------------------------- */
 
@@ -47,7 +48,7 @@ function ImageCard(props) {
         color="primary"
       >
         {/* Skeleton (if loading) */}
-        {variant === "skeleton" || upscaling.includes(image?._id) ? (
+        {variant === "skeleton" || isImageProcessing ? (
           <SkeletonCard index={index} key={index} />
         ) : (
           /* ------------------------------ IMAGE ------------------------------ */

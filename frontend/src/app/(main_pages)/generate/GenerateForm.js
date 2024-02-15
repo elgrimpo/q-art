@@ -20,11 +20,11 @@ import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 
 // App imports
 import GenerateModal from "./GenerateModal";
-import { useUtils } from "@/_utils/utils";
 import promptRandomizer from "@/_utils/PromptGenerator";
 import { styles } from "@/_utils/ImageStyles";
 import StylesCard from "./StylesCard";
 import { useStore } from "@/store";
+import { calculateCredits } from "@/_utils/utils";
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
 /* -------------------------------------------------------------------------- */
@@ -34,9 +34,6 @@ function GenerateForm(props) {
 
   const { handleGenerate } = props;
   const { generateFormValues, setGenerateFormValues } = useStore();
-
-  // Utils functions
-  const { calculateCredits } = useUtils();
 
   // Submit Button state
   const [submitDisabled, setSubmitDisabled] = useState(true);
