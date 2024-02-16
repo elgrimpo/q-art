@@ -7,6 +7,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ReplayTwoToneIcon from "@mui/icons-material/ReplayTwoTone";
 import EditTwoToneIcon from "@mui/icons-material/EditTwoTone";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import theme from "@/_styles/theme";
 
 //App imports
 import { getImageById } from "@/_utils/ImagesUtils";
@@ -26,6 +28,7 @@ export default function ImagePage({ params }) {
   const { user, resetGenerateFormValues } = useStore();
 
   const router = useRouter();
+  const isFullScreen = useMediaQuery(theme.breakpoints.down("md"));
 
   /* -------------------------------- FUNCTIONS ------------------------------- */
 
@@ -55,12 +58,18 @@ export default function ImagePage({ params }) {
 
   return (
     <Dialog
-      open={true}
-      maxWidth="xl"
-      fullscreen="true"
-      onClose={handleClose}
-      PaperProps={{ sx: { height: "100%" } }}
-      sx={{ width: "100%", height: "100%" }}
+    fullScreen={isFullScreen}
+    open={open}
+    onClose={handleClose}
+    sx={{
+      margin: "auto",
+      maxWidth: "1400px",
+      ...(isFullScreen && {
+      "& .MuiDialog-paper": { 
+        maxHeight: "100%",
+        maxWidth: "100%" 
+      }})
+    }}
     >
       {/* ------------------------ NAVIGATION BUTTON ----------------------- */}
 
@@ -90,7 +99,7 @@ export default function ImagePage({ params }) {
           display: "flex",
           flexDirection: { xs: "column", md: "row" },
           overflowY: { xs: "scroll", md: "hidden" },
-          height: "100%",
+
         }}
       >
         {/* ------------ Image ------------- */}
@@ -101,9 +110,7 @@ export default function ImagePage({ params }) {
 
         <Box
           sx={{
-            flex: "1",
-            // height: "100%",
-            minWidth: "230px",
+            flex: "2",
             overflow: { md: "scroll" },
           }}
         >

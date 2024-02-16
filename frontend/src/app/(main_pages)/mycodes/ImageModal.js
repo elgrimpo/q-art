@@ -1,3 +1,4 @@
+'use client'
 // Libraries imports
 import React, { useRef } from "react";
 import { Box, Dialog, Grow } from "@mui/material";
@@ -26,12 +27,9 @@ export default function ImageModal(props) {
     handleNext, // TODO move to this component
     handlePrevious, // TODO move to this component
     customLikeAction
-    // upscaling,
-    // setUpscaling, //TODO upscaling into Zustand - sth more generic
   } = props;
   const image = images[index];
   const isFullScreen = useMediaQuery(theme.breakpoints.down("md"));
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const { user } = useStore();
   // Ref for CardMedia component
@@ -78,13 +76,19 @@ export default function ImageModal(props) {
 
   return (
     <Dialog
-      fullScreen={isMobile}
+      fullScreen={isFullScreen}
       TransitionComponent={Grow}
-      maxWidth="xl"
       open={open}
       onClose={handleClose}
-      fullWidth
-      PaperProps={{ sx: { height: "100%" } }}
+      sx={{
+        margin: "auto",
+        maxWidth: "1400px",
+        "& .MuiDialog-paper": { 
+          maxHeight: "100%",
+          maxWidth: "100%" 
+        }
+      }}
+      // PaperProps={{ sx: .MuiDialog-paper: { height: "100vh" } }}
       {...handlers}
     >
       {/* ------------------------ NAVIGATION BUTTON ----------------------- */}
@@ -149,7 +153,6 @@ export default function ImageModal(props) {
           display: "flex",
           flexDirection: { xs: "column", md: "row" },
           overflowY: { xs: "scroll", md: "hidden" },
-          height: "100%",
         }}
       >
         {/* ------------ Image ------------- */}
