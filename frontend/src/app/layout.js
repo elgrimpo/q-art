@@ -2,7 +2,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "@/_styles/theme";
-import { ContextProvider } from "@/_context/AppProvider";
+
 import { StoreInitializer } from "@/_components/StoreInitializer";
 import { getUserInfo } from "@/_utils/userUtils";
 import { Toaster } from "@/_components/Toaster";
@@ -22,10 +22,10 @@ export default async function RootLayout({ children }) {
       <body className={inter.className}>
         <ThemeProvider theme={theme}>
           <StoreInitializer user={user}>
-            <ContextProvider>
+
               <Toaster />
               {children}
-            </ContextProvider>
+
           </StoreInitializer>
         </ThemeProvider>
       </body>

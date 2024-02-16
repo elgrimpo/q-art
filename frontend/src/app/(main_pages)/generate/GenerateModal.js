@@ -8,7 +8,6 @@ import theme from "@/_styles/theme";
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 
 // App imports
-import { useImagesDispatch } from "@/_context/AppProvider";
 import StyledIconButton from "@/_components/StyledIconButton";
 import PromptKeywords from "./PromptKeywords";
 import { promptKeywords } from "@/_utils/PromptGenerator";
