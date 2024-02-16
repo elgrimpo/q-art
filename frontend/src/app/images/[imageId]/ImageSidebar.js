@@ -3,6 +3,8 @@
 import React from "react";
 import { List, ListItemText, Typography, Box, Stack } from "@mui/material";
 import dayjs from "dayjs";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import theme from "@/_styles/theme";
 
 //App imports
 import DeleteButton from "@/_components/actions/DeleteButton";
@@ -18,7 +20,7 @@ import { useStore } from "@/store";
 export default function ImageSidebar(props) {
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
 
-  const isMobile = false;
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   // const { handleClose } = props;
   const { image, user, customDeleteAction, customLikeAction } = props;
 
