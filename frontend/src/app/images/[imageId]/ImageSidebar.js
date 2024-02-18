@@ -1,4 +1,4 @@
-'use client'
+"use client";
 // Libraries imports
 import React from "react";
 import { List, ListItemText, Typography, Box, Stack } from "@mui/material";
@@ -25,8 +25,9 @@ export default function ImageSidebar(props) {
   const { image, user, customDeleteAction, customLikeAction } = props;
 
   const { processingImages } = useStore();
+  const isOwner = user?._id === image?.user_id;
 
-  const isImageProcessing = processingImages.includes(image?._id)
+  const isImageProcessing = processingImages.includes(image?._id);
   /* -------------------------------- FUNCTIONS ------------------------------- */
 
   /* -------------------------------------------------------------------------- */
@@ -50,25 +51,32 @@ export default function ImageSidebar(props) {
       <div style={{ maxHeight: "100%" }}>
         {/* ------------------------------ ICON BUTTONS ------------------------------ */}
         {/* TODO: Disable buttons instead of hide */}
-        { !isImageProcessing && (
-        <Stack
-          direction="row"
-          justifyContent={{ xs: "center", md: "left" }}
-          alignItems="center"
-          spacing={3}
-          sx={{ mb: "1rem" }}
-        >
-          <LikeButton
-            image={image}
-            user={user}
-            customLikeAction={customLikeAction}
-          />
-          <DeleteButton image={image} customDeleteAction={customDeleteAction} />
+        {!isImageProcessing && (
+          <Stack
+            direction="row"
+            justifyContent={{ xs: "center", md: "left" }}
+            alignItems="center"
+            spacing={3}
+            sx={{ mb: "1rem" }}
+          >
+            <LikeButton
+              image={image}
+              user={user}
+              customLikeAction={customLikeAction}
+            />
 
-          <CopyButton image={image} />
+            {isOwner && (
+              <DeleteButton
+                image={image}
+                customDeleteAction={customDeleteAction}
+              />
+            )}
 
-          <DownloadButton image={image} user={user}/>
-        </Stack>)}
+            <CopyButton image={image} />
+
+            {isOwner && <DownloadButton image={image} user={user} />}
+          </Stack>
+        )}
         <Typography variant="h5" align={isMobile ? "center" : "left"}>
           Image Details
         </Typography>
