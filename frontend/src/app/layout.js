@@ -19,6 +19,7 @@ export default async function RootLayout({ children }) {
 
   return (
     <html lang="en">
+      
       <body className={inter.className}>
         <ThemeProvider theme={theme}>
           <StoreInitializer user={user}>
