@@ -71,7 +71,10 @@ export default function MyCodes() {
   const [modalOpen, setModalOpen] = useState(false);
 
   /* -------------------------------- FUNCTIONS ------------------------------- */
-
+useEffect (() => {
+  setPage(0);
+  setImages([]);
+},[pathname])
 
   const loadMoreImages = async (params) => {
     const newImages = await getImages(params);
