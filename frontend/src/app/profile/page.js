@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import DiamondTwoToneIcon from "@mui/icons-material/DiamondTwoTone";
 import Link from "next/link";
+import Image from "next/image";
 
 //App imports
 import PurchaseCard from "./PurchaseCard";
@@ -53,7 +54,7 @@ export default async function Profile() {
       {/* --------------------------------- APP BAR -------------------------------- */}
       <Toolbar display="flex" className="header">
         {/* LOGO */}
-        <img src="/logo.png" alt="Logo" />
+        <Image src="/logo.png" alt="Logo" />
 
         {/* CLOSE BUTTON */}
         <Box
@@ -153,7 +154,7 @@ export default async function Profile() {
           sx={{ display: "flex", flexDirection: "row", maxWidth: "900px" }}
         >
           {purchaseItems.map((item, index) => (
-            <PurchaseCard purchaseItem={item} index={index} user={user} />
+            <PurchaseCard purchaseItem={item} key={index} user={user} />
           ))}
         </Grid>
       </DialogContent>

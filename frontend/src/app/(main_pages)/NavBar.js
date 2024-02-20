@@ -2,7 +2,7 @@ import "server-only";
 
 // Libraries imports
 import React from "react";
-
+import Image from "next/image";
 import { AppBar, Container, Button, Toolbar, Box } from "@mui/material";
 import ImageTwoToneIcon from "@mui/icons-material/ImageTwoTone";
 import Diversity1TwoToneIcon from "@mui/icons-material/Diversity1TwoTone";
@@ -41,7 +41,7 @@ export default async function NavBar() {
         >
           <Toolbar display="flex" className="header">
             {/* LOGO */}
-            <img src="/logo.png" alt="Logo" />
+            <Image src="/logo.png" alt="Logo" />
             <Box sx={{ flexGrow: 1 }}></Box>
 
             {/* ACCOUNT */}

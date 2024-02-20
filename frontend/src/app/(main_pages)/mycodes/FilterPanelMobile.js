@@ -151,7 +151,8 @@ function FilterPanelMobile({
           }}
         >
           {filters.map((filter, index) => (
-            <Box sx={{ padding: "1rem" }}>
+            <Box sx={{ padding: "1rem" }}
+            key={index}>
               <Typography
                 variant="h6"
                 key={index}
@@ -170,7 +171,7 @@ function FilterPanelMobile({
                 {/* ------------------------ FILTER OPTIONS ------------------------ */}
                 {filter.options.map((option, optionIndex) => (
                   <Chip
-                    indext={optionIndex}
+                    key={optionIndex}
                     color="primary"
                     label={option}
                     size="medium"

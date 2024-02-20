@@ -120,8 +120,8 @@ function GenerateModal(props) {
           columnsCountBreakPoints={{ 350: 1, 750: 2, 900: 3 }}
         >
           <Masonry gutter="1rem">
-            /* ----------------------------- PROMPT KEYWORDS
-            ---------------------------- */
+            {/* ----------------------------- PROMPT KEYWORDS
+            ---------------------------- */}
             {promptKeywordss?.map((item, index) => (
               <PromptKeywords
                 item={item}
