@@ -330,15 +330,21 @@ function GenerateForm(props) {
           onClick={(e) => handleGenerate()}
           sx={{ mb: "2rem", position: "sticky", bottom: "0rem" }}
         >
-          {/* TODO: Find workaround for HTML Nesting issue */}
-          Generate QR Code
-          {/* <Typography variant="body1" component="div">
+
+          <Typography
+            variant="body1"
+            component="div"
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              flexWrap: "wrap",
+            }}
+          >
             Generate QR Code ( {price}
-            <IconButton size="small" color="primary">
-              <DiamondTwoToneIcon />
-            </IconButton>
-            )
-          </Typography> */}
+            {/* <IconButton size="small" color="primary"> */}
+            <DiamondTwoToneIcon fontSize="small" color="primary" sx={{mr:"4px"}}/> )
+            {/* </IconButton>) */}
+          </Typography>
         </Button>
       </Stack>
 
