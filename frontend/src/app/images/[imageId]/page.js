@@ -14,6 +14,22 @@ import ImageSidebar from "./ImageSidebar";
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
 /* -------------------------------------------------------------------------- */
+export async function generateMetadata({params}) {
+  const { imageId } = params;
+  const image = await getImageById(imageId);
+
+  return {
+  title: "QR AI",
+  description: "Generate Art with QR Codes",
+  twitter: {
+    card: 'summary_large_image',
+    title: 'QR AI',
+    description: 'Generate Art with QR Codes',
+    images: [image?.image_url], 
+  }
+  }
+}
+
 
 export default async function ImagePage({ params }) {
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
