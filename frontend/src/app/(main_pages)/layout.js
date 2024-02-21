@@ -12,6 +12,12 @@ import NavBar from "./NavBar";
 export const metadata = {
   title: "QR AI",
   description: "Generate Art with QR Codes",
+  twitter: {
+    card: 'summary_large_image',
+    title: 'QR AI',
+    description: 'Generate Art with QR Codes',
+    images: ["https://qrartimages.s3.us-west-1.amazonaws.com/656e2d37e3aafee4354c812b.png"], 
+  },
 };
 
 export default function Layout({ children }) {
