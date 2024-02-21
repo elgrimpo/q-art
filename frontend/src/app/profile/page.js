@@ -54,7 +54,7 @@ export default async function Profile() {
       {/* --------------------------------- APP BAR -------------------------------- */}
       <Toolbar display="flex" className="header">
         {/* LOGO */}
-        <Image src="/logo.png" alt="Logo" />
+        <Image src="/logo.png" alt="Logo" width={40} height={40} />
 
         {/* CLOSE BUTTON */}
         <Box

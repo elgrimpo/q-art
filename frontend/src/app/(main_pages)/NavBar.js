@@ -41,7 +41,7 @@ export default async function NavBar() {
         >
           <Toolbar display="flex" className="header">
             {/* LOGO */}
-            <Image src="/logo.png" alt="Logo" />
+            <Image src="/logo.png" alt="Logo" width={40} height={40} />
             <Box sx={{ flexGrow: 1 }}></Box>
 
             {/* ACCOUNT */}
