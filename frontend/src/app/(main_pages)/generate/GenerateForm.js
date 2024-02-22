@@ -163,7 +163,7 @@ function GenerateForm(props) {
                 sx={{
                   alignItems: "center",
                   alignSelf: "flex-start",
-                  padding: "1.8rem 0rem",
+                  padding: "0.9rem 0rem",
                 }}
               >
                 <Box sx={{ display: "flex", flexDirection: "column" }}>

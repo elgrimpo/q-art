@@ -58,8 +58,6 @@ export default function ImageModal(props) {
 
   const customDeleteAction = () => {
     if (index > -1) {
-      console.log("customDeleteAction");
-      console.log("index: " + index);
 
       // Remove image from array
       const updatedImages = [
