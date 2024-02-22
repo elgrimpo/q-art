@@ -71,24 +71,24 @@ function StylesCard(props) {
           >
             {item?.title}
           </Typography>
-          {/* TODO: Find workaround for HTML Nesting issue */}
-          {/* <Stack
-            direction="row"
-            spacing={1}
-            useFlexGap
-            flexWrap="wrap"
-            justifyContent="center"
-          >
-            {item.keywords.map((prompt, index) => (
-              <Chip
-                label={prompt}
-                color={selected ? "primary" : "secondary"}
-                key={index}
-                size="small"
-              />
-            ))}
-          </Stack> */}
         </CardActionArea>
+
+        <Stack
+          direction="row"
+          spacing={1}
+          useFlexGap
+          flexWrap="wrap"
+          justifyContent="center"
+        >
+          {item.keywords.map((prompt, index) => (
+            <Chip
+              label={prompt}
+              color={selected ? "primary" : "secondary"}
+              key={index}
+              size="small"
+            />
+          ))}
+        </Stack>
       </Card>
     </Grid>
   );

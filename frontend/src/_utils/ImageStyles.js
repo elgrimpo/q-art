@@ -93,7 +93,7 @@ export const styles = [
     title: "Watercolor",
     prompt: "Watercolor painting, soft colors, <lora:Colorwater_v4:0.5>, masterpiece, sharp",
     image_url:
-      "https://qrartimages.s3.us-west-1.amazonaws.com/65a17db7d076ab86bf56aca2.png",
+      "https://qrartimages.s3.us-west-1.amazonaws.com/65d79f889478a127106f32e0.png",
     keywords: ["Water color"],
     sd_model: "colorful_v31_62333.safetensors",
   },
@@ -102,7 +102,7 @@ export const styles = [
     title: "Vector Art",
     prompt: "Flat Design, Vector Art, illustrator, <lora:0mib3(gut auf 1)_47645:0.7>",
     image_url:
-      "https://qrartimages.s3.us-west-1.amazonaws.com/6576499b56ae6bad355304cc.png",
+      "https://qrartimages.s3.us-west-1.amazonaws.com/65cc123c7b729925fcced038.png",
     keywords: ["Flat Design", "Illustrator"],
     sd_model: "colorful_v31_62333.safetensors",
   },
@@ -126,11 +126,11 @@ export const styles = [
   },
   {
     id: 10,
-    title: "80s",
-    prompt: "cmyk colors, vaporwave",
+    title: "Doodle Art",
+    prompt: "<lora:TUYA5_129115:0.8>, surrealistic, tuyawang, abstract, doodle art",
     image_url:
-      "https://qrartimages.s3.us-west-1.amazonaws.com/658992eb2a0186392d1d4ef6.png",
-    keywords: ["80s style", "CMYK Colors"],
+      "https://qrartimages.s3.us-west-1.amazonaws.com/65a19822d076ab86bf56acab.png",
+    keywords: ["Doodle Art"],
     sd_model: "colorful_v31_62333.safetensors",
   },
 ];

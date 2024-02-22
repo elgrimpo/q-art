@@ -24,8 +24,8 @@ export default function ImageModal(props) {
     setImages,
     index,
     handleClose,
-    handleNext, // TODO move to this component
-    handlePrevious, // TODO move to this component
+    handleNext, 
+    handlePrevious, 
     customLikeAction
   } = props;
   const image = images[index];
