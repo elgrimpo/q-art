@@ -11,6 +11,7 @@ import DeleteButton from "@/_components/actions/DeleteButton";
 import CopyButton from "@/_components/actions/CopyButton";
 import LikeButton from "@/_components/actions/LikeButton";
 import DownloadButton from "@/_components/actions/DownloadButton";
+import ShareButton from "@/_components/actions/ShareButton";
 import { useStore } from "@/store";
 
 /* -------------------------------------------------------------------------- */
@@ -64,6 +65,8 @@ export default function ImageSidebar(props) {
               user={user}
               customLikeAction={customLikeAction}
             />
+
+            <ShareButton image={image} index={1} />
 
             {isOwner && (
               <DeleteButton
