@@ -25,7 +25,7 @@ export async function generateMetadata({params}) {
     card: 'summary_large_image',
     title: 'QR AI',
     description: 'Generate Art with QR Codes',
-    images: [image?.image_url], 
+    images: [image?.watermarked_image_url], 
   }
   }
 }

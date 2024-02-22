@@ -55,7 +55,7 @@ function ImageCard(props) {
           <div>
             <CardMedia
               component="img"
-              image={image.image_url}
+              image={image.watermarked_image_url}
               sx={{ borderRadius: "5px" }}
               onClick={handleCardClick}
               onContextMenu={(e) => preventRightClick(e)}

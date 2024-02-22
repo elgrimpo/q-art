@@ -35,7 +35,7 @@ export default function ImageFill(props) {
         flex: { xs: "2", lg: "3" },
       }}
     >
-      {!image?.image_url || isImageProcessing ? (
+      {!image?.watermarked_image_url || isImageProcessing ? (
         <Skeleton
           variant="rounded"
           animation="wave"
@@ -52,7 +52,7 @@ export default function ImageFill(props) {
       ) : (
         <CardMedia
           component="img"
-          image={image?.image_url}
+          image={image?.watermarked_image_url}
           sx={{
             borderRadius: { md: "12px" },
             objectFit: "contain",

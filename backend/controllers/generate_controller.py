@@ -14,11 +14,14 @@ from io import BytesIO
 from PIL import Image
 
 # App imports
-from controllers.images_controller import insert_image, update_image
+from controllers.images_controller import (
+    create_image_doc,
+    upload_image_to_s3,
+    update_image,
+)
 from utils.utils import (
     prepare_txt2img_request,
-    prepare_doc,
-    parse_seed,
+    create_watermark,
     calculate_credits,
     sufficient_credit,
 )
@@ -39,6 +42,7 @@ images = db.get_collection("images")
 # S3
 api_url = os.environ["S3_URL"]
 s3_bucket_name = "qrartimages"
+s3_bucket_watermarked_name = "qrartimageswatermarked"
 s3_client = boto3.client(
     "s3",
     aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
@@ -133,7 +137,7 @@ async def predict(
 
         # ------------------------------ UPDATE DATABASE ----------------------------- #
         try:
-            doc = prepare_doc(
+            inserted_image_id = await create_image_doc(
                 req,
                 seed,
                 website,
@@ -142,9 +146,33 @@ async def predict(
                 prompt,
                 style_prompt,
                 style_title,
-                generated_image
             )
-            inserted_image = await insert_image(doc, generated_image)
+            # ---------------------------- UPLOAD IMAGES TO S3 --------------------------- #
+
+            # Apply watermark to the original image
+            watermarked_image = create_watermark(generated_image)
+
+            # Create name for image files
+            object_name = f"{inserted_image_id}.png"
+
+            # Upload original image to S3
+            original_image_url = await upload_image_to_s3(
+                generated_image, object_name, s3_bucket_name
+            )
+
+            # Upload watermarked image to S3
+            watermarked_image_url = await upload_image_to_s3(
+                watermarked_image, object_name, s3_bucket_watermarked_name
+            )
+
+            # Update the image document with image URLs
+            updated_data = {
+                "image_url": original_image_url,
+                "watermarked_image_url": watermarked_image_url,
+            }
+
+            updated_image = await update_image(inserted_image_id, updated_data)
+            
         except Exception as db_error:
             # Handle database insertion error
             print(db_error)
@@ -157,7 +185,7 @@ async def predict(
             # Handle user count update error
             raise HTTPException(status_code=500, detail="User count update failed")
 
-        return inserted_image
+        return updated_image
 
     except HTTPException as http_exception:
         # Reraise HTTP exceptions for FastAPI to handle
@@ -179,9 +207,9 @@ async def upscale(image_id, user_id, resolution):
         image = images.find_one({"_id": ObjectId(image_id)})
 
         service_config = {
-            "upscale_resize": int(resolution)
-            if image["width"] < int(resolution)
-            else 0,
+            "upscale_resize": (
+                int(resolution) if image["width"] < int(resolution) else 0
+            ),
             "download": not image.get("downloaded", False),
         }
 

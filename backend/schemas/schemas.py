@@ -58,7 +58,6 @@ class ImageDoc(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     user_id: str
     created_at: datetime
-    image_b64: str
     prompt: str
     negative_prompt: Optional[str] = None
     style_title: Optional[str] = "Default"
@@ -76,5 +75,6 @@ class ImageDoc(BaseModel):
     controlnet0: ControlNet
     controlnet1: ControlNet
     image_url: Optional[str] = None
+    watermarked_image_url: Optional[str] = None
     likes: Optional[List[str]] = []
     downloaded: Optional[bool] = False

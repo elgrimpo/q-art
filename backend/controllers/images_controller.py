@@ -12,8 +12,9 @@ from typing import Optional
 from io import BytesIO
 
 # App imports
-from utils.utils import createImagesFilterQuery
+from utils.utils import createImagesFilterQuery, prepare_doc
 from schemas.schemas import ImageDoc
+
 
 load_dotenv()
 
@@ -29,6 +30,7 @@ images = db.get_collection("images")
 # S3
 api_url = os.environ["S3_URL"]
 s3_bucket_name = "qrartimages"
+s3_bucket_watermarked_name = "qrartimageswatermarked"
 s3_client = boto3.client(
     "s3",
     aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
@@ -37,64 +39,51 @@ s3_client = boto3.client(
 
 
 # ---------------------------------------------------------------------------- #
-#                                 INSERT IMAGE                                 #
+#                                 INSERT IMAGE DOC                             #
 # ---------------------------------------------------------------------------- #
-async def insert_image(doc, image):
+async def create_image_doc(req, seed, website, qr_weight, user_id, prompt, style_prompt, style_title):
     try:
-        # -------------------------- CREATE IMAGE DOC IN DB -------------------------- #
+        # Prepare the document
+        doc = prepare_doc(
+            req, seed, website, qr_weight, user_id, prompt, style_prompt, style_title
+        )
 
-        try:
-            # Create new image document
-            result = db["images"].insert_one(doc.dict())
-        except Exception as insert_error:
-            # Handle database insertion error
-            print(insert_error)
-            raise HTTPException(status_code=500, detail="Database insertion failed")
+        # Insert image document into MongoDB
+        result = db["images"].insert_one(doc.dict())
 
-        # Create name for image file
-        inserted_image_id = str(result.inserted_id)
-        object_name = f"{inserted_image_id}.png"
+        # Return the inserted image ID
+        return str(result.inserted_id)
 
-        # -------------------------- UPLOAD IMAGE FILE TO S3 ------------------------- #
-        try:
-            # Convert the PIL Image to bytes
-            buffer = BytesIO()
-            image.save(buffer, format="PNG")
-            buffer.seek(0)
-
-            # Upload file to S3
-            s3_client.upload_fileobj(buffer, s3_bucket_name, object_name)
-
-            # Create image_url for image doc
-            image_url = (
-                f"https://{s3_bucket_name}.s3.us-west-1.amazonaws.com/{object_name}"
-            )
-        except Exception as upload_error:
-            # Handle S3 upload error
-            raise HTTPException(status_code=500, detail="S3 upload failed")
-
-        # ---------------------- AMEND IMAGE DOC WITH IMAGE_URL ---------------------- #
-        try:
-            # Update Image doc
-            inserted_image = db["images"].find_one_and_update(
-                {"_id": ObjectId(inserted_image_id)},
-                {"$set": {"image_url": image_url}},
-                return_document=True,
-            )
-        except Exception as update_error:
-            # Handle database update error
-            raise HTTPException(status_code=500, detail="Database update failed")
-
-        return ImageDoc(**inserted_image)
-
-    except HTTPException as http_exception:
-        # Reraise HTTP exceptions for FastAPI to handle
-        raise
     except Exception as unexpected_error:
-        # Log unexpected errors and return a generic error message
-        print(f"Error during image insertion: {str(unexpected_error)}")
+        print(str(unexpected_error))
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
+
+
+# ---------------------------------------------------------------------------- #
+#                                 UPLOAD IMAGE                                 #
+# ---------------------------------------------------------------------------- #
+    
+async def upload_image_to_s3(image, object_name, s3_bucket_name):
+    try:
+        # Convert the PIL Image to bytes
+        buffer = BytesIO()
+        image.save(buffer, format="PNG")
+        buffer.seek(0)
+
+        # Upload file to S3
+        s3_client.upload_fileobj(buffer, s3_bucket_name, object_name)
+
+        # Create image_url for image doc
+        image_url = (
+            f"https://{s3_bucket_name}.s3.us-west-1.amazonaws.com/{object_name}"
+        )
+        
+        return image_url
+
+    except Exception as upload_error:
+        print(upload_error)
+        raise HTTPException(status_code=500, detail="S3 upload failed")
 
 # ---------------------------------------------------------------------------- #
 #                                 UPDATE IMAGE                                 #
@@ -201,9 +190,6 @@ def get_images(
         for image in images_list:
             image["_id"] = str(image["_id"])
 
-            # TODO: Remove image_b64 from DB
-            if "image_b64" in image:
-                del image["image_b64"]
         return images_list
 
     except Exception as e:
@@ -223,6 +209,7 @@ def delete_image(id: str):
         # --------------------------- DELETE IMAGE FROM S3 --------------------------- #
         try:
             s3_client.delete_object(Bucket=s3_bucket_name, Key=object_name)
+            s3_client.delete_object(Bucket=s3_bucket_watermarked_name, Key=object_name)
             print("Image deleted from S3 successfully.")
         except Exception as s3_delete_error:
             # Handle S3 deletion error
