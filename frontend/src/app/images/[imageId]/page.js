@@ -27,7 +27,7 @@ export async function generateMetadata({ params }) {
       description: "Generate Art with QR Codes",
       images: [image?.watermarked_image_url],
     },
-    og: {
+    openGraph: {
       image: image?.watermarked_image_url,
       title: "QR AI",
       description: "Generate Art with QR Codes",
