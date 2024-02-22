@@ -7,6 +7,8 @@ from pymongo import DESCENDING, ASCENDING
 from typing import Optional
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
+import os
+
 
 # App imports
 from controllers.images_controller import get_images, get_image, toggle_like, delete_image
@@ -25,8 +27,7 @@ app = FastAPI()
 # Session middleware
 app.add_middleware(
     SessionMiddleware,
-    # TODO: generate secret key and store in .env
-    secret_key="some-random-string",
+    secret_key=os.environ["SESSION_SECRET_KEY"],
 )
 
 # CORS middleware
