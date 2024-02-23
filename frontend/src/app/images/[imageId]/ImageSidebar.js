@@ -41,11 +41,13 @@ export default function ImageSidebar(props) {
         flex: "1",
         // height: "100%",
         padding: "3rem",
-        minWidth: "230px",
+        minWidth: "300px",
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
-        overflow: { md: "scroll" },
+        overflowY: { md: "scroll" },
+        overflowX: "clip",
+
       }}
     >
       {/* -------------------------------- METADATA -------------------------------- */}
@@ -57,7 +59,8 @@ export default function ImageSidebar(props) {
             direction="row"
             justifyContent={{ xs: "center", md: "left" }}
             alignItems="center"
-            spacing={3}
+            spacing={2}
+            useFlexGap flexWrap="wrap"
             sx={{ mb: "1rem" }}
           >
             <LikeButton

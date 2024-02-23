@@ -63,7 +63,7 @@ export default function ImagePage({ params }) {
     onClose={handleClose}
     sx={{
       margin: "auto",
-      maxWidth: "1400px",
+      maxWidth: "1600px",
       ...(isFullScreen && {
       "& .MuiDialog-paper": { 
         maxHeight: "100%",
@@ -108,43 +108,13 @@ export default function ImagePage({ params }) {
 
         {/* -------------------- Sidebar ------------------- */}
 
-        <Box
-          sx={{
-            flex: "2",
-            overflow: { md: "scroll" },
-          }}
-        >
+
           <ImageSidebar
             image={image}
             user={user}
             customDeleteAction={customDeleteAction}
           />
-          <Stack spacing={2} sx={{ mb: "3rem", padding: "0rem 3rem" }}>
-            <Button
-              variant="outlined"
-              size="medium"
-              color="secondary"
-              sx={{ maxWidth: "100%", zIndex: 900 }}
-              aria-label="share"
-              onClick={handleClose}
-              startIcon={<EditTwoToneIcon />}
-            >
-              Modify
-            </Button>
 
-            <Button
-              variant="contained"
-              size="medium"
-              color="secondary"
-              sx={{ width: "100%", zIndex: 900 }}
-              aria-label="share"
-              onClick={handleReset}
-              startIcon={<ReplayTwoToneIcon />}
-            >
-              New Image
-            </Button>
-          </Stack>
-        </Box>
       </Box>
     </Dialog>
   );

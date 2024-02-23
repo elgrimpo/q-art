@@ -47,6 +47,7 @@ export default function ImageFill(props) {
             width: "auto",
             height: "auto",
             aspectRatio: "1/1",
+            minWidth: {xs: "360px", sm: "600px", md: "400px"},
           }}
         />
       ) : (
