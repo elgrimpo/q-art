@@ -34,7 +34,7 @@
     Object.keys(input).forEach((service) => {
       const option = input[service];
 
-      if (priceList[service] && priceList[service][option]) {
+      if (priceList[service] && typeof priceList[service][option] !== 'undefined') {
         totalCredits += priceList[service][option];
       } else {
         console.error(
