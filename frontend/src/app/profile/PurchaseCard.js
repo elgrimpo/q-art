@@ -8,6 +8,7 @@ import axios from "axios";
 // App imports
 import theme from "@/_styles/theme";
 import { useStore } from "@/store";
+import { revalidateUser } from "@/_utils/userUtils";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
@@ -54,6 +55,7 @@ export default function PurchaseCard(props) {
     const query = new URLSearchParams(window.location.search);
     if (query.get("success")) {
       openAlert("success", "Credits added to your account!");
+      revalidateUser();
     }
     if (query.get("canceled")) {
       openAlert("error", "Credit purchase cancelled.");

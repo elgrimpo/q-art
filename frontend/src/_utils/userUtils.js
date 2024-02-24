@@ -2,6 +2,8 @@
 import { cookies } from "next/headers";
 import { getServerSession } from "next-auth";
 import { useStore } from "@/store";
+import { revalidateTag } from 'next/cache'
+
 
 export const getUserInfo = async () => {
   'use server'
@@ -20,7 +22,7 @@ export const getUserInfo = async () => {
       method: "GET",
       headers: { Cookie: cookies().toString() },
       credentials: "include",
-      next: { revalidate: 3600, tags: ["images"] },
+      next: { revalidate: 3600, tags: ["user"] },
     });
 
     // Handle response
@@ -37,3 +39,8 @@ export const getUserInfo = async () => {
     throw error;
   }
 };
+
+export const revalidateUser = async () => {
+  'use server'
+  revalidateTag('user')
+}
