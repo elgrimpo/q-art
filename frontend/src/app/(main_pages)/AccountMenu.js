@@ -19,6 +19,7 @@ import DiamondTwoToneIcon from "@mui/icons-material/DiamondTwoTone";
 import Logout from "@mui/icons-material/Logout";
 import theme from "@/_styles/theme";
 import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react"
 
 // App import
 import { useStore } from "@/store";
@@ -115,7 +116,7 @@ export default function Account() {
             <Divider />
 
             {/* LOGOUT */}
-            <MenuItem onClick={() => router.push("/api/auth/signout")}>
+            <MenuItem onClick={()=>signOut()}>
               <ListItemIcon>
                 <Logout fontSize="small" />
               </ListItemIcon>

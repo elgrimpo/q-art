@@ -13,20 +13,24 @@ export const metadata = {
   title: "QR AI",
   description: "Generate Art with QR Codes",
   twitter: {
-    card: 'summary_large_image',
-    title: 'QR AI',
-    description: 'Generate Art with QR Codes',
-    images: ["https://qrartimages.s3.us-west-1.amazonaws.com/656e2d37e3aafee4354c812b.png"], 
+    card: "summary_large_image",
+    title: "QR AI",
+    description: "Generate Art with QR Codes",
+    images: [
+      "https://qrartimages.s3.us-west-1.amazonaws.com/656e2d37e3aafee4354c812b.png",
+    ],
   },
   openGraph: {
-    images: ["https://qrartimages.s3.us-west-1.amazonaws.com/656e2d37e3aafee4354c812b.png"],
+    images: [
+      "https://qrartimages.s3.us-west-1.amazonaws.com/656e2d37e3aafee4354c812b.png",
+    ],
     title: "QR AI",
     description: "Generate Art with QR Codes",
     url: "https://qr-ai.co",
-  }
+  },
 };
 
-export default function Layout({ children }) {
+export default function Layout({ children, auth }) {
   /* ---------------------------- DECLARE VARIABLE ---------------------------- */
 
   /* -------------------------------------------------------------------------- */
@@ -34,7 +38,6 @@ export default function Layout({ children }) {
   /* -------------------------------------------------------------------------- */
   return (
     <div>
-
       <NavBar />
 
       <div className="body">
@@ -44,7 +47,8 @@ export default function Layout({ children }) {
         >
           {children}
         </Container>
-      </div>      
+      </div>
+      {auth}
     </div>
   );
 }
