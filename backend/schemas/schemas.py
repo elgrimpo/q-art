@@ -29,10 +29,13 @@ class PaymentHistory(BaseModel):
     credit_amount: int
     payment_intent_id: str
 
-
+class AuthProvider(BaseModel):
+    provider: str
+    providerId: str
+    
 class User(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
-    google_id: str
+    auth_providers: List[AuthProvider] = []   
     name: str
     picture: Optional[str] = None
     email: str

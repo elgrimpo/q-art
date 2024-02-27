@@ -7,7 +7,7 @@ from starlette.exceptions import HTTPException
 import os
 from pymongo import MongoClient
 from datetime import datetime
-
+from fastapi.responses import JSONResponse
 
 
 # App imports
@@ -36,9 +36,46 @@ async def get_user_info(email):
         else:
             raise HTTPException(status_code=404, detail="User not found")
 
-    except Exception:
-        # Log unexpected errors and return a generic error message
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ---------------------------------------------------------------------------- #
+#                               AUTHENTICATE USER                              #
+# ---------------------------------------------------------------------------- #
+
+
+async def authenticate_user(user: User):
+    try:
+        # Check if user exists
+        user_exists = users.find_one({"email": user.email})
+
+        # -------------------------------- USER EXISTS ------------------------------- #
+        if user_exists:
+
+            # Check if the auth_provider exists
+            auth_provider_exists = False
+            for provider in user_exists["auth_providers"]:
+                if provider["provider"] == user.auth_providers[0].provider:
+                    auth_provider_exists = True
+                    break
+
+            # If the auth_provider does not exist, add it to auth_providers
+            if not auth_provider_exists:
+                users.update_one(
+                    {"email": user.email},
+                    {"$push": {"auth_providers": user.auth_providers[0].dict()}},
+                )
+
+        # ---------------------------- USER DOES NOT EXIST --------------------------- #
+        else:
+            users.insert_one(user.dict())
+
+        return JSONResponse(content={"message": "User authenticated successfully"})
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ---------------------------------------------------------------------------- #

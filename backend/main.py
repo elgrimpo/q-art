@@ -14,9 +14,9 @@ import os
 from controllers.images_controller import get_images, get_image, toggle_like, delete_image
 from controllers.generate_controller import predict, upscale
 from controllers.auth_controller import google_login, google_auth, google_logout
-from controllers.users_controller import get_user_info
+from controllers.users_controller import get_user_info, authenticate_user
 from controllers.payment_controller import create_checkout_session, stripe_webhook
-
+from schemas.schemas import User
 # ---------------------------------------------------------------------------- #
 #                                INITIALIZE APP                                #
 # ---------------------------------------------------------------------------- #
@@ -145,6 +145,11 @@ async def logout_endpoint(request: Request):
 @app.get("/api/user/info")
 async def get_user_info_endpoint(email: Optional[str] = None):
     return await get_user_info(email)
+
+# AUTHENTICATE USER
+@app.post("/api/user/auth")
+async def authenticate_user_endpoint(user: User):
+    return await authenticate_user(user)
 
 # ------------------------------ PAYMENTS ROUTES ----------------------------- #
 
