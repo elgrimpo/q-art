@@ -181,13 +181,13 @@ async def predict(
         # ---------------------- UPDATE USER CREDITS AND COUNT ---------------------- #
         try:
             await increment_user_count(user_id, service_config, credits_required)
-        except Exception as user_count_error:
+        except Exception:
             # Handle user count update error
             raise HTTPException(status_code=500, detail="User count update failed")
 
         return updated_image
 
-    except HTTPException as http_exception:
+    except HTTPException:
         # Reraise HTTP exceptions for FastAPI to handle
         raise
     except Exception as unexpected_error:
@@ -228,7 +228,7 @@ async def upscale(image_id, user_id, resolution):
                 response = s3_client.get_object(Bucket=s3_bucket_name, Key=object_name)
                 image_content = response["Body"].read()
                 base64_image = base64.b64encode(image_content).decode()
-            except Exception as s3_error:
+            except Exception:
                 # Handle S3 retrieval error
                 raise HTTPException(
                     status_code=500, detail="Failed to retrieve image from S3"
@@ -243,8 +243,8 @@ async def upscale(image_id, user_id, resolution):
                     resize_mode=UpscaleResizeMode.SIZE,
                 )
                 upscale_response = client.sync_upscale(upscale_request)
-                ("Upscale finished")
-            except Exception as upscale_error:
+
+            except Exception:
                 # Handle image upscaling error
                 raise HTTPException(status_code=500, detail="Image upscaling failed")
 
@@ -261,7 +261,7 @@ async def upscale(image_id, user_id, resolution):
                 }
 
                 updated_image = await update_image(image_id, update_data)
-            except Exception as db_update_error:
+            except Exception:
                 # Handle database update error
                 raise HTTPException(status_code=500, detail="Database update failed")
 
@@ -275,13 +275,13 @@ async def upscale(image_id, user_id, resolution):
         # ---------------------- UPDATE USER CREDITS AND COUNT ---------------------- #
         try:
             await increment_user_count(user_id, service_config, credits_required)
-        except Exception as user_count_error:
+        except Exception:
             # Handle user count update error
             raise HTTPException(status_code=500, detail="User count update failed")
 
         return ImageDoc(**updated_image)
 
-    except HTTPException as http_exception:
+    except HTTPException:
         # Reraise HTTP exceptions for FastAPI to handle
         raise
     except Exception as unexpected_error:

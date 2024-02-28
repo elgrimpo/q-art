@@ -35,7 +35,7 @@ def create_checkout_session(stripeId, credit_amount, user_id):
             }
         )
         return {"session_url": checkout_session.url} 
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=500, detail="Payment failed")
 
 # ---------------------------------------------------------------------------- #

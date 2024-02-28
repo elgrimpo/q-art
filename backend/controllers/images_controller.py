@@ -209,7 +209,7 @@ def delete_image(id: str):
             s3_client.delete_object(Bucket=s3_bucket_name, Key=object_name)
             s3_client.delete_object(Bucket=s3_bucket_watermarked_name, Key=object_name)
             print("Image deleted from S3 successfully.")
-        except Exception as s3_delete_error:
+        except Exception:
             # Handle S3 deletion error
             raise HTTPException(status_code=500, detail="S3 deletion failed")
 
@@ -222,13 +222,13 @@ def delete_image(id: str):
         except HTTPException:
             # Reraise HTTP exceptions for FastAPI to handle
             raise
-        except Exception as db_delete_error:
+        except Exception:
             # Handle database deletion error
             raise HTTPException(status_code=500, detail="Database deletion failed")
 
         return {"message": "Image and document deleted successfully"}
 
-    except HTTPException as http_exception:
+    except HTTPException:
         # Reraise HTTP exceptions for FastAPI to handle
         raise
     except Exception as unexpected_error:
