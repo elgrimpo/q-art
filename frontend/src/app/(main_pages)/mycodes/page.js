@@ -103,6 +103,7 @@ useEffect (() => {
         likes: selectedFilters.likes,
         time_period: selectedFilters.time_period,
         image_style: selectedFilters.image_style,
+        sort_by: selectedFilters.sort,
       };
       loadMoreImages(params);
     }
