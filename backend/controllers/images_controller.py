@@ -6,14 +6,12 @@ from pymongo import MongoClient
 import os
 from bson import ObjectId
 import boto3
-from botocore.exceptions import ClientError
 from pymongo import DESCENDING, ASCENDING
 from typing import Optional
 from io import BytesIO
 
 # App imports
 from utils.utils import createImagesFilterQuery, prepare_doc
-from schemas.schemas import ImageDoc
 
 
 load_dotenv()
