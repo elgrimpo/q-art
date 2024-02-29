@@ -66,10 +66,12 @@ function FilterPanelMobile({
     let selectedOptionsCount = 0;
 
     Object.entries(selectedFilters).forEach(([key, value]) => {
-      if (key !== "sort" && value !== null && value !== "") {
+      if (key !== "sort" && value !== undefined && value !== "") {
+        console.log(key, value);
         selectedOptionsCount++;
       }
     });
+    console.log(selectedOptionsCount);
     return selectedOptionsCount || "";
   };
 
@@ -92,18 +94,21 @@ function FilterPanelMobile({
         variant="circular"
         invisible={!getBadgeContent()}
         overlap="circular"
-        style={{
+        sx={{
           position: "fixed",
           bottom: "80px",
           right: "16px",
-          zIndex: "1000", // FIXME: Badge above Fab
+          zIndex: "100",
+          "& .MuiBadge-badge": {
+            zIndex:"101"
+          }
         }}
       >
         <Fab
           size="large"
           color="primary"
           onClick={handleFilterOpen}
-          sx={{ zIndex: "3" }}
+          sx={{ zIndex: "100" }}
         >
           <FilterAltTwoToneIcon />
         </Fab>
