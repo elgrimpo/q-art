@@ -100,8 +100,8 @@ function FilterPanelMobile({
           right: "16px",
           zIndex: "100",
           "& .MuiBadge-badge": {
-            zIndex:"101"
-          }
+            zIndex: "101",
+          },
         }}
       >
         <Fab
@@ -120,7 +120,12 @@ function FilterPanelMobile({
         open={filterOpen}
         onClose={() => setFilterOpen(false)}
         fullScreen
-        sx={{ maxHeight: "100%", overflow: "hidden" }}
+        sx={{ overflow: "hidden",
+        "& .MuiDialog-paper": { 
+          maxHeight:"100%",
+          maxWidth: "100%",
+        }
+      }}
         TransitionComponent={Grow}
       >
         <DialogTitle>
@@ -156,8 +161,7 @@ function FilterPanelMobile({
           }}
         >
           {filters.map((filter, index) => (
-            <Box sx={{ padding: "1rem" }}
-            key={index}>
+            <Box sx={{ padding: "1rem" }} key={index}>
               <Typography
                 variant="h6"
                 key={index}

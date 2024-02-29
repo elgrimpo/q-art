@@ -84,10 +84,17 @@ function GenerateModal(props) {
     <Dialog
       fullScreen={isMobile}
       TransitionComponent={Grow}
-      maxWidth="xl"
+
       open={open}
       onClose={handleClose}
       fullWidth
+      sx={{
+        ...(isMobile && {
+          "& .MuiDialog-paper": { 
+            maxHeight: "100%",
+            maxWidth: "100%" 
+          }})
+      }}
     >
       <Box
         sx={{
