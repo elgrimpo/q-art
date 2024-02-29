@@ -11,12 +11,15 @@ import {
   IconButton,
   Tooltip,
   InputAdornment,
+  Fab,
 } from "@mui/material";
 import CasinoTwoToneIcon from "@mui/icons-material/CasinoTwoTone";
 import DiamondTwoToneIcon from "@mui/icons-material/DiamondTwoTone";
 import QrCode2TwoToneIcon from "@mui/icons-material/QrCode2TwoTone";
 import PhotoTwoToneIcon from "@mui/icons-material/PhotoTwoTone";
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import theme from "@/_styles/theme";
 
 // App imports
 import GenerateModal from "./GenerateModal";
@@ -34,6 +37,9 @@ function GenerateForm(props) {
 
   const { handleGenerate } = props;
   const { generateFormValues, setGenerateFormValues } = useStore();
+
+  // Screen size
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   // Submit Button state
   const [submitDisabled, setSubmitDisabled] = useState(true);
@@ -320,32 +326,6 @@ function GenerateForm(props) {
             ))}
           </Masonry>
         </ResponsiveMasonry>
-
-        {/* --------------------------------- SUBMIT --------------------------------- */}
-        <Button
-          variant="contained"
-          color="secondary"
-          disabled={submitDisabled}
-          aria-label="generate"
-          onClick={(e) => handleGenerate()}
-          sx={{ mb: "2rem", position: "sticky", bottom: "0rem" }}
-        >
-
-          <Typography
-            variant="body1"
-            component="div"
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              flexWrap: "wrap",
-            }}
-          >
-            Generate QR Code ( {price}
-            {/* <IconButton size="small" color="primary"> */}
-            <DiamondTwoToneIcon fontSize="small" color="primary" sx={{mr:"4px"}}/> )
-            {/* </IconButton>) */}
-          </Typography>
-        </Button>
       </Stack>
 
       <GenerateModal
@@ -355,6 +335,42 @@ function GenerateForm(props) {
         customStyle={customStyle}
         setCustomStyle={setCustomStyle}
       />
+
+      {/* --------------------------------- SUBMIT --------------------------------- */}
+      <Button
+        variant="contained"
+        color="secondary"
+        disabled={submitDisabled}
+        aria-label="generate"
+        onClick={(e) => handleGenerate()}
+                sx={{
+          position: "fixed",
+
+          bottom: isMobile ? "100px" : "20px",
+          width: "80%",
+          margin: "auto",
+          left: "10%",
+        }}
+      >
+        <Typography
+          variant="body1"
+          component="div"
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            flexWrap: "wrap",
+          }}
+        >
+          Generate QR Code ( {price}
+          <DiamondTwoToneIcon
+            fontSize="small"
+            color="primary"
+            sx={{ mr: "4px" }}
+          />{" "}
+          )
+        </Typography>
+      </Button>
+
     </Box>
   );
 }
