@@ -27,21 +27,21 @@ export default async function Profile() {
 
   const purchaseItems = [
     {
-      creditAmount: 100,
-      price: 10,
-      stripeId: "price_1OEfQEAaPyl1Ov3PGzbZPdgD",
+      creditAmount: 50,
+      price: 5,
+      stripeId: "price_1OpIN8AaPyl1Ov3Pi3q6dkEC",
       image: "/one_diamond.png",
     },
     {
-      creditAmount: 500,
-      price: 45,
-      stripeId: "price_1OEfQEAaPyl1Ov3PGzbZPdgD", // TODO: Update
+      creditAmount: 100,
+      price: 9,
+      stripeId: "price_1OpINoAaPyl1Ov3PufRg0KrR", 
       image: "/two_diamonds.png",
     },
     {
-      creditAmount: 1000,
-      price: 80,
-      stripeId: "price_1OEfQEAaPyl1Ov3PGzbZPdgD", // TODO: Update
+      creditAmount: 250,
+      price: 20,
+      stripeId: "price_1OpIOmAaPyl1Ov3P170gEWNn", 
       image: "/three_diamonds.png",
     },
   ];
