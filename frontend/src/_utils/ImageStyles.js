@@ -59,6 +59,24 @@ export const styles = [
     sd_model: "cyberrealistic_v40_151857.safetensors",
   },
   {
+    id: 12,
+    title: "Vector Art",
+    prompt: "Flat Design, Vector Art, illustrator, <lora:0mib3(gut auf 1)_47645:0.7>",
+    image_url:
+      "https://qrartimages.s3.us-west-1.amazonaws.com/65cc123c7b729925fcced038.png",
+    keywords: ["Flat Design", "Illustrator"],
+    sd_model: "colorful_v31_62333.safetensors",
+  },
+  {
+    id: 10,
+    title: "Doodle Art",
+    prompt: "<lora:TUYA5_129115:0.8>, surrealistic, tuyawang, abstract, doodle art",
+    image_url:
+      "https://qrartimages.s3.us-west-1.amazonaws.com/65a19822d076ab86bf56acab.png",
+    keywords: ["Doodle Art"],
+    sd_model: "colorful_v31_62333.safetensors",
+  },
+  {
     id: 7,
     title: "Ink",
     prompt:
@@ -84,7 +102,7 @@ export const styles = [
     title: "Chinese art",
     prompt: "Chinese traditional art, <lora:wuxia2_62008:0.8>, <lora:MoXinV1_12781:0.4>",
     image_url:
-      "https://qrartimages.s3.us-west-1.amazonaws.com/65991c3655848e0542b40d1d.png",
+      "https://qrartimages.s3.us-west-1.amazonaws.com/65e243349c04d23c99e86494.png",
     keywords: ["Japonism", "Kitsch"],
     sd_model: "colorful_v31_62333.safetensors",
   },
@@ -97,15 +115,7 @@ export const styles = [
     keywords: ["Water color"],
     sd_model: "colorful_v31_62333.safetensors",
   },
-  {
-    id: 12,
-    title: "Vector Art",
-    prompt: "Flat Design, Vector Art, illustrator, <lora:0mib3(gut auf 1)_47645:0.7>",
-    image_url:
-      "https://qrartimages.s3.us-west-1.amazonaws.com/65cc123c7b729925fcced038.png",
-    keywords: ["Flat Design", "Illustrator"],
-    sd_model: "colorful_v31_62333.safetensors",
-  },
+
   {
     id: 13,
     title: "Sticker",
@@ -124,13 +134,5 @@ export const styles = [
     keywords: ["Rainbow Core", "Color Blend"],
     sd_model: "colorful_v31_62333.safetensors",
   },
-  {
-    id: 10,
-    title: "Doodle Art",
-    prompt: "<lora:TUYA5_129115:0.8>, surrealistic, tuyawang, abstract, doodle art",
-    image_url:
-      "https://qrartimages.s3.us-west-1.amazonaws.com/65a19822d076ab86bf56acab.png",
-    keywords: ["Doodle Art"],
-    sd_model: "colorful_v31_62333.safetensors",
-  },
+ 
 ];
