@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { usePathname } from "next/navigation";
 import { useInView } from "react-intersection-observer";
+import Link from "next/link";
 
 import { Grid, Box, Typography, Button } from "@mui/material";
 
@@ -22,7 +23,7 @@ export default function MyCodes() {
 
   const pathname = usePathname();
 
-// User
+  // User
   const user = useStore.getState().user;
   // Screen size
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -71,10 +72,10 @@ export default function MyCodes() {
   const [modalOpen, setModalOpen] = useState(false);
 
   /* -------------------------------- FUNCTIONS ------------------------------- */
-useEffect (() => {
-  setPage(0);
-  setImages([]);
-},[pathname])
+  useEffect(() => {
+    setPage(0);
+    setImages([]);
+  }, [pathname]);
 
   const loadMoreImages = async (params) => {
     const newImages = await getImages(params);
@@ -83,7 +84,6 @@ useEffect (() => {
       setPage(-1);
     } else {
       setPage(page + 1);
-      
     }
   };
 
@@ -141,7 +141,7 @@ useEffect (() => {
     const updatedImages = [...images];
     updatedImages[index] = updatedImage;
     setImages(updatedImages);
-  }
+  };
 
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
@@ -166,13 +166,14 @@ useEffect (() => {
       >
         Log in to your account and go QR-azy!
       </Typography>
-      <Button
-        variant="contained"
-        //TODO: Add login functionality
-        // onClick={handleLogin}
+      <Link
+        href="http://localhost:3000/api/auth/signin"
+        passHref
+        legacyBehavior
       >
-        Login
-      </Button>
+        <Button variant="contained">Login</Button>
+      </Link>
+
     </Box>
   ) : images.length === 0 && page === -1 && pathname === "/mycodes" ? (
     /* --------------------------- NO USER IMAGES --------------------------- */
