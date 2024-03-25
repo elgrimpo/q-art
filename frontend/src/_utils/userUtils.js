@@ -18,7 +18,7 @@ export const getUserInfo = async () => {
     }
 
     // Fetch User
-    const response = await fetch(`http://localhost:8000/api/user/info?email=${encodeURIComponent(session.user.email)}`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/info?email=${encodeURIComponent(session.user.email)}`, {
       method: "GET",
       headers: { Cookie: cookies().toString() },
       credentials: "include",
