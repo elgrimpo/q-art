@@ -71,7 +71,7 @@ export const getImages = async (params) => {
 export const generateImage = (generateFormValues, user) => {
   return new Promise((resolve, reject) => {
     const queryParams = new URLSearchParams(generateFormValues);
-    const url = `http://localhost:8000/api/generate/?user_id=${
+    const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/generate/?user_id=${
       user._id
     }&${queryParams.toString()}`;
 
