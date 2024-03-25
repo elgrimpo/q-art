@@ -127,7 +127,7 @@ export default function Account() {
       ) : (
         <div>
           <Link
-            href="http://localhost:3000/api/auth/signin"
+            href="/api/auth/signin"
             passHref
             legacyBehavior
           >

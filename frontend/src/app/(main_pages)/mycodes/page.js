@@ -167,7 +167,7 @@ export default function MyCodes() {
         Log in to your account and go QR-azy!
       </Typography>
       <Link
-        href="http://localhost:3000/api/auth/signin"
+        href="/api/auth/signin"
         passHref
         legacyBehavior
       >
