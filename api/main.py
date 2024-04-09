@@ -11,11 +11,11 @@ import os
 
 
 # App imports
-from controllers.images_controller import get_images, get_image, toggle_like, delete_image
-from controllers.generate_controller import predict, upscale
-from controllers.users_controller import get_user_info, authenticate_user
-from controllers.payment_controller import create_checkout_session, stripe_webhook
-from schemas.schemas import User
+from api.controllers.images_controller import get_images, get_image, toggle_like, delete_image
+from api.controllers.generate_controller import predict, upscale
+from api.controllers.users_controller import get_user_info, authenticate_user
+from api.controllers.payment_controller import create_checkout_session, stripe_webhook
+from api.schemas.schemas import User
 # ---------------------------------------------------------------------------- #
 #                                INITIALIZE APP                                #
 # ---------------------------------------------------------------------------- #

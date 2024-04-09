@@ -11,7 +11,7 @@ from typing import Optional
 from io import BytesIO
 
 # App imports
-from utils.utils import createImagesFilterQuery, prepare_doc
+from api.utils.utils import createImagesFilterQuery, prepare_doc
 
 
 load_dotenv()

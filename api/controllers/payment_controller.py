@@ -5,7 +5,7 @@ import stripe
 from datetime import datetime
 
 # App imports
-from controllers.users_controller import add_user_payment
+from api.controllers.users_controller import add_user_payment
 
 load_dotenv()
 

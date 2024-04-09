@@ -8,7 +8,7 @@ from novita_client import *
 
 
 # App imports
-from schemas.schemas import ImageDoc, ControlNet
+from api.schemas.schemas import ImageDoc, ControlNet
 
 # ---------------------------------------------------------------------------- #
 #                                  PARSE SEED                                  #

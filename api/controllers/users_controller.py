@@ -11,7 +11,7 @@ from fastapi.responses import JSONResponse
 
 
 # App imports
-from schemas.schemas import PaymentHistory, User
+from api.schemas.schemas import PaymentHistory, User
 
 # ---------------------------- INITIALIAZE CLIENT ---------------------------- #
 mongo_url = os.environ["MONGO_URL"]

@@ -14,19 +14,19 @@ from io import BytesIO
 from PIL import Image
 
 # App imports
-from controllers.images_controller import (
+from api.controllers.images_controller import (
     create_image_doc,
     upload_image_to_s3,
     update_image,
 )
-from utils.utils import (
+from api.utils.utils import (
     prepare_txt2img_request,
     create_watermark,
     calculate_credits,
     sufficient_credit,
 )
-from controllers.users_controller import increment_user_count
-from schemas.schemas import ImageDoc
+from api.controllers.users_controller import increment_user_count
+from api.schemas.schemas import ImageDoc
 
 load_dotenv()
 
