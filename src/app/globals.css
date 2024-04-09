@@ -110,9 +110,6 @@ a {
 /* Old project */
 
 /*--------- Global --------*/
-* {
-  box-sizing: border-box;
-}
 
 body {
   margin: 0;
