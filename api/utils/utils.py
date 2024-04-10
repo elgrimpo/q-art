@@ -85,7 +85,7 @@ def prepare_txt2img_request(
 
 def create_watermark(image):
     try:
-        watermark_image_path = "utils/watermark.png"
+        watermark_image_path = "api/utils/watermark.png"
         watermark = Image.open(watermark_image_path)
 
         # Create a copy of the original image
