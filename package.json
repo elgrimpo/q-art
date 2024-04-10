@@ -5,9 +5,13 @@
   "scripts": {
     "fastapi-dev": "pip3 install -r requirements.txt && python3 -m uvicorn api.main:app --reload",
     "next-dev": "next dev",
-    "build": "next build",
-    "start": "next start",
     "dev": "concurrently \"npm run next-dev\" \"npm run fastapi-dev\"",
+    "next-build": "next build",
+    "fastapi-build": "pip3 install -r requirements.txt",
+    "build": "npm run next-build && npm run fastapi-build",
+    "next-start": "next start",
+    "start": "concurrently \"npm run next-start\" \"npm run fastapi-start\"",
+    "fastapi-start": "uvicorn api.main:app --reload",
     "lint": "next lint"
   },
   "dependencies": {
