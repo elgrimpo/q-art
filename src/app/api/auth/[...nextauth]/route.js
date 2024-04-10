@@ -3,7 +3,7 @@ import GoogleProvider from "next-auth/providers/google";
 
 export const authOptions = {
 
-  // url: process.env.NEXTAUTH_URL,
+  url: process.env.NEXTAUTH_URL,
 
   secret: process.env.NEXTAUTH_SECRET,
   // Configure one or more authentication providers
