@@ -43,7 +43,7 @@ export default function Generate() {
       title: "Not logged in",
       description: "Please log in to generate a QC Code image.",
       primaryActionText: "Log In",
-      primaryAction: () => router.push("/auth/signin"),
+      primaryAction: () => router.push("api/auth/signin"),
       secondaryActionText: "Close",
       secondaryAction: handleDialogClose,
     });
