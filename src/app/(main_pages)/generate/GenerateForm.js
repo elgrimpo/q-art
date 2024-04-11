@@ -340,13 +340,14 @@ function GenerateForm(props) {
       <Button
         variant="contained"
         color="secondary"
+        size="large"
         disabled={submitDisabled}
         aria-label="generate"
         onClick={(e) => handleGenerate()}
                 sx={{
           position: "fixed",
 
-          bottom: isMobile ? "100px" : "20px",
+          bottom: isMobile ? "70px" : "20px",
           width: "80%",
           margin: "auto",
           left: "10%",

@@ -18,7 +18,7 @@ import Diversity1TwoToneIcon from "@mui/icons-material/Diversity1TwoTone";
 import { useEffect } from "react";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import theme from "@/_styles/theme";
-import QrCodeTwoToneIcon from "@mui/icons-material/QrCodeTwoTone";
+import AutoFixHighTwoToneIcon from '@mui/icons-material/AutoFixHighTwoTone';
 import "../globals.css";
 
 /* -------------------------------------------------------------------------- */
@@ -112,15 +112,13 @@ function Tabs() {
             >
               <Box
                 sx={{
-                  width: "60px",
-                  height: "60px",
-                  borderRadius: "100%",
+                  width: "80px",
+                  height: "42px",
+                  borderRadius: "16px",
                   position: "absolute",
-                  bottom: "28px",
                   display: "flex",
                   justifyContent: "center",
                   alignItems: "center",
-                  // boxShadow: "0px 20px 20px 0px rgba(0, 0, 0, 0.25)",
                   border: "#262626 6px solid",
                   backgroundColor: getColor("/generate"),
                 }}
@@ -131,12 +129,9 @@ function Tabs() {
                   size="small"
                   sx={{ m: 0, padding: "0px" }}
                 >
-                  <QrCodeTwoToneIcon sx={{ height: "32px", width: "32px" }} />
+                  <AutoFixHighTwoToneIcon sx={{ height: "32px", width: "32px" }} />
                 </IconButton>
               </Box>
-              <Typography variant="body2" sx={{ mt: 3 }}>
-                Generate
-              </Typography>
             </ButtonBase>
           </Link>
 
