@@ -7,8 +7,11 @@ import os
 from bson import ObjectId
 import aioboto3
 from pymongo import DESCENDING, ASCENDING
+import motor.motor_asyncio as motor
 from typing import Optional
 from io import BytesIO
+import certifi
+
 
 # App imports
 from api.utils.utils import createImagesFilterQuery, prepare_doc
@@ -20,7 +23,7 @@ load_dotenv()
 
 # MongoDB
 mongo_url = os.environ["MONGO_URL"]
-client = MongoClient(mongo_url, ssl=True, ssl_cert_reqs="CERT_NONE")
+client = motor.AsyncIOMotorClient(mongo_url, tlsCAFile=certifi.where())
 db = client.get_database("QART")
 users = db.get_collection("users")
 images = db.get_collection("images")
@@ -116,12 +119,12 @@ async def update_image(document_id, update_data):
 # ---------------------------------------------------------------------------- #
 
 
-def get_image(id):
+async def get_image(id):
     try:
         object_id = ObjectId(id)
 
         # Query DB for image._id
-        image = db["images"].find_one({"_id": object_id})
+        image = await db["images"].find_one({"_id": object_id})
 
         if not image:
             raise HTTPException(status_code=404, detail=f"Image with id {id} not found")

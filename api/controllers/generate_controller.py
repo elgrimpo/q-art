@@ -36,7 +36,7 @@ load_dotenv()
 
 # MONGO DB
 mongo_url = os.environ["MONGO_URL"]
-client = MongoClient(mongo_url, ssl=True, ssl_cert_reqs="CERT_NONE")
+client = MongoClient(mongo_url, ssl=True)
 db = client.get_database("QART")
 users = db.get_collection("users")
 images = db.get_collection("images")

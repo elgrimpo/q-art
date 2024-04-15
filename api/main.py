@@ -120,7 +120,7 @@ async def images_endpoint(
 # GET IMAGE BY ID
 @app.get("/api/images/get/{id}")
 async def image_endpoint(id: str):
-    return get_image(id)
+    return await get_image(id)
 
 # LIKE IMAGE
 @app.put("/api/images/like/{id}")

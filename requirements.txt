@@ -20,7 +20,7 @@ httpx==0.24.1
 idna==3.4
 itsdangerous==2.1.2
 jmespath==1.0.1
-motor==2.3.0
+motor==3.4.0
 novita_client==0.5.3
 numpy==1.24.3
 packaging==23.1
@@ -35,7 +35,7 @@ platformdirs==3.9.1
 pycparser==2.21
 pydantic==2.5.2
 pydantic_core==2.14.5
-pymongo==3.13.0
+pymongo==4.6.3
 pypng==0.20220715.0
 pyproject_hooks==1.0.0
 python-dateutil==2.8.2
