@@ -12,6 +12,8 @@ from fastapi import HTTPException
 from pymongo import MongoClient
 from io import BytesIO
 from PIL import Image
+import asyncio
+import concurrent.futures
 
 # App imports
 from api.controllers.images_controller import (
@@ -105,20 +107,36 @@ async def predict(
             style_prompt,
         )
         try:
-            response = client.txt2img(req)
+            # Start a process pool executor
+            with concurrent.futures.ProcessPoolExecutor() as executor:
+                # Submit the txt2img call 
+                txt2img_future = executor.submit(client.txt2img, req)
+                txt2img_coro = asyncio.wrap_future(txt2img_future)
+                txt2img_result = await txt2img_coro
+                print(txt2img_result)
 
-            if response.data is None:
-                raise NovitaResponseError(
-                    f"Text to Image generation failed with response {response.msg}, code: {response.code}"
-                )
+                # Get Task_ID
+                task_id = txt2img_result.data.task_id
 
-            print("task id:" + response.data.task_id)
-            res = client.wait_for_task(response.data.task_id, callback=None)
-            info_dict = json.loads(res.data.info)
-            seed = info_dict.get("seed")
+                if txt2img_result.data is None:
+                    raise NovitaResponseError(
+                        f"Text to Image generation failed with response {txt2img_result.msg}, code: {txt2img_result.code}"
+                    )
 
-            info = json.dumps(info_dict, indent=4)
-            print(info)
+                print("task id:" + task_id)
+
+
+                # Submit the wait_for_task call
+                wait_for_task_future = executor.submit(client.wait_for_task, task_id)
+                wait_for_task_coro = asyncio.wrap_future(wait_for_task_future)
+                res = await wait_for_task_coro
+
+
+                info_dict = json.loads(res.data.info)
+                seed = info_dict.get("seed")
+
+                info = json.dumps(info_dict, indent=4)
+                print(info)
 
             if res.data.status != ProgressResponseStatusCode.SUCCESSFUL:
                 raise Exception(
@@ -202,6 +220,7 @@ async def predict(
 
 
 async def upscale(image_id, user_id, resolution):
+    print("Upscale initiated")
     try:
         # -------------------------------- CHECK FUNDS ------------------------------- #
         image = images.find_one({"_id": ObjectId(image_id)})
@@ -242,7 +261,12 @@ async def upscale(image_id, user_id, resolution):
                     upscaling_resize_h=int(resolution),
                     resize_mode=UpscaleResizeMode.SIZE,
                 )
-                upscale_response = client.sync_upscale(upscale_request)
+                # Start a process pool executor
+                with concurrent.futures.ProcessPoolExecutor() as executor:
+                    upscale_future = executor.submit(client.sync_upscale, upscale_request)
+                    upscale_coro = asyncio.wrap_future(upscale_future)
+                    upscale_response = await upscale_coro
+
 
             except Exception:
                 # Handle image upscaling error
