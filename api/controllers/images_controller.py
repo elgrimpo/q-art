@@ -5,7 +5,7 @@ import requests as requests
 from pymongo import MongoClient
 import os
 from bson import ObjectId
-import boto3
+import aioboto3
 from pymongo import DESCENDING, ASCENDING
 from typing import Optional
 from io import BytesIO
@@ -26,14 +26,9 @@ users = db.get_collection("users")
 images = db.get_collection("images")
 
 # S3
-api_url = os.environ["S3_URL"]
 s3_bucket_name = "qrartimages"
 s3_bucket_watermarked_name = "qrartimageswatermarked"
-s3_client = boto3.client(
-    "s3",
-    aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
-    aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
-)
+s3_session = aioboto3.Session()
 
 
 # ---------------------------------------------------------------------------- #
@@ -69,13 +64,17 @@ async def upload_image_to_s3(image, object_name, s3_bucket_name):
         image.save(buffer, format="PNG")
         buffer.seek(0)
 
-        # Upload file to S3
-        s3_client.upload_fileobj(buffer, s3_bucket_name, object_name)
+        # Create an aioboto3 client
+        async with s3_session.client(
+            "s3",
+            aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
+            aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
+        ) as s3_client:
+            # Upload file to S3 asynchronously
+            await s3_client.upload_fileobj(buffer, s3_bucket_name, object_name)
 
-        # Create image_url for image doc
-        image_url = (
-            f"https://{s3_bucket_name}.s3.us-west-1.amazonaws.com/{object_name}"
-        )
+            # Create image_url for image doc
+            image_url = f"https://{s3_bucket_name}.s3.us-west-1.amazonaws.com/{object_name}"
         
         return image_url
 
@@ -199,15 +198,22 @@ def get_images(
 # ---------------------------------------------------------------------------- #
 
 
-def delete_image(id: str):
+async def delete_image(id: str):
     try:
         object_id = ObjectId(id)
         object_name = f"{id}.png"
 
         # --------------------------- DELETE IMAGE FROM S3 --------------------------- #
         try:
-            s3_client.delete_object(Bucket=s3_bucket_name, Key=object_name)
-            s3_client.delete_object(Bucket=s3_bucket_watermarked_name, Key=object_name)
+            # Create an aioboto3 client
+            async with s3_session.client(
+                "s3",
+                aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
+                aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
+            ) as s3_client:
+                # Upload file to S3 asynchronously
+                await s3_client.delete_object(Bucket=s3_bucket_name, Key=object_name)
+                await s3_client.delete_object(Bucket=s3_bucket_watermarked_name, Key=object_name)
             print("Image deleted from S3 successfully.")
         except Exception:
             # Handle S3 deletion error

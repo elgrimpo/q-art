@@ -130,7 +130,7 @@ async def toggle_like_endpoint(id: Optional[str] = None, user_id: Optional[str] 
 # DELETE IMAGE
 @app.delete("/api/images/delete/{id}")
 async def delete_image_endpoint(id: str):
-    return delete_image(id)
+    return await delete_image(id)
 
 
 # ------------------------------ PAYMENTS ROUTES ----------------------------- #

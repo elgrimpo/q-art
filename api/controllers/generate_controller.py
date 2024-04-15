@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 import os
 import json
 from novita_client import *
-import boto3
+import aioboto3
 import base64
 from bson import ObjectId
 from fastapi import HTTPException
@@ -45,11 +45,7 @@ images = db.get_collection("images")
 api_url = os.environ["S3_URL"]
 s3_bucket_name = "qrartimages"
 s3_bucket_watermarked_name = "qrartimageswatermarked"
-s3_client = boto3.client(
-    "s3",
-    aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
-    aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
-)
+s3_session = aioboto3.Session()
 # Novita
 client = NovitaClient(os.environ["NOVITA_KEY"])
 
@@ -220,7 +216,6 @@ async def predict(
 
 
 async def upscale(image_id, user_id, resolution):
-    print("Upscale initiated")
     try:
         # -------------------------------- CHECK FUNDS ------------------------------- #
         image = images.find_one({"_id": ObjectId(image_id)})
@@ -243,10 +238,17 @@ async def upscale(image_id, user_id, resolution):
 
             # ----------------------------- GET IMAGE FROM S3 ---------------------------- #
             try:
-                object_name = image_id + ".png"
-                response = s3_client.get_object(Bucket=s3_bucket_name, Key=object_name)
-                image_content = response["Body"].read()
-                base64_image = base64.b64encode(image_content).decode()
+                async with s3_session.client(
+                    "s3",
+                    aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
+                    aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
+                ) as s3_client:
+                    
+                    # Upload file to S3 asynchronously
+                    object_name = image_id + ".png"
+                    response = await s3_client.get_object(Bucket=s3_bucket_name, Key=object_name)
+                    image_content = await response["Body"].read()
+                    base64_image = base64.b64encode(image_content).decode()
             except Exception:
                 # Handle S3 retrieval error
                 raise HTTPException(
@@ -274,10 +276,15 @@ async def upscale(image_id, user_id, resolution):
 
             # ------------------------------ UPDATE DATABASE ----------------------------- #
             try:
-                upscaled_image_content = upscale_response.data.imgs_bytes[0]
-                s3_client.put_object(
-                    Bucket=s3_bucket_name, Key=object_name, Body=upscaled_image_content
-                )
+                async with s3_session.client(
+                    "s3",
+                    aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
+                    aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
+                ) as s3_client:
+                    upscaled_image_content = upscale_response.data.imgs_bytes[0]
+                    await s3_client.put_object(
+                        Bucket=s3_bucket_name, Key=object_name, Body=upscaled_image_content
+                    )
                 update_data = {
                     "width": int(resolution),
                     "height": int(resolution),
