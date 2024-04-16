@@ -5,6 +5,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import { usePathname } from "next/navigation";
 import { useInView } from "react-intersection-observer";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { Grid, Box, Typography, Button } from "@mui/material";
 
@@ -20,6 +21,7 @@ import { getImages } from "@/_utils/ImagesUtils";
 
 export default function MyCodes() {
   /* --------------------------- DECLARE VARIABLES ---------------------------- */
+  const router = useRouter();
 
   const pathname = usePathname();
 
@@ -147,36 +149,11 @@ export default function MyCodes() {
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
   /* -------------------------------------------------------------------------- */
+  if (!user._id && pathname === "/mycodes") {
+    router.push("/generate");
+    }
 
-  return !user._id && pathname === "/mycodes" ? (
-    /* --------------------------- USER NOT LOGGED IN --------------------------- */
-    <Box
-      sx={{
-        padding: { xs: "0.5rem", sm: "1rem" },
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        flexDirection: "column",
-        height: "calc(100vh - 75px)",
-      }}
-    >
-      <Typography
-        variant="h5"
-        component="h2"
-        sx={{ textAlign: "center", mb: 2 }}
-      >
-        Log in to your account and go QR-azy!
-      </Typography>
-      <Link
-        href="/auth/signin"
-        passHref
-        legacyBehavior
-      >
-        <Button variant="contained">Login</Button>
-      </Link>
-
-    </Box>
-  ) : images.length === 0 && page === -1 && pathname === "/mycodes" ? (
+  return images.length === 0 && page === -1 && pathname === "/mycodes" ? (
     /* --------------------------- NO USER IMAGES --------------------------- */
     <Box
       sx={{

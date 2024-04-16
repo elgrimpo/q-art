@@ -21,12 +21,17 @@ import theme from "@/_styles/theme";
 import AutoFixHighTwoToneIcon from '@mui/icons-material/AutoFixHighTwoTone';
 import "../globals.css";
 
+// App imports
+import { useStore } from "@/store";
+
+
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
 /* -------------------------------------------------------------------------- */
 
 function Tabs() {
   /* ---------------------------- DECLARE VARIABLE ---------------------------- */
+  const { user } = useStore();
 
   // Screen size
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -69,6 +74,7 @@ function Tabs() {
           }}
         >
           {/* MY CODES */}
+          {user?._id && (
           <Link href="/mycodes" passHref legacyBehavior>
             <ButtonBase
               label="My codes"
@@ -95,6 +101,7 @@ function Tabs() {
               </Typography>
             </ButtonBase>
           </Link>
+          )}
 
           {/* GENERATE */}
           <Link href="/generate" passHref legacyBehavior>
@@ -103,7 +110,7 @@ function Tabs() {
                 flexDirection: "column",
                 justifyContent: "center",
                 alignItems: "center",
-                width: "33%",
+                width: user?._id ? "33%" : "50%",
                 height: "100%",
                 color: getColor("/generate"),
               }}
@@ -142,7 +149,7 @@ function Tabs() {
                 flexDirection: "column",
                 justifyContent: "center",
                 alignItems: "center",
-                width: "33%",
+                width: user?._id ? "33%" : "50%",
                 height: "100%",
                 color: getColor("/explore"),
               }}
@@ -185,7 +192,7 @@ function Tabs() {
             selected={tabValue === "/generate"}
           />
         </Link>
-
+        {user?._id && (
         <Link href="/mycodes" passHref legacyBehavior>
           <Tab
             label="My codes"
@@ -193,6 +200,7 @@ function Tabs() {
             selected={tabValue === "/mycodes"}
           />
         </Link>
+        )}
 
         <Link href="/explore" passHref legacyBehavior>
           <Tab
