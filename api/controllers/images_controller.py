@@ -2,7 +2,6 @@
 from fastapi import HTTPException, Query
 from dotenv import load_dotenv
 import requests as requests
-from pymongo import MongoClient
 import os
 from bson import ObjectId
 import aioboto3
@@ -45,7 +44,7 @@ async def create_image_doc(req, seed, website, qr_weight, user_id, prompt, style
         )
 
         # Insert image document into MongoDB
-        result = db["images"].insert_one(doc.dict())
+        result = await db["images"].insert_one(doc.dict())
 
         # Return the inserted image ID
         return str(result.inserted_id)
@@ -93,7 +92,7 @@ async def upload_image_to_s3(image, object_name, s3_bucket_name):
 async def update_image(document_id, update_data):
     try:
         # Update image with provided data dict
-        updated_image = db["images"].find_one_and_update(
+        updated_image = await db["images"].find_one_and_update(
             {"_id": ObjectId(document_id)}, {"$set": update_data}, return_document=True
         )
 
@@ -145,7 +144,7 @@ async def get_image(id):
 #                                  GET IMAGES                                  #
 # ---------------------------------------------------------------------------- 
 
-def get_images(
+async def get_images(
     page: int = Query(1, alias="page"),
     user_id: Optional[str] = None,
     exclude_user_id: Optional[str] = None,
@@ -184,7 +183,7 @@ def get_images(
         )
 
         # Convert the images to a list
-        images_list = list(images_result)
+        images_list = await images_result.to_list(length=images_per_page)
 
         # Convert ObjectIds to strings
         for image in images_list:
@@ -224,7 +223,7 @@ async def delete_image(id: str):
 
         # ---------------------- DELETE IMAGE DOC FROM DATABASE ---------------------- #
         try:
-            result = db["images"].delete_one({"_id": object_id})
+            result = await db["images"].delete_one({"_id": object_id})
             if result.deleted_count == 0:
                 raise HTTPException(status_code=404, detail="Image not found")
             print("Image document deleted from MongoDB successfully.")
@@ -254,7 +253,7 @@ async def toggle_like(id, user_id):
 
     # ----------------------------- QUERY IMAGE IN DB ---------------------------- #
     try:
-        image = images.find_one({"_id": ObjectId(id)})
+        image = await images.find_one({"_id": ObjectId(id)})
 
         if not image:
             return {"message": "Image not found"}, 404
@@ -269,7 +268,7 @@ async def toggle_like(id, user_id):
             likes.append(user_id)
 
         # Update db with updated "likes" array
-        images.update_one({"_id": ObjectId(id)}, {"$set": {"likes": likes}})
+        await images.update_one({"_id": ObjectId(id)}, {"$set": {"likes": likes}})
 
         return {"message": "Like toggled successfully"}
 

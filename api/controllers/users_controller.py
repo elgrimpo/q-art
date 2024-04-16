@@ -5,9 +5,11 @@ from bson import ObjectId
 import datetime
 from starlette.exceptions import HTTPException
 import os
-from pymongo import MongoClient
 from datetime import datetime
 from fastapi.responses import JSONResponse
+import certifi
+import motor.motor_asyncio as motor
+
 
 
 # App imports
@@ -15,7 +17,7 @@ from api.schemas.schemas import PaymentHistory, User
 
 # ---------------------------- INITIALIAZE CLIENT ---------------------------- #
 mongo_url = os.environ["MONGO_URL"]
-client = MongoClient(mongo_url, ssl=True)
+client = motor.AsyncIOMotorClient(mongo_url, tlsCAFile=certifi.where())
 db = client.get_database("QART")
 users = db.get_collection("users")
 
@@ -27,7 +29,7 @@ users = db.get_collection("users")
 async def get_user_info(email):
 
     try:
-        logged_in_user = users.find_one({"email": email})
+        logged_in_user = await users.find_one({"email": email})
         # print(logged_in_user)
         if logged_in_user:
             user_instance = User(**logged_in_user)
@@ -49,7 +51,7 @@ async def get_user_info(email):
 async def authenticate_user(user: User):
     try:
         # Check if user exists
-        user_exists = users.find_one({"email": user.email})
+        user_exists = await users.find_one({"email": user.email})
 
         # -------------------------------- USER EXISTS ------------------------------- #
         if user_exists:
@@ -63,14 +65,14 @@ async def authenticate_user(user: User):
 
             # If the auth_provider does not exist, add it to auth_providers
             if not auth_provider_exists:
-                users.update_one(
+                await users.update_one(
                     {"email": user.email},
                     {"$push": {"auth_providers": user.auth_providers[0].dict()}},
                 )
 
         # ---------------------------- USER DOES NOT EXIST --------------------------- #
         else:
-            users.insert_one(user.dict())
+            await users.insert_one(user.dict())
 
         return JSONResponse(content={"message": "User authenticated successfully"})
     except Exception as e:
@@ -96,7 +98,7 @@ async def increment_user_count(user_id, service_config, credits_deducted):
         # ------------------------ INCREMENT IMAGE GENERATIOM ------------------------ #
         generate = service_config.get("generate")
         if generate:
-            db["users"].update_one(
+            await db["users"].update_one(
                 {"_id": ObjectId(user_id)},
                 {
                     "$inc": {
@@ -109,7 +111,7 @@ async def increment_user_count(user_id, service_config, credits_deducted):
 
         # ----------------------------- INCREMENT UPSCALE ---------------------------- #
         if upscale_resize and upscale_resize != 0:
-            db["users"].update_one(
+            await db["users"].update_one(
                 {"_id": ObjectId(user_id)},
                 {
                     "$inc": {
@@ -121,7 +123,7 @@ async def increment_user_count(user_id, service_config, credits_deducted):
 
         # ---------------------------- INCREMENT DOWNLOAD ---------------------------- #
         if download:
-            db["users"].update_one(
+            await db["users"].update_one(
                 {"_id": ObjectId(user_id)},
                 {
                     "$inc": {
@@ -132,7 +134,7 @@ async def increment_user_count(user_id, service_config, credits_deducted):
             )
 
         # ---------------------------- UPDATE USER CREDITS --------------------------- #
-        db["users"].update_one(
+        await db["users"].update_one(
             {"_id": ObjectId(user_id)},
             {
                 "$inc": {
@@ -152,9 +154,10 @@ async def increment_user_count(user_id, service_config, credits_deducted):
 # ---------------------------------------------------------------------------- #
 
 
-def add_user_payment(
+async def add_user_payment(
     user_id, transaction_amount, product_id, credit_amount, payment_intent, timestamp
 ):
+    print("Adding payment to user")
 
     # Create a new payment history object
     payment_history_instance = PaymentHistory(
@@ -167,7 +170,7 @@ def add_user_payment(
 
     try:
         # Find and update the user document
-        db["users"].update_one(
+        await db["users"].update_one(
             {"_id": ObjectId(user_id)},
             {
                 "$push": {"payment_history": payment_history_instance.dict()},

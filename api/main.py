@@ -113,7 +113,7 @@ async def images_endpoint(
     sort_by: str = "Newest",
 ):
 
-    return get_images(
+    return await get_images(
         page, user_id, exclude_user_id, likes, time_period, image_style, images_per_page, sort_by
     )
 

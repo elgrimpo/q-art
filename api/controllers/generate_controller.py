@@ -9,7 +9,8 @@ import aioboto3
 import base64
 from bson import ObjectId
 from fastapi import HTTPException
-from pymongo import MongoClient
+import motor.motor_asyncio as motor
+import certifi
 from io import BytesIO
 from PIL import Image
 import asyncio
@@ -36,7 +37,7 @@ load_dotenv()
 
 # MONGO DB
 mongo_url = os.environ["MONGO_URL"]
-client = MongoClient(mongo_url, ssl=True)
+client = motor.AsyncIOMotorClient(mongo_url, tlsCAFile=certifi.where())
 db = client.get_database("QART")
 users = db.get_collection("users")
 images = db.get_collection("images")
@@ -71,7 +72,7 @@ async def predict(
         service_config = {"generate": "1"}
         credits_required = calculate_credits(service_config)
 
-        user_data = users.find_one({"_id": ObjectId(user_id)})
+        user_data = await users.find_one({"_id": ObjectId(user_id)})
         if not sufficient_credit(user_data, service_config):
             raise HTTPException(status_code=403, detail="Insufficient credits")
 
@@ -218,7 +219,7 @@ async def predict(
 async def upscale(image_id, user_id, resolution):
     try:
         # -------------------------------- CHECK FUNDS ------------------------------- #
-        image = images.find_one({"_id": ObjectId(image_id)})
+        image = await images.find_one({"_id": ObjectId(image_id)})
 
         service_config = {
             "upscale_resize": (
@@ -229,7 +230,7 @@ async def upscale(image_id, user_id, resolution):
 
         credits_required = calculate_credits(service_config)
 
-        user_data = users.find_one({"_id": ObjectId(user_id)})
+        user_data = await users.find_one({"_id": ObjectId(user_id)})
         if not sufficient_credit(user_data, service_config):
             raise HTTPException(status_code=403, detail="Insufficient credits")
 
