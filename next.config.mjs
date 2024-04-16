@@ -13,13 +13,10 @@ const nextConfig = {
             source: '/explore',
             destination: '/mycodes',
           },
-          // {
-          //   source: "/api/:path*",
-          //   destination:
-          //     process.env.NODE_ENV === "development"
-          //       ? "http://127.0.0.1:8000/api/:path*"
-          //       : "/api/",
-          // },
+          {
+            source: "/api/stripe-webhook",
+            destination: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stripe-webhook`
+          },
         ]}
 };
 
