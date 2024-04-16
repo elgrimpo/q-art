@@ -18,6 +18,7 @@ export const useStore = create((set) => ({
     seed: -1,
     sd_model: "cyberrealistic_v40_151857.safetensors",
   },
+  generatingImage: false,
   processingImages: [],
 
 
@@ -51,6 +52,11 @@ export const useStore = create((set) => ({
         seed: -1,
         sd_model: "cyberrealistic_v40_151857.safetensors",
       },
+    })),
+    setGeneratingImage: (bool) =>
+    set((state) => ({
+      ...state,
+      generatingImage: bool
     })),
   openAlert: (severity, message) =>
     set((state) => ({

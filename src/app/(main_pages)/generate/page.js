@@ -22,10 +22,7 @@ export default function Generate() {
   const router = useRouter();
 
   // Context variables
-  const { user, generateFormValues, openAlert } = useStore();
-
-  // Switch between Form and Image view for mobile screen
-  const [formSubmitted, setFormSubmitted] = useState(true);
+  const { user, generateFormValues, openAlert, generatingImage, setGeneratingImage } = useStore();
 
   // Dialog Content
   const [dialogContent, setDialogContent] = useState({});
@@ -63,7 +60,7 @@ export default function Generate() {
   };
 
   const handleGenerate = async () => {
-    setFormSubmitted(true);
+    setGeneratingImage(true);
     // Check if user is logged in
     if (!user._id) {
       // Open Dialog
@@ -89,7 +86,7 @@ export default function Generate() {
         }
       }
     }
-    setFormSubmitted(false);
+    setGeneratingImage(false);
   };
 
   /* -------------------------------------------------------------------------- */
@@ -101,10 +98,9 @@ export default function Generate() {
       {/* TODO: Remove Link after testing */}
       {/* <Link href="/images/65caa2fade09338f1ff33671">image</Link> */}
       {/* ------------------------------ GENERATE FORM ----------------------------- */}
-      {!formSubmitted ? (
+      {!generatingImage ? (
         <GenerateForm
           handleGenerate={() => handleGenerate()}
-          setFormSubmitted={setFormSubmitted}
         />
       ) : (
         <Box className="image-container" sx={{ position: "relative" }}>
@@ -112,10 +108,8 @@ export default function Generate() {
             variant="rounded"
             height="100%"
             sx={{
-              // position: "absolute",
               inset: 0,
               aspectRatio: "1/1",
-              // paddingTop: "100%",
             }}
           />
           <Box
@@ -131,7 +125,7 @@ export default function Generate() {
             <Typography variant="h5" align="center">
               Your code is being generated!
             </Typography>
-            <Typography variant="h7" align="center" sx={{width:"100%"}}>
+            <Typography variant="h7" align="center">
               This may take up to a minute
             </Typography>
           </Box>
