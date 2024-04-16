@@ -12,6 +12,10 @@ body {
 
 
 /*-------- App.js --------*/
+
+* {
+  box-sizing: border-box;
+}
 .app {
   max-width: 1600px;
   margin: auto;

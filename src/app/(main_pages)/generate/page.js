@@ -2,7 +2,7 @@
 
 // Libraries imports
 import React, { useState } from "react";
-import { CircularProgress, Box, Typography } from "@mui/material";
+import { CircularProgress, Box, Typography, Skeleton } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import theme from "@/_styles/theme";
 import { useRouter } from "next/navigation";
@@ -24,9 +24,8 @@ export default function Generate() {
   // Context variables
   const { user, generateFormValues, openAlert } = useStore();
 
-
   // Switch between Form and Image view for mobile screen
-  const [formSubmitted, setFormSubmitted] = useState(false);
+  const [formSubmitted, setFormSubmitted] = useState(true);
 
   // Dialog Content
   const [dialogContent, setDialogContent] = useState({});
@@ -108,9 +107,33 @@ export default function Generate() {
           setFormSubmitted={setFormSubmitted}
         />
       ) : (
-        <Box className="image-container">
-          <Box className="loading-box">
-            <CircularProgress color="secondary" />
+        <Box className="image-container" sx={{ position: "relative" }}>
+          <Skeleton
+            variant="rounded"
+            height="100%"
+            sx={{
+              // position: "absolute",
+              inset: 0,
+              aspectRatio: "1/1",
+              // paddingTop: "100%",
+            }}
+          />
+          <Box
+              sx={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                textAlign: "center",
+                width: "100%",
+              }}
+          >
+            <Typography variant="h5" align="center">
+              Your code is being generated!
+            </Typography>
+            <Typography variant="h7" align="center" sx={{width:"100%"}}>
+              This may take up to a minute
+            </Typography>
           </Box>
         </Box>
       )}
