@@ -4,7 +4,7 @@ import { createTheme } from "@mui/material/styles";
 const palette = {
   primary: {
     main: "#70E195",
-    light: "#c5f2d2",
+    light: "#A5FFC3",
     dark: "#00ac4f",
   },
   secondary: {
@@ -30,6 +30,21 @@ const theme = createTheme({
   typography: {
     fontWeightMedium: 700,
     fontWeightBold: 900,
+    h1: {
+      fontFamily: "Roboto Serif",
+      fontWeight: 900,
+      fontStyle: "italic",
+    },
+    h2: {
+      fontFamily: "Roboto Serif",
+      fontWeight: 500,
+      fontStyle: "italic",
+    },
+    h3: {
+      fontFamily: "Roboto Serif",
+      fontWeight: 900,
+      fontStyle: "italic",
+    },
     h5: {
       fontFamily: "Roboto Serif",
       fontWeight: 900,

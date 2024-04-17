@@ -10,7 +10,6 @@ import GenerateForm from "./GenerateForm";
 import SimpleDialog from "@/_components/SimpleDialog";
 import { useStore } from "@/store";
 import { generateImage } from "@/_utils/ImagesUtils";
-import NotSignedIn from "./NotSignedIn";
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
 /* -------------------------------------------------------------------------- */
@@ -81,7 +80,7 @@ export default function Generate() {
   /*                              COMPONENT RENDER                              */
   /* -------------------------------------------------------------------------- */
   if (!user?._id) {
-    return <NotSignedIn />;
+    router.push("/");
   } else {
     return (
       <div className="generate-page">
