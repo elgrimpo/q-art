@@ -1,9 +1,9 @@
 import { Box, Typography, Button, Card, CardMedia, Grid } from "@mui/material";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 // App imports
 import NavBar from "./(main_pages)/NavBar";
+import theme from "@/_styles/theme";
 
 export default function NotSignedIn() {
 
@@ -29,8 +29,8 @@ export default function NotSignedIn() {
   ];
 
   return (
-    <div
-      style={{
+    <Box
+      sx={{
         display: "flex",
         flexDirection: "column",
         backgroundColor: "#161616",
@@ -47,59 +47,68 @@ export default function NotSignedIn() {
           display: "flex",
           justifyContent: "flex-end",
           position: "relative",
-          padding: "32px",
+          padding: { xs: "0px", md: "32px" },
           display: "flex",
           width: "100%",
-          maxWidth:"1500px",
+          maxWidth: "1500px",
           margin: "auto",
-          mt: "100px"
-
+          mt: { xs: "56px", md: "100px" },
         }}
       >
         {/*  GRADIENT  */}
-        <div
-          style={{
+        <Box
+          sx={{
             position: "absolute",
-            width: "90%",
+            width: { xs: "100%", md: "90%" },
             height: "100%",
             top: "0px",
-            right: "250px",
+            // right: "250px",
             zIndex: 2,
-            left: "24px",
-            background:
-              "linear-gradient(90deg, rgba(22,22,22,1) 55%, rgba(22,22,22,0) 90%)",
+            left: { xs: "0px", md: "24px" },
+            background: {
+              xs: "linear-gradient(0deg, rgba(22,22,22,1) 25%, rgba(22,22,22,0) 90%)",
+              md: "linear-gradient(90deg, rgba(22,22,22,1) 55%, rgba(22,22,22,0) 90%)",
+            },
           }}
-        ></div>
-        
+        ></Box>
+
         {/*  BANNER TEXT  */}
-        <div
-          style={{
+        <Box
+          sx={{
             position: "absolute",
-            width: "900px",
+            width: { xs: "100%", md: "900px" },
+            padding: "24px",
             height: "400px",
-            top: "20%",
+            top: { xs: "60%", md: "20%" },
             zIndex: 2,
-            left: "24px",
+            left: { xs: "0px", md: "24px" },
+            textAlign: { xs: "center", md: "left" },
           }}
         >
-          <Typography variant="h1" color="primary">
+          <Typography
+            variant="h1"
+            color="primary"
+            sx={{ fontSize: { xs: "3rem", sm: "4rem", md: "6rem" } }}
+          >
             Turn your QR Code into a piece of Art
           </Typography>
           <Typography variant="h5" color="primary" sx={{ mt: 6, mb: 2 }}>
+            {" "}
             Create an account to get started for free!
           </Typography>
           <Link href="/api/auth/signin" passHref legacyBehavior>
             <Button variant="contained">Create Account</Button>
           </Link>
-        </div>
+        </Box>
+
         {/*  BANNER IMAGE  */}
-        <img
+        <CardMedia
           component="img"
           src="https://qrartimages.s3.us-west-1.amazonaws.com/654f3d47bef0549f910f70ca.png"
-          style={{
-            borderRadius: "5px",
+          sx={{
+            borderRadius: { xs: "0px", md: "5px" },
             border: "solid 18px #A5FFC3",
-            width: "50%",
+            width: { xs: "100%", md: "50%" },
             aspectRatio: "1/1",
             zIndex: 1,
             order: 2,
@@ -107,14 +116,15 @@ export default function NotSignedIn() {
         />
       </Box>
       {/* ------------------------------ IMAGE GALLERY ----------------------------- */}
-      <div>
-
+      <Box sx={{ mt: { xs: 30, sm: 16, md: 12 }, mb: {xs: "60px", md: 0}}}>
         {/* TITLE */}
         <Typography
           variant="h3"
           color="primary"
           align="center"
-          sx={{ mt: 12, mb: 4 }}
+          sx={{ mb: 4, p: 2,
+             fontSize: { xs: "2rem", sm: "3rem", md: "4rem" } 
+           }}
         >
           Create Unique Images to represent your brand
         </Typography>
@@ -151,14 +161,13 @@ export default function NotSignedIn() {
             ))}
           </Grid>
         </Box>
-        <div style={{ textAlign: "center", padding: "2rem" }}>
-
+        <Box sx={{ textAlign: "center", padding: "2rem" }}>
           {/* EXPLORE BUTTON */}
           <Link href="/explore" passHref legacyBehavior>
             <Button variant="contained">Explore more Images</Button>
           </Link>
-        </div>
-      </div>
-    </div>
+        </Box>
+      </Box>
+    </Box>
   );
 }
