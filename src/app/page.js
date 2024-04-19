@@ -108,7 +108,7 @@ export default function NotSignedIn() {
             backgroundColor: "#A5FFC3",
             padding: { xs: "0.5rem", sm: "1rem" },
             paddingTop: { xs: "4.7rem", sm: "4.7rem", md: "1rem" },
-            width: { xs: "100%", md: "50%" },
+            width: { xs: "100%", md: "60%", lg: "50%" },
             borderRadius: { xs: "0px", md: "5px" },
             aspectRatio: "1/1",
           }}
