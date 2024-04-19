@@ -2,11 +2,11 @@ import { Box, Typography, Button, Card, CardMedia, Grid } from "@mui/material";
 import Link from "next/link";
 
 // App imports
-import NavBar from "./(main_pages)/NavBar";
+import NavBarDesktop from "./(main_pages)/(navbar)/NavBarDesktop";
+import NavBarMobile from "./(main_pages)/(navbar)/NavBarMobile";
 import theme from "@/_styles/theme";
 
 export default function NotSignedIn() {
-
   const imageGallery = [
     {
       url: "https://qrartimages.s3.us-west-1.amazonaws.com/654f34f6bef0549f910f70a5.png",
@@ -39,7 +39,8 @@ export default function NotSignedIn() {
       }}
     >
       {/* NAV BAR */}
-      <NavBar />
+      <NavBarDesktop />
+      <NavBarMobile />
 
       {/* --------------------------------- BANNER --------------------------------- */}
       <Box
@@ -116,15 +117,13 @@ export default function NotSignedIn() {
         />
       </Box>
       {/* ------------------------------ IMAGE GALLERY ----------------------------- */}
-      <Box sx={{ mt: { xs: 30, sm: 16, md: 12 }, mb: {xs: "60px", md: 0}}}>
+      <Box sx={{ mt: { xs: 30, sm: 16, md: 12 }, mb: { xs: "60px", md: 0 } }}>
         {/* TITLE */}
         <Typography
           variant="h3"
           color="primary"
           align="center"
-          sx={{ mb: 4, p: 2,
-             fontSize: { xs: "2rem", sm: "3rem", md: "4rem" } 
-           }}
+          sx={{ mb: 4, p: 2, fontSize: { xs: "2rem", sm: "3rem", md: "4rem" } }}
         >
           Create Unique Images to represent your brand
         </Typography>

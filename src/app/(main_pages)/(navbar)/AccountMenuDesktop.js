@@ -28,7 +28,8 @@ import { useStore } from "@/store";
 /*                               COMPONENT START                              */
 /* -------------------------------------------------------------------------- */
 
-export default function Account() {
+export default function AccountMenuDesktop() {
+  
   /* ---------------------------- DECLARE VARIABLE ---------------------------- */
   const router = useRouter();
 

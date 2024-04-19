@@ -3,7 +3,8 @@ import "../globals.css";
 import { Container } from "@mui/material";
 
 // App imports
-import NavBar from "./NavBar";
+import NavBarDesktop from "./(navbar)/NavBarDesktop";
+import NavBarMobile from "./(navbar)/NavBarMobile";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
@@ -38,7 +39,8 @@ export default function Layout({ children, auth }) {
   /* -------------------------------------------------------------------------- */
   return (
     <div>
-      <NavBar />
+      <NavBarDesktop />
+      <NavBarMobile />
 
       <div className="body">
         <Container
