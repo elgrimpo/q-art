@@ -93,10 +93,13 @@ export default function Generate() {
           <Box className="image-container" sx={{ position: "relative" }}>
             <Skeleton
               variant="rounded"
+              animation="wave"
               height="100%"
+              width="100%"
               sx={{
                 inset: 0,
                 aspectRatio: "1/1",
+                width:"100%",
               }}
             />
             <Box
@@ -106,7 +109,6 @@ export default function Generate() {
                 left: "50%",
                 transform: "translate(-50%, -50%)",
                 textAlign: "center",
-                width: "100%",
               }}
             >
               <Typography variant="h5" align="center">
