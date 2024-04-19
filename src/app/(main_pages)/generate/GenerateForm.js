@@ -347,7 +347,7 @@ function GenerateForm(props) {
                 sx={{
           position: "fixed",
 
-          bottom: isMobile ? "70px" : "20px",
+          bottom: "20px",
           width: "80%",
           margin: "auto",
           left: "10%",

@@ -73,10 +73,10 @@ export default function NavBarMobile() {
         <Slide appear={false} direction="down" in={!trigger}>
           <AppBar
             sx={{
-              background: "rgba(0,0,0,0.0)",
+              backgroundColor: "transparent",
               boxShadow: "none",
               zIndex: 500,
-              padding: "0.5rem",
+              padding: {xs: "0.5rem 0.5rem", sm: "0.5rem 1rem"},
             }}
           >
             {/* ---------------------------------- TABS ---------------------------------- */}

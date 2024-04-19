@@ -96,7 +96,7 @@ function FilterPanelMobile({
         overlap="circular"
         sx={{
           position: "fixed",
-          bottom: "80px",
+          bottom: "20px",
           right: "16px",
           zIndex: "100",
           "& .MuiBadge-badge": {

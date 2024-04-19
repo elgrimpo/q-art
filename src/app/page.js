@@ -49,11 +49,11 @@ export default function NotSignedIn() {
           justifyContent: "flex-end",
           position: "relative",
           padding: { xs: "0px", md: "32px" },
+          paddingTop: { xs: 0, md: "7rem" },
           display: "flex",
           width: "100%",
           maxWidth: "1500px",
           margin: "auto",
-          mt: { xs: "56px", md: "100px" },
         }}
       >
         {/*  GRADIENT  */}
@@ -103,21 +103,30 @@ export default function NotSignedIn() {
         </Box>
 
         {/*  BANNER IMAGE  */}
-        <CardMedia
-          component="img"
-          src="https://qrartimages.s3.us-west-1.amazonaws.com/654f3d47bef0549f910f70ca.png"
+        <Box
           sx={{
-            borderRadius: { xs: "0px", md: "5px" },
-            border: "solid 18px #A5FFC3",
+            backgroundColor: "#A5FFC3",
+            padding: { xs: "0.5rem", sm: "1rem" },
+            paddingTop: { xs: "4.7rem", sm: "4.7rem", md: "1rem" },
             width: { xs: "100%", md: "50%" },
+            borderRadius: { xs: "0px", md: "5px" },
             aspectRatio: "1/1",
-            zIndex: 1,
-            order: 2,
           }}
-        />
+        >
+          <CardMedia
+            component="img"
+            src="https://qrartimages.s3.us-west-1.amazonaws.com/654f3d47bef0549f910f70ca.png"
+            sx={{
+              borderRadius: "5px",
+              aspectRatio: "1/1",
+              zIndex: 1,
+              order: 2,
+            }}
+          />
+        </Box>
       </Box>
       {/* ------------------------------ IMAGE GALLERY ----------------------------- */}
-      <Box sx={{ mt: { xs: 30, sm: 16, md: 12 }, mb: { xs: "60px", md: 0 } }}>
+      <Box sx={{ mt: { xs: 30, sm: 16, md: 12 } }}>
         {/* TITLE */}
         <Typography
           variant="h3"
@@ -143,7 +152,7 @@ export default function NotSignedIn() {
             justifyContent="center"
             alignItems="stretch"
             spacing={2}
-            sx={{ mb: "1.5rem", padding: "12px", maxWidth: "1200px" }}
+            sx={{ mb: "1.5rem", padding: {xs: "0.5rem", sm: "1rem"}, maxWidth: "1200px" }}
           >
             {imageGallery.map((image, index) => (
               <Grid item key={index} xs={12} sm={6} md={4} lg={4} xl={4}>

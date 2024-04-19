@@ -163,7 +163,6 @@ export default function MyCodes() {
         alignItems: "center",
         flexDirection: "column",
         height: "100%",
-        height: "calc(100vh - 75px)",
       }}
     >
       <Typography variant="h5" component="h2" sx={{ textAlign: "center" }}>
@@ -171,7 +170,7 @@ export default function MyCodes() {
       </Typography>
     </Box>
   ) : (
-    <Box sx={{ padding: { xs: "0.5rem", sm: "1rem" } }}>
+    <Box sx={{ padding: { xs: "4.7rem 0.5rem", sm: "5rem 1rem" } }}>
       {/* ----------------------------- FILTERS ----------------------------- */}
       {isMobile ? (
         <FilterPanelMobile
