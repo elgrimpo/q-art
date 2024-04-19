@@ -128,7 +128,7 @@ function GenerateForm(props) {
   /* -------------------------------------------------------------------------- */
 
   return (
-    <Box className="sidebar">
+    <Box className="generate-form">
       <Stack useFlexGap flexWrap="wrap" spacing={1}>
         <Typography variant="h5" align="center" sx={{ mt: "1rem" }}>
           Generate QR Art

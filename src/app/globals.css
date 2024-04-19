@@ -59,7 +59,7 @@ body {
 
 }
 
-.sidebar {
+.generate-form {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -165,14 +165,11 @@ body {
     padding: 0px
   }
 
-  /* .generate-page {
-    height: auto
-  } */
 
-  .sidebar {
+
+  .generate-form {
     width: 100%;
-    padding: 0rem 1rem;
-    margin-bottom: 80px;
+    padding: 0rem 1rem 5rem 1rem;
   }
 
   .image-container {
