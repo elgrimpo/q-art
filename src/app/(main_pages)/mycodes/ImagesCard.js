@@ -16,12 +16,11 @@ import { useStore } from "@/store.js";
 
 function ImageCard(props) {
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
-  const { variant, image, index, handleCardClick, customLikeAction } =
-    props;
+  const { variant, image, index, handleCardClick, customLikeAction } = props;
 
   const { user, processingImages } = useStore();
 
-  const isImageProcessing = processingImages.includes(image?._id)
+  const isImageProcessing = processingImages.includes(image?._id);
 
   /* -------------------------------- FUNCTIONS ------------------------------- */
 
@@ -78,8 +77,7 @@ function ImageCard(props) {
                 user={user}
                 customLikeAction={customLikeAction}
               />
-
-              <CopyButton index={index} image={image} />
+              {user?._id && <CopyButton index={index} image={image} />}
 
               <ShareButton index={index} image={image} />
             </Stack>

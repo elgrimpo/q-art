@@ -47,7 +47,6 @@ export default function ImageSidebar(props) {
         justifyContent: "center",
         overflowY: { md: "scroll" },
         overflowX: "clip",
-
       }}
     >
       {/* -------------------------------- METADATA -------------------------------- */}
@@ -60,7 +59,8 @@ export default function ImageSidebar(props) {
             justifyContent={{ xs: "center", md: "left" }}
             alignItems="center"
             spacing={2}
-            useFlexGap flexWrap="wrap"
+            useFlexGap
+            flexWrap="wrap"
             sx={{ mb: "1rem" }}
           >
             <LikeButton
@@ -77,8 +77,7 @@ export default function ImageSidebar(props) {
                 customDeleteAction={customDeleteAction}
               />
             )}
-
-            <CopyButton image={image} />
+            {user?._id && <CopyButton image={image} />}
 
             {isOwner && <DownloadButton image={image} user={user} />}
           </Stack>

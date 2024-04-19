@@ -30,30 +30,32 @@ export default function LikeButton(props) {
   }, [image]);
 
   const handleLike = async () => {
-    try {
-      // Delete image from database
-      await likeImage(image._id, user._id);
+    if (user?._id) {
+      try {
+        // Delete image from database
+        await likeImage(image._id, user._id);
 
-      // Update likes
-      let updatedLikes = [...(likes || [])];
-      if (isLiked) {
-        // Remove userId from likes
-        updatedLikes = updatedLikes.filter((id) => id !== user._id);
-        setIsLiked(false);
-      } else {
-        // Add userId to likes
-        updatedLikes.push(user?._id);
-        setIsLiked(true);
-      }
-      setLikes(updatedLikes);
+        // Update likes
+        let updatedLikes = [...(likes || [])];
+        if (isLiked) {
+          // Remove userId from likes
+          updatedLikes = updatedLikes.filter((id) => id !== user._id);
+          setIsLiked(false);
+        } else {
+          // Add userId to likes
+          updatedLikes.push(user?._id);
+          setIsLiked(true);
+        }
+        setLikes(updatedLikes);
 
-      // Custom action (depending on specific page)
-      if (customLikeAction) {
-        customLikeAction(image._id, updatedLikes )
+        // Custom action (depending on specific page)
+        if (customLikeAction) {
+          customLikeAction(image._id, updatedLikes);
+        }
+      } catch (error) {
+        // Toaster for error
+        openAlert("error", "There was a problem with liking the image");
       }
-    } catch (error) {
-      // Toaster for error
-      openAlert("error", "There was a problem with liking the image");
     }
   };
 
