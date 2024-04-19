@@ -16,6 +16,7 @@ import Diversity1TwoToneIcon from "@mui/icons-material/Diversity1TwoTone";
 import HomeTwoToneIcon from "@mui/icons-material/HomeTwoTone";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import AutoFixHighTwoToneIcon from "@mui/icons-material/AutoFixHighTwoTone";
+import LoginTwoToneIcon from '@mui/icons-material/LoginTwoTone';
 import MenuTwoToneIcon from "@mui/icons-material/MenuTwoTone";
 import useScrollTrigger from "@mui/material/useScrollTrigger";
 import Slide from "@mui/material/Slide";
@@ -96,7 +97,7 @@ export default function NavBarMobile() {
                       flexDirection: "column",
                       justifyContent: "center",
                       alignItems: "center",
-                      width: "50%",
+                      width: "33%",
                       height: "100%",
                       color: getColor("/"),
                     }}
@@ -190,7 +191,7 @@ export default function NavBarMobile() {
                     flexDirection: "column",
                     justifyContent: "center",
                     alignItems: "center",
-                    width: user?._id ? "25%" : "50%",
+                    width: user?._id ? "25%" : "33%",
                     height: "100%",
                     color: getColor("/explore"),
                   }}
@@ -241,6 +242,37 @@ export default function NavBarMobile() {
                   </Typography>
                 </ButtonBase>
               )}
+
+              {/* LOGIN */}
+              {!user?._id && (
+                <Link href="/api/auth/signin" passHref legacyBehavior>
+                  <ButtonBase
+                    label="Login"
+                    value="/api/auth/signin"
+                    sx={{
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      width: "33%",
+                      height: "100%",
+                      color: getColor("/api/auth/signin"),
+                    }}
+                  >
+                    <IconButton
+                      aria-label="close"
+                      size="small"
+                      value="/api/auth/signin"
+                      sx={{ m: 0, padding: "0px", color: getColor("/api/auth/signin") }}
+                    >
+                      <LoginTwoToneIcon />
+                    </IconButton>
+                    <Typography variant="body2" sx={{ mt: 0 }}>
+                      Login
+                    </Typography>
+                  </ButtonBase>
+                </Link>
+              )}
+
             </Paper>
           </AppBar>
         </Slide>
