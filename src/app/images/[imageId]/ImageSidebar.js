@@ -122,11 +122,6 @@ export default function ImageSidebar(props) {
             align={isMobile ? "center" : "left"}
           />
           <ListItemText
-            primary="Stable Diffusion Model"
-            secondary={image?.sd_model}
-            align={isMobile ? "center" : "left"}
-          />
-          <ListItemText
             primary="Image Id"
             secondary={image?._id}
             align={isMobile ? "center" : "left"}
