@@ -39,7 +39,7 @@ function GenerateForm(props) {
   const { generateFormValues, setGenerateFormValues } = useStore();
 
   // Screen size
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   // Submit Button state
   const [submitDisabled, setSubmitDisabled] = useState(true);
@@ -128,83 +128,89 @@ function GenerateForm(props) {
   /* -------------------------------------------------------------------------- */
 
   return (
-    <Box className="generate-form">
+    <Box className="generate-form" sx={{mt: {xs: "0.5rem", md: "1rem"} }}>
       <Stack useFlexGap flexWrap="wrap" spacing={1}>
-        <Typography variant="h5" align="center" sx={{ mt: "1rem" }}>
+        {/* <Typography variant="h3" align="center" sx={{ mt: "1rem" }}>
           Generate QR Art
-        </Typography>
+        </Typography> */}
 
         {/* --------------------------------- WEBSITE -------------------------------- */}
-        <Typography variant="h6" align="center">
-          Enter your website URL
-        </Typography>
-        <TextField
-          required
-          id="website"
-          label="Website"
-          name="website"
-          value={generateFormValues.website}
-          onChange={handleInputChange}
-          variant="outlined"
-        />
+        <Box className="form-section">
+          <Typography className="form-title" variant="h5" align="center">
+            Website URL
+          </Typography>
+          <TextField
+            className="form-field"
+            required
+            id="website"
+            label="Website"
+            name="website"
+            value={generateFormValues.website}
+            onChange={handleInputChange}
+            variant="outlined"
+          />
+        </Box>
 
         {/* --------------------------------- PROMPT --------------------------------- */}
-        <Typography variant="h6" align="center" sx={{ mt: "1rem" }}>
-          What do you want to see in your QR Code?
-        </Typography>
-        <TextField
-          required
-          id="prompt"
-          label="Prompt"
-          name="prompt"
-          value={generateFormValues.prompt}
-          onChange={handleInputChange}
-          variant="outlined"
-          multiline
-          rows={4}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment
-                position="end"
-                sx={{
-                  alignItems: "center",
-                  alignSelf: "flex-start",
-                  padding: "0.9rem 0rem",
-                }}
-              >
-                <Box sx={{ display: "flex", flexDirection: "column" }}>
-                  {/* --- RANDOM PROMPT ---- */}
-                  <Tooltip title="Generate random prompt">
-                    <IconButton
-                      name="prompt_random"
-                      onClick={() =>
-                        handleInputChange({
-                          target: {
-                            name: "prompt",
-                            value: promptRandomizer(),
-                          },
-                        })
-                      }
-                    >
-                      <CasinoTwoToneIcon />
-                    </IconButton>
-                  </Tooltip>
-                </Box>
-              </InputAdornment>
-            ),
-          }}
-        />
+        <Box className="form-section">
+          <Typography className="form-title" variant="h5" align="center">
+            Image Description
+          </Typography>
+          <TextField
+            className="form-field"
+            required
+            id="prompt"
+            label="Prompt"
+            name="prompt"
+            value={generateFormValues.prompt}
+            onChange={handleInputChange}
+            variant="outlined"
+            multiline
+            rows={4}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment
+                  position="end"
+                  sx={{
+                    alignItems: "center",
+                    alignSelf: "flex-start",
+                    padding: "0.9rem 0rem",
+                  }}
+                >
+                  <Box sx={{ display: "flex", flexDirection: "column" }}>
+                    {/* --- RANDOM PROMPT ---- */}
+                    <Tooltip title="Generate random prompt">
+                      <IconButton
+                        name="prompt_random"
+                        onClick={() =>
+                          handleInputChange({
+                            target: {
+                              name: "prompt",
+                              value: promptRandomizer(),
+                            },
+                          })
+                        }
+                      >
+                        <CasinoTwoToneIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Box>
 
         {/* ----------------------------- QR CODE WEIGHT ----------------------------- */}
         <Stack
           direction={{ xs: "column", md: "row" }}
           useFlexGap
           alignItems="stretch"
-          spacing={4}
+          spacing={{xs: 1, md: 2}}
         >
-          <Box sx={{ width: "100%" }}>
-            <Typography variant="h6" align="center" sx={{ mt: "1rem" }}>
-              How strong should the QR Code be?
+          <Box className="form-section" sx={{ width: "100%" }}>
+            <Typography className="form-title" variant="h5" align="center">
+              QR Code Weight
             </Typography>
 
             {/* LEFT ICON */}
@@ -261,13 +267,14 @@ function GenerateForm(props) {
             </Stack>
           </Box>
 
-          <Box sx={{ width: "100%" }}>
+          <Box className="form-section" sx={{ width: "100%" }}>
             {/* ---------------------------------- SEED ---------------------------------- */}
-            <Typography variant="h6" align="center" sx={{ mt: "1rem" }}>
-              Do you want to use a seed?
+            <Typography className="form-title" variant="h5" align="center">
+              Seed
             </Typography>
 
             <TextField
+              className="form-field"
               id="seed"
               label="Seed"
               name="seed"
@@ -302,30 +309,34 @@ function GenerateForm(props) {
         </Stack>
 
         {/* --------------------------------- Styles --------------------------------- */}
-
-        <Typography variant="h6" align="center" sx={{ mt: "1rem" }}>
-          Select a Style for your QR Code
-        </Typography>
-        <ResponsiveMasonry
-          style={{ width: "100%" }}
-          columnsCountBreakPoints={{ 350: 1, 750: 2, 1200: 3 }}
+        <Box className="form-section" 
+        sx={{ padding: "1rem 0rem" }}
         >
-          <Masonry gutter="1rem">
-            <StylesCard
-              item={customStyle}
-              index={0}
-              handleClick={handleStyleClick}
-            />
-            {styles.map((item, index) => (
+          <Typography className="form-title" variant="h5" align="center">
+            Art Style
+          </Typography>
+          <ResponsiveMasonry
+            style={{ width: "100%", backgroundColor: "#A5FFC3", padding: isMobile ? "0.5rem" : "1rem", overflow: "visible" }}
+            columnsCountBreakPoints={{ 350: 2, 750: 3, 1200: 4 }}
+
+          >
+            <Masonry gutter={isMobile ? "0.5rem" : "1rem"} style={{overflow: "visible"}}>
               <StylesCard
-                item={item}
-                index={index}
-                key={index}
+                item={customStyle}
+                index={0}
                 handleClick={handleStyleClick}
               />
-            ))}
-          </Masonry>
-        </ResponsiveMasonry>
+              {styles.map((item, index) => (
+                <StylesCard
+                  item={item}
+                  index={index}
+                  key={index}
+                  handleClick={handleStyleClick}
+                />
+              ))}
+            </Masonry>
+          </ResponsiveMasonry>
+        </Box>
       </Stack>
 
       <GenerateModal
@@ -344,7 +355,7 @@ function GenerateForm(props) {
         disabled={submitDisabled}
         aria-label="generate"
         onClick={(e) => handleGenerate()}
-                sx={{
+        sx={{
           position: "fixed",
 
           bottom: "20px",
@@ -371,7 +382,6 @@ function GenerateForm(props) {
           )
         </Typography>
       </Button>
-
     </Box>
   );
 }

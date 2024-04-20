@@ -11,6 +11,7 @@ import {
   Stack,
   Chip,
 } from "@mui/material";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 // App imports
 import { useStore } from "@/store";
@@ -30,6 +31,9 @@ function StylesCard(props) {
 
   const selected = item.title === generateFormValues.style_title ? true : false;
 
+    // Screen size
+    const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
   /* -------------------------------------------------------------------------- */
@@ -38,11 +42,12 @@ function StylesCard(props) {
     <Grid item md={2} key={index}>
       {" "}
       <Card
-        elevation={0}
+        elevation={selected ? 0 : 1}
         key={index}
         sx={{
-          padding: { xs: "0rem 0rem 1rem 0rem", md: "1.2rem" },
-          backgroundColor: selected ? secondaryColor : primaryColor,
+          padding: { xs: "0rem", md: "1.2rem" },
+          backgroundColor: selected ? secondaryColor : "white",
+          border: selected ? `2px solid ${secondaryColor}` : "none",
           borderRadius: "5px",
         }}
         color={selected ? "secondary" : "primary"}
@@ -54,7 +59,7 @@ function StylesCard(props) {
           <CardMedia
             component="img"
             image={item?.image_url}
-            sx={{ borderRadius: "5px", aspectRatio: "1/1" }}
+            sx={{ borderRadius: {xs: "0px", md: "5px"}, aspectRatio: "1/1" }}
             key={index}
           />
 
@@ -63,9 +68,9 @@ function StylesCard(props) {
             variant="h5"
             align="center"
             display="block"
-            style={{
+            sx={{
               wordWrap: "break-word",
-              margin: "1rem 0",
+              margin: {xs: "0.3rem 0rem", md: "1rem 0rem"},
               color: selected ? primaryColor : secondaryColor,
             }}
           >
@@ -80,7 +85,7 @@ function StylesCard(props) {
           flexWrap="wrap"
           justifyContent="center"
         >
-          {item.keywords.map((prompt, index) => (
+          {!isMobile && item.keywords.map((prompt, index) => (
             <Chip
               label={prompt}
               color={selected ? "primary" : "secondary"}
