@@ -128,8 +128,8 @@ function GenerateForm(props) {
   /* -------------------------------------------------------------------------- */
 
   return (
-    <Box className="generate-form" sx={{mt: {xs: "0.5rem", md: "1rem"} }}>
-      <Stack useFlexGap flexWrap="wrap" spacing={1}>
+    <Box sx={{mt: {xs: "0.5rem", md: "1rem"} }}>
+      <Stack useFlexGap  spacing={1}>
         {/* <Typography variant="h3" align="center" sx={{ mt: "1rem" }}>
           Generate QR Art
         </Typography> */}

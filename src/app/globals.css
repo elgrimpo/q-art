@@ -49,25 +49,9 @@ body {
 /*-------- Generate Page ---------*/
 
 .generate-page {
-  height: 100dvh;
-  /* align-items: center;
-  justify-content: space-evenly; */
-  /* margin-top: 64px */
-  padding-top: 64px;
-  /* overflow: scroll; */
-
-
+  padding: 64px 1rem 5rem 1rem;
 }
 
-.generate-form {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 0rem 2rem 2rem 2rem;
-  justify-content: "center";
-
-  /* height: 100%; */
-}
 
 .form-section {
   background-color: #A5FFC3;
@@ -86,13 +70,6 @@ body {
 .form-field {
   background: white;
   border-radius: 5px
-}
-
-
-
-.formfield {
-  overflow-y: scroll;
-  overflow-x: hidden;
 }
 
 
@@ -182,11 +159,6 @@ body {
     padding: 0px
   }
 
-  .generate-form {
-    width: 100%;
-    padding: 0rem 1rem 5rem 1rem;
-  }
-
   .image-container {
     padding: 1rem;
   }
@@ -205,6 +177,15 @@ body {
 }
 
 @media screen and (max-width: 600px) {
+
+  .generate-page {
+    padding: 68px 0.5rem 5rem 0.5rem;
+  }
+
+  .form-section {
+    margin-top: 0rem
+  }
+
   .image-container {
     padding: 1rem 0.5rem 0.5rem 0.5rem;
 
@@ -221,11 +202,6 @@ body {
     margin: 0;
     padding: 0;
     border-radius: 0;
-
   }
 
-  .generate-form {
-    width: 100%;
-    padding: 0rem 0.5rem 5rem 0.5rem;
-  }
 }

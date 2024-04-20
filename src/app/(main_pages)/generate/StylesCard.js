@@ -32,7 +32,7 @@ function StylesCard(props) {
   const selected = item.title === generateFormValues.style_title ? true : false;
 
     // Screen size
-    const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
