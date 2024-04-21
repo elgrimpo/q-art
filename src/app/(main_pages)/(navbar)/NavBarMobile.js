@@ -84,7 +84,7 @@ export default function NavBarMobile() {
             <Paper
               elevation={3}
               sx={{
-                backgroundColor: "#262626",
+                backgroundColor: "#3d3d3d",
                 height: "60px",
                 borderRadius: "8px",
               }}

@@ -35,7 +35,6 @@ body {
 
 .body {
   box-sizing: border-box;
-  height: 100dvh;
   background-color: #F5F5F5;
   overflow: scroll;
 }

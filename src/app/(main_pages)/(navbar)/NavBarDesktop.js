@@ -3,10 +3,13 @@
 // Libraries imports
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { AppBar, Container, Toolbar, Stack, Tab } from "@mui/material";
+import { AppBar, Stack, Tab, Paper } from "@mui/material";
+import Slide from "@mui/material/Slide";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import useScrollTrigger from "@mui/material/useScrollTrigger";
+
 
 // App Imports
 import "@/app/globals.css";
@@ -35,6 +38,9 @@ export default function NavBarDesktop() {
   // Context variables
   const { user } = useStore();
 
+    // Scroll trigger
+    const trigger = useScrollTrigger();
+
   /* -------------------------------- FUNCTIONS ------------------------------- */
 
   /* -------------------------------------------------------------------------- */
@@ -44,19 +50,33 @@ export default function NavBarDesktop() {
   } else {
     return (
       <div>
-        <AppBar
-          sx={{ backgroundColor: "white", boxShadow: "none", zIndex: 500 }}
-        >
-          <Container
-            maxWidth="xl"
+        <Slide appear={false} direction="down" in={!trigger}>
+          <AppBar
             sx={{
-              padding: { xs: 0, sm: 0, md: 0, lg: 0, xl: 0 },
+              backgroundColor: "transparent",
+              boxShadow: "none",
+              zIndex: 500,
+              padding: {xs: "0.5rem 0.5rem", sm: "0.5rem 1rem"},
             }}
           >
-            <Toolbar display="flex" className="header">
+
+            <Paper elevation={3}
+              sx={{
+                backgroundColor: "#3d3d3d",
+                height: "60px",
+                borderRadius: "8px",
+                display: "flex",
+                alignItems: "center",
+                alignSelf: "center",
+                padding: "0rem 1rem",
+                width: "100%",
+                maxWidth: "1500px"
+                
+
+              }}>
 
               {/* LOGO */}
-              <Image src="/logo.png" alt="Logo" width={40} height={40} />
+              <Image src="/logo_light.png" alt="Logo" width={40} height={40} />
 
               {/* ---------------------------------- TABS ---------------------------------- */}
 
@@ -105,10 +125,10 @@ export default function NavBarDesktop() {
 
               {/* ACCOUNT */}
               <AccountMenuDesktop user={user} />
-            </Toolbar>
-          </Container>
-        </AppBar>
-      </div>
+            </Paper>
+            </AppBar>
+        </Slide>     
+         </div>
     );
   }
 }
