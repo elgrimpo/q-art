@@ -65,7 +65,7 @@ function StylesCard(props) {
 
           {/* ---------------------------------- TEXT ---------------------------------- */}
           <Typography
-            variant="h5"
+            variant= {isMobile ? "subtitle1" : "h5"}
             align="center"
             display="block"
             sx={{
