@@ -10,6 +10,8 @@ import motor.motor_asyncio as motor
 from typing import Optional
 from io import BytesIO
 import certifi
+from datetime import datetime, timedelta
+
 
 
 # App imports
@@ -259,14 +261,13 @@ async def toggle_like(id, user_id):
             return {"message": "Image not found"}, 404
 
         # -------------------------- UPDATE IMAGE DOC IN DB -------------------------- #
-
-        # Check if user_id is in "likes" array
+        # Update image document in DB
         likes = image.get("likes", [])
-        if user_id in likes:
-            likes.remove(user_id)
+        # Check if user_id is in "likes" array
+        if user_id in [like["userId"] for like in likes]:
+            likes = [like for like in likes if like["userId"] != user_id]
         else:
-            likes.append(user_id)
-
+            likes.append({"userId": user_id, "time": datetime.utcnow()})
         # Update db with updated "likes" array
         await images.update_one({"_id": ObjectId(id)}, {"$set": {"likes": likes}})
 

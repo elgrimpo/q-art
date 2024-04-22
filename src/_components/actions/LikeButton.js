@@ -21,13 +21,13 @@ export default function LikeButton(props) {
   // Check if image is liked by user
   const [likes, setLikes] = useState(image?.likes);
   const [isLiked, setIsLiked] = useState(
-    likes?.includes(user?._id) ? true : false
+    likes?.some(like => like?.userId === user?._id)
   );
 
   useEffect(() => {
     setLikes(image?.likes);
-    setIsLiked(image?.likes?.includes(user?._id) ? true : false);
-  }, [image]);
+    setIsLiked(likes?.some(like => like?.userId === user?._id));
+    }, [image, user]);
 
   const handleLike = async () => {
     if (user?._id) {
@@ -39,11 +39,11 @@ export default function LikeButton(props) {
         let updatedLikes = [...(likes || [])];
         if (isLiked) {
           // Remove userId from likes
-          updatedLikes = updatedLikes.filter((id) => id !== user._id);
+          updatedLikes = updatedLikes.filter(like => like.userId !== user._id);
           setIsLiked(false);
         } else {
           // Add userId to likes
-          updatedLikes.push(user?._id);
+          updatedLikes.push({ userId: user._id, time: new Date().toISOString() });
           setIsLiked(true);
         }
         setLikes(updatedLikes);

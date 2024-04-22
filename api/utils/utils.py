@@ -256,6 +256,6 @@ def createImagesFilterQuery(
     # Likes
     if likes == "Liked by me":
         if user_id:
-            query["likes"] = user_id
+            query["likes.userId"] = user_id
 
     return query

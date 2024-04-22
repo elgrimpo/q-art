@@ -57,6 +57,10 @@ class ControlNet(BaseModel):
     guidance_end: float
     resize_mode: int
 
+class Like(BaseModel):
+    userId: str
+    time: datetime
+
 class ImageDoc(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     user_id: str
@@ -79,5 +83,5 @@ class ImageDoc(BaseModel):
     controlnet1: ControlNet
     image_url: Optional[str] = None
     watermarked_image_url: Optional[str] = None
-    likes: Optional[List[str]] = []
+    likes: Optional[List[Like]] = []
     downloaded: Optional[bool] = False
