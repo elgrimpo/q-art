@@ -72,11 +72,10 @@ export default function AccountMenuDesktop() {
         <Box sx={{display: "flex", alignItems: "center", justifyContent: "center"}}>
           {/* -------------------------- USER CREDITS --------------------------- */}
           <Chip
-            color="primary"
             variant="outlined"
-            icon={<DiamondTwoToneIcon />}
+            icon={<DiamondTwoToneIcon sx={{color: theme.palette.primary.light}} />}
             label={user.credits}
-            sx={{ height: "40px", borderRadius: "24px" }}
+            sx={{ height: "40px", borderRadius: "24px", color: theme.palette.primary.light, borderColor: theme.palette.primary.light, '& .MuiChip-icon': {color: theme.palette.primary.light} }}
           />
           <Box
             sx={{ display: "flex", alignItems: "center", textAlign: "center" }}

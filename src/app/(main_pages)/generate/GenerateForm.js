@@ -128,8 +128,8 @@ function GenerateForm(props) {
   /* -------------------------------------------------------------------------- */
 
   return (
-    <Box sx={{mt: {xs: "0.5rem", md: "1rem"} }}>
-      <Stack useFlexGap  spacing={1}>
+    <Box sx={{ mt: { xs: "0.5rem", md: "1rem" } }}>
+      <Stack useFlexGap spacing={1}>
         {/* <Typography variant="h3" align="center" sx={{ mt: "1rem" }}>
           Generate QR Art
         </Typography> */}
@@ -206,7 +206,7 @@ function GenerateForm(props) {
           direction={{ xs: "column", md: "row" }}
           useFlexGap
           alignItems="stretch"
-          spacing={{xs: 1, md: 2}}
+          spacing={{ xs: 1, md: 2 }}
         >
           <Box className="form-section" sx={{ width: "100%" }}>
             <Typography className="form-title" variant="h5" align="center">
@@ -309,18 +309,23 @@ function GenerateForm(props) {
         </Stack>
 
         {/* --------------------------------- Styles --------------------------------- */}
-        <Box className="form-section" 
-        sx={{ padding: "1rem 0rem" }}
-        >
+        <Box className="form-section" sx={{ padding: "1rem 0rem" }}>
           <Typography className="form-title" variant="h5" align="center">
             Art Style
           </Typography>
           <ResponsiveMasonry
-            style={{ width: "100%", backgroundColor: "#A5FFC3", padding: isMobile ? "0.5rem" : "1rem", overflow: "visible" }}
+            style={{
+              width: "100%",
+              // backgroundColor: "#A5FFC3",
+              padding: isMobile ? "0.5rem" : "1rem",
+              overflow: "visible",
+            }}
             columnsCountBreakPoints={{ 350: 2, 750: 3, 1200: 4 }}
-
           >
-            <Masonry gutter={isMobile ? "0.5rem" : "1rem"} style={{overflow: "visible"}}>
+            <Masonry
+              gutter={isMobile ? "0.5rem" : "1rem"}
+              style={{ overflow: "visible" }}
+            >
               <StylesCard
                 item={customStyle}
                 index={0}
