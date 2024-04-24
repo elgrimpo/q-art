@@ -94,12 +94,9 @@ export default function Generate() {
             <Skeleton
               variant="rounded"
               animation="wave"
-              height="100%"
-              width="100%"
               sx={{
-                inset: 0,
-                aspectRatio: "1/1",
-                width:"100%",
+                width:"100vw",
+                height:{xs: "calc(100vh - 5.3rem)", sm: "calc(100vh - 6rem)"},
               }}
             />
             <Box

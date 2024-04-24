@@ -128,14 +128,14 @@ function GenerateForm(props) {
   /* -------------------------------------------------------------------------- */
 
   return (
-    <Box sx={{ mt: { xs: "0.5rem", md: "1rem" } }}>
+    <Box>
       <Stack useFlexGap spacing={1}>
         {/* <Typography variant="h3" align="center" sx={{ mt: "1rem" }}>
           Generate QR Art
         </Typography> */}
 
         {/* --------------------------------- WEBSITE -------------------------------- */}
-        <Box className="form-section">
+        <Box className="form-section" sx={{ marginTop: "0rem" }}>
           <Typography className="form-title" variant="h5" align="center">
             Website URL
           </Typography>
@@ -309,7 +309,7 @@ function GenerateForm(props) {
         </Stack>
 
         {/* --------------------------------- Styles --------------------------------- */}
-        <Box className="form-section" sx={{ padding: "1rem 0rem" }}>
+        <Box className="form-section" sx={{ padding: "1rem 0rem 4rem 0rem" }}>
           <Typography className="form-title" variant="h5" align="center">
             Art Style
           </Typography>
