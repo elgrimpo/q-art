@@ -157,12 +157,13 @@ export default function MyCodes() {
     /* --------------------------- NO USER IMAGES --------------------------- */
     <Box
       sx={{
-        padding: { xs: "0.5rem", sm: "1rem" },
+        padding: { xs: "4.7rem 0.5rem", sm: "5rem 1rem" },
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
         flexDirection: "column",
-        height: "100%",
+        height: "100vh",
+        width: "100%"
       }}
     >
       <Typography variant="h5" component="h2" sx={{ textAlign: "center" }}>
