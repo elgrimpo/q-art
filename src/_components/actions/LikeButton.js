@@ -31,12 +31,12 @@ export default function LikeButton(props) {
   }, [image, user]);
 
   const handleLike = async () => {
-    amplitude.track("liked image");
+    
     if (user?._id) {
       try {
         // Delete image from database
         await likeImage(image._id, user._id);
-
+        amplitude.track("Unlike image");
         // Update likes
         let updatedLikes = [...(likes || [])];
         if (isLiked) {
@@ -46,6 +46,7 @@ export default function LikeButton(props) {
           );
           setIsLiked(false);
         } else {
+          amplitude.track("Like image");
           // Add userId to likes
           updatedLikes.push({
             userId: user._id,

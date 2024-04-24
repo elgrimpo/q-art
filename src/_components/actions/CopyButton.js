@@ -3,6 +3,7 @@
 //Libraries imports
 import React from "react";
 import { useRouter } from "next/navigation";
+import * as amplitude from "@amplitude/analytics-browser";
 
 // App imports
 import StyledIconButton from "@/_components/StyledIconButton.js";
@@ -17,6 +18,7 @@ export default function CopyButton(props) {
   const { setGenerateFormValues } = useStore();
 
   const handleCopy = (image) => {
+    amplitude.track("Copy Image");
     const copyValues = {
       website: image.content,
       prompt: image.prompt,

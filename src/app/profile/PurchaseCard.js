@@ -1,9 +1,10 @@
 "use client";
 
 // Libraries imports
-import React, {useEffect} from "react";
+import React, { useEffect } from "react";
 import { Typography, Button, Card, CardMedia, Grid } from "@mui/material";
 import axios from "axios";
+import * as amplitude from "@amplitude/analytics-browser";
 
 // App imports
 import theme from "@/_styles/theme";
@@ -19,8 +20,7 @@ export default function PurchaseCard(props) {
 
   const { purchaseItem } = props;
 
-  const {user, openAlert} = useStore()
-
+  const { user, openAlert } = useStore();
 
   const handleCheckout = (item) => {
     // API call
@@ -54,6 +54,11 @@ export default function PurchaseCard(props) {
     // Check to see if there is a redirect back from Checkout Session
     const query = new URLSearchParams(window.location.search);
     if (query.get("success")) {
+      const event = new amplitude.Revenue()
+        .setProductId(query.get("product_id"))
+        .setPrice(query.get("credit_amount"))
+      amplitude.revenue(event);
+
       openAlert("success", "Credits added to your account!");
       revalidateUser();
     }

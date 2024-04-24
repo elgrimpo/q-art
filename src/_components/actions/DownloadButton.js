@@ -15,6 +15,7 @@ import {
   IconButton,
 } from "@mui/material";
 import DiamondTwoToneIcon from "@mui/icons-material/DiamondTwoTone";
+import * as amplitude from "@amplitude/analytics-browser";
 
 
 // App imports
@@ -86,8 +87,13 @@ export default function DownloadButton(props) {
     openAlert("info", "Image is being prepared for download");
 
     try {
+      amplitude.track("Download Image", {
+        imageId: image._id,
+        resolution: resolution,
+      });
       // Upscale Image
       const upscaledImage = await upscaleImage(image._id, resolution, user._id);
+
 
       // Download Image
       downloadImage(upscaledImage);

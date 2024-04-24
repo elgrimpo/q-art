@@ -4,6 +4,7 @@
 import React, { useState } from "react";
 import { Box, Typography, Skeleton } from "@mui/material";
 import { useRouter } from "next/navigation";
+import * as amplitude from "@amplitude/analytics-browser";
 
 // App imports
 import GenerateForm from "./GenerateForm";
@@ -52,7 +53,12 @@ export default function Generate() {
   const handleGenerate = async () => {
     setGeneratingImage(true);
     // Check if user is logged in
-
+    amplitude.track("Generate Image", {
+      userId: user?.id,
+      url: generateFormValues.website,
+      style_title: generateFormValues.style_title,
+      qr_weight: generateFormValues.qr_weight,
+    });
     try {
       // Generate image
       const image = await generateImage(generateFormValues, user);

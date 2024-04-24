@@ -19,6 +19,7 @@ import {
   XIcon,
 } from "react-share";
 import { Menu, MenuItem, ListItemIcon, ListItemText } from "@mui/material";
+import * as amplitude from "@amplitude/analytics-browser";
 
 // App imports
 import StyledIconButton from "@/_components/StyledIconButton.js";
@@ -33,8 +34,9 @@ export default function ShareButton(props) {
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
-  const handleClose = () => {
+  const handleClose = (social) => {
     setAnchorEl(null);
+    amplitude.track("Share Image", { social: social })
   };
 
   const shareUrl = `http://www.qr-ai.co/images/${image?._id}`;
@@ -70,7 +72,7 @@ export default function ShareButton(props) {
       >
         {/* TWITTER / X */}
 
-        <MenuItem onClick={handleClose}>
+        <MenuItem onClick={() => handleClose("Twitter")}>
           <TwitterShareButton
             url={shareUrl}
             title={shareTitle}
@@ -89,7 +91,7 @@ export default function ShareButton(props) {
 
         {/* FACEBOOK */}
 
-        <MenuItem onClick={handleClose}>
+        <MenuItem onClick={() => handleClose("Facebook")}>
           <FacebookShareButton
             url={shareUrl}
             hashtag="#qr_ai"
@@ -108,11 +110,11 @@ export default function ShareButton(props) {
 
         {/* LinkedIn */}
 
-        <MenuItem onClick={handleClose}>
+        <MenuItem onClick={() => handleClose("LinkedIn")}>
           <LinkedinShareButton
             url={shareUrl}
             title={shareTitle}
-            source="https://qr-ai.co"
+            source="https://www.qr-ai.co"
             className="share-button"
             style={{
               display: "flex",
@@ -128,7 +130,7 @@ export default function ShareButton(props) {
 
         {/* Reddit */}
 
-        <MenuItem onClick={handleClose}>
+        <MenuItem onClick={() => handleClose("Reddit")}>
           <RedditShareButton
             url={shareUrl}
             title={shareTitle}
@@ -147,7 +149,7 @@ export default function ShareButton(props) {
 
         {/* Whatsapp */}
 
-        <MenuItem onClick={handleClose}>
+        <MenuItem onClick={() => handleClose("Whatsapp")}>
           <WhatsappShareButton
             url={shareUrl}
             title={shareTitle}
