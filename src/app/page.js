@@ -48,8 +48,8 @@ export default function NotSignedIn() {
           display: "flex",
           justifyContent: "flex-end",
           position: "relative",
-          padding: { xs: "0px", md: "32px" },
-          paddingTop: { xs: 0, md: "7rem" },
+          padding: { xs: "0px", md: "1rem" },
+          paddingTop: { xs: 0, md: "5rem" },
           display: "flex",
           width: "100%",
           maxWidth: "1500px",
@@ -62,12 +62,12 @@ export default function NotSignedIn() {
             position: "absolute",
             width: { xs: "100%", md: "90%" },
             height: "100%",
-            top: "0px",
+            top: {xs: "100px", md: "0px"},
             // right: "250px",
             zIndex: 2,
             left: { xs: "0px", md: "24px" },
             background: {
-              xs: "linear-gradient(0deg, rgba(22,22,22,1) 25%, rgba(22,22,22,0) 90%)",
+              xs: "linear-gradient(0deg, rgba(22,22,22,1) 30%, rgba(22,22,22,0) 90%)",
               md: "linear-gradient(90deg, rgba(22,22,22,1) 55%, rgba(22,22,22,0) 90%)",
             },
           }}
@@ -78,11 +78,11 @@ export default function NotSignedIn() {
           sx={{
             position: "absolute",
             width: { xs: "100%", md: "900px" },
-            padding: "24px",
+            padding: "1rem",
             height: "400px",
             top: { xs: "60%", md: "20%" },
             zIndex: 2,
-            left: { xs: "0px", md: "24px" },
+            left: { xs: "0px", md: "1rem" },
             textAlign: { xs: "center", md: "left" },
           }}
         >
@@ -95,7 +95,7 @@ export default function NotSignedIn() {
           </Typography>
           <Typography variant="h5" color="primary" sx={{ mt: 6, mb: 2 }}>
             {" "}
-            Create an account to get started for free!
+            Create an account and try it out for free!
           </Typography>
           <Link href="/api/auth/signin" passHref legacyBehavior>
             <Button variant="contained">Create Account</Button>
@@ -108,7 +108,7 @@ export default function NotSignedIn() {
             backgroundColor: "#A5FFC3",
             padding: { xs: "0.5rem", sm: "1rem" },
             paddingTop: { xs: "4.7rem", sm: "4.7rem", md: "1rem" },
-            width: { xs: "100%", md: "60%", lg: "50%" },
+            width: { xs: "100%", md: "60%", lg: "60%" },
             borderRadius: { xs: "0px", md: "5px" },
             aspectRatio: "1/1",
           }}
