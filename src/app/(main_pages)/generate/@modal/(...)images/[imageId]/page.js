@@ -67,7 +67,7 @@ export default function ImagePage({ params }) {
       ...(isFullScreen && {
       "& .MuiDialog-paper": { 
         maxHeight: "100%",
-        maxWidth: "100%" 
+        width: "100%" 
       }})
     }}
     >
@@ -99,7 +99,7 @@ export default function ImagePage({ params }) {
           display: "flex",
           flexDirection: { xs: "column", md: "row" },
           overflowY: { xs: "scroll", md: "hidden" },
-
+          width: "100%"
         }}
       >
         {/* ------------ Image ------------- */}
