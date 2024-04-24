@@ -59,7 +59,7 @@ export default function ImageFill(props) {
             objectFit: "contain",
             maxWidth: "100%",
             maxHeight: "100%",
-            width: "auto",
+            width: "100%",
             height: "auto",
             aspectRatio: "1/1",
             pointerEvents: "none",

@@ -63,12 +63,12 @@ export default function ImagePage({ params }) {
     onClose={handleClose}
     sx={{
       margin: "auto",
-      maxWidth: "1600px",
       ...(isFullScreen && {
       "& .MuiDialog-paper": { 
         maxHeight: "100%",
         width: "100%" 
-      }})
+      }}),
+      "& .MuiDialog-paper": {maxWidth: "1400px" },
     }}
     >
       {/* ------------------------ NAVIGATION BUTTON ----------------------- */}
