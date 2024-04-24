@@ -5,6 +5,7 @@ import React, { useState, useEffect } from "react";
 import { Chip } from "@mui/material";
 import FavoriteTwoToneIcon from "@mui/icons-material/FavoriteTwoTone";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import * as amplitude from "@amplitude/analytics-browser";
 
 // App imports
 import { useStore } from "@/store";
@@ -21,15 +22,16 @@ export default function LikeButton(props) {
   // Check if image is liked by user
   const [likes, setLikes] = useState(image?.likes);
   const [isLiked, setIsLiked] = useState(
-    likes?.some(like => like?.userId === user?._id)
+    likes?.some((like) => like?.userId === user?._id)
   );
 
   useEffect(() => {
     setLikes(image?.likes);
-    setIsLiked(likes?.some(like => like?.userId === user?._id));
-    }, [image, user]);
+    setIsLiked(likes?.some((like) => like?.userId === user?._id));
+  }, [image, user]);
 
   const handleLike = async () => {
+    amplitude.track("liked image");
     if (user?._id) {
       try {
         // Delete image from database
@@ -39,11 +41,16 @@ export default function LikeButton(props) {
         let updatedLikes = [...(likes || [])];
         if (isLiked) {
           // Remove userId from likes
-          updatedLikes = updatedLikes.filter(like => like.userId !== user._id);
+          updatedLikes = updatedLikes.filter(
+            (like) => like.userId !== user._id
+          );
           setIsLiked(false);
         } else {
           // Add userId to likes
-          updatedLikes.push({ userId: user._id, time: new Date().toISOString() });
+          updatedLikes.push({
+            userId: user._id,
+            time: new Date().toISOString(),
+          });
           setIsLiked(true);
         }
         setLikes(updatedLikes);

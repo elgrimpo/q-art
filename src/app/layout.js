@@ -3,6 +3,8 @@ import "./globals.css";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "@/_styles/theme";
 
+import AmplitudeContextProvider from "@/_context/amplitudeContext";
+
 import { StoreInitializer } from "@/_components/StoreInitializer";
 import { getUserInfo } from "@/_utils/userUtils";
 import { Toaster } from "@/_components/Toaster";
@@ -22,10 +24,10 @@ export default async function RootLayout({ children }) {
       <body className={inter.className}>
         <ThemeProvider theme={theme}>
           <StoreInitializer user={user}>
-
+            <AmplitudeContextProvider>
               <Toaster />
               {children}
-
+            </AmplitudeContextProvider>
           </StoreInitializer>
         </ThemeProvider>
       </body>
