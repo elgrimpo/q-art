@@ -1,5 +1,7 @@
+"use client";
+
 // Libraries imports
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Typography,
   Box,
@@ -11,19 +13,21 @@ import {
 import DiamondTwoToneIcon from "@mui/icons-material/DiamondTwoTone";
 import Link from "next/link";
 import Image from "next/image";
+import * as amplitude from "@amplitude/analytics-browser";
 
 //App imports
 import PurchaseCard from "./PurchaseCard";
 import StyledIconButton from "@/_components/StyledIconButton";
-import { getUserInfo } from "@/_utils/userUtils";
 import { palette } from "@/_styles/palette";
+import { useStore } from "@/store";
+import { revalidateUser } from "@/_utils/userUtils";
 
 /* -------------------------------------------------------------------------- */
 /*                              COMPONENT RENDER                              */
 /* -------------------------------------------------------------------------- */
 
-export default async function Profile() {
-  const user = await getUserInfo();
+export default function Profile() {
+  const { user, openAlert } = useStore();
 
   const purchaseItems = [
     {
@@ -35,16 +39,41 @@ export default async function Profile() {
     {
       creditAmount: 100,
       price: 9,
-      stripeId: "price_1OpINoAaPyl1Ov3PufRg0KrR", 
+      stripeId: "price_1OpINoAaPyl1Ov3PufRg0KrR",
       image: "/two_diamonds.png",
     },
     {
       creditAmount: 250,
       price: 20,
-      stripeId: "price_1OpIOmAaPyl1Ov3P170gEWNn", 
+      stripeId: "price_1OpIOmAaPyl1Ov3P170gEWNn",
       image: "/three_diamonds.png",
     },
   ];
+
+  /* -------------------------------- FUNCTIONS ------------------------------- */
+  function getPriceByStripeId(stripeId) {
+    const item = purchaseItems.find((item) => item.stripeId === stripeId);
+    return item ? item.price : null;
+  }
+  useEffect(() => {
+    // Check to see if there is a redirect back from Checkout Session
+    const query = new URLSearchParams(window.location.search);
+    if (query.get("success")) {
+      const productId = query.get("product_id");
+      const price = getPriceByStripeId(productId);
+      const event = new amplitude.Revenue()
+        .setProductId(productId)
+        .setPrice(price);
+
+      amplitude.revenue(event);
+
+      openAlert("success", "Credits added to your account!");
+      revalidateUser();
+    }
+    if (query.get("canceled")) {
+      openAlert("error", "Credit purchase cancelled.");
+    }
+  }, [openAlert]);
 
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
