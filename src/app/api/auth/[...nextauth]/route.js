@@ -1,12 +1,8 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import CredentialsProvider from "next-auth/providers/credentials";
 
 export const authOptions = {
-
-  url: process.env.NEXTAUTH_URL,
-
-  secret: process.env.NEXTAUTH_SECRET,
-  // Configure one or more authentication providers
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
@@ -14,44 +10,95 @@ export const authOptions = {
       authorization: {
         params: {
           prompt: "select_account",
-        }}
+        },
+      },
+    }),
+    CredentialsProvider({
+      id: "anonymous",
+      name: "Anonymous",
+      credentials: {},
+      async authorize(credentials, req) {
+        // Create an anonymous user
+        const user = {
+          id: Date.now(),
+          name: "Guest User",
+          is_guest: true,
+          credits: 1,
+        };
+        return user;
+      },
     }),
   ],
 
   callbacks: {
-    async signIn({ user, account }) {
-      const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/auth`;
-
-      const data = {
-        name: user.name,
-        email: user.email,
-        auth_providers: [{
-          provider: account.provider,
-          providerId: account.providerAccountId,
-        }],
-      };
-
-      try {
-        const response = await fetch(url, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        });
-
-        if (response.ok) {
-          return true;
-        } else {
-          console.error("Error authenticating user:", error);
-          return false; 
+    async jwt({ token, account, user }) {
+      // If signing in
+      if (account && user) {
+        // For anonymous sign-in
+        if (account.provider === "anonymous") {
+          return {
+            ...token,
+            is_guest: true,
+            credits: 1,
+          };
         }
-      } catch (error) {
-        console.error("Error authenticating user:", error);
-        return false; 
+        // For Google sign-in
+        return {
+          ...token,
+          is_guest: false,
+        };
       }
+      return token;
+    },
+
+    async session({ session, token }) {
+      // Make sure session user reflects token data
+      session.user.is_guest = token.is_guest;
+      if (token.is_guest) {
+        session.user.credits = token.credits;
+      }
+      return session;
+    },
+
+    async signIn({ user, account }) {
+      // Only call backend for Google sign-ins
+      if (account?.provider === "google") {
+        const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/auth`;
+
+        const data = {
+          name: user.name,
+          email: user.email,
+          auth_providers: [
+            {
+              provider: account.provider,
+              providerId: account.providerAccountId,
+            },
+          ],
+        };
+
+        try {
+          const response = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+          });
+
+          return response.ok;
+        } catch (error) {
+          console.error("Error authenticating user:", error);
+          return false;
+        }
+      }
+      // Always allow anonymous sign-ins
+      return true;
     },
   },
+
+  // Make sure we're using JWT strategy
+  session: {
+    strategy: "jwt",
+  },
 };
+
 const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };

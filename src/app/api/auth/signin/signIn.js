@@ -6,6 +6,11 @@ import FacebookIcon from "@mui/icons-material/Facebook";
 import XIcon from "@mui/icons-material/X";
 
 export default function SignIn() {
+  const handleGoogleSignIn = () => {
+    console.log('SignIn: Initiating Google sign in');
+    signIn("google", { callbackUrl: "/generate" });
+  };
+
   return (
     <Box
       sx={{
@@ -24,63 +29,15 @@ export default function SignIn() {
         <Typography variant="h5" align="center">
           Sign in to QR AI
         </Typography>
-        {/*<TextField
-          required
-          id="username"
-          label="Username"
-          name="username"
-          value=""
-          onChange=""
-          variant="outlined"
-        />
-        <TextField
-          required
-          id="password"
-          label="Password"
-          name="password"
-          value=""
-          onChange=""
-          variant="outlined"
-        />
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() =>
-            signIn("google", { callbackUrl: "/generate" })
-          }
-          sx={{ mb: "1rem" }}
-        >
-          Sign in
-        </Button>
-
-        <Typography variant="h6" align="center">
-          Sign in with
-        </Typography>*/}
 
         <Button
           startIcon={<GoogleIcon />}
           variant="contained"
           color="primary"
-          onClick={() => signIn("google", { callbackUrl: "/generate" })}
+          onClick={handleGoogleSignIn}
         >
           Google
         </Button>
-        {/* <Button
-          startIcon={<FacebookIcon />}
-          variant="contained"
-          color="primary"
-          onClick={() => signIn("google", { callbackUrl: "/generate" })}
-        >
-          Facebook
-        </Button>
-        <Button
-          startIcon={<XIcon />}
-          variant="contained"
-          color="primary"
-          onClick={() => signIn("google", { callbackUrl: "/generate" })}
-        >
-          Twitter
-        </Button> */}
       </Stack>
     </Box>
   );
