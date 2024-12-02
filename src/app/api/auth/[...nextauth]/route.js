@@ -17,11 +17,11 @@ export const authOptions = {
       id: "anonymous",
       name: "Anonymous",
       credentials: {},
-      async authorize(credentials, req) {
-        // Create an anonymous user
+      async authorize() {
         const user = {
-          id: Date.now(),
+          id: Date.now().toString(),
           name: "Guest User",
+          email: `guest_${Date.now()}@anonymous.com`,
           is_guest: true,
           credits: 1,
         };
@@ -31,29 +31,20 @@ export const authOptions = {
   ],
 
   callbacks: {
-    async jwt({ token, account, user }) {
-      // If signing in
-      if (account && user) {
-        // For anonymous sign-in
-        if (account.provider === "anonymous") {
-          return {
-            ...token,
-            is_guest: true,
-            credits: 1,
-          };
-        }
-        // For Google sign-in
-        return {
-          ...token,
-          is_guest: false,
-        };
+    async jwt({ token, user, account }) {
+      if (user) {
+        // Initial sign in
+        token.is_guest = user.is_guest || false;
+        token.credits = user.credits;
+        token.id = user.id;
       }
       return token;
     },
 
     async session({ session, token }) {
-      // Make sure session user reflects token data
+      // Send properties to the client
       session.user.is_guest = token.is_guest;
+      session.user.id = token.id;
       if (token.is_guest) {
         session.user.credits = token.credits;
       }
@@ -61,7 +52,6 @@ export const authOptions = {
     },
 
     async signIn({ user, account }) {
-      // Only call backend for Google sign-ins
       if (account?.provider === "google") {
         const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/auth`;
 
@@ -94,10 +84,16 @@ export const authOptions = {
     },
   },
 
-  // Make sure we're using JWT strategy
+  pages: {
+    signIn: '/api/auth/signin',
+  },
+
   session: {
     strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
+
+  debug: process.env.NODE_ENV === 'development',
 };
 
 const handler = NextAuth(authOptions);
