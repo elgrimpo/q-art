@@ -9,13 +9,13 @@ from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
 import os
 
-
 # App imports
 from api.controllers.images_controller import get_images, get_image, toggle_like, delete_image
 from api.controllers.generate_controller import predict, upscale
 from api.controllers.users_controller import get_user_info, authenticate_user
 from api.controllers.payment_controller import create_checkout_session, stripe_webhook
-from api.schemas.schemas import User
+from api.schemas.schemas import User, UserAuth
+
 # ---------------------------------------------------------------------------- #
 #                                INITIALIZE APP                                #
 # ---------------------------------------------------------------------------- #
@@ -45,7 +45,6 @@ app.add_middleware(
 
 # -------------------------------- USER ROUTES ------------------------------- #
 
-
 # GET USER INFO
 @app.get("/api/user/info")
 async def get_user_info_endpoint(email: Optional[str] = None):
@@ -53,9 +52,8 @@ async def get_user_info_endpoint(email: Optional[str] = None):
 
 # AUTHENTICATE USER
 @app.post("/api/user/auth")
-async def authenticate_user_endpoint(user: User):
-    return await authenticate_user(user)
-
+async def authenticate_user_endpoint(user_auth: UserAuth):
+    return await authenticate_user(user_auth)
 
 # ------------------------------ GENERATE ROUTES ----------------------------- #
 
@@ -97,7 +95,6 @@ async def upscale_endpoint(
         resolution
     )
 
-
 # ------------------------------- IMAGE ROUTES ------------------------------- #
 
 # GET IMAGES
@@ -112,7 +109,6 @@ async def images_endpoint(
     images_per_page: int = 12,
     sort_by: str = "Newest",
 ):
-
     return await get_images(
         page, user_id, exclude_user_id, likes, time_period, image_style, images_per_page, sort_by
     )
@@ -131,7 +127,6 @@ async def toggle_like_endpoint(id: Optional[str] = None, user_id: Optional[str] 
 @app.delete("/api/images/delete/{id}")
 async def delete_image_endpoint(id: str):
     return await delete_image(id)
-
 
 # ------------------------------ PAYMENTS ROUTES ----------------------------- #
 

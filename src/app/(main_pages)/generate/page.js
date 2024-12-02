@@ -12,6 +12,7 @@ import SimpleDialog from "@/_components/SimpleDialog";
 import { useStore } from "@/store";
 import { generateImage } from "@/_utils/ImagesUtils";
 import { updateGuestCredits } from "@/_utils/userUtils";
+
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
 /* -------------------------------------------------------------------------- */
@@ -28,6 +29,7 @@ export default function Generate() {
     generatingImage,
     setGeneratingImage,
   } = useStore();
+  
   // Dialog Content
   const [dialogContent, setDialogContent] = useState({});
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -39,12 +41,15 @@ export default function Generate() {
   };
 
   const handleInsufficientCredits = () => {
+    const description = user?.is_guest 
+      ? "Sign up to get more credits and unlock all features!"
+      : "You don't have enough credits to generate this image. Please go to your account to purchase additional credits.";
+    
     setDialogContent({
       title: "Insufficient Credits",
-      description:
-        "You don't have enough credits to generate this image. Please go to your account to purchase additional credits.",
-      primaryActionText: "Add Credits",
-      primaryAction: () => router.push("/profile"),
+      description,
+      primaryActionText: user?.is_guest ? "Sign Up" : "Add Credits",
+      primaryAction: () => router.push(user?.is_guest ? "/api/auth/signin" : "/profile"),
       secondaryActionText: "Close",
       secondaryAction: handleDialogClose,
     });
@@ -59,7 +64,7 @@ export default function Generate() {
 
       // Check if user has credits
       if (user?.credits < 1) {
-        openAlert("error", "Insufficient credits to generate image");
+        handleInsufficientCredits();
         setGeneratingImage(false);
         return;
       }
@@ -75,26 +80,27 @@ export default function Generate() {
 
       // Generate image
       const image = await generateImage(generateFormValues, user);
+      setGeneratingImage(false);
 
       // Success Toaster
-      openAlert("success", "Image generated");
+      openAlert("success", "Image generated successfully!");
 
-      // If guest user, update credits and redirect with flag
+      // Update credits and redirect based on user type
       if (user?.is_guest) {
         console.log('Updating guest credits after generation');
-        await updateGuestCredits(0);
-        window.location.href = `/images/${image._id}?isNewGuestImage=true`;
+        await updateGuestCredits(user.credits - 1);
+        router.push(`/images/${image._id}?isNewGuestImage=true`);
       } else {
-        window.location.href = `/images/${image._id}`;
+        router.push(`/images/${image._id}`);
       }
     } catch (error) {
       console.error('Generation error:', error);
       if (error.message === "InsufficientCredits") {
-        openAlert("error", "Insufficient credits to generate image");
+        handleInsufficientCredits();
       } else {
-        openAlert("error", "Image generation failed");
+        openAlert("error", "Failed to generate image. Please try again.");
       }
-      setGeneratingImage(false);
+      
     }
   };
 
@@ -134,6 +140,18 @@ export default function Generate() {
           </Box>
         </Box>
       )}
+
+      {/* ----------------------------- DIALOG MODAL ----------------------------- */}
+      <SimpleDialog
+        open={dialogOpen}
+        onClose={handleDialogClose}
+        title={dialogContent.title}
+        description={dialogContent.description}
+        primaryActionText={dialogContent.primaryActionText}
+        primaryAction={dialogContent.primaryAction}
+        secondaryActionText={dialogContent.secondaryActionText}
+        secondaryAction={dialogContent.secondaryAction}
+      />
     </div>
   );
 }

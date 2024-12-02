@@ -44,6 +44,13 @@ class User(BaseModel):
     credits: Optional[int] = 10
     payment_history: Optional[List[PaymentHistory]] = []
 
+class UserAuth(BaseModel):
+    name: str
+    email: str
+    auth_providers: List[AuthProvider]
+    guest_id: Optional[str] = None
+    picture: Optional[str] = None
+
 # ---------------------------------------------------------------------------- #
 #                                IMAGES CLASSES                                #
 # ---------------------------------------------------------------------------- #

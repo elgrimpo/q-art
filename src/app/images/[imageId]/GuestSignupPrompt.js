@@ -24,7 +24,11 @@ export default function GuestSignupPrompt() {
       <Typography variant="body1" sx={{ mb: 4 }}>
         Sign in now to save your creation and generate more amazing QR codes.
       </Typography>
-      <Stack spacing={2} direction="column" sx={{ width: "100%", maxWidth: "200px" }}>
+      <Stack
+        spacing={2}
+        direction="column"
+        sx={{ width: "100%", maxWidth: "200px" }}
+      >
         <Link href="/api/auth/signin" passHref legacyBehavior>
           <Button variant="contained" fullWidth>
             Sign In

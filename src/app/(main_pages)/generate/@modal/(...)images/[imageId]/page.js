@@ -4,7 +4,7 @@
 import React, { useEffect, useState } from "react";
 import { Box, Dialog, Button, Stack } from "@mui/material";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import ReplayTwoToneIcon from "@mui/icons-material/ReplayTwoTone";
 import EditTwoToneIcon from "@mui/icons-material/EditTwoTone";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -26,6 +26,8 @@ export default function ImagePage({ params }) {
   const { imageId } = params;
   const [image, setImage] = useState(null);
   const { user, resetGenerateFormValues } = useStore();
+  const searchParams = useSearchParams();
+  const isNewGuestImage = searchParams.get('isNewGuestImage') === 'true';
 
   const router = useRouter();
   const isFullScreen = useMediaQuery(theme.breakpoints.down("md"));
@@ -108,12 +110,12 @@ export default function ImagePage({ params }) {
 
         {/* -------------------- Sidebar ------------------- */}
 
-
-          <ImageSidebar
-            image={image}
-            user={user}
-            customDeleteAction={customDeleteAction}
-          />
+        <ImageSidebar
+          image={image}
+          user={user}
+          customDeleteAction={customDeleteAction}
+          isNewGuestImage={isNewGuestImage}
+        />
 
       </Box>
     </Dialog>

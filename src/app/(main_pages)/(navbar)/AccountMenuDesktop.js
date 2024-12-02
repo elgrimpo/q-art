@@ -49,32 +49,37 @@ export default function AccountMenuDesktop() {
     setAnchorEl(null);
   };
 
-  // Create Avatar icon
+  // Create Avatar icon with null checks
   function stringAvatar(user) {
+    if (!user?.name) return { sx: { bgcolor: theme.palette.primary.main, height: 40, width: 40 } };
+    
+    const nameParts = user.name.split(" ");
+    const firstInitial = nameParts[0] ? nameParts[0][0] : "";
+    const secondInitial = nameParts[1] ? nameParts[1][0] : "";
+    
     return {
       sx: {
         bgcolor: theme.palette.primary.main,
         height: 40,
         width: 40,
       },
-      children: `${user.name.split(" ")[0][0]}${
-        user.name.split(" ")[1] ? user.name.split(" ")[1][0] : ""
-      }`,
+      children: `${firstInitial}${secondInitial}`,
     };
   }
+
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
   /* -------------------------------------------------------------------------- */
   return (
     <div>
       {/* ACCOUNT */}
-      {user?._id ? (
+      {!user?.is_guest ? (
         <Box sx={{display: "flex", alignItems: "center", justifyContent: "center"}}>
           {/* -------------------------- USER CREDITS --------------------------- */}
           <Chip
             variant="outlined"
             icon={<DiamondTwoToneIcon sx={{color: theme.palette.primary.light}} />}
-            label={user.credits}
+            label={user?.credits || 0}
             sx={{ height: "40px", borderRadius: "24px", color: theme.palette.primary.light, borderColor: theme.palette.primary.light, '& .MuiChip-icon': {color: theme.palette.primary.light} }}
           />
           <Box

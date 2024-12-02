@@ -72,9 +72,15 @@ async def predict(
         service_config = {"generate": "1"}
         credits_required = calculate_credits(service_config)
 
-        user_data = await users.find_one({"_id": ObjectId(user_id)})
-        if not sufficient_credit(user_data, service_config):
-            raise HTTPException(status_code=403, detail="Insufficient credits")
+        # Handle guest users 
+        if str(user_id).startswith("guest_"):
+            # For guest users, we assume they have exactly 1 credit from the session. This is managed on the frontend/session side
+            pass
+        else:
+            # For regular users, check credits in database
+            user_data = await users.find_one({"_id": ObjectId(user_id)})
+            if not sufficient_credit(user_data, service_config):
+                raise HTTPException(status_code=403, detail="Insufficient credits")
 
         # ------------------------------ CREATE QR CODE ------------------------------ #
         qr = qrcode.QRCode(
@@ -106,7 +112,7 @@ async def predict(
         try:
             # Start a process pool executor
             with concurrent.futures.ProcessPoolExecutor() as executor:
-                # Submit the txt2img call 
+                # Submit the txt2img call
                 txt2img_future = executor.submit(client.txt2img, req)
                 txt2img_coro = asyncio.wrap_future(txt2img_future)
                 txt2img_result = await txt2img_coro
@@ -122,12 +128,10 @@ async def predict(
 
                 print("task id:" + task_id)
 
-
                 # Submit the wait_for_task call
                 wait_for_task_future = executor.submit(client.wait_for_task, task_id)
                 wait_for_task_coro = asyncio.wrap_future(wait_for_task_future)
                 res = await wait_for_task_coro
-
 
                 info_dict = json.loads(res.data.info)
                 seed = info_dict.get("seed")
@@ -187,7 +191,7 @@ async def predict(
             }
 
             updated_image = await update_image(inserted_image_id, updated_data)
-            
+
         except Exception as db_error:
             # Handle database insertion error
             print(db_error)
@@ -195,7 +199,9 @@ async def predict(
 
         # ---------------------- UPDATE USER CREDITS AND COUNT ---------------------- #
         try:
-            await increment_user_count(user_id, service_config, credits_required)
+            # Skip credit deduction for guest users as it's handled in the frontend
+            if not str(user_id).startswith("guest_"):
+                await increment_user_count(user_id, service_config, credits_required)
         except Exception:
             # Handle user count update error
             raise HTTPException(status_code=500, detail="User count update failed")
@@ -244,7 +250,7 @@ async def upscale(image_id, user_id, resolution):
                     aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
                     aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
                 ) as s3_client:
-                    
+
                     # Upload file to S3 asynchronously
                     object_name = image_id + ".png"
                     response = await s3_client.get_object(Bucket=s3_bucket_name, Key=object_name)
@@ -266,10 +272,11 @@ async def upscale(image_id, user_id, resolution):
                 )
                 # Start a process pool executor
                 with concurrent.futures.ProcessPoolExecutor() as executor:
-                    upscale_future = executor.submit(client.sync_upscale, upscale_request)
+                    upscale_future = executor.submit(
+                        client.sync_upscale, upscale_request
+                    )
                     upscale_coro = asyncio.wrap_future(upscale_future)
                     upscale_response = await upscale_coro
-
 
             except Exception:
                 # Handle image upscaling error
@@ -284,7 +291,9 @@ async def upscale(image_id, user_id, resolution):
                 ) as s3_client:
                     upscaled_image_content = upscale_response.data.imgs_bytes[0]
                     await s3_client.put_object(
-                        Bucket=s3_bucket_name, Key=object_name, Body=upscaled_image_content
+                        Bucket=s3_bucket_name,
+                        Key=object_name,
+                        Body=upscaled_image_content,
                     )
                 update_data = {
                     "width": int(resolution),

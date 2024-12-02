@@ -1,5 +1,5 @@
 "use client";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Button, Box, Typography, Stack } from "@mui/material";
@@ -8,6 +8,7 @@ import GoogleIcon from "@mui/icons-material/Google";
 export default function SignIn() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { data: session } = useSession();
 
   useEffect(() => {
     const handleAnonymousSignIn = async () => {
@@ -37,9 +38,16 @@ export default function SignIn() {
     handleAnonymousSignIn();
   }, [searchParams, router]);
 
-  const handleGoogleSignIn = () => {
+  const handleGoogleSignIn = async () => {
     console.log('SignIn: Initiating Google sign in');
-    signIn("google", { callbackUrl: "/generate" });
+    // If we have a guest session, ensure it's included in the state
+    if (session?.user?.is_guest) {
+      console.log('SignIn: Current guest session ID:', session.user._id);
+      // The guest ID will be captured by the JWT callback
+    }
+    await signIn("google", { 
+      callbackUrl: "/generate",
+    });
   };
 
   return (
