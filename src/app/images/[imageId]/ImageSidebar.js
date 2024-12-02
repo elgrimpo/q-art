@@ -12,24 +12,45 @@ import CopyButton from "@/_components/actions/CopyButton";
 import LikeButton from "@/_components/actions/LikeButton";
 import DownloadButton from "@/_components/actions/DownloadButton";
 import ShareButton from "@/_components/actions/ShareButton";
+import GuestSignupPrompt from "./GuestSignupPrompt";
 import { useStore } from "@/store";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
 /* -------------------------------------------------------------------------- */
 
-export default function ImageSidebar(props) {
+export default function ImageSidebar({
+  image,
+  user,
+  customDeleteAction,
+  customLikeAction,
+  isNewGuestImage,
+}) {
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
-
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  // const { handleClose } = props;
-  const { image, user, customDeleteAction, customLikeAction } = props;
-
   const { processingImages } = useStore();
   const isOwner = user?._id === image?.user_id;
-
+  const isGuestUser = !user?._id || user?.is_guest;
   const isImageProcessing = processingImages.includes(image?._id);
-  /* -------------------------------- FUNCTIONS ------------------------------- */
+
+  React.useEffect(() => {
+    console.log("ImageSidebar:", {
+      isNewGuestImage,
+      isGuestUser,
+      user: {
+        _id: user?._id,
+        is_guest: user?.is_guest,
+      },
+    });
+  }, [isNewGuestImage, isGuestUser, user]);
+
+  // Show signup prompt if this is a newly generated image by a guest user
+  if (isNewGuestImage && isGuestUser) {
+    console.log("Rendering GuestSignupPrompt");
+    return <GuestSignupPrompt />;
+  }
+
+  console.log("Rendering regular ImageSidebar");
 
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
@@ -39,7 +60,6 @@ export default function ImageSidebar(props) {
     <Box
       sx={{
         flex: "1",
-        // height: "100%",
         padding: "3rem",
         minWidth: "300px",
         display: "flex",
@@ -52,7 +72,6 @@ export default function ImageSidebar(props) {
       {/* -------------------------------- METADATA -------------------------------- */}
       <div style={{ maxHeight: "100%" }}>
         {/* ------------------------------ ICON BUTTONS ------------------------------ */}
-        {/* TODO: Disable buttons instead of hide */}
         {!isImageProcessing && (
           <Stack
             direction="row"

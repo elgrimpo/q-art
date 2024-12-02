@@ -10,7 +10,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import useScrollTrigger from "@mui/material/useScrollTrigger";
 
-
 // App Imports
 import "@/app/globals.css";
 import AccountMenuDesktop from "./AccountMenuDesktop";
@@ -38,8 +37,8 @@ export default function NavBarDesktop() {
   // Context variables
   const { user } = useStore();
 
-    // Scroll trigger
-    const trigger = useScrollTrigger();
+  // Scroll trigger
+  const trigger = useScrollTrigger();
 
   /* -------------------------------- FUNCTIONS ------------------------------- */
 
@@ -59,7 +58,6 @@ export default function NavBarDesktop() {
               padding: {xs: "0.5rem 0.5rem", sm: "0.5rem 1rem"},
             }}
           >
-
             <Paper elevation={3}
               sx={{
                 backgroundColor: "#3d3d3d",
@@ -71,15 +69,12 @@ export default function NavBarDesktop() {
                 padding: "0rem 1rem",
                 width: "100%",
                 maxWidth: "1500px"
-                
-
               }}>
 
               {/* LOGO */}
               <Image src="/logo_light.png" alt="Logo" width={40} height={40} />
 
               {/* ---------------------------------- TABS ---------------------------------- */}
-
               <Stack
                 justifyContent="center"
                 sx={{
@@ -94,15 +89,14 @@ export default function NavBarDesktop() {
                     <Tab label="Home" value="/" selected={tabValue === "/"} />
                   </Link>
                 )}
-                {user?._id && (
-                  <Link href="/generate" passHref legacyBehavior>
-                    <Tab
-                      label="Generate"
-                      value="/generate"
-                      selected={tabValue === "/generate"}
-                    />
-                  </Link>
-                )}
+                
+                <Link href="/generate" passHref legacyBehavior>
+                  <Tab
+                    label="Generate"
+                    value="/generate"
+                    selected={tabValue === "/generate"}
+                  />
+                </Link>
 
                 {user?._id && (
                   <Link href="/mycodes" passHref legacyBehavior>
@@ -126,9 +120,9 @@ export default function NavBarDesktop() {
               {/* ACCOUNT */}
               <AccountMenuDesktop user={user} />
             </Paper>
-            </AppBar>
+          </AppBar>
         </Slide>     
-         </div>
+      </div>
     );
   }
 }

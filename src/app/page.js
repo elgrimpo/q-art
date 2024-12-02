@@ -34,8 +34,6 @@ export default function NotSignedIn() {
         display: "flex",
         flexDirection: "column",
         backgroundColor: "#161616",
-        // alignItems: "stretch",
-        // alignContent: "stretch",
       }}
     >
       {/* NAV BAR */}
@@ -63,7 +61,6 @@ export default function NotSignedIn() {
             width: { xs: "100%", md: "90%" },
             height: "100%",
             top: {xs: "100px", md: "0px"},
-            // right: "250px",
             zIndex: 2,
             left: { xs: "0px", md: "24px" },
             background: {
@@ -94,12 +91,16 @@ export default function NotSignedIn() {
             Turn your QR Code into a piece of Art
           </Typography>
           <Typography variant="h5" color="primary" sx={{ mt: 6, mb: 2 }}>
-            {" "}
-            Create an account and try it out for free!
+            Create an account or try it out for free!
           </Typography>
-          <Link href="/api/auth/signin" passHref legacyBehavior>
-            <Button variant="contained">Create Account</Button>
-          </Link>
+          <Box sx={{ display: 'flex', gap: 2, justifyContent: { xs: 'center', md: 'flex-start' } }}>
+            <Link href="/api/auth/signin" passHref legacyBehavior>
+              <Button variant="contained">Create Account</Button>
+            </Link>
+            <Link href="/generate" passHref legacyBehavior>
+              <Button variant="outlined">Try it out</Button>
+            </Link>
+          </Box>
         </Box>
 
         {/*  BANNER IMAGE  */}

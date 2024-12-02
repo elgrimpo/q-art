@@ -26,6 +26,7 @@ import "@/app/globals.css";
 import { useStore } from "@/store";
 import theme from "@/_styles/theme";
 import AccountMenuMobile from "./AccountMenuMobile";
+
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
 /* -------------------------------------------------------------------------- */
@@ -54,6 +55,12 @@ export default function NavBarMobile() {
 
   // Context variables
   const { user } = useStore();
+
+  // Calculate button width based on number of visible items
+  const getButtonWidth = () => {
+    const totalItems = user?._id ? 4 : 4; // 4 items for both logged in and not logged in
+    return `${100 / totalItems}%`;
+  };
 
   // Scroll trigger
   const trigger = useScrollTrigger();
@@ -97,7 +104,7 @@ export default function NavBarMobile() {
                       flexDirection: "column",
                       justifyContent: "center",
                       alignItems: "center",
-                      width: "33%",
+                      width: getButtonWidth(),
                       height: "100%",
                       color: getColor("/"),
                     }}
@@ -121,38 +128,36 @@ export default function NavBarMobile() {
               )}
 
               {/* GENERATE */}
-              {user?._id && (
-                <Link href="/generate" passHref legacyBehavior>
-                  <ButtonBase
-                    label="Generate"
+              <Link href="/generate" passHref legacyBehavior>
+                <ButtonBase
+                  label="Generate"
+                  value="/generate"
+                  sx={{
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    width: getButtonWidth(),
+                    height: "100%",
+                    color: getColor("/generate"),
+                  }}
+                >
+                  <IconButton
+                    aria-label="close"
+                    size="small"
                     value="/generate"
                     sx={{
-                      flexDirection: "column",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      width: user?._id ? "25%" : "50%",
-                      height: "100%",
+                      m: 0,
+                      padding: "0px",
                       color: getColor("/generate"),
                     }}
                   >
-                    <IconButton
-                      aria-label="close"
-                      size="small"
-                      value="/generate"
-                      sx={{
-                        m: 0,
-                        padding: "0px",
-                        color: getColor("/generate"),
-                      }}
-                    >
-                      <AutoFixHighTwoToneIcon />
-                    </IconButton>
-                    <Typography variant="body2" sx={{ mt: 0 }}>
-                      Generate
-                    </Typography>
-                  </ButtonBase>
-                </Link>
-              )}
+                    <AutoFixHighTwoToneIcon />
+                  </IconButton>
+                  <Typography variant="body2" sx={{ mt: 0 }}>
+                    Generate
+                  </Typography>
+                </ButtonBase>
+              </Link>
 
               {/* MY CODES */}
               {user?._id && (
@@ -164,7 +169,7 @@ export default function NavBarMobile() {
                       flexDirection: "column",
                       justifyContent: "center",
                       alignItems: "center",
-                      width: user?._id ? "25%" : "50%",
+                      width: getButtonWidth(),
                       height: "100%",
                       color: getColor("/mycodes"),
                     }}
@@ -191,7 +196,7 @@ export default function NavBarMobile() {
                     flexDirection: "column",
                     justifyContent: "center",
                     alignItems: "center",
-                    width: user?._id ? "25%" : "33%",
+                    width: getButtonWidth(),
                     height: "100%",
                     color: getColor("/explore"),
                   }}
@@ -220,7 +225,7 @@ export default function NavBarMobile() {
                     flexDirection: "column",
                     justifyContent: "center",
                     alignItems: "center",
-                    width: user?._id ? "25%" : "50%",
+                    width: getButtonWidth(),
                     height: "100%",
                     color: getColor("/"),
                   }}
@@ -253,7 +258,7 @@ export default function NavBarMobile() {
                       flexDirection: "column",
                       justifyContent: "center",
                       alignItems: "center",
-                      width: "33%",
+                      width: getButtonWidth(),
                       height: "100%",
                       color: getColor("/api/auth/signin"),
                     }}

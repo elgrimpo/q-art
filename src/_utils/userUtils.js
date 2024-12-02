@@ -66,6 +66,10 @@ export const getUserInfo = async () => {
   }
 };
 
+export const updateGuestCredits = async () => {
+  
+}
+
 export const revalidateUser = async () => {
   'use server'
   console.log('Revalidating user data');

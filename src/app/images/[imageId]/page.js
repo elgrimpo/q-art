@@ -36,17 +36,20 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default async function ImagePage({ params }) {
+export default async function ImagePage({ params, searchParams }) {
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
   const { imageId } = params;
   const image = await getImageById(imageId);
   const user = await getUserInfo();
+  const isNewGuestImage = searchParams?.isNewGuestImage === 'true';
+
   /* -------------------------------- FUNCTIONS ------------------------------- */
 
   const customDeleteAction = async () => {
     "use server";
     redirect("/generate");
   };
+
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
   /* -------------------------------------------------------------------------- */
@@ -91,8 +94,13 @@ export default async function ImagePage({ params }) {
 
         <ImageSidebar
           image={image}
-          user={user}
+          user={user ? {
+            _id: user._id,
+            is_guest: user.is_guest || false,
+            ...user
+          } : null}
           customDeleteAction={customDeleteAction}
+          isNewGuestImage={isNewGuestImage}
         />
       </Box>
     </Box>
