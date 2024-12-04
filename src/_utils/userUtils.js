@@ -61,7 +61,6 @@ export const getUserInfo = async () => {
 
     if (response.ok) {
       const user = await response.json();
-      console.log("getUserInfo: User info received from backend:", user);
       useStore.setState({ user: user });
       return user;
     } else {
@@ -77,17 +76,8 @@ export const getUserInfo = async () => {
   }
 };
 
-export const updateGuestCredits = async (newCredits) => {
-  const session = await getServerSession(authOptions);
-  if (session?.user?.is_guest) {
-    // Update credits in session token
-    session.user.credits = newCredits;
-    useStore.setState({ user: session.user });
-  }
-};
-
 export const revalidateUser = async () => {
   "use server";
-  console.log("Revalidating user data");
+  console.log("revalidateUser: Revalidating user data");
   revalidateTag("user");
 };

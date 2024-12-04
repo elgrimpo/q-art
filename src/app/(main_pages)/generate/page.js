@@ -5,13 +5,13 @@ import React, { useState } from "react";
 import { Box, Typography, Skeleton } from "@mui/material";
 import { useRouter } from "next/navigation";
 import * as amplitude from "@amplitude/analytics-browser";
+import { useSession } from "next-auth/react";
 
 // App imports
 import GenerateForm from "./GenerateForm";
 import SimpleDialog from "@/_components/SimpleDialog";
 import { useStore } from "@/store";
 import { generateImage } from "@/_utils/ImagesUtils";
-import { updateGuestCredits } from "@/_utils/userUtils";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
@@ -20,6 +20,7 @@ export default function Generate() {
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
 
   const router = useRouter();
+  const { data: session, update: updateSession } = useSession();
 
   // Context variables
   const {
@@ -56,20 +57,65 @@ export default function Generate() {
     setDialogOpen(true);
   };
 
+  const updateGuestCredits = async (newCredits) => {
+    console.log('updateGuestCredits: Starting update');
+    console.log('updateGuestCredits: Current session:', JSON.stringify(session, null, 2));
+    console.log('updateGuestCredits: New credits value:', newCredits);
+
+    try {
+      // Update the session with new credits
+      const result = await updateSession({
+        ...session,
+        user: {
+          ...session.user,
+          credits: newCredits
+        }
+      });
+      
+      console.log('updateGuestCredits: Update result:', JSON.stringify(result, null, 2));
+
+      // Update local state
+      useStore.setState({ 
+        user: {
+          ...user,
+          credits: newCredits
+        }
+      });
+
+      // Verify the update
+      if (result?.user?.credits === newCredits) {
+        console.log('updateGuestCredits: Credits updated successfully');
+        return true;
+      } else {
+        console.error('updateGuestCredits: Credits update verification failed');
+        console.log('updateGuestCredits: Expected:', newCredits);
+        console.log('updateGuestCredits: Got:', result?.user?.credits);
+        return false;
+      }
+    } catch (error) {
+      console.error('updateGuestCredits: Error updating credits:', error);
+      return false;
+    }
+  };
+
   const handleGenerate = async () => {
+    console.log('handleGenerate: Starting generation process');
+    console.log('handleGenerate: Current user:', JSON.stringify(user, null, 2));
+    console.log('handleGenerate: Current session:', JSON.stringify(session, null, 2));
+    
     setGeneratingImage(true);
     
     try {
-      console.log('Starting image generation with user:', user);
-
       // Check if user has credits
       if (user?.credits < 1) {
+        console.log('handleGenerate: Insufficient credits');
         handleInsufficientCredits();
         setGeneratingImage(false);
         return;
       }
 
       // Track generation
+      console.log('handleGenerate: Tracking generation with Amplitude');
       amplitude.track("Generate Image", {
         userId: user?.id,
         url: generateFormValues.website,
@@ -79,7 +125,10 @@ export default function Generate() {
       });
 
       // Generate image
+      console.log('handleGenerate: Calling generateImage');
       const image = await generateImage(generateFormValues, user);
+      console.log('handleGenerate: Image generated:', JSON.stringify(image, null, 2));
+      
       setGeneratingImage(false);
 
       // Success Toaster
@@ -87,20 +136,30 @@ export default function Generate() {
 
       // Update credits and redirect based on user type
       if (user?.is_guest) {
-        console.log('Updating guest credits after generation');
-        await updateGuestCredits(user.credits - 1);
-        router.push(`/images/${image._id}?isNewGuestImage=true`);
+        console.log('handleGenerate: Updating guest credits');
+        const newCredits = user.credits - 1;
+        console.log('handleGenerate: New credits value:', newCredits);
+        
+        const updated = await updateGuestCredits(newCredits);
+        if (updated) {
+          console.log('handleGenerate: Credits updated successfully, redirecting...');
+          router.push(`/images/${image._id}?isNewGuestImage=true`);
+        } else {
+          console.error('handleGenerate: Failed to update credits');
+          openAlert("error", "Failed to update credits. Please refresh the page.");
+        }
       } else {
+        console.log('handleGenerate: Regular user, redirecting without credits update');
         router.push(`/images/${image._id}`);
       }
     } catch (error) {
-      console.error('Generation error:', error);
+      console.error('handleGenerate: Generation error:', error);
       if (error.message === "InsufficientCredits") {
         handleInsufficientCredits();
       } else {
         openAlert("error", "Failed to generate image. Please try again.");
       }
-      
+      setGeneratingImage(false);
     }
   };
 

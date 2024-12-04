@@ -28,6 +28,7 @@ export const authOptions = {
           is_guest: true,
           credits: 1,
         };
+        console.log('authorize: Creating new guest user:', JSON.stringify(user, null, 2));
         return user;
       },
     }),
@@ -35,34 +36,56 @@ export const authOptions = {
 
   callbacks: {
     async jwt({ token, user, account, trigger, session }) {
-      // On initial sign in with credentials (guest)
+      console.log('jwt callback: Starting with trigger:', trigger);
+      console.log('jwt callback: Current token:', JSON.stringify(token, null, 2));
+      console.log('jwt callback: Session data:', JSON.stringify(session, null, 2));
+      
+      // Handle initial sign in with credentials (guest)
       if (user?.is_guest) {
+        console.log('jwt callback: Setting up new guest token');
         token.is_guest = true;
         token.credits = user.credits;
         token._id = user._id;
-        // Store the guest ID when guest signs in
         pendingGuestId = user._id;
-        console.log('JWT callback - New guest session, storing ID:', pendingGuestId);
       }
 
-      // On Google sign in, preserve the guest ID but update other properties
+      // Handle session update (this handles the useSession().update() calls)
+      if (trigger === "update" && session?.user) {
+        console.log('jwt callback: Handling session update with data:', JSON.stringify(session, null, 2));
+        // Merge the updated user data into the token
+        token = {
+          ...token,
+          ...session.user,
+          // Ensure these properties are preserved
+          is_guest: token.is_guest,
+          _id: token._id
+        };
+        console.log('jwt callback: Updated token:', JSON.stringify(token, null, 2));
+      }
+
+      // Handle Google sign in
       if (account?.provider === "google") {
-        console.log('JWT callback - Google sign in with pending guest ID:', pendingGuestId);
+        console.log('jwt callback: Google sign in with pending guest ID:', pendingGuestId);
         token.is_guest = false;
         delete token.credits;
-        // Don't clear pendingGuestId here, let it persist until after signIn callback
       }
 
       return token;
     },
 
     async session({ session, token }) {
+      console.log('session callback: Starting');
+      console.log('session callback: Token:', JSON.stringify(token, null, 2));
+      
       // Send properties to the client
-      session.user.is_guest = token.is_guest;
-      session.user._id = token._id;
-      if (token.is_guest) {
-        session.user.credits = token.credits;
-      }
+      session.user = {
+        ...session.user,
+        is_guest: token.is_guest,
+        _id: token._id,
+        credits: token.is_guest ? token.credits : undefined
+      };
+      
+      console.log('session callback: Returning session:', JSON.stringify(session, null, 2));
       return session;
     },
 
@@ -70,9 +93,8 @@ export const authOptions = {
       if (account?.provider === "google") {
         const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/auth`;
         
-        console.log('SignIn callback - Using guest ID:', pendingGuestId);
+        console.log('signIn callback: Using guest ID:', pendingGuestId);
 
-        // Create the user object with guest_id included
         const userData = {
           name: user.name,
           email: user.email,
@@ -82,10 +104,8 @@ export const authOptions = {
               providerId: account.providerAccountId,
             },
           ],
-          guest_id: pendingGuestId,  // Include guest_id in the user object
+          guest_id: pendingGuestId,
         };
-
-        console.log('SignIn callback - Request body:', JSON.stringify(userData));
 
         try {
           const response = await fetch(url, {
@@ -103,22 +123,19 @@ export const authOptions = {
           }
 
           const responseData = await response.json();
-          console.log('SignIn callback - Authentication successful:', responseData);
+          console.log('signIn callback: Authentication successful:', JSON.stringify(responseData, null, 2));
 
-          // Only clear pendingGuestId after successful authentication
           pendingGuestId = null;
           return true;
         } catch (error) {
           console.error("Error authenticating user:", error);
-          // Don't clear pendingGuestId on error to allow retry
           return false;
         }
       }
 
-      // For guest sign in
       if (user?.is_guest) {
         pendingGuestId = user._id;
-        console.log('SignIn callback - New guest sign in, storing ID:', pendingGuestId);
+        console.log('signIn callback: New guest sign in, storing ID:', pendingGuestId);
       }
 
       return true;
