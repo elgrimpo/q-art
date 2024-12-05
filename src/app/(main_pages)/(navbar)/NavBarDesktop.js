@@ -84,7 +84,7 @@ export default function NavBarDesktop() {
                 }}
                 direction="row"
               >
-                {!user?._id && (
+                {user?.is_guest && (
                   <Link href="/" passHref legacyBehavior>
                     <Tab label="Home" value="/" selected={tabValue === "/"} />
                   </Link>
@@ -98,7 +98,7 @@ export default function NavBarDesktop() {
                   />
                 </Link>
 
-                {user?._id && (
+                {!user?.is_guest && (
                   <Link href="/mycodes" passHref legacyBehavior>
                     <Tab
                       label="My codes"

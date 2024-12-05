@@ -77,7 +77,7 @@ function ImageCard(props) {
                 user={user}
                 customLikeAction={customLikeAction}
               />
-              {user?._id && <CopyButton index={index} image={image} />}
+              <CopyButton index={index} image={image} />
 
               <ShareButton index={index} image={image} />
             </Stack>

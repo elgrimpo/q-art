@@ -32,7 +32,7 @@ export default function LikeButton(props) {
 
   const handleLike = async () => {
     
-    if (user?._id) {
+    if (!user?.is_guest) {
       try {
         // Delete image from database
         await likeImage(image._id, user._id);

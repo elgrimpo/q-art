@@ -22,6 +22,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import theme from "@/_styles/theme";
 
 // App imports
+import "../../globals.css";
 import GenerateModal from "./GenerateModal";
 import promptRandomizer from "@/_utils/PromptGenerator";
 import { styles } from "@/_utils/ImageStyles";
@@ -147,12 +148,10 @@ function GenerateForm(props) {
             value={generateFormValues.website}
             onChange={handleInputChange}
             variant="outlined"
-            helperText="e.g. 'google.com'. The generated image will contain a QR code that links to this URL."
-            sx={{
-              backgroundColor: "transparent",
-              "& .MuiInputBase-root": { backgroundColor: "white" },
-            }}
           />
+          <Typography className="helpertext">
+            e.g. 'google.com'. The generated image will contain a QR code that links to this URL.
+          </Typography>
         </Box>
 
         {/* --------------------------------- PROMPT --------------------------------- */}
@@ -167,11 +166,6 @@ function GenerateForm(props) {
             id="prompt"
             label="Prompt"
             name="prompt"
-            helperText="e.g. 'A Samurai Warrior is running from a clown, Joshua Tree NP, Sunset'. Use the Dice icon to generate a random prompt."
-            sx={{
-              backgroundColor: "transparent",
-              "& .MuiInputBase-root": { backgroundColor: "white" },
-            }}
             value={generateFormValues.prompt}
             onChange={handleInputChange}
             variant="outlined"
@@ -209,6 +203,10 @@ function GenerateForm(props) {
               ),
             }}
           />
+          <Typography className="helpertext">
+            e.g. 'A Samurai Warrior is running from a clown, Joshua Tree NP,
+            Sunset'. Use the Dice icon to generate a random prompt.
+          </Typography>
         </Box>
 
         {/* ----------------------------- QR CODE WEIGHT ----------------------------- */}
@@ -277,9 +275,10 @@ function GenerateForm(props) {
             </Stack>
 
             <Typography
+              className="helpertext"
               variant="caption"
               align="left"
-              sx={{ color: "#0009", pl: 2, pt: 1 }}
+              sx={{ pl: 2, pt: 1 }}
             >
               A stronger QR Weight will make the QR Code easier to scan. A
               weaker weight will emphasize the image more.
@@ -305,7 +304,6 @@ function GenerateForm(props) {
                 backgroundColor: "transparent",
                 "& .MuiInputBase-root": { backgroundColor: "white" },
               }}
-              helperText="You can use a seed from an existing image to generate similar images. Otherwise, leave it as -1"
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -329,6 +327,9 @@ function GenerateForm(props) {
                 ),
               }}
             />
+            <Typography className="helpertext">
+            You can use a seed from an existing image to generate similar images. Otherwise, leave it as -1
+            </Typography>
           </Box>
         </Stack>
 

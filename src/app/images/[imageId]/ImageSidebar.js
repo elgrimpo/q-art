@@ -82,11 +82,11 @@ export default function ImageSidebar({
             flexWrap="wrap"
             sx={{ mb: "1rem" }}
           >
-            <LikeButton
+            {!isGuestUser && <LikeButton
               image={image}
               user={user}
               customLikeAction={customLikeAction}
-            />
+            />}
 
             <ShareButton image={image} index={1} />
 
@@ -96,7 +96,7 @@ export default function ImageSidebar({
                 customDeleteAction={customDeleteAction}
               />
             )}
-            {user?._id && <CopyButton image={image} />}
+            <CopyButton image={image} />
 
             {isOwner && <DownloadButton image={image} user={user} />}
           </Stack>

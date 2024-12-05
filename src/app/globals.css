@@ -51,6 +51,10 @@ body {
   padding: 5rem 1rem 0rem 1rem;
 }
 
+.helpertext {
+  font-size: 0.8rem;
+  padding: 0.3rem
+}
 
 .form-section {
   background-color: #CAF7D8;

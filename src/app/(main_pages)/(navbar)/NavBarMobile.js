@@ -58,7 +58,7 @@ export default function NavBarMobile() {
 
   // Calculate button width based on number of visible items
   const getButtonWidth = () => {
-    const totalItems = user?._id ? 4 : 4; // 4 items for both logged in and not logged in
+    const totalItems = user?.is_guest ? 4 : 4; // 4 items for both logged in and not logged in
     return `${100 / totalItems}%`;
   };
 
@@ -97,7 +97,7 @@ export default function NavBarMobile() {
               }}
             >
               {/* HOME */}
-              {!user?._id && (
+              {user?.is_guest && (
                 <Link href="/" passHref legacyBehavior>
                   <ButtonBase
                     sx={{
@@ -160,7 +160,7 @@ export default function NavBarMobile() {
               </Link>
 
               {/* MY CODES */}
-              {user?._id && (
+              {!user?.is_guest && (
                 <Link href="/mycodes" passHref legacyBehavior>
                   <ButtonBase
                     label="My codes"
@@ -219,7 +219,7 @@ export default function NavBarMobile() {
               </Link>
 
               {/* MORE */}
-              {user?._id && (
+              {!user?.is_guest && (
                 <ButtonBase
                   sx={{
                     flexDirection: "column",
@@ -249,7 +249,7 @@ export default function NavBarMobile() {
               )}
 
               {/* LOGIN */}
-              {!user?._id && (
+              {user?.is_guest && (
                 <Link href="/api/auth/signin" passHref legacyBehavior>
                   <ButtonBase
                     label="Login"
