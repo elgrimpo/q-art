@@ -1,9 +1,9 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { getServerSession } from "next-auth/next"
 
 // Store guest ID during the auth flow
-let pendingGuestId = null;
 
 export const authOptions = {
   providers: [
@@ -39,15 +39,16 @@ export const authOptions = {
       console.log('jwt callback: Starting with trigger:', trigger);
       console.log('jwt callback: Current token:', JSON.stringify(token, null, 2));
       console.log('jwt callback: Session data:', JSON.stringify(session, null, 2));
+      console.log('jwt callback: User data:', JSON.stringify(user, null, 2));
       
       // Handle initial sign in with credentials (guest)
       if (user?.is_guest) {
         console.log('jwt callback: Setting up new guest token');
         token.is_guest = true;
-        token.credits = user.credits;
-        token._id = user._id;
-        pendingGuestId = user._id;
+        token.credits = user?.credits;
+        token._id = user?._id;
       }
+      console.log("Is not guest")
 
       // Handle session update (this handles the useSession().update() calls)
       if (trigger === "update" && session?.user) {
@@ -65,7 +66,7 @@ export const authOptions = {
 
       // Handle Google sign in
       if (account?.provider === "google") {
-        console.log('jwt callback: Google sign in with pending guest ID:', pendingGuestId);
+        console.log('jwt callback: Google sign in with pending guest ID:', session?.user?._id);
         token.is_guest = false;
         delete token.credits;
       }
@@ -90,10 +91,13 @@ export const authOptions = {
     },
 
     async signIn({ user, account }) {
+      const session = await getServerSession(authOptions)
+      console.log("USER")
+      console.log(session)
       if (account?.provider === "google") {
         const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/auth`;
         
-        console.log('signIn callback: Using guest ID:', pendingGuestId);
+        console.log('signIn callback: Using guest ID:', session?.user._id);
 
         const userData = {
           name: user.name,
@@ -104,7 +108,7 @@ export const authOptions = {
               providerId: account.providerAccountId,
             },
           ],
-          guest_id: pendingGuestId,
+          guest_id: session?.user._id,
         };
 
         try {
@@ -125,7 +129,6 @@ export const authOptions = {
           const responseData = await response.json();
           console.log('signIn callback: Authentication successful:', JSON.stringify(responseData, null, 2));
 
-          pendingGuestId = null;
           return true;
         } catch (error) {
           console.error("Error authenticating user:", error);
@@ -134,8 +137,7 @@ export const authOptions = {
       }
 
       if (user?.is_guest) {
-        pendingGuestId = user._id;
-        console.log('signIn callback: New guest sign in, storing ID:', pendingGuestId);
+        console.log('signIn callback: New guest sign in, storing ID:', session?.user._id);
       }
 
       return true;
