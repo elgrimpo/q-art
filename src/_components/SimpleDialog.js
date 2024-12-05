@@ -8,12 +8,12 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 
 export default function SimpleDialog(props) {
-  const {title, description, primaryActionText, primaryAction, secondaryActionText, secondaryAction, dialogOpen, handleClose} = props;
+  const {title, description, primaryActionText, primaryAction, secondaryActionText, secondaryAction, open, onClose} = props;
 
   return (
       <Dialog
-        open={dialogOpen}
-        onClose={handleClose}
+        open={open}
+        onClose={onClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
