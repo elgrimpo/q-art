@@ -42,11 +42,12 @@ async def get_user_info(email):
 
 async def authenticate_user(user_auth: UserAuth):
     try:        
-        # Create a User instance for database operations
+        auth_providers_dicts = [provider.dict() for provider in user_auth.auth_providers]
+        
         user_data = {
             "name": user_auth.name,
             "email": user_auth.email,
-            "auth_providers": user_auth.auth_providers,
+            "auth_providers": auth_providers_dicts,
             "picture": user_auth.picture,
             "image_counts": {},
             "credits": 10,
@@ -55,12 +56,15 @@ async def authenticate_user(user_auth: UserAuth):
         
         # Check if user exists
         user_exists = await users.find_one({"email": user_auth.email})
+        
         # -------------------------------- USER EXISTS ------------------------------- #
         if user_exists:
             # Check if the auth_provider exists
             auth_provider_exists = False
+            new_provider = user_auth.auth_providers[0].dict()
+            
             for provider in user_exists["auth_providers"]:
-                if provider["provider"] == user_auth.auth_providers[0].provider:
+                if provider["provider"] == new_provider["provider"]:
                     auth_provider_exists = True
                     break
 
@@ -68,7 +72,7 @@ async def authenticate_user(user_auth: UserAuth):
             if not auth_provider_exists:
                 await users.update_one(
                     {"email": user_auth.email},
-                    {"$push": {"auth_providers": user_auth.auth_providers[0].dict()}},
+                    {"$push": {"auth_providers": new_provider}},
                 )
 
             # If guest_id provided, transfer any images
