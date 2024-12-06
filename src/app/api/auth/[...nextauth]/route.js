@@ -28,7 +28,6 @@ export const authOptions = {
           is_guest: true,
           credits: 1,
         };
-        console.log('authorize: Creating new guest user:', JSON.stringify(user, null, 2));
         return user;
       },
     }),
@@ -36,23 +35,16 @@ export const authOptions = {
 
   callbacks: {
     async jwt({ token, user, account, trigger, session }) {
-      console.log('jwt callback: Starting with trigger:', trigger);
-      console.log('jwt callback: Current token:', JSON.stringify(token, null, 2));
-      console.log('jwt callback: Session data:', JSON.stringify(session, null, 2));
-      console.log('jwt callback: User data:', JSON.stringify(user, null, 2));
       
       // Handle initial sign in with credentials (guest)
       if (user?.is_guest) {
-        console.log('jwt callback: Setting up new guest token');
         token.is_guest = true;
         token.credits = user?.credits;
         token._id = user?._id;
       }
-      console.log("Is not guest")
 
       // Handle session update (this handles the useSession().update() calls)
       if (trigger === "update" && session?.user) {
-        console.log('jwt callback: Handling session update with data:', JSON.stringify(session, null, 2));
         // Merge the updated user data into the token
         token = {
           ...token,
@@ -61,12 +53,10 @@ export const authOptions = {
           is_guest: token.is_guest,
           _id: token._id
         };
-        console.log('jwt callback: Updated token:', JSON.stringify(token, null, 2));
       }
 
       // Handle Google sign in
       if (account?.provider === "google") {
-        console.log('jwt callback: Google sign in with pending guest ID:', session?.user?._id);
         token.is_guest = false;
         delete token.credits;
       }
@@ -75,8 +65,6 @@ export const authOptions = {
     },
 
     async session({ session, token }) {
-      console.log('session callback: Starting');
-      console.log('session callback: Token:', JSON.stringify(token, null, 2));
       
       // Send properties to the client
       session.user = {
@@ -86,18 +74,14 @@ export const authOptions = {
         credits: token.is_guest ? token.credits : undefined
       };
       
-      console.log('session callback: Returning session:', JSON.stringify(session, null, 2));
       return session;
     },
 
     async signIn({ user, account }) {
       const session = await getServerSession(authOptions)
-      console.log("USER")
-      console.log(session)
       if (account?.provider === "google") {
         const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/auth`;
         
-        console.log('signIn callback: Using guest ID:', session?.user._id);
 
         const userData = {
           name: user.name,
@@ -127,7 +111,6 @@ export const authOptions = {
           }
 
           const responseData = await response.json();
-          console.log('signIn callback: Authentication successful:', JSON.stringify(responseData, null, 2));
 
           return true;
         } catch (error) {
@@ -137,7 +120,6 @@ export const authOptions = {
       }
 
       if (user?.is_guest) {
-        console.log('signIn callback: New guest sign in, storing ID:', session?.user._id);
       }
 
       return true;

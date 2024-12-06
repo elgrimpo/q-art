@@ -11,14 +11,10 @@ const getBaseUrl = () => {
 
 export const getUserInfo = async () => {
   try {
-    console.log("getUserInfo: Starting to fetch session");
     const session = await getServerSession(authOptions);
 
     // Check if session exists
     if (!session?.user) {
-      console.log(
-        "getUserInfo: No session found, returning needsAnonymousAuth"
-      );
       return {
         needsAnonymousAuth: true,
         callbackUrl: getBaseUrl(),
@@ -27,26 +23,19 @@ export const getUserInfo = async () => {
 
     // For guest sessions, return the session user data
     if (session.user.is_guest) {
-      console.log("getUserInfo: Guest session found:", session.user);
       useStore.setState({ user: session.user });
       return session.user;
     }
 
     // For logged-in users, fetch user info from database
     if (!session.user.email) {
-      console.log(
-        "getUserInfo: No email in session, returning needsAnonymousAuth"
-      );
+
       return {
         needsAnonymousAuth: true,
         callbackUrl: getBaseUrl(),
       };
     }
 
-    console.log(
-      "getUserInfo: Fetching user info from backend for email:",
-      session.user.email
-    );
     const response = await fetch(
       `${
         process.env.NEXT_PUBLIC_BACKEND_URL
@@ -78,6 +67,5 @@ export const getUserInfo = async () => {
 
 export const revalidateUser = async () => {
   "use server";
-  console.log("revalidateUser: Revalidating user data");
   revalidateTag("user");
 };

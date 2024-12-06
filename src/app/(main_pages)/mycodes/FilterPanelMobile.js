@@ -67,11 +67,9 @@ function FilterPanelMobile({
 
     Object.entries(selectedFilters).forEach(([key, value]) => {
       if (key !== "sort" && value !== undefined && value !== "") {
-        console.log(key, value);
         selectedOptionsCount++;
       }
     });
-    console.log(selectedOptionsCount);
     return selectedOptionsCount || "";
   };
 

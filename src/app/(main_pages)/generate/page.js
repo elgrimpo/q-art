@@ -58,9 +58,6 @@ export default function Generate() {
   };
 
   const updateGuestCredits = async (newCredits) => {
-    console.log('updateGuestCredits: Starting update');
-    console.log('updateGuestCredits: Current session:', JSON.stringify(session, null, 2));
-    console.log('updateGuestCredits: New credits value:', newCredits);
 
     try {
       // Update the session with new credits
@@ -72,8 +69,6 @@ export default function Generate() {
         }
       });
       
-      console.log('updateGuestCredits: Update result:', JSON.stringify(result, null, 2));
-
       // Update local state
       useStore.setState({ 
         user: {
@@ -84,12 +79,9 @@ export default function Generate() {
 
       // Verify the update
       if (result?.user?.credits === newCredits) {
-        console.log('updateGuestCredits: Credits updated successfully');
         return true;
       } else {
         console.error('updateGuestCredits: Credits update verification failed');
-        console.log('updateGuestCredits: Expected:', newCredits);
-        console.log('updateGuestCredits: Got:', result?.user?.credits);
         return false;
       }
     } catch (error) {
@@ -99,23 +91,18 @@ export default function Generate() {
   };
 
   const handleGenerate = async () => {
-    console.log('handleGenerate: Starting generation process');
-    console.log('handleGenerate: Current user:', JSON.stringify(user, null, 2));
-    console.log('handleGenerate: Current session:', JSON.stringify(session, null, 2));
     
     setGeneratingImage(true);
     
     try {
       // Check if user has credits
       if (user?.credits < 1) {
-        console.log('handleGenerate: Insufficient credits');
         handleInsufficientCredits();
         setGeneratingImage(false);
         return;
       }
 
       // Track generation
-      console.log('handleGenerate: Tracking generation with Amplitude');
       amplitude.track("Generate Image", {
         userId: user?.id,
         url: generateFormValues.website,
@@ -125,9 +112,7 @@ export default function Generate() {
       });
 
       // Generate image
-      console.log('handleGenerate: Calling generateImage');
       const image = await generateImage(generateFormValues, user);
-      console.log('handleGenerate: Image generated:', JSON.stringify(image, null, 2));
       
       setGeneratingImage(false);
 
@@ -136,20 +121,16 @@ export default function Generate() {
 
       // Update credits and redirect based on user type
       if (user?.is_guest) {
-        console.log('handleGenerate: Updating guest credits');
         const newCredits = user.credits - 1;
-        console.log('handleGenerate: New credits value:', newCredits);
         
         const updated = await updateGuestCredits(newCredits);
         if (updated) {
-          console.log('handleGenerate: Credits updated successfully, redirecting...');
           router.push(`/images/${image._id}?isNewGuestImage=true`);
         } else {
           console.error('handleGenerate: Failed to update credits');
           openAlert("error", "Failed to update credits. Please refresh the page.");
         }
       } else {
-        console.log('handleGenerate: Regular user, redirecting without credits update');
         router.push(`/images/${image._id}`);
       }
     } catch (error) {

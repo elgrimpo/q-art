@@ -11,27 +11,22 @@ export async function middleware(request) {
     return NextResponse.next();
   }
 
-  // console.log('Middleware: Starting check for', request.url);
   
   const token = await getToken({ 
     req: request,
     secret: process.env.NEXTAUTH_SECRET
   });
   
-  // console.log('Middleware: Token status:', token ? 'exists' : 'none');
 
   // If no token, automatically sign in as anonymous
   if (!token) {
-    // console.log('Middleware: No token found, redirecting to anonymous signin');
     const signInUrl = new URL('/api/auth/signin', request.url);
     signInUrl.searchParams.set('callbackUrl', request.url);
     signInUrl.searchParams.set('anonymous', 'true');
     
-    // console.log('Middleware: Redirecting to:', signInUrl.toString());
     return NextResponse.redirect(signInUrl);
   }
  
-  // console.log('Middleware: Token exists, continuing');
   return NextResponse.next();
 }
  

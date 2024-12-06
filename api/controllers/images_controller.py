@@ -218,7 +218,6 @@ async def delete_image(id: str):
                 # Upload file to S3 asynchronously
                 await s3_client.delete_object(Bucket=s3_bucket_name, Key=object_name)
                 await s3_client.delete_object(Bucket=s3_bucket_watermarked_name, Key=object_name)
-            print("Image deleted from S3 successfully.")
         except Exception:
             # Handle S3 deletion error
             raise HTTPException(status_code=500, detail="S3 deletion failed")
@@ -228,7 +227,6 @@ async def delete_image(id: str):
             result = await db["images"].delete_one({"_id": object_id})
             if result.deleted_count == 0:
                 raise HTTPException(status_code=404, detail="Image not found")
-            print("Image document deleted from MongoDB successfully.")
         except HTTPException:
             # Reraise HTTP exceptions for FastAPI to handle
             raise

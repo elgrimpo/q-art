@@ -33,28 +33,15 @@ export default function ImageSidebar({
   const isGuestUser = !user?._id || user?.is_guest;
   const isImageProcessing = processingImages.includes(image?._id);
 
-  React.useEffect(() => {
-    console.log("ImageSidebar:", {
-      isNewGuestImage,
-      isGuestUser,
-      user: {
-        _id: user?._id,
-        is_guest: user?.is_guest,
-      },
-    });
-  }, [isNewGuestImage, isGuestUser, user]);
-
-  // Show signup prompt if this is a newly generated image by a guest user
-  if (isNewGuestImage && isGuestUser) {
-    console.log("Rendering GuestSignupPrompt");
-    return <GuestSignupPrompt />;
-  }
-
-  console.log("Rendering regular ImageSidebar");
 
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
-  /* -------------------------------------------------------------------------- */
+  /* -------------------------------------------------------------------------- */  
+  
+  // Show signup prompt if this is a newly generated image by a guest user
+  if (isNewGuestImage && isGuestUser) {
+    return <GuestSignupPrompt />;
+  }
 
   return (
     <Box
@@ -82,11 +69,13 @@ export default function ImageSidebar({
             flexWrap="wrap"
             sx={{ mb: "1rem" }}
           >
-            {!isGuestUser && <LikeButton
-              image={image}
-              user={user}
-              customLikeAction={customLikeAction}
-            />}
+            {!isGuestUser && (
+              <LikeButton
+                image={image}
+                user={user}
+                customLikeAction={customLikeAction}
+              />
+            )}
 
             <ShareButton image={image} index={1} />
 

@@ -65,7 +65,6 @@ export default function MyCodes() {
     image_style: undefined,
     sort: pathname === "/mycodes" ? "Newest" : "Most Liked",
   });
-  // console.log(selectedFilters);
 
   // Upscaling (loading)
   const [upscaling, setUpscaling] = useState([]);

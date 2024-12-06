@@ -9,7 +9,6 @@ export const AmplitudeContext = createContext({});
 
 const AmplitudeContextProvider = ({ children }) => {
   useEffect(() => {
-    console.log("amplitude init")
     init(AMPLITUDE_API_KEY, {
       defaultTracking: true,
     });  }, []);

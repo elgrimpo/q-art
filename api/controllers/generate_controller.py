@@ -116,7 +116,6 @@ async def predict(
                 txt2img_future = executor.submit(client.txt2img, req)
                 txt2img_coro = asyncio.wrap_future(txt2img_future)
                 txt2img_result = await txt2img_coro
-                print(txt2img_result)
 
                 # Get Task_ID
                 task_id = txt2img_result.data.task_id
@@ -137,7 +136,6 @@ async def predict(
                 seed = info_dict.get("seed")
 
                 info = json.dumps(info_dict, indent=4)
-                print(info)
 
             if res.data.status != ProgressResponseStatusCode.SUCCESSFUL:
                 raise Exception(

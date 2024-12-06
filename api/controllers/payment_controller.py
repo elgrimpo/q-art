@@ -43,7 +43,6 @@ def create_checkout_session(stripeId, credit_amount, user_id):
 # ---------------------------------------------------------------------------- #
 
 async def stripe_webhook(request, stripe_signature):
-    print("paymend webhook hit")
    
 
     endpoint_secret = os.environ["STRIPE_ENDPOINT_SECRET"]

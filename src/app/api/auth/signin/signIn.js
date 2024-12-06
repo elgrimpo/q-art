@@ -16,7 +16,6 @@ export default function SignIn() {
       const callbackUrl = searchParams.get('callbackUrl');
       
       if (isAnonymous) {
-        console.log('SignIn: Initiating anonymous sign in');
         try {
           const result = await signIn("anonymous", { 
             redirect: false,
@@ -26,7 +25,6 @@ export default function SignIn() {
           if (result?.error) {
             console.error('SignIn: Anonymous sign in failed:', result.error);
           } else if (result?.url) {
-            console.log('SignIn: Anonymous sign in successful, redirecting to:', result.url);
             router.push(result.url);
           }
         } catch (error) {
@@ -39,10 +37,9 @@ export default function SignIn() {
   }, [searchParams, router]);
 
   const handleGoogleSignIn = async () => {
-    console.log('SignIn: Initiating Google sign in');
+
     // If we have a guest session, ensure it's included in the state
     if (session?.user?.is_guest) {
-      console.log('SignIn: Current guest session ID:', session.user._id);
       // The guest ID will be captured by the JWT callback
     }
     await signIn("google", { 
