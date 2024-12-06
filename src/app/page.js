@@ -1,5 +1,7 @@
 import { Box, Typography, Button, Card, CardMedia, Grid } from "@mui/material";
 import Link from "next/link";
+import Head from 'next/head';
+
 
 // App imports
 import NavBarDesktop from "./(main_pages)/(navbar)/NavBarDesktop";
@@ -29,6 +31,18 @@ export default function NotSignedIn() {
   ];
 
   return (
+    <>
+
+    <Head>
+    <title>AI QR Code Art Generator | Create Beautiful QR Code Designs</title>
+    <meta name="description" content="Transform your URLs into stunning AI-generated QR code artwork. Create unique, custom QR code designs with our artistic QR code generator. Free trial available!" />
+    <meta name="keywords" content="AI QR code generator, artistic QR code creator, custom QR code design, QR code art generator, beautiful QR code maker, generative AI QR Code" />
+    
+    <meta property="og:title" content="Create Beautiful AI QR Code Art | Custom QR Code Generator" />
+    <meta property="og:description" content="Transform URLs into stunning AI-generated artwork with embedded QR codes. Create unique, scannable art for your brand." />
+    <meta property="og:image" content={imageGallery[0].url} />
+  </Head>
+
     <Box
       sx={{
         display: "flex",
@@ -178,5 +192,6 @@ export default function NotSignedIn() {
         </Box>
       </Box>
     </Box>
+    </>
   );
 }
