@@ -53,11 +53,11 @@ body {
 
 .helpertext {
   font-size: 0.8rem;
-  padding: 0.3rem
+  padding: 0.3rem;
+  color: black
 }
 
 .form-section {
-  background-color: #CAF7D8;
   display: flex;
   flex-direction: column;
   padding: 1rem;

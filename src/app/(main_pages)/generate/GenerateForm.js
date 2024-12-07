@@ -37,7 +37,7 @@ function GenerateForm(props) {
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
 
   const { handleGenerate } = props;
-  const { generateFormValues, setGenerateFormValues } = useStore();
+  const { user, generateFormValues, setGenerateFormValues } = useStore();
 
   // Screen size
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -97,6 +97,13 @@ function GenerateForm(props) {
     } else {
       setSubmitDisabled(true);
     }
+
+    if (generateFormValues.prompt === "") {
+      setGenerateFormValues({
+        ...generateFormValues,
+        prompt: promptRandomizer(),
+      });
+    }
   }, [generateFormValues]);
 
   // set Custom Style in case values are copied from another picture
@@ -128,8 +135,31 @@ function GenerateForm(props) {
   /* -------------------------------------------------------------------------- */
 
   return (
-    <Box>
-      <Stack useFlexGap spacing={1}>
+    <Box sx={{ mt: { xs: 30, sm: 16, md: 12 }, margin: "auto" }}>
+      <Typography
+        variant="h3"
+        color="primary"
+        align="center"
+        sx={{
+          mt: 4,
+          p: 2,
+          fontSize: { xs: "2rem", sm: "3rem", md: "4rem" },
+        }}
+      >
+        {user?.is_guest ? "Try it out!" : "Generate your QR Code!"}
+      </Typography>
+
+      <Stack
+        useFlexGap
+        spacing={1}
+        sx={{
+          // border: `1px solid ${theme.palette.primary.light}`,
+          backgroundColor: theme.palette.primary.light,
+          borderRadius: "8px",
+          maxWidth: "800px",
+          // boxShadow: "20px"
+        }}
+      >
         {/* <Typography variant="h3" align="center" sx={{ mt: "1rem" }}>
           Generate QR Art
         </Typography> */}
@@ -150,7 +180,8 @@ function GenerateForm(props) {
             variant="outlined"
           />
           <Typography className="helpertext">
-            e.g. 'google.com'. The generated image will contain a QR code that links to this URL.
+            e.g. 'google.com'. The generated image will contain a QR code that
+            links to this URL.
           </Typography>
         </Box>
 
@@ -210,7 +241,7 @@ function GenerateForm(props) {
         </Box>
 
         {/* ----------------------------- QR CODE WEIGHT ----------------------------- */}
-        <Stack
+        {/* <Stack
           direction={{ xs: "column", md: "row" }}
           useFlexGap
           alignItems="stretch"
@@ -219,10 +250,10 @@ function GenerateForm(props) {
           <Box className="form-section" sx={{ width: "100%" }}>
             <Typography className="form-title" variant="h5" align="center">
               QR Code Weight
-            </Typography>
+            </Typography> */}
 
-            {/* LEFT ICON */}
-            <Stack flexDirection="row">
+        {/* LEFT ICON */}
+        {/* <Stack flexDirection="row">
               <Box
                 sx={{
                   display: "flex",
@@ -237,10 +268,10 @@ function GenerateForm(props) {
                 <Typography variant="subtitle2" align="center">
                   Weak
                 </Typography>
-              </Box>
+              </Box> */}
 
-              {/* SLIDER */}
-              <Slider
+        {/* SLIDER */}
+        {/* <Slider
                 aria-label="QR Code Weight"
                 value={generateFormValues.qr_weight}
                 getAriaValueText={sliderText}
@@ -254,10 +285,10 @@ function GenerateForm(props) {
                 name="qr_weight"
                 onChange={handleInputChange}
                 sx={{ width: "95%", margin: "auto" }}
-              />
+              // />
 
               {/* RIGHT ICON */}
-              <Box
+        {/* <Box
                 sx={{
                   display: "flex",
                   flexDirection: "column",
@@ -283,11 +314,11 @@ function GenerateForm(props) {
               A stronger QR Weight will make the QR Code easier to scan. A
               weaker weight will emphasize the image more.
             </Typography>
-          </Box>
+          </Box>  
 
-          <Box className="form-section" sx={{ width: "100%" }}>
-            {/* ---------------------------------- SEED ---------------------------------- */}
-            <Typography className="form-title" variant="h5" align="center">
+          <Box className="form-section" sx={{ width: "100%" }}>*/}
+        {/* ---------------------------------- SEED ---------------------------------- */}
+        {/* <Typography className="form-title" variant="h5" align="center">
               Seed
             </Typography>
 
@@ -328,13 +359,14 @@ function GenerateForm(props) {
               }}
             />
             <Typography className="helpertext">
-            You can use a seed from an existing image to generate similar images. Otherwise, leave it as -1
+              You can use a seed from an existing image to generate similar
+              images. Otherwise, leave it as -1
             </Typography>
-          </Box>
-        </Stack>
+          </Box> 
+        </Stack>*/}
 
         {/* --------------------------------- Styles --------------------------------- */}
-        <Box className="form-section" sx={{ padding: "1rem 0rem 4rem 0rem" }}>
+        {/* <Box className="form-section" sx={{ padding: "1rem 0rem 4rem 0rem" }}>
           <Typography className="form-title" variant="h5" align="center">
             Art Style
           </Typography>
@@ -366,7 +398,41 @@ function GenerateForm(props) {
               ))}
             </Masonry>
           </ResponsiveMasonry>
-        </Box>
+        </Box> */}
+        <Button
+          variant="contained"
+          color="secondary"
+          size="large"
+          disabled={submitDisabled}
+          aria-label="generate"
+          onClick={(e) => handleGenerate()}
+          sx={{
+            //   position: "fixed",
+
+            //   bottom: "20px",
+            //   width: "80%",
+            margin: "1rem",
+            //   left: "10%",
+          }}
+        >
+          <Typography
+            variant="body1"
+            component="div"
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              flexWrap: "wrap",
+            }}
+          >
+            Generate QR Code ( {price}
+            <DiamondTwoToneIcon
+              fontSize="small"
+              color="primary"
+              sx={{ mr: "4px" }}
+            />{" "}
+            )
+          </Typography>
+        </Button>
       </Stack>
 
       <GenerateModal
@@ -378,40 +444,6 @@ function GenerateForm(props) {
       />
 
       {/* --------------------------------- SUBMIT --------------------------------- */}
-      <Button
-        variant="contained"
-        color="secondary"
-        size="large"
-        disabled={submitDisabled}
-        aria-label="generate"
-        onClick={(e) => handleGenerate()}
-        sx={{
-          position: "fixed",
-
-          bottom: "20px",
-          width: "80%",
-          margin: "auto",
-          left: "10%",
-        }}
-      >
-        <Typography
-          variant="body1"
-          component="div"
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            flexWrap: "wrap",
-          }}
-        >
-          Generate QR Code ( {price}
-          <DiamondTwoToneIcon
-            fontSize="small"
-            color="primary"
-            sx={{ mr: "4px" }}
-          />{" "}
-          )
-        </Typography>
-      </Button>
     </Box>
   );
 }
