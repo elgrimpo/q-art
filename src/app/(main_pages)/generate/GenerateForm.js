@@ -222,15 +222,15 @@ function GenerateForm() {
             <UrlPrompt handleInputChange={handleInputChange} />
 
             <Stack
-              direction="row"
+              direction={{xs: "column", sm: "row"}}
               spacing={2}
               alignItems="stretch"
-              sx={{ width: "100%", mb: 2 }}
+              sx={{ width: "100%", mb: 2, mt: 1 }}
             >
               <Button
                 color="primary"
                 variant="contained"
-                sx={{ width: "50%" }}
+                sx={{ width: {xs: "100%", sm: "50%"} }}
                 onClick={handleStyleModalOpen}
               >
                 Style: {generateFormValues.style_title}
@@ -239,7 +239,7 @@ function GenerateForm() {
               <Button
                 color="primary"
                 variant="contained"
-                sx={{ width: "50%" }}
+                sx={{ width: {xs: "100%", sm: "50%"} }}
                 onClick={handleSettingsModalOpen}
               >
                 Advanced Settings
@@ -252,7 +252,7 @@ function GenerateForm() {
               color="secondary"
               size="large"
               aria-label="generate"
-              sx={{ width: "100%" }}
+              sx={{ width: "100%", mt: "1rem" }}
               disabled={submitDisabled}
               onClick={() => handleGenerate()}
             >

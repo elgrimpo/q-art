@@ -58,7 +58,7 @@ export default function NavBarMobile() {
 
   // Calculate button width based on number of visible items
   const getButtonWidth = () => {
-    const totalItems = user?.is_guest ? 4 : 4; // 4 items for both logged in and not logged in
+    const totalItems = user?.is_guest ? 3 : 4; // 4 items for both logged in and not logged in
     return `${100 / totalItems}%`;
   };
 

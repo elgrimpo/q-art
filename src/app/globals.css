@@ -35,7 +35,7 @@ body {
 
 .body {
   box-sizing: border-box;
-  background-color: #F5F5F5;
+  background-color: #161616;
   overflow: scroll;
 }
 
@@ -46,6 +46,16 @@ body {
 
 
 /*-------- Generate Page ---------*/
+
+.BannerSection {
+  display: grid;
+  grid-template-areas: "overlap";
+}
+
+.Gradient, .BannerImage, .GenerateForm {
+  grid-area: overlap;
+  
+}
 
 .generate-page {
   padding: 5rem 1rem 0rem 1rem;
