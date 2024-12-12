@@ -96,36 +96,6 @@ export default function NavBarMobile() {
                 borderRadius: "8px",
               }}
             >
-              {/* HOME */}
-              {user?.is_guest && (
-                <Link href="/" passHref legacyBehavior>
-                  <ButtonBase
-                    sx={{
-                      flexDirection: "column",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      width: getButtonWidth(),
-                      height: "100%",
-                      color: getColor("/"),
-                    }}
-                    label="Home"
-                    value="/"
-                  >
-                    <IconButton
-                      aria-label="close"
-                      color="primary"
-                      size="small"
-                      sx={{ m: 0, padding: "0px", color: getColor("/") }}
-                    >
-                      <HomeTwoToneIcon />
-                    </IconButton>
-
-                    <Typography variant="body2" sx={{ mt: 0 }}>
-                      Home
-                    </Typography>
-                  </ButtonBase>
-                </Link>
-              )}
 
               {/* GENERATE */}
               <Link href="/generate" passHref legacyBehavior>
