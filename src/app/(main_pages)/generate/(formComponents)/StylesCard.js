@@ -85,14 +85,6 @@ function StylesCard(props) {
           flexWrap="wrap"
           justifyContent="center"
         >
-          {!isMobile && item.keywords.map((prompt, index) => (
-            <Chip
-              label={prompt}
-              color={selected ? "primary" : "secondary"}
-              key={index}
-              size="small"
-            />
-          ))}
         </Stack>
       </Card>
     </Grid>

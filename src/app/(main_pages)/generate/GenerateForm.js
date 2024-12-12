@@ -1,96 +1,85 @@
 "use client";
 // Libraries imports
 import React, { useEffect, useState } from "react";
-import {
-  Button,
-  TextField,
-  Box,
-  Stack,
-  Typography,
-  Slider,
-  IconButton,
-  Tooltip,
-  InputAdornment,
-  Fab,
-} from "@mui/material";
-import CasinoTwoToneIcon from "@mui/icons-material/CasinoTwoTone";
+import { Button, Box, Stack, Typography, Divider } from "@mui/material";
 import DiamondTwoToneIcon from "@mui/icons-material/DiamondTwoTone";
-import QrCode2TwoToneIcon from "@mui/icons-material/QrCode2TwoTone";
-import PhotoTwoToneIcon from "@mui/icons-material/PhotoTwoTone";
-import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
-import useMediaQuery from "@mui/material/useMediaQuery";
+import * as amplitude from "@amplitude/analytics-browser";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+
 import theme from "@/_styles/theme";
 
 // App imports
 import "../../globals.css";
-import GenerateModal from "./GenerateModal";
 import promptRandomizer from "@/_utils/PromptGenerator";
-import { styles } from "@/_utils/ImageStyles";
-import StylesCard from "./StylesCard";
 import { useStore } from "@/store";
 import { calculateCredits } from "@/_utils/utils";
+import SimpleDialog from "@/_components/SimpleDialog";
+import UrlPrompt from "./(formComponents)/UrlPrompt";
+import StylesModal from "./(formComponents)/StylesModal";
+import GeneratingLoader from "./(formComponents)/GeneratingLoader";
+import SettingsModal from "./(formComponents)/SettingsModal";
+import { generateImage } from "@/_utils/ImagesUtils";
+
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
 /* -------------------------------------------------------------------------- */
 
-function GenerateForm(props) {
+function GenerateForm() {
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
 
-  const { handleGenerate } = props;
-  const { user, generateFormValues, setGenerateFormValues } = useStore();
+  // Context variables
+  const {
+    user,
+    generateFormValues,
+    setGenerateFormValues,
+    openAlert,
+    generatingImage,
+    setGeneratingImage,
+  } = useStore();
 
-  // Screen size
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const router = useRouter();
+  const { data: session, update: updateSession } = useSession();
+
+  // Modules Modal (Prompt keywords, Negative Prompt, SD Models)
+  const [styleModalOpen, setStyleModalOpen] = useState(false);
+  const [settingsModalOpen, setSettingsModalOpen] = useState(false);
+
+  // Open Modal
+  const handleStyleModalOpen = () => {
+    setStyleModalOpen(true);
+  };
+
+  // Open Modal
+  const handleSettingsModalOpen = () => {
+    setSettingsModalOpen(true);
+  };
+
+  // Open Modules Modal
+  const handleModalClose = () => {
+    setStyleModalOpen(false);
+    setSettingsModalOpen(false);
+  };
+
+  // Dialog Content
+  const [dialogContent, setDialogContent] = useState({});
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   // Submit Button state
   const [submitDisabled, setSubmitDisabled] = useState(true);
 
-  // Modules Modal (Prompt keywords, Negative Prompt, SD Models)
-  const [modalOpen, setModalOpen] = useState(false);
-
-  const [modalVariant, setModalVariant] = useState("prompt_keywords");
-
   // Track user credits
   const [price, setPrice] = useState(calculateCredits({ generate: 1 }));
 
-  // Slider for (QR Code Weight)
-  const qrWeight = [{ value: -3 }, { value: 3 }];
-
-  // Custom Style
-  const [customStyle, setCustomStyle] = useState({
-    id: 0,
-    title: "Custom Style",
-    prompt: "",
-    image_url:
-      "https://qrartimages.s3.us-west-1.amazonaws.com/customStyleTile.png",
-    keywords: [],
-    sd_model: "colorful_v31_62333.safetensors",
-  });
-
   /* -------------------------------- FUNCTIONS ------------------------------- */
+
   // Handle input change
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setGenerateFormValues({ ...generateFormValues, [name]: value });
   };
 
-  // Set display text for slider
-  function sliderText(value) {
-    return `${value}`;
-  }
-
-  // Open Modal
-  const handleSdModalOpen = (variant) => {
-    setModalVariant(variant);
-    setModalOpen(true);
-  };
-
-  // Open Modules Modal
-  const handleModalClose = () => {
-    setModalOpen(false);
-  };
-
-  //Keep track of Form Values
+  //Track Form Values
   useEffect(() => {
     if (generateFormValues.website && generateFormValues.prompt) {
       setSubmitDisabled(false);
@@ -106,344 +95,210 @@ function GenerateForm(props) {
     }
   }, [generateFormValues]);
 
-  // set Custom Style in case values are copied from another picture
-  useEffect(() => {
-    if (generateFormValues.style_title === "Custom Style") {
-      setCustomStyle({
-        ...customStyle,
-        prompt: generateFormValues.style_prompt,
-        keywords: generateFormValues.style_prompt.split(", "),
-      });
-    }
-  }, [generateFormValues.style_title]);
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+  };
 
-  // Select Style
-  const handleStyleClick = (item) => {
-    setGenerateFormValues({
-      ...generateFormValues,
-      style_id: item.id,
-      style_prompt: item.prompt,
-      style_title: item.title,
-      sd_model: item.sd_model,
+  const handleInsufficientCredits = () => {
+    const description = user?.is_guest
+      ? "Sign up to get more credits and unlock all features!"
+      : "You don't have enough credits to generate this image. Please go to your account to purchase additional credits.";
+
+    setDialogContent({
+      title: "Insufficient Credits",
+      description,
+      primaryActionText: user?.is_guest ? "Sign Up" : "Add Credits",
+      primaryAction: () =>
+        router.push(user?.is_guest ? "/api/auth/signin" : "/profile"),
+      secondaryActionText: "Close",
+      secondaryAction: handleDialogClose,
     });
-    if (item.title === "Custom Style") {
-      handleSdModalOpen("prompt_keywords");
+    setDialogOpen(true);
+  };
+
+  const updateGuestCredits = async (newCredits) => {
+    try {
+      const result = await updateSession({
+        ...session,
+        user: {
+          ...session.user,
+          credits: newCredits,
+        },
+      });
+
+      useStore.setState({
+        user: {
+          ...user,
+          credits: newCredits,
+        },
+      });
+
+      if (result?.user?.credits === newCredits) {
+        return true;
+      } else {
+        console.error("updateGuestCredits: Credits update verification failed");
+        return false;
+      }
+    } catch (error) {
+      console.error("updateGuestCredits: Error updating credits:", error);
+      return false;
     }
   };
+
+  const handleGenerate = async () => {
+    setGeneratingImage(true);
+
+    try {
+      if (user?.credits < 1) {
+        handleInsufficientCredits();
+        setGeneratingImage(false);
+        return;
+      }
+
+      amplitude.track("Generate Image", {
+        userId: user?.id,
+        url: generateFormValues.website,
+        style_title: generateFormValues.style_title,
+        qr_weight: generateFormValues.qr_weight,
+        isGuest: user?.is_guest || false,
+      });
+
+      const image = await generateImage(generateFormValues, user);
+
+      setGeneratingImage(false);
+      openAlert("success", "Image generated successfully!");
+
+      if (user?.is_guest) {
+        const newCredits = user.credits - 1;
+        const updated = await updateGuestCredits(newCredits);
+
+        if (updated) {
+          router.push(`/images/${image._id}?isNewGuestImage=true`);
+        } else {
+          console.error("handleGenerate: Failed to update credits");
+          openAlert(
+            "error",
+            "Failed to update credits. Please refresh the page."
+          );
+        }
+      } else {
+        router.push(`/images/${image._id}`);
+      }
+    } catch (error) {
+      console.error("handleGenerate: Generation error:", error);
+      if (error.message === "InsufficientCredits") {
+        handleInsufficientCredits();
+      } else {
+        openAlert("error", "Failed to generate image. Please try again.");
+      }
+      setGeneratingImage(false);
+    }
+  };
+
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
   /* -------------------------------------------------------------------------- */
 
   return (
-    <Box sx={{ mt: { xs: 30, sm: 16, md: 12 }, margin: "auto" }}>
-      <Typography
-        variant="h3"
-        color="primary"
-        align="center"
+    <Box
+      sx={{
+        mt: 4,
+        width: "100%",
+        maxWidth: "720px",
+      }}
+    >
+      <Box
         sx={{
-          mt: 4,
-          p: 2,
-          fontSize: { xs: "2rem", sm: "3rem", md: "4rem" },
-        }}
-      >
-        {user?.is_guest ? "Try it out!" : "Generate your QR Code!"}
-      </Typography>
-
-      <Stack
-        useFlexGap
-        spacing={1}
-        sx={{
-          // border: `1px solid ${theme.palette.primary.light}`,
           backgroundColor: theme.palette.primary.light,
           borderRadius: "8px",
-          maxWidth: "800px",
-          // boxShadow: "20px"
+          width: "100%",
+          padding: 2,
         }}
       >
-        {/* <Typography variant="h3" align="center" sx={{ mt: "1rem" }}>
-          Generate QR Art
-        </Typography> */}
+        {generatingImage ? (
+          <GeneratingLoader />
+        ) : (
+          <Box sx={{ width: "100%" }}>
+            <UrlPrompt handleInputChange={handleInputChange} />
 
-        {/* --------------------------------- WEBSITE -------------------------------- */}
-        <Box className="form-section" sx={{ marginTop: "0rem" }}>
-          <Typography className="form-title" variant="h5" align="center">
-            Website URL
-          </Typography>
-          <TextField
-            className="form-field"
-            required
-            id="website"
-            label="Website"
-            name="website"
-            value={generateFormValues.website}
-            onChange={handleInputChange}
-            variant="outlined"
-          />
-          <Typography className="helpertext">
-            e.g. 'google.com'. The generated image will contain a QR code that
-            links to this URL.
-          </Typography>
-        </Box>
-
-        {/* --------------------------------- PROMPT --------------------------------- */}
-        <Box className="form-section">
-          <Typography className="form-title" variant="h5" align="center">
-            Image Description
-          </Typography>
-
-          <TextField
-            className="form-field"
-            required
-            id="prompt"
-            label="Prompt"
-            name="prompt"
-            value={generateFormValues.prompt}
-            onChange={handleInputChange}
-            variant="outlined"
-            multiline
-            rows={4}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment
-                  position="end"
-                  sx={{
-                    alignItems: "center",
-                    alignSelf: "flex-start",
-                    padding: "0.9rem 0rem",
-                  }}
-                >
-                  <Box sx={{ display: "flex", flexDirection: "column" }}>
-                    {/* --- RANDOM PROMPT ---- */}
-                    <Tooltip title="Generate random prompt">
-                      <IconButton
-                        name="prompt_random"
-                        onClick={() =>
-                          handleInputChange({
-                            target: {
-                              name: "prompt",
-                              value: promptRandomizer(),
-                            },
-                          })
-                        }
-                      >
-                        <CasinoTwoToneIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </Box>
-                </InputAdornment>
-              ),
-            }}
-          />
-          <Typography className="helpertext">
-            e.g. 'A Samurai Warrior is running from a clown, Joshua Tree NP,
-            Sunset'. Use the Dice icon to generate a random prompt.
-          </Typography>
-        </Box>
-
-        {/* ----------------------------- QR CODE WEIGHT ----------------------------- */}
-        {/* <Stack
-          direction={{ xs: "column", md: "row" }}
-          useFlexGap
-          alignItems="stretch"
-          spacing={{ xs: 1, md: 2 }}
-        >
-          <Box className="form-section" sx={{ width: "100%" }}>
-            <Typography className="form-title" variant="h5" align="center">
-              QR Code Weight
-            </Typography> */}
-
-        {/* LEFT ICON */}
-        {/* <Stack flexDirection="row">
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  margin: "0rem 1rem",
-                }}
+            <Stack
+              direction="row"
+              spacing={2}
+              alignItems="stretch"
+              sx={{ width: "100%", mb: 2 }}
+            >
+              <Button
+                color="primary"
+                variant="contained"
+                sx={{ width: "50%" }}
+                onClick={handleStyleModalOpen}
               >
-                <IconButton sx={{ padding: "0" }} size="large">
-                  <PhotoTwoToneIcon />
-                </IconButton>
-                <Typography variant="subtitle2" align="center">
-                  Weak
-                </Typography>
-              </Box> */}
+                Style: {generateFormValues.style_title}
+              </Button>
 
-        {/* SLIDER */}
-        {/* <Slider
-                aria-label="QR Code Weight"
-                value={generateFormValues.qr_weight}
-                getAriaValueText={sliderText}
-                step={0.1}
-                valueLabelDisplay="auto"
-                marks={qrWeight}
-                min={-3.0}
-                max={3.0}
-                track={false}
-                color="secondary"
-                name="qr_weight"
-                onChange={handleInputChange}
-                sx={{ width: "95%", margin: "auto" }}
-              // />
-
-              {/* RIGHT ICON */}
-        {/* <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  margin: "0rem 1rem",
-                }}
+              <Button
+                color="primary"
+                variant="contained"
+                sx={{ width: "50%" }}
+                onClick={handleSettingsModalOpen}
               >
-                <IconButton size="large" sx={{ padding: "0" }}>
-                  <QrCode2TwoToneIcon />
-                </IconButton>
-                <Typography variant="subtitle2" align="center">
-                  Strong
-                </Typography>
-              </Box>
+                Advanced Settings
+              </Button>
             </Stack>
+            <Divider />
 
-            <Typography
-              className="helpertext"
-              variant="caption"
-              align="left"
-              sx={{ pl: 2, pt: 1 }}
+            <Button
+              variant="contained"
+              color="secondary"
+              size="large"
+              aria-label="generate"
+              sx={{ width: "100%" }}
+              disabled={submitDisabled}
+              onClick={() => handleGenerate()}
             >
-              A stronger QR Weight will make the QR Code easier to scan. A
-              weaker weight will emphasize the image more.
-            </Typography>
-          </Box>  
+              <Typography
+                variant="body1"
+                component="div"
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                }}
+              >
+                Generate ( {price}
+                <DiamondTwoToneIcon
+                  fontSize="small"
+                  color="primary"
+                  sx={{ mr: "4px" }}
+                />{" "}
+                )
+              </Typography>
+            </Button>
+          </Box>
+        )}
+      </Box>
 
-          <Box className="form-section" sx={{ width: "100%" }}>*/}
-        {/* ---------------------------------- SEED ---------------------------------- */}
-        {/* <Typography className="form-title" variant="h5" align="center">
-              Seed
-            </Typography>
+      {/* --------------------------------- Dialog --------------------------------- */}
 
-            <TextField
-              className="form-field"
-              id="seed"
-              label="Seed"
-              name="seed"
-              value={generateFormValues.seed}
-              onChange={handleInputChange}
-              variant="outlined"
-              fullWidth
-              sx={{
-                backgroundColor: "transparent",
-                "& .MuiInputBase-root": { backgroundColor: "white" },
-              }}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <Tooltip title="Set to Random">
-                      <IconButton
-                        name="seed"
-                        value={-1}
-                        onClick={() =>
-                          handleInputChange({
-                            target: {
-                              name: "seed",
-                              value: -1,
-                            },
-                          })
-                        }
-                      >
-                        <CasinoTwoToneIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </InputAdornment>
-                ),
-              }}
-            />
-            <Typography className="helpertext">
-              You can use a seed from an existing image to generate similar
-              images. Otherwise, leave it as -1
-            </Typography>
-          </Box> 
-        </Stack>*/}
-
-        {/* --------------------------------- Styles --------------------------------- */}
-        {/* <Box className="form-section" sx={{ padding: "1rem 0rem 4rem 0rem" }}>
-          <Typography className="form-title" variant="h5" align="center">
-            Art Style
-          </Typography>
-          <ResponsiveMasonry
-            style={{
-              width: "100%",
-              // backgroundColor: "#A5FFC3",
-              padding: isMobile ? "0.5rem" : "1rem",
-              overflow: "visible",
-            }}
-            columnsCountBreakPoints={{ 350: 2, 750: 3, 1200: 4 }}
-          >
-            <Masonry
-              gutter={isMobile ? "0.5rem" : "1rem"}
-              style={{ overflow: "visible" }}
-            >
-              <StylesCard
-                item={customStyle}
-                index={0}
-                handleClick={handleStyleClick}
-              />
-              {styles.map((item, index) => (
-                <StylesCard
-                  item={item}
-                  index={index}
-                  key={index}
-                  handleClick={handleStyleClick}
-                />
-              ))}
-            </Masonry>
-          </ResponsiveMasonry>
-        </Box> */}
-        <Button
-          variant="contained"
-          color="secondary"
-          size="large"
-          disabled={submitDisabled}
-          aria-label="generate"
-          onClick={(e) => handleGenerate()}
-          sx={{
-            //   position: "fixed",
-
-            //   bottom: "20px",
-            //   width: "80%",
-            margin: "1rem",
-            //   left: "10%",
-          }}
-        >
-          <Typography
-            variant="body1"
-            component="div"
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              flexWrap: "wrap",
-            }}
-          >
-            Generate QR Code ( {price}
-            <DiamondTwoToneIcon
-              fontSize="small"
-              color="primary"
-              sx={{ mr: "4px" }}
-            />{" "}
-            )
-          </Typography>
-        </Button>
-      </Stack>
-
-      <GenerateModal
-        open={modalOpen}
-        handleClose={handleModalClose}
-        variant={modalVariant}
-        customStyle={customStyle}
-        setCustomStyle={setCustomStyle}
+      {/* Dialog Modal */}
+      <SimpleDialog
+        open={dialogOpen}
+        onClose={handleDialogClose}
+        title={dialogContent.title}
+        description={dialogContent.description}
+        primaryActionText={dialogContent.primaryActionText}
+        primaryAction={dialogContent.primaryAction}
+        secondaryActionText={dialogContent.secondaryActionText}
+        secondaryAction={dialogContent.secondaryAction}
       />
 
-      {/* --------------------------------- SUBMIT --------------------------------- */}
+      <StylesModal open={styleModalOpen} handleClose={handleModalClose} />
+
+      <SettingsModal
+        open={settingsModalOpen}
+        handleClose={handleModalClose}
+        handleInputChange={handleInputChange}
+      />
     </Box>
   );
 }

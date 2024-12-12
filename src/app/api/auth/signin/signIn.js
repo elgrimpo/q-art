@@ -13,13 +13,12 @@ export default function SignIn() {
   useEffect(() => {
     const handleAnonymousSignIn = async () => {
       const isAnonymous = searchParams.get('anonymous') === 'true';
-      const callbackUrl = searchParams.get('callbackUrl');
       
       if (isAnonymous) {
         try {
           const result = await signIn("anonymous", { 
             redirect: false,
-            callbackUrl: callbackUrl || '/'
+            callbackUrl: '/generate'
           });
           
           if (result?.error) {

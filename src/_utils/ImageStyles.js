@@ -1,7 +1,7 @@
 export const styles = [
   {
     id: 1,
-    title: "Default",
+    title: "Random",
     prompt: "",
     image_url:
       "https://qrartimages.s3.us-west-1.amazonaws.com/6575fc6828c914471b835383.png",

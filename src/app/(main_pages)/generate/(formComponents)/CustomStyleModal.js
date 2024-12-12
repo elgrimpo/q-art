@@ -9,15 +9,15 @@ import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 
 // App imports
 import StyledIconButton from "@/_components/StyledIconButton";
-import PromptKeywords from "./PromptKeywords";
 import { promptKeywords } from "@/_utils/PromptGenerator";
 import { useStore } from "@/store";
+import StylesCard from "./StylesCard";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
 /* -------------------------------------------------------------------------- */
 
-function GenerateModal(props) {
+function CustomStyleModal(props) {
   /* ---------------------------- DECLARE VARIABLE ---------------------------- */
 
   // Props
@@ -31,16 +31,30 @@ function GenerateModal(props) {
 
   // Prompt keywords
   const [selectedKeywords, setSelectedKeywords] = useState(
-    customStyle.prompt.split(", ")
+    customStyle?.prompt.split(", ")
   );
 
   const [promptKeywordss, setPromptKeywords] = useState(promptKeywords);
   /* -------------------------------- FUNCTIONS ------------------------------- */
 
+  // Select Style
+  const handleStyleClick = (item) => {
+    setGenerateFormValues({
+      ...generateFormValues,
+      style_id: item.id,
+      style_prompt: item.prompt,
+      style_title: item.title,
+      sd_model: item.sd_model,
+    });
+    if (item.title === "Custom Style") {
+      handleSdModalOpen("prompt_keywords");
+    }
+  };
+
   useEffect(() => {
-    setSelectedKeywords(customStyle.prompt.split(", "));
+    setSelectedKeywords(customStyle?.prompt.split(", "));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [customStyle.prompt]);
+  }, [customStyle?.prompt]);
 
   useEffect(() => {
     setPromptKeywords(promptKeywords);
@@ -84,16 +98,16 @@ function GenerateModal(props) {
     <Dialog
       fullScreen={isMobile}
       TransitionComponent={Grow}
-
       open={open}
       onClose={handleClose}
       fullWidth
       sx={{
         ...(isMobile && {
-          "& .MuiDialog-paper": { 
+          "& .MuiDialog-paper": {
             maxHeight: "100%",
-            maxWidth: "100%" 
-          }})
+            maxWidth: "100%",
+          },
+        }),
       }}
     >
       <Box
@@ -118,7 +132,7 @@ function GenerateModal(props) {
       >
         {/* TITLE */}
         <Typography variant="h5" align="center" style={{ margin: "1rem 0" }}>
-          Select keywords
+          Select Image Style
         </Typography>
 
         {/* GRID */}
@@ -130,13 +144,11 @@ function GenerateModal(props) {
             {/* ----------------------------- PROMPT KEYWORDS
             ---------------------------- */}
             {promptKeywordss?.map((item, index) => (
-              <PromptKeywords
+              <StylesCard
                 item={item}
                 index={index}
                 key={index}
-                handleClose={handleClose}
-                selectedKeywords={selectedKeywords}
-                handleKeywordSelection={handleKeywordSelection}
+                handleClick={handleClick}
               />
             ))}
           </Masonry>
@@ -146,4 +158,4 @@ function GenerateModal(props) {
   );
 }
 
-export default GenerateModal;
+export default CustomStyleModal;

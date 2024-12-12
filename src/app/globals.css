@@ -60,7 +60,6 @@ body {
 .form-section {
   display: flex;
   flex-direction: column;
-  padding: 1rem;
   border-radius: 5px;
   margin-top: 0.5rem
 }
