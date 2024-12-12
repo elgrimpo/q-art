@@ -87,8 +87,8 @@ export default function Generate() {
           sx={{
             width: { xs: "100%", lg: "90%" },
             zIndex: 2,
-            height: "100%",
-            top: { xs: "100px", lg: "0px" },
+            height: {xs: "80%", sm: "100%"},
+            pt: { xs: "100px", lg: "0px" },
             ml: { xs: "0px", lg: "24px" },
             background: {
               xs: "linear-gradient(0deg, rgba(22,22,22,1) 30%, rgba(22,22,22,0) 90%)",
