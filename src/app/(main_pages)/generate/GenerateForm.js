@@ -20,6 +20,7 @@ import StylesModal from "./(formComponents)/StylesModal";
 import GeneratingLoader from "./(formComponents)/GeneratingLoader";
 import SettingsModal from "./(formComponents)/SettingsModal";
 import { generateImage } from "@/_utils/ImagesUtils";
+import { styles } from "@/_utils/ImageStyles";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
@@ -145,6 +146,24 @@ function GenerateForm() {
     }
   };
 
+  // Function to select a random style and update the form values in the store
+  const selectRandomStyle = () => {
+    // Filter out the "Random" style
+    const availableStyles = styles.filter((style) => style.id !== 1);
+    // Select a random style
+    const randomStyle =
+      availableStyles[Math.floor(Math.random() * availableStyles.length)];
+
+    // Update the form values in the store
+    return {
+      ...generateFormValues,
+      style_id: randomStyle.id,
+      style_prompt: randomStyle.prompt,
+      style_title: randomStyle.title,
+      sd_model: randomStyle.sd_model,
+    };
+  };
+
   const handleGenerate = async () => {
     setGeneratingImage(true);
 
@@ -163,7 +182,14 @@ function GenerateForm() {
         isGuest: user?.is_guest || false,
       });
 
-      const image = await generateImage(generateFormValues, user);
+      let generateForm = generateFormValues
+
+      if (generateForm.style_id === 1) {
+        // Select a random style and update form values
+        generateForm = selectRandomStyle();
+      }
+
+      const image = await generateImage(generateForm, user);
 
       setGeneratingImage(false);
       openAlert("success", "Image generated successfully!");
@@ -222,7 +248,7 @@ function GenerateForm() {
             <UrlPrompt handleInputChange={handleInputChange} />
 
             <Stack
-              direction={{xs: "column", sm: "row"}}
+              direction={{ xs: "column", sm: "row" }}
               spacing={2}
               alignItems="stretch"
               sx={{ width: "100%", mb: 2, mt: 1 }}
@@ -230,7 +256,7 @@ function GenerateForm() {
               <Button
                 color="primary"
                 variant="contained"
-                sx={{ width: {xs: "100%", sm: "50%"} }}
+                sx={{ width: { xs: "100%", sm: "50%" } }}
                 onClick={handleStyleModalOpen}
               >
                 Style: {generateFormValues.style_title}
@@ -239,7 +265,7 @@ function GenerateForm() {
               <Button
                 color="primary"
                 variant="contained"
-                sx={{ width: {xs: "100%", sm: "50%"} }}
+                sx={{ width: { xs: "100%", sm: "50%" } }}
                 onClick={handleSettingsModalOpen}
               >
                 Advanced Settings
