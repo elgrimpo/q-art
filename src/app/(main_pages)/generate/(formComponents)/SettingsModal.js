@@ -25,7 +25,7 @@ import theme from "@/_styles/theme";
 // App imports
 import "../../../globals.css";
 import { useStore } from "@/store";
-
+import StyledIconButton from "@/_components/StyledIconButton";
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
 /* -------------------------------------------------------------------------- */
@@ -60,7 +60,7 @@ function SettingsModal(props) {
       TransitionComponent={Grow}
       open={open}
       onClose={handleClose}
-      fullWidth
+      
       sx={{
         ...(isMobile && {
           "& .MuiDialog-paper": {
@@ -71,6 +71,33 @@ function SettingsModal(props) {
 
       }}
     >
+        <Box
+        sx={{ padding: "1rem", backgroundColor: theme.palette.primary.light, height: "100%" }}
+      >
+         <Box
+        sx={{
+          margin: { sx: "0rem", lg: "1rem" },
+          position: "absolute",
+          top: { xs: "0.5rem" },
+          right: { xs: "0.5rem" },
+          zIndex: "1",
+        }}
+      >
+        <StyledIconButton
+          variant="contained"
+          color="secondary"
+          type="close"
+          handleClick={handleClose}
+        />
+      </Box>
+        <Typography
+          className="form-title"
+          variant="h3"
+          align="center"
+          sx={{ margin: "0.5rem" }}
+        >
+          Advanced Settings
+        </Typography>
     <Stack useFlexGap alignItems="stretch" spacing={{ xs: 1, md: 2 }}>
       {/* ----------------------------- QR CODE WEIGHT ----------------------------- */}
 
@@ -191,6 +218,7 @@ function SettingsModal(props) {
         </Typography>
       </Box>
     </Stack>
+    </Box>
     </Dialog>
   );
 }

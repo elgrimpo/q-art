@@ -45,7 +45,7 @@ function StylesCard(props) {
         elevation={selected ? 0 : 1}
         key={index}
         sx={{
-          padding: { xs: "0rem", md: "1.2rem" },
+          padding: { xs: "0rem", md: "1rem" },
           backgroundColor: selected ? secondaryColor : "white",
           border: selected ? `2px solid ${secondaryColor}` : "none",
           borderRadius: "5px",

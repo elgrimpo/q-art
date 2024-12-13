@@ -17,9 +17,10 @@ import {
           margin: "auto",
           borderRadius: "8px",
           backgroundColor: theme.palette.primary.light,
+          textAlign: { xs: 'center', md: 'left' }
         }}
       >
-        <Typography variant="h5" align="left" color="secondary" className="form-title">
+        <Typography variant="h5" color="secondary" className="form-title">
           Our superhuman AI is working on your QR Code!
         </Typography>
 
@@ -35,9 +36,10 @@ import {
             backgroundPosition: "center 25%",
             borderRadius: "8px",
             overflow: "hidden",
+            
           }}
         ></Box>
-        <Typography variant="subtitle1" align="center">
+        <Typography variant="subtitle1">
           He's slow so give him a minute!
         </Typography>
       </Box>

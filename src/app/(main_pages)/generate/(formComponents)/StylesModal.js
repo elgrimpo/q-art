@@ -32,8 +32,9 @@ const StylesModal = (props) => {
       sd_model: item.sd_model,
     });
 
-    handleClose();
-  };
+    setTimeout(() => {
+      handleClose();
+    }, 300);  };
 
   return (
     <Dialog
@@ -87,11 +88,11 @@ const StylesModal = (props) => {
           }}
           columnsCountBreakPoints={{
             350: 2,
-            750: 3,
+            1000: 3,
             // 1200: 4
           }}
         >
-          <Masonry gutter="0.5rem" style={{ overflow: "visible" }}>
+          <Masonry gutter="1rem" style={{ overflow: "visible" }}>
             
             {styles.map((item, index) => (
               <StylesCard
