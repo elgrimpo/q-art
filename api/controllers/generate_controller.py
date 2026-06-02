@@ -23,7 +23,7 @@ from api.controllers.images_controller import (
     update_image,
 )
 from api.utils.utils import (
-    prepare_txt2img_request,
+    prepare_img2img_request,
     create_watermark,
     calculate_credits,
     sufficient_credit,
@@ -100,50 +100,48 @@ async def predict(
 
         # -------------------------- GENERATE IMAGE AND SAVE ------------------------- #
 
-        req = prepare_txt2img_request(
-            prompt,
-            negative_prompt,
-            sd_model,
-            seed,
-            image_base64_str,
-            qr_weight,
-            style_prompt,
-        )
+        req = prepare_img2img_request(
+                    prompt,
+                    negative_prompt,
+                    sd_model,
+                    seed,
+                    image_base64_str,
+                    qr_weight,
+                    style_prompt,
+                )
+
         try:
             # Start a process pool executor
             with concurrent.futures.ProcessPoolExecutor() as executor:
                 # Submit the txt2img call
-                txt2img_future = executor.submit(client.txt2img, req)
+                txt2img_future = executor.submit(client.img2img_v3, **req)
                 txt2img_coro = asyncio.wrap_future(txt2img_future)
                 txt2img_result = await txt2img_coro
 
-                # Get Task_ID
-                task_id = txt2img_result.data.task_id
-
-                if txt2img_result.data is None:
+                if txt2img_result is None:
                     raise NovitaResponseError(
-                        f"Text to Image generation failed with response {txt2img_result.msg}, code: {txt2img_result.code}"
+                        f"Text to Image generation failed with response {txt2img_result}, code: Unknown"
                     )
+
+                task_id = txt2img_result.task.task_id  # Access directly
 
                 print("task id:" + task_id)
 
                 # Submit the wait_for_task call
-                wait_for_task_future = executor.submit(client.wait_for_task, task_id)
+                wait_for_task_future = executor.submit(client.wait_for_task_v3, task_id)
                 wait_for_task_coro = asyncio.wrap_future(wait_for_task_future)
                 res = await wait_for_task_coro
+                # print(res)
 
-                info_dict = json.loads(res.data.info)
-                seed = info_dict.get("seed")
+            # After waiting for task completion
+            if res.task.status != V3TaskResponseStatus.TASK_STATUS_SUCCEED:
+                raise Exception(f"Failed to generate image with error: {res.task.reason}")
 
-                info = json.dumps(info_dict, indent=4)
+            # Extract seed and image
+            seed = res.extra.seed if res.extra else None
+            image_url = res.get_image_urls()[0]  # Or iterate if multiple
 
-            if res.data.status != ProgressResponseStatusCode.SUCCESSFUL:
-                raise Exception(
-                    "Failed to generate image with error: " + res.data.failed_reason
-                )
-
-            # Open generated image
-            image_url = res.data.imgs[0]
+            # Download image
             image_data = requests.get(image_url)
             generated_image = Image.open(BytesIO(image_data.content))
 

@@ -56,13 +56,13 @@ class UserAuth(BaseModel):
 # ---------------------------------------------------------------------------- #
 
 class ControlNet(BaseModel):
-    control_mode: int
+    # control_mode: int
     model: str
-    module: str
+    # module: str
     weight: float
     guidance_start: float
     guidance_end: float
-    resize_mode: int
+    # resize_mode: int
 
 class Like(BaseModel):
     userId: str
@@ -70,7 +70,7 @@ class Like(BaseModel):
 
 class ImageDoc(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
-    user_id: str
+    user_id: str 
     created_at: datetime
     prompt: str
     negative_prompt: Optional[str] = None
@@ -84,10 +84,10 @@ class ImageDoc(BaseModel):
     height: int
     query_type: str
     steps: int
-    cfg_scale: int
-    sampler_name: str
+    # cfg_scale: int
+    # sampler_name: str
     controlnet0: ControlNet
-    controlnet1: ControlNet
+    # controlnet1: ControlNet
     image_url: Optional[str] = None
     watermarked_image_url: Optional[str] = None
     likes: Optional[List[Like]] = []

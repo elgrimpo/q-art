@@ -28,53 +28,57 @@ def parse_seed(metadata):
 
 
 # ---------------------------------------------------------------------------- #
-#                            PREPARE TXT2IMG REQUEST                           #
+#                            PREPARE IMG2IMG REQUEST                           #
 # ---------------------------------------------------------------------------- #
 
 
-def prepare_txt2img_request(
-    prompt, negative_prompt, sd_model, seed, image_base64_str, qr_weight, style_prompt
+def prepare_img2img_request(
+    prompt,
+    negative_prompt,
+    sd_model,
+    seed,
+    image_base64_str,
+    qr_weight,
+    style_prompt,
 ):
-
-    full_prompt = prompt + ", " + style_prompt
-    weight = round(1.0 + float(qr_weight) * 0.2, 2)
+    full_prompt = prompt + style_prompt
+    weight = round(0.85 + float(qr_weight) * 0.2, 2)
     guidance_start = round(0.4 - float(qr_weight) * 0.03, 2)
 
-    req = Txt2ImgRequest(
+    req = dict(
+        model_name=sd_model,
+        input_image=image_base64_str,
         prompt=full_prompt,
         negative_prompt=negative_prompt,
-        sampler_name=Samplers.DPMPP_M_KARRAS,
-        model_name=sd_model,
+        sampler_name='DPM++ 2M Karras',
         width=512,
         height=512,
         steps=30,
-        batch_size=1,
-        cfg_scale=9,
+        guidance_scale=7,
         seed=int(seed),
-        controlnet_units=[
-            ControlnetUnit(
-                input_image=image_base64_str,
-                control_mode=ControlNetMode.BALANCED,
-                model="control_v1p_sd15_brightness",
-                module=ControlNetPreprocessor.INPAINT,
-                resize_mode=ControlNetResizeMode.RESIZE_OR_CORP,
-                weight=0.35,
-                guidance_start=0.0,
-                guidance_end=1.0,
-            ),
-            ControlnetUnit(
-                input_image=image_base64_str,
-                control_mode=ControlNetMode.BALANCED,
-                model="control_v1p_sd15_qrcode_monster_v2",
-                module=ControlNetPreprocessor.INPAINT,
-                resize_mode=ControlNetResizeMode.RESIZE_OR_CORP,
-                weight=weight,
-                guidance_start=guidance_start,
-                guidance_end=0.85,
-            ),
-        ],
+        image_num=1,
+        strength=0.65,
+        controlnet_units = [
+        Img2ImgV3ControlNetUnit(
+            image_base64=image_base64_str,
+            model_name="control_v1p_sd15_brightness",
+            strength=0.35,
+            preprocessor=ControlNetPreprocessor.CANNY.value,
+            guidance_start=0.0,
+            guidance_end=1.0,
+        ),
+        Img2ImgV3ControlNetUnit(
+            image_base64=image_base64_str,
+            model_name="control_v1p_sd15_qrcode_monster_v2",
+            strength=weight,
+            preprocessor=ControlNetPreprocessor.CANNY.value,
+            guidance_start=guidance_start,
+            guidance_end=0.85,
+        ),
+    ]
     )
 
+    # req.set_image_type("png")  # Optional: set output format
     return req
 
 
@@ -117,52 +121,53 @@ def create_watermark(image):
 def prepare_doc(
     req, seed, website, qr_weight, user_id, prompt, style_prompt, style_title
 ):
-    sampler_name = req.sampler_name
-    control_mode_0 = req.controlnet_units[0].control_mode.value
-    model_0 = req.controlnet_units[0].model
-    module_0 = req.controlnet_units[0].module.value
-    resize_mode_0 = req.controlnet_units[0].resize_mode.value
+    # sampler_name = req["sampler_name"]
+    # control_mode_0 = req["controlnet_units"][0].control_mode.value
+    model_0 = req["controlnet_units"][0].model_name
+    # module_0 = req["controlnet_units"][0].module.value
+    # resize_mode_0 = req["controlnet_units"][0].resize_mode.value
 
-    control_mode_1 = req.controlnet_units[1].control_mode.value
-    model_1 = req.controlnet_units[1].model
-    module_1 = req.controlnet_units[1].module.value
-    resize_mode_1 = req.controlnet_units[1].resize_mode.value
+    # control_mode_1 = req["controlnet_units"][1].control_mode.value
+    # model_1 = req["controlnet_units"][1].model_name
+    # module_1 = req["controlnet_units"][1].module.value
+    # resize_mode_1 = req["controlnet_units"][1].resize_mode.value
+
 
     doc = ImageDoc(
         user_id=user_id,
         created_at=datetime.utcnow(),
         prompt=prompt,
-        negative_prompt=req.negative_prompt,
+        negative_prompt=req["negative_prompt"],
         style_title=style_title,
         style_prompt=style_prompt,
         content=website,
-        sd_model=req.model_name,
+        sd_model=req["model_name"],
         seed=seed,
         qr_weight=qr_weight,
-        width=req.width,
-        height=req.height,
+        width=req["width"],
+        height=req["height"],
         query_type="txt2img",
-        steps=req.steps,
-        cfg_scale=req.cfg_scale,
-        sampler_name=sampler_name,
+        steps=req["steps"],
+        # cfg_scale=req["cfg_scale"],
+        # sampler_name=sampler_name,
         controlnet0=ControlNet(
-            control_mode=control_mode_0,
+            # control_mode=control_mode_0,
             model=model_0,
-            module=module_0,
-            weight=req.controlnet_units[0].weight,
-            guidance_start=req.controlnet_units[0].guidance_start,
-            guidance_end=req.controlnet_units[0].guidance_end,
-            resize_mode=resize_mode_0,
+            # module=module_0,
+            weight=req["controlnet_units"][0].strength,
+            guidance_start=req["controlnet_units"][0].guidance_start,
+            guidance_end=req["controlnet_units"][0].guidance_end,
+            # resize_mode=resize_mode_0,
         ),
-        controlnet1=ControlNet(
-            control_mode=control_mode_1,
-            model=model_1,
-            module=module_1,
-            weight=req.controlnet_units[0].weight,
-            guidance_start=req.controlnet_units[0].guidance_start,
-            guidance_end=req.controlnet_units[0].guidance_end,
-            resize_mode=resize_mode_1,
-        ),
+        # controlnet1=ControlNet(
+        #     # control_mode=control_mode_1,
+        #     model=model_1,
+        #     # module=module_1,
+        #     weight=req["controlnet_units"][0].strength,
+        #     guidance_start=req["controlnet_units"][0].guidance_start,
+        #     guidance_end=req["controlnet_units"][0].guidance_end,
+        #     # resize_mode=resize_mode_1,
+        # ),
     )
     return doc
 
