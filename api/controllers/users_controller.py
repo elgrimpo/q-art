@@ -3,7 +3,6 @@ import requests as requests
 from fastapi import HTTPException
 from bson import ObjectId
 import datetime
-from starlette.exceptions import HTTPException
 import os
 from datetime import datetime
 from fastapi.responses import JSONResponse
@@ -32,6 +31,8 @@ async def get_user_info(email):
             return user_instance
         else:
             raise HTTPException(status_code=404, detail="User not found")
+    except HTTPException:
+        raise
     except Exception as e:
         print(f"Error in get_user_info: {e}")
         raise HTTPException(status_code=500, detail=str(e))
