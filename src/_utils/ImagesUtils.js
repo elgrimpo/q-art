@@ -23,12 +23,14 @@ export const getImageById = async (imageId) => {
       }
     );
     if (!response.ok) {
-      throw new Error("Failed to fetch images");
+      const err = new Error("Failed to fetch images");
+      err.status = response.status;
+      throw err;
     }
     const image = await response.json();
     return image;
   } catch (error) {
-    if (error.response.status === 404) {
+    if (error.status === 404) {
       notFound();
     }
     console.error("Error fetching images:", error);
@@ -80,21 +82,23 @@ export const generateImage = (generateFormValues, user) => {
       credentials: "include",
     })
       .then((response) => {
+        if (!response.ok) {
+          return response.json().then((data) => {
+            const detail = data?.detail || "GenerationFailed";
+            throw new Error(
+              detail === "Insufficient credits" ? "InsufficientCredits" : "GenerationFailed"
+            );
+          });
+        }
         return response.json();
       })
       .then((data) => {
-        // Handle Insufficient Credits
-        if (data.detail && data.detail === "Insufficient credits") {
-          reject(new Error("InsufficientCredits"));
-        } else {
-          revalidateTag('images')
-          revalidateTag('user')
-
-          resolve(data); // Resolve with the image data
-        }
+        revalidateTag('images')
+        revalidateTag('user')
+        resolve(data);
       })
       .catch((error) => {
-        reject(error); // Reject with the error
+        reject(error);
       });
   });
 };
