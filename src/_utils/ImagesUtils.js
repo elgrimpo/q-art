@@ -52,7 +52,7 @@ export const getImages = async (params) => {
       {
         method: "GET",
         credentials: "include",
-        next: { revalidate: 3600, tags: ["images"] },
+        next: { revalidate: 60, tags: ["images"] },
       }
     );
     if (!response.ok) {

@@ -186,11 +186,21 @@ async def test_get_images_sort_oldest_is_ascending(mock_db):
 
 @patch("api.controllers.images_controller.db")
 async def test_get_images_sort_most_liked(mock_db):
-    """sort_by='Most Liked' must sort by likes DESCENDING then created_at DESCENDING."""
-    cursor = _mock_cursor()
-    mock_db.__getitem__.return_value.find.return_value = cursor
+    """sort_by='Most Liked' uses aggregation to sort by likes array length DESCENDING."""
+    mock_collection = MagicMock()
+    agg_cursor = MagicMock()
+    agg_cursor.to_list = AsyncMock(return_value=[])
+    mock_collection.aggregate.return_value = agg_cursor
+    mock_db.__getitem__.return_value = mock_collection
 
     await get_images(page=1, sort_by="Most Liked")
 
-    sort_arg = cursor.sort.call_args.args[0]
-    assert sort_arg == [("likes", DESCENDING), ("created_at", DESCENDING)]
+    mock_collection.aggregate.assert_called_once()
+    pipeline = mock_collection.aggregate.call_args.args[0]
+
+    add_fields = next(s for s in pipeline if "$addFields" in s)
+    assert "likes_count" in add_fields["$addFields"]
+
+    sort_stage = next(s for s in pipeline if "$sort" in s)
+    assert sort_stage["$sort"]["likes_count"] == DESCENDING
+    assert sort_stage["$sort"]["created_at"] == DESCENDING

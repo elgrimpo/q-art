@@ -163,26 +163,32 @@ async def get_images(
             likes, time_period, image_style, user_id, exclude_user_id
         )
 
-        # Create sort
-        sort_statement = None
-        if sort_by == "Newest":
-            sort_statement = [("created_at", DESCENDING)]
-        elif sort_by == "Oldest":
-            sort_statement = [("created_at", ASCENDING)]
-        elif sort_by == "Most Liked":
-            sort_statement = [("likes", DESCENDING), ("created_at", DESCENDING)]
-
         # Calculate the offset based on the current page
         offset = (page - 1) * images_per_page
 
         # ------------------------------ QUERY DATABASE ------------------------------ #
-        images_result = (
-            db["images"]
-            .find(query)
-            .sort(sort_statement)
-            .skip(offset)
-            .limit(images_per_page)
-        )
+        if sort_by == "Most Liked":
+            # likes is an array of objects, so sort by array length via aggregation
+            pipeline = [
+                {"$match": query},
+                {"$addFields": {"likes_count": {"$size": {"$ifNull": ["$likes", []]}}}},
+                {"$sort": {"likes_count": DESCENDING, "created_at": DESCENDING}},
+                {"$skip": offset},
+                {"$limit": images_per_page},
+            ]
+            images_result = db["images"].aggregate(pipeline)
+        else:
+            if sort_by == "Oldest":
+                sort_statement = [("created_at", ASCENDING)]
+            else:
+                sort_statement = [("created_at", DESCENDING)]
+            images_result = (
+                db["images"]
+                .find(query)
+                .sort(sort_statement)
+                .skip(offset)
+                .limit(images_per_page)
+            )
 
         # Convert the images to a list
         images_list = await images_result.to_list(length=images_per_page)

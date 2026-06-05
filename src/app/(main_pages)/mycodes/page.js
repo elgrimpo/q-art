@@ -79,20 +79,37 @@ export default function MyCodes() {
     setImages([]);
   }, [pathname]);
 
-  const loadMoreImages = async (params) => {
+  const loadMoreImages = async (params, replace = false) => {
     const newImages = await getImages(params);
-    setImages([...images, ...newImages]);
+    if (replace) {
+      setImages(newImages);
+    } else {
+      setImages((prev) => [...prev, ...newImages]);
+    }
     if (newImages.length < 12) {
       setPage(-1);
     } else {
-      setPage(page + 1);
+      setPage(params.page);
     }
   };
 
   // Apply Filter & Sort and load Images
-  const applyFilters = () => {
-    setPage(0);
+  const applyFilters = (newFilters) => {
+    const filtersToUse = newFilters || selectedFilters;
     setImages([]);
+    setPage(0);
+    loadMoreImages(
+      {
+        page: 1,
+        user_id: pathname === "/mycodes" ? user._id : undefined,
+        exclude_user_id: pathname === "/mycodes" ? undefined : user._id,
+        likes: filtersToUse.likes,
+        time_period: filtersToUse.time_period,
+        image_style: filtersToUse.image_style,
+        sort_by: filtersToUse.sort,
+      },
+      true
+    );
   };
 
   // Infinite scrolling and load Image
