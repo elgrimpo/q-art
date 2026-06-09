@@ -34,6 +34,7 @@ describe('generateImage', () => {
   test('resolves with image data on success', async () => {
     const fakeImage = { _id: 'img_123', image_url: 'https://s3.example/img.png' }
     fetch.mockResolvedValueOnce({
+      ok: true,
       json: () => Promise.resolve(fakeImage),
     })
 
@@ -49,6 +50,7 @@ describe('generateImage', () => {
 
   test('does not reject for an unrelated detail field', async () => {
     fetch.mockResolvedValueOnce({
+      ok: true,
       json: () => Promise.resolve({ detail: 'Some other error', _id: 'img_456' }),
     })
 
