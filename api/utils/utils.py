@@ -2,8 +2,11 @@
 import requests as requests
 import datetime
 import re
+import base64
+from io import BytesIO
 from datetime import datetime, timedelta
 from typing import Optional
+from PIL import Image
 from novita_client import *
 
 
@@ -42,43 +45,66 @@ def prepare_img2img_request(
     style_prompt,
 ):
     full_prompt = prompt + style_prompt
-    weight = round(0.85 + float(qr_weight) * 0.2, 2)
-    guidance_start = round(0.4 - float(qr_weight) * 0.03, 2)
+
+    # qr_weight slider (0..1) -> QR ControlNet strength + guidance start.
+    # Higher weight = more scannable, lower = more artistic.
+    weight = round(0.85 + float(qr_weight) * 0.2, 2)           # 0.85 .. 1.05
+    guidance_start = round(0.40 - float(qr_weight) * 0.03, 2)  # 0.40 .. 0.37
+
+    # Neutral #808080 init image at the generation size. Novita deprecated
+    # txt2img+ControlNet and forced us onto img2img; pairing a flat-gray init
+    # with strength=1.0 makes img2img start from pure noise, i.e. behave like
+    # txt2img. The model paints freely while the QR structure is enforced
+    # entirely through ControlNet. This recovers the quality lost in the move.
+    side = 768
+    gray = Image.new("RGB", (side, side), (128, 128, 128))
+    _buf = BytesIO()
+    gray.save(_buf, format="JPEG")
+    gray_init_base64 = base64.b64encode(_buf.getvalue()).decode("ascii")
 
     req = dict(
         model_name=sd_model,
-        input_image=image_base64_str,
+        input_image=gray_init_base64,
         prompt=full_prompt,
         negative_prompt=negative_prompt,
-        sampler_name='DPM++ 2M Karras',
-        width=512,
-        height=512,
+        sampler_name="DPM++ 2M Karras",
+        width=side,
+        height=side,
         steps=30,
         guidance_scale=7,
         seed=int(seed),
         image_num=1,
-        strength=0.65,
-        controlnet_units = [
-        Img2ImgV3ControlNetUnit(
-            image_base64=image_base64_str,
-            model_name="control_v1p_sd15_brightness",
-            strength=0.35,
-            preprocessor=ControlNetPreprocessor.LINEART.value,
-            guidance_start=0.0,
-            guidance_end=1.0,
-        ),
-        Img2ImgV3ControlNetUnit(
-            image_base64=image_base64_str,
-            model_name="control_v1p_sd15_qrcode_monster_v2",
-            strength=weight,
-            preprocessor=ControlNetPreprocessor.LINEART.value,
-            guidance_start=guidance_start,
-            guidance_end=0.85,
-        ),
-    ]
+        strength=1.0,
+        controlnet_units=[
+            # Brightness ControlNet — blends the QR's light/dark structure into
+            # the art. The QR is fed directly: NO preprocessor.
+            Img2ImgV3ControlNetUnit(
+                image_base64=image_base64_str,
+                model_name="control_v1p_sd15_brightness",
+                strength=0.35,
+                # Pass Python None (-> JSON null) so Novita skips preprocessing
+                # and uses the raw QR. Do NOT send the string 'none': it's not in
+                # Novita's preprocessor enum and triggers "Failed to exec". And
+                # don't just omit this kwarg — if the SDK default is the NULL enum
+                # it serializes back to 'none'. Explicit None is the safe form.
+                preprocessor=None,
+                guidance_start=0.0,
+                guidance_end=1.0,
+            ),
+            # QR Code Monster v2 — enforces the scannable QR pattern. Feeding the
+            # raw QR with NO preprocessor is required; the old LINEART/CANNY step
+            # pre-mangled the QR and is what destroyed scannability + quality.
+            Img2ImgV3ControlNetUnit(
+                image_base64=image_base64_str,
+                model_name="control_v1p_sd15_qrcode_monster_v2",
+                strength=weight,
+                preprocessor=None,  # JSON null -> no preprocessing (raw QR)
+                guidance_start=guidance_start,
+                guidance_end=0.85,
+            ),
+        ],
     )
 
-    # req.set_image_type("png")  # Optional: set output format
     return req
 
 

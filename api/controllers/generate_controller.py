@@ -94,7 +94,9 @@ async def predict(
         qr_image = qr.make_image(fill_color="black", back_color="white")
 
         buffer = BytesIO()
-        qr_image.save(buffer, format="JPEG")  # Save as JPEG
+        # PNG (lossless) keeps the QR edges crisp — JPEG compression softens the
+        # sharp module borders that ControlNet depends on, hurting scannability.
+        qr_image.save(buffer, format="PNG")
         buffer.seek(0)
         image_base64_str = base64.b64encode(buffer.getvalue()).decode("ascii")
 
