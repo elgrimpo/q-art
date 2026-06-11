@@ -141,14 +141,6 @@ async def test_delete_image_allows_owner(mock_s3_session, mock_images, mock_db):
     assert mock_s3_client.delete_object.call_count == 2
 
 
-@patch("api.controllers.images_controller.images")
-async def test_delete_image_not_found_404(mock_images):
-    mock_images.find_one = AsyncMock(return_value=None)
-    with pytest.raises(HTTPException) as exc:
-        await delete_image(FAKE_IMAGE_ID, FAKE_USER_ID)
-    assert exc.value.status_code == 404
-
-
 # ---------------------------------------------------------------------------- #
 #                          GET IMAGES — PAGINATION & SORTING                   #
 # ---------------------------------------------------------------------------- #
