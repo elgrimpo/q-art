@@ -16,7 +16,7 @@ import certifi
 from io import BytesIO
 from PIL import Image
 import asyncio
-import concurrent.futures
+import functools
 
 # App imports
 from api.controllers.images_controller import (
@@ -154,27 +154,24 @@ async def predict(
                 )
 
         try:
-            # Start a process pool executor
-            with concurrent.futures.ProcessPoolExecutor() as executor:
-                # Submit the txt2img call
-                txt2img_future = executor.submit(client.img2img_v3, **req)
-                txt2img_coro = asyncio.wrap_future(txt2img_future)
-                txt2img_result = await txt2img_coro
+            # Novita calls are network I/O — run in a thread pool so the event
+            # loop stays free. ProcessPoolExecutor (the old approach) spawns new
+            # OS processes for each request, which is expensive and unnecessary
+            # for I/O-bound work (QRAI-40).
+            txt2img_result = await asyncio.to_thread(
+                functools.partial(client.img2img_v3, **req)
+            )
 
-                if txt2img_result is None:
-                    raise NovitaResponseError(
-                        f"Text to Image generation failed with response {txt2img_result}, code: Unknown"
-                    )
+            if txt2img_result is None:
+                raise NovitaResponseError(
+                    f"Text to Image generation failed with response {txt2img_result}, code: Unknown"
+                )
 
-                task_id = txt2img_result.task.task_id  # Access directly
+            task_id = txt2img_result.task.task_id
 
-                print("task id:" + task_id)
+            print("task id:" + task_id)
 
-                # Submit the wait_for_task call
-                wait_for_task_future = executor.submit(client.wait_for_task_v3, task_id)
-                wait_for_task_coro = asyncio.wrap_future(wait_for_task_future)
-                res = await wait_for_task_coro
-                # print(res)
+            res = await asyncio.to_thread(client.wait_for_task_v3, task_id)
 
             # After waiting for task completion
             if res.task.status != V3TaskResponseStatus.TASK_STATUS_SUCCEED:
@@ -344,13 +341,9 @@ async def upscale(image_id, user_id, resolution):
                     upscaling_resize_h=resolution,
                     resize_mode=UpscaleResizeMode.SIZE,
                 )
-                # Start a process pool executor
-                with concurrent.futures.ProcessPoolExecutor() as executor:
-                    upscale_future = executor.submit(
-                        client.sync_upscale, upscale_request
-                    )
-                    upscale_coro = asyncio.wrap_future(upscale_future)
-                    upscale_response = await upscale_coro
+                upscale_response = await asyncio.to_thread(
+                    client.sync_upscale, upscale_request
+                )
 
             except Exception:
                 await users.update_one(
