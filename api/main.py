@@ -1,5 +1,5 @@
 # Libraries Import
-from fastapi import FastAPI, Header
+from fastapi import FastAPI, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
 import requests as requests
 from dotenv import load_dotenv
@@ -15,6 +15,7 @@ from api.controllers.generate_controller import predict, upscale
 from api.controllers.users_controller import get_user_info, authenticate_user
 from api.controllers.payment_controller import create_checkout_session, stripe_webhook
 from api.schemas.schemas import User, UserAuth
+from api.utils.auth import get_current_user, require_service_token
 
 # ---------------------------------------------------------------------------- #
 #                                INITIALIZE APP                                #
@@ -47,12 +48,12 @@ app.add_middleware(
 
 # GET USER INFO
 @app.get("/api/user/info")
-async def get_user_info_endpoint(email: Optional[str] = None):
-    return await get_user_info(email)
+async def get_user_info_endpoint(current_user: dict = Depends(get_current_user)):
+    return await get_user_info(current_user["email"])
 
-# AUTHENTICATE USER
+# AUTHENTICATE USER (sign-in bootstrap; service-token protected)
 @app.post("/api/user/auth")
-async def authenticate_user_endpoint(user_auth: UserAuth):
+async def authenticate_user_endpoint(user_auth: UserAuth, _: None = Depends(require_service_token)):
     return await authenticate_user(user_auth)
 
 # ------------------------------ GENERATE ROUTES ----------------------------- #
@@ -66,9 +67,9 @@ async def generate_endpoint(
     seed,
     qr_weight,
     sd_model,
-    user_id,
     style_prompt,
-    style_title
+    style_title,
+    current_user: dict = Depends(get_current_user),
 ):
     return await predict(
         prompt,
@@ -77,7 +78,7 @@ async def generate_endpoint(
         seed,
         qr_weight,
         sd_model,
-        user_id,
+        current_user["user_id"],
         style_prompt,
         style_title
     )
@@ -86,12 +87,12 @@ async def generate_endpoint(
 @app.get("/api/upscale/{image_id}")
 async def upscale_endpoint(
     image_id,
-    user_id,
-    resolution
+    resolution,
+    current_user: dict = Depends(get_current_user),
 ):
     return await upscale(
         image_id,
-        user_id,
+        current_user["user_id"],
         resolution
     )
 
@@ -120,19 +121,23 @@ async def image_endpoint(id: str):
 
 # LIKE IMAGE
 @app.put("/api/images/like/{id}")
-async def toggle_like_endpoint(id: Optional[str] = None, user_id: Optional[str] = None):
-    return await toggle_like(id, user_id)
+async def toggle_like_endpoint(id: str, current_user: dict = Depends(get_current_user)):
+    return await toggle_like(id, current_user["user_id"])
 
 # DELETE IMAGE
 @app.delete("/api/images/delete/{id}")
-async def delete_image_endpoint(id: str):
-    return await delete_image(id)
+async def delete_image_endpoint(id: str, current_user: dict = Depends(get_current_user)):
+    return await delete_image(id, current_user["user_id"])
 
 # ------------------------------ PAYMENTS ROUTES ----------------------------- #
 
 @app.post('/api/checkout')
-async def create_checkout_session_endpoint(stripeId: Optional[str] = None, credit_amount: Optional[str] = None, user_id: Optional[str] = None):
-    return create_checkout_session(stripeId, credit_amount, user_id)
+async def create_checkout_session_endpoint(
+    stripeId: Optional[str] = None,
+    credit_amount: Optional[str] = None,
+    current_user: dict = Depends(get_current_user),
+):
+    return create_checkout_session(stripeId, credit_amount, current_user["user_id"])
 
 @app.post("/api/stripe-webhook")
 async def stripe_webhook_endpoint(request: Request, stripe_signature: str = Header(None)):

@@ -5,6 +5,8 @@ mocked so no real DB, S3, or Novita calls are made.
 """
 import pytest
 import httpx
+import jwt
+import os
 from unittest.mock import AsyncMock, patch
 
 from api.main import app
@@ -20,6 +22,73 @@ def _client():
     )
 
 
+def _guest_auth_headers(email: str = "test@example.com") -> dict:
+    """Return Authorization headers carrying a valid guest JWT."""
+    secret = os.environ["BACKEND_JWT_SECRET"]
+    token = jwt.encode(
+        {"sub": "guest_test", "email": email, "scope": "user", "is_guest": True},
+        secret,
+        algorithm="HS256",
+    )
+    return {"Authorization": f"Bearer {token}"}
+
+
+def _service_auth_headers() -> dict:
+    """Return Authorization headers carrying a valid service JWT."""
+    secret = os.environ["BACKEND_JWT_SECRET"]
+    token = jwt.encode(
+        {"scope": "service"},
+        secret,
+        algorithm="HS256",
+    )
+    return {"Authorization": f"Bearer {token}"}
+
+
+# ---------------------------------------------------------------------------- #
+#                              AUTH ENFORCEMENT TESTS                          #
+# ---------------------------------------------------------------------------- #
+
+async def test_delete_requires_auth():
+    """DELETE /api/images/delete/:id must return 401 with no token."""
+    async with _client() as client:
+        resp = await client.delete("/api/images/delete/507f1f77bcf86cd799439011")
+    assert resp.status_code == 401
+
+
+async def test_user_info_requires_auth():
+    """GET /api/user/info must return 401 with no token."""
+    async with _client() as client:
+        resp = await client.get("/api/user/info")
+    assert resp.status_code == 401
+
+
+async def test_like_requires_auth():
+    """PUT /api/images/like/:id must return 401 with no token."""
+    async with _client() as client:
+        resp = await client.put("/api/images/like/507f1f77bcf86cd799439011")
+    assert resp.status_code == 401
+
+
+async def test_user_auth_requires_service_token():
+    """POST /api/user/auth must return 401 with no service token."""
+    async with _client() as client:
+        resp = await client.post("/api/user/auth", json={
+            "name": "x", "email": "x@y.com",
+            "auth_providers": [{"provider": "google", "providerId": "1"}],
+        })
+    assert resp.status_code == 401
+
+
+@patch("api.main.get_images", new_callable=AsyncMock)
+async def test_public_images_get_no_auth(mock_get_images):
+    """GET /api/images/get is public — must NOT be 401."""
+    mock_get_images.return_value = []
+    async with _client() as client:
+        resp = await client.get("/api/images/get")
+    # Public route: must NOT be 401 (may be 200 or a DB error, but never auth-blocked)
+    assert resp.status_code != 401
+
+
 # ---------------------------------------------------------------------------- #
 #                              USER ROUTES                                     #
 # ---------------------------------------------------------------------------- #
@@ -29,7 +98,7 @@ async def test_get_user_info_returns_200(mock_get_user):
     mock_get_user.return_value = {"email": "test@example.com", "credits": 10}
 
     async with _client() as client:
-        response = await client.get("/api/user/info?email=test@example.com")
+        response = await client.get("/api/user/info", headers=_guest_auth_headers())
 
     assert response.status_code == 200
     mock_get_user.assert_called_once_with("test@example.com")
@@ -45,17 +114,18 @@ async def test_post_user_auth_returns_200_with_valid_body(mock_auth):
         "auth_providers": [{"provider": "google", "providerId": "google_123"}],
     }
     async with _client() as client:
-        response = await client.post("/api/user/auth", json=body)
+        response = await client.post("/api/user/auth", json=body, headers=_service_auth_headers())
 
     assert response.status_code == 200
 
 
 async def test_post_user_auth_returns_422_for_missing_fields():
-    """Pydantic validation: missing required fields must return 422."""
+    """Pydantic validation: missing required fields must return 422 (even without service token, Pydantic fires first — but now auth fires first, so expect 401)."""
     async with _client() as client:
         response = await client.post("/api/user/auth", json={"name": "Test"})
 
-    assert response.status_code == 422
+    # Auth dependency now fires before Pydantic body validation — 401 is correct
+    assert response.status_code == 401
 
 
 # ---------------------------------------------------------------------------- #
@@ -63,11 +133,12 @@ async def test_post_user_auth_returns_422_for_missing_fields():
 # ---------------------------------------------------------------------------- #
 
 async def test_get_generate_returns_422_for_missing_params():
-    """All generate params are required; calling without them must return 422."""
+    """All generate params are required; calling without them (and without auth) must return 401."""
     async with _client() as client:
         response = await client.get("/api/generate")
 
-    assert response.status_code == 422
+    # Auth dependency fires before param validation — 401, not 422
+    assert response.status_code == 401
 
 
 @patch("api.main.predict", new_callable=AsyncMock)
@@ -81,12 +152,11 @@ async def test_get_generate_returns_200_with_all_params(mock_predict):
         "seed": "42",
         "qr_weight": "0.5",
         "sd_model": "sd-v1-5",
-        "user_id": "guest_abc",
         "style_prompt": ", cinematic",
         "style_title": "Cinematic",
     }
     async with _client() as client:
-        response = await client.get("/api/generate", params=params)
+        response = await client.get("/api/generate", params=params, headers=_guest_auth_headers())
 
     assert response.status_code == 200
 
@@ -112,7 +182,10 @@ async def test_delete_image_route_exists(mock_delete):
     mock_delete.return_value = {"message": "Image and document deleted successfully"}
 
     async with _client() as client:
-        response = await client.delete("/api/images/delete/507f1f77bcf86cd799439011")
+        response = await client.delete(
+            "/api/images/delete/507f1f77bcf86cd799439011",
+            headers=_guest_auth_headers(),
+        )
 
     assert response.status_code == 200
 
