@@ -27,7 +27,7 @@ export const metadata = {
     ],
     title: "QR AI",
     description: "Generate Art with QR Codes",
-    url: "https://qr-ai.co",
+    url: "https://www.qr-ai.co",
   },
 };
 

@@ -1,93 +1,43 @@
-"use client";
+import { Box, Typography, CardMedia } from "@mui/material";
 
-// Libraries imports
-import React, { useState } from "react";
-import { Box, Typography, Button, Card, CardMedia, Grid } from "@mui/material";
-import Link from "next/link";
-import Head from "next/head";
-import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
-
-// App imports
 import GenerateForm from "./GenerateForm";
-import { useStore } from "@/store";
-import "../../globals.css";
+import GuestGallery from "./GuestGallery";
 
-export default function Generate() {
-  const router = useRouter();
-  const { data: session, update: updateSession } = useSession();
+export const metadata = {
+  title: "AI QR Code Art Generator – Create Beautiful QR Codes | QR AI",
+  description:
+    "Transform any URL into stunning AI-generated QR code artwork in seconds. Free to try — enter your URL, pick an art style, and download your custom art QR code. No design skills needed.",
+  alternates: {
+    canonical: "https://www.qr-ai.co/generate",
+  },
+  openGraph: {
+    title: "AI QR Code Art Generator | QR AI",
+    description: "Transform QR codes into AI-generated artwork instantly.",
+    url: "https://www.qr-ai.co/generate",
+    siteName: "QR AI",
+    type: "website",
+  },
+};
 
-  // Context variables
-  const { user } = useStore();
-
-  // Image gallery from NotSignedIn
-  const imageGallery = [
-    {
-      url: "https://qrartimages.s3.us-west-1.amazonaws.com/654f34f6bef0549f910f70a5.png",
-    },
-    {
-      url: "https://qrartimages.s3.us-west-1.amazonaws.com/64cda0d622cec9423f676916.png",
-    },
-    {
-      url: "https://qrartimages.s3.us-west-1.amazonaws.com/65513586f4adf8ea932b06a7.png",
-    },
-    {
-      url: "https://qrartimages.s3.us-west-1.amazonaws.com/658693d768084531da6282fb.png",
-    },
-    {
-      url: "https://qrartimages.s3.us-west-1.amazonaws.com/65d7d2aef7ebe3fe4491aab8.png",
-    },
-    {
-      url: "https://qrartimages.s3.us-west-1.amazonaws.com/65a167cad076ab86bf56ac89.png",
-    },
-  ];
-
+export default function GeneratePage() {
   return (
     <Box
-      // className="generate-page"
       sx={{
         width: "100%",
         maxWidth: "1600px",
-        padding: {xs: "0rem 0rem 5rem 0rem", lg: "5rem 1rem"},
+        padding: { xs: "0rem 0rem 5rem 0rem", lg: "5rem 1rem" },
         backgroundColor: "#161616",
       }}
     >
-      <Head>
-        <title>
-          AI QR Code Art Generator | Create Beautiful QR Code Designs
-        </title>
-        <meta
-          name="description"
-          content="Transform your URLs into stunning AI-generated QR code artwork. Create unique, custom QR code designs with our artistic QR code generator. Free trial available!"
-        />
-        <meta
-          name="keywords"
-          content="AI QR code generator, artistic QR code creator, custom QR code design, QR code art generator, beautiful QR code maker, generative AI QR Code"
-        />
-        <meta
-          property="og:title"
-          content="Create Beautiful AI QR Code Art | Custom QR Code Generator"
-        />
-        <meta
-          property="og:description"
-          content="Transform URLs into stunning AI-generated artwork with embedded QR codes. Create unique, scannable art for your brand."
-        />
-        <meta property="og:image" content={imageGallery[0].url} />
-      </Head>
-
-      {/*----------------- Banner Section --------------- */}
-
-      <Box
-        className="BannerSection"
-     
-      >
-        {/* Gradient */}
+      {/* Banner Section */}
+      <Box className="BannerSection">
+        {/* Gradient overlay */}
         <Box
           className="Gradient"
           sx={{
             width: { xs: "100%", lg: "90%" },
             zIndex: 2,
-            height: {xs: "80%", sm: "100%"},
+            height: { xs: "80%", sm: "100%" },
             pt: { xs: "100px", lg: "0px" },
             ml: { xs: "0px", lg: "24px" },
             background: {
@@ -97,14 +47,14 @@ export default function Generate() {
           }}
         />
 
-        {/*  Banner Image  */}
+        {/* Hero image */}
         <Box
           className="BannerImage"
           sx={{
             backgroundColor: "#A5FFC3",
             padding: { xs: "0.5rem", sm: "1rem" },
             paddingTop: { xs: "4.7rem", sm: "4.7rem", lg: "1rem" },
-            width: { xs: "100vw", lg: "70%"},
+            width: { xs: "100vw", lg: "70%" },
             borderRadius: { xs: "0px", lg: "5px" },
             aspectRatio: "1/1",
             justifySelf: "end",
@@ -122,7 +72,7 @@ export default function Generate() {
           />
         </Box>
 
-        {/* Generate Form */}
+        {/* Form column — H1 is server-rendered for SEO; form hydrates on the client */}
         <Box
           className="GenerateForm"
           sx={{
@@ -139,7 +89,7 @@ export default function Generate() {
             color="primary"
             sx={{ fontSize: { xs: "3rem", sm: "3rem", md: "5rem" } }}
           >
-            Turn your QR Code into a piece of Art
+            AI QR Code Art Generator
           </Typography>
 
           <Box
@@ -154,66 +104,67 @@ export default function Generate() {
         </Box>
       </Box>
 
-      {/* -------------------- Image Gallery Section --------------------- */}
+      {/* Guest gallery — client component, only visible when user is a guest */}
+      <GuestGallery />
 
-      {user?.is_guest && (
-        <Box sx={{ mt: 6 }}>
-          <Typography
-            variant="h3"
-            color="primary"
-            align="center"
-            sx={{
-              mb: 4,
-              p: 2,
-              fontSize: { xs: "2rem", sm: "3rem", md: "4rem" },
-            }}
-          >
-            Create Unique Images to represent your brand
-          </Typography>
+      {/* SSR feature section — server-rendered, visible to crawlers */}
+      <Box
+        component="section"
+        aria-label="features"
+        sx={{
+          mt: 8,
+          px: { xs: 2, lg: 0 },
+          maxWidth: "900px",
+        }}
+      >
+        <Typography variant="h2" color="primary" sx={{ mb: 2 }}>
+          Turn any URL into AI-generated artwork
+        </Typography>
+        <Typography
+          component="p"
+          sx={{ mb: 3, color: "#ccc", lineHeight: 1.8 }}
+        >
+          QR AI uses advanced Stable Diffusion and ControlNet AI models to
+          transform plain QR codes into stunning works of art. Whether you&apos;re
+          a business looking for eye-catching marketing materials, a restaurant
+          wanting a unique menu QR code, or a creator who wants to share links
+          in style — QR AI generates beautiful, fully scannable QR code artwork
+          in seconds. No design skills required. Choose from dozens of artistic
+          styles, from watercolor paintings to cyberpunk aesthetics, oil
+          paintings to minimalist designs. Every QR code is optimized for all
+          standard QR readers.
+        </Typography>
 
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              width: "100%",
-              backgroundColor: "#A5FFC3",
-            }}
-          >
-            <Grid
-              container
-              direction="row"
-              justifyContent="center"
-              alignItems="stretch"
-              spacing={2}
-              sx={{
-                mb: "1.5rem",
-                padding: { xs: "0.5rem", sm: "1rem" },
-                maxWidth: "1200px",
-              }}
-            >
-              {imageGallery.map((image, index) => (
-                <Grid item key={index} xs={12} sm={6} md={4} lg={4} xl={4}>
-                  <Card key={index} elevation={0}>
-                    <CardMedia
-                      image={image.url}
-                      key={index}
-                      xs={1}
-                      component="img"
-                      sx={{ width: "100%" }}
-                    />
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          </Box>
-
-          <Box sx={{ textAlign: "center", padding: "2rem" }}>
-            <Link href="/explore" passHref legacyBehavior>
-              <Button variant="contained">Explore more Images</Button>
-            </Link>
-          </Box>
+        <Typography variant="h3" color="primary" sx={{ mb: 1 }}>
+          How it works
+        </Typography>
+        <Box
+          component="ul"
+          sx={{ pl: 3, color: "#ccc", "& li": { mb: 1, lineHeight: 1.8 } }}
+        >
+          <li>
+            Enter any URL — website, social profile, payment link, or WiFi
+            credentials
+          </li>
+          <li>
+            Pick an art style from dozens of curated presets, or let the AI
+            surprise you
+          </li>
+          <li>
+            Our AI generates a beautiful, fully scannable QR code artwork in
+            seconds
+          </li>
+          <li>Download and share — or save to your personal gallery</li>
         </Box>
-      )}
+        <Typography
+          component="p"
+          sx={{ mt: 2, color: "#ccc", lineHeight: 1.8 }}
+        >
+          Perfect for restaurant menus, retail packaging, business cards, event
+          posters, social media profiles, wedding invitations, and more. Free
+          credits included to get started.
+        </Typography>
+      </Box>
     </Box>
   );
 }
