@@ -5,6 +5,7 @@ import { Container } from "@mui/material";
 // App imports
 import NavBarDesktop from "./(navbar)/NavBarDesktop";
 import NavBarMobile from "./(navbar)/NavBarMobile";
+import Footer from "./Footer";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
@@ -50,6 +51,7 @@ export default function Layout({ children, auth }) {
           {children}
         </Container>
       </div>
+      <Footer />
       {auth}
     </div>
   );
