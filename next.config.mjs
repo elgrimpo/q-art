@@ -5,6 +5,12 @@ const nextConfig = {
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     NEXTAUTH_URL: process.env.NEXTAUTH_URL
   },
+    async redirects() {
+      return [
+        // permanent: true emits 308 (Next.js); Google treats 308 === 301 for SEO.
+        { source: '/', destination: '/generate', permanent: true },
+      ];
+    },
     async rewrites() {
         return [
           {
