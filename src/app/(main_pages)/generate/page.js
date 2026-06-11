@@ -6,7 +6,7 @@ import GuestGallery from "./GuestGallery";
 export const metadata = {
   title: "AI QR Code Art Generator – Create Beautiful QR Codes | QR AI",
   description:
-    "Transform any URL into stunning AI-generated QR code artwork in seconds. Free to try — enter your URL, pick an art style, and download your custom art QR code. No design skills needed.",
+    "Transform any URL into AI-generated QR code artwork. Free to try — enter your URL, pick a style, download your art QR code. No design skills needed.",
   alternates: {
     canonical: "https://www.qr-ai.co/generate",
   },
@@ -16,6 +16,11 @@ export const metadata = {
     url: "https://www.qr-ai.co/generate",
     siteName: "QR AI",
     type: "website",
+  },
+  twitter: {
+    title: "AI QR Code Art Generator | QR AI",
+    description:
+      "Transform any URL into AI-generated QR code artwork. Free to try — no design skills needed.",
   },
 };
 
