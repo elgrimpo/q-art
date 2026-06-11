@@ -3,11 +3,11 @@
 // Libraries imports
 import React from "react";
 import { Typography, Button, Card, CardMedia, Grid } from "@mui/material";
-import axios from "axios";
 
 // App imports
 import theme from "@/_styles/theme";
 import { useStore } from "@/store";
+import { createCheckout } from "@/_utils/paymentUtils";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
@@ -18,34 +18,21 @@ export default function PurchaseCard(props) {
 
   const { purchaseItem } = props;
 
-  const { user, openAlert } = useStore();
+  const { openAlert } = useStore();
 
-  const handleCheckout = (item) => {
-    // API call
-    axios
-      .post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/checkout`, null, {
-        params: {
-          stripeId: item.stripeId,
-          credit_amount: item.creditAmount,
-          user_id: user._id,
-        },
-        withCredentials: true,
-      })
-      .then((res) => {
-        if (res.data && res.data.session_url) {
-          // Redirect to the Stripe Checkout URL
-          const sessionURL = res.data.session_url;
-          window.location.href = sessionURL;
-        } else {
-          console.error("Invalid response or missing session URL");
-          openAlert("error", "Payment session could not be opened.");
-        }
-      })
-      // Error handling
-      .catch((err) => {
-        openAlert("error", "Credit purchase failed.");
-        console.log(err);
-      });
+  const handleCheckout = async (item) => {
+    try {
+      const sessionURL = await createCheckout(item);
+      if (sessionURL) {
+        window.location.href = sessionURL;
+      } else {
+        console.error("Invalid response or missing session URL");
+        openAlert("error", "Payment session could not be opened.");
+      }
+    } catch (err) {
+      openAlert("error", "Credit purchase failed.");
+      console.log(err);
+    }
   };
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
