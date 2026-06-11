@@ -10,6 +10,7 @@ import base64
 from bson import ObjectId
 from fastapi import HTTPException
 import motor.motor_asyncio as motor
+from pymongo import ReturnDocument
 import certifi
 from io import BytesIO
 from PIL import Image
@@ -26,7 +27,6 @@ from api.utils.utils import (
     prepare_img2img_request,
     create_watermark,
     calculate_credits,
-    sufficient_credit,
 )
 from api.controllers.users_controller import increment_user_count
 from api.schemas.schemas import ImageDoc
@@ -41,6 +41,9 @@ client = motor.AsyncIOMotorClient(mongo_url, tlsCAFile=certifi.where())
 db = client.get_database("QART")
 users = db.get_collection("users")
 images = db.get_collection("images")
+guest_credits_col = db.get_collection("guest_credits")
+
+GUEST_FREE_CREDITS = 3
 
 # S3
 api_url = os.environ["S3_URL"]
@@ -71,16 +74,29 @@ async def predict(
         # --------------------------------- CHECK FUNDS ------------------------------- #
         service_config = {"generate": "1"}
         credits_required = calculate_credits(service_config)
+        credits_deducted = False
 
-        # Handle guest users 
+        # Handle guest users: enforce server-side quota via atomic MongoDB counter.
         if str(user_id).startswith("guest_"):
-            # For guest users, we assume they have exactly 1 credit from the session. This is managed on the frontend/session side
-            pass
-        else:
-            # For regular users, check credits in database
-            user_data = await users.find_one({"_id": ObjectId(user_id)})
-            if not sufficient_credit(user_data, service_config):
+            result = await guest_credits_col.find_one_and_update(
+                {"_id": user_id},
+                {"$inc": {"used": 1}},
+                upsert=True,
+                return_document=ReturnDocument.AFTER,
+            )
+            if result["used"] > GUEST_FREE_CREDITS:
+                # Undo the increment so the counter stays stable at the limit.
+                await guest_credits_col.update_one({"_id": user_id}, {"$inc": {"used": -1}})
                 raise HTTPException(status_code=403, detail="Insufficient credits")
+        else:
+            # Atomic check-and-deduct: no match means insufficient credits.
+            result = await users.find_one_and_update(
+                {"_id": ObjectId(user_id), "credits": {"$gte": credits_required}},
+                {"$inc": {"credits": -credits_required}},
+            )
+            if result is None:
+                raise HTTPException(status_code=403, detail="Insufficient credits")
+            credits_deducted = True
 
         # ------------------------------ CREATE QR CODE ------------------------------ #
         qr = qrcode.QRCode(
@@ -148,7 +164,10 @@ async def predict(
             generated_image = Image.open(BytesIO(image_data.content))
 
         except Exception as generation_error:
-            # Handle image generation error
+            if credits_deducted:
+                await users.update_one(
+                    {"_id": ObjectId(user_id)}, {"$inc": {"credits": credits_required}}
+                )
             print(generation_error)
             raise HTTPException(status_code=500, detail="Image generation failed")
 
@@ -191,15 +210,18 @@ async def predict(
             updated_image = await update_image(inserted_image_id, updated_data)
 
         except Exception as db_error:
-            # Handle database insertion error
+            if credits_deducted:
+                await users.update_one(
+                    {"_id": ObjectId(user_id)}, {"$inc": {"credits": credits_required}}
+                )
             print(db_error)
             raise HTTPException(status_code=500, detail="Database insertion failed")
 
         # ---------------------- UPDATE USER CREDITS AND COUNT ---------------------- #
         try:
-            # Skip credit deduction for guest users as it's handled in the frontend
             if not str(user_id).startswith("guest_"):
-                await increment_user_count(user_id, service_config, credits_required)
+                # Credits already atomically deducted above; pass 0 to only update counters.
+                await increment_user_count(user_id, service_config, 0)
         except Exception:
             # Handle user count update error
             raise HTTPException(status_code=500, detail="User count update failed")
@@ -240,8 +262,11 @@ async def upscale(image_id, user_id, resolution):
 
         credits_required = calculate_credits(service_config)
 
-        user_data = await users.find_one({"_id": ObjectId(user_id)})
-        if not sufficient_credit(user_data, service_config):
+        result = await users.find_one_and_update(
+            {"_id": ObjectId(user_id), "credits": {"$gte": credits_required}},
+            {"$inc": {"credits": -credits_required}},
+        )
+        if result is None:
             raise HTTPException(status_code=403, detail="Insufficient credits")
 
         # ------------------------------ UPSCALE REQUIRED ----------------------------- #
@@ -261,7 +286,9 @@ async def upscale(image_id, user_id, resolution):
                     image_content = await response["Body"].read()
                     base64_image = base64.b64encode(image_content).decode()
             except Exception:
-                # Handle S3 retrieval error
+                await users.update_one(
+                    {"_id": ObjectId(user_id)}, {"$inc": {"credits": credits_required}}
+                )
                 raise HTTPException(
                     status_code=500, detail="Failed to retrieve image from S3"
                 )
@@ -283,7 +310,9 @@ async def upscale(image_id, user_id, resolution):
                     upscale_response = await upscale_coro
 
             except Exception:
-                # Handle image upscaling error
+                await users.update_one(
+                    {"_id": ObjectId(user_id)}, {"$inc": {"credits": credits_required}}
+                )
                 raise HTTPException(status_code=500, detail="Image upscaling failed")
 
             # ------------------------------ UPDATE DATABASE ----------------------------- #
@@ -307,7 +336,9 @@ async def upscale(image_id, user_id, resolution):
 
                 updated_image = await update_image(image_id, update_data)
             except Exception:
-                # Handle database update error
+                await users.update_one(
+                    {"_id": ObjectId(user_id)}, {"$inc": {"credits": credits_required}}
+                )
                 raise HTTPException(status_code=500, detail="Database update failed")
 
             # --------------------------- UPSCALE NOT REQUIRED --------------------------- #
@@ -319,7 +350,8 @@ async def upscale(image_id, user_id, resolution):
                 updated_image = image
         # ---------------------- UPDATE USER CREDITS AND COUNT ---------------------- #
         try:
-            await increment_user_count(user_id, service_config, credits_required)
+            # Credits already atomically deducted above; pass 0 to only update counters.
+            await increment_user_count(user_id, service_config, 0)
         except Exception:
             # Handle user count update error
             raise HTTPException(status_code=500, detail="User count update failed")
