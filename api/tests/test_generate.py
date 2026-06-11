@@ -100,7 +100,7 @@ async def _run_predict(
     img2img_result, task_result = _build_novita_mocks()
     _setup_executor(mock_executor_class, img2img_result, task_result)
 
-    mock_users.find_one = AsyncMock(return_value={"_id": FAKE_IMAGE_ID, "credits": 10})
+    mock_users.find_one_and_update = AsyncMock(return_value={"_id": FAKE_IMAGE_ID, "credits": 10})
     mock_get.return_value.content = _white_png_bytes()
     mock_create_watermark.return_value = Image.new("RGB", (512, 512), "grey")
     mock_create_doc.return_value = FAKE_IMAGE_ID
@@ -204,7 +204,7 @@ async def test_generate_checks_user_credits(
         mock_create_doc, mock_upload, mock_update, mock_increment,
     )
 
-    mock_users.find_one.assert_called_once()
+    mock_users.find_one_and_update.assert_called_once()
 
 
 @patch("api.controllers.generate_controller.increment_user_count", new_callable=AsyncMock)
@@ -365,7 +365,7 @@ async def test_storage_updates_doc_with_urls(
 @patch("api.controllers.generate_controller.users")
 async def test_predict_insufficient_credits_raises_403(mock_users):
     """A user with 0 credits must get a 403, not a 500."""
-    mock_users.find_one = AsyncMock(return_value={"_id": FAKE_IMAGE_ID, "credits": 0})
+    mock_users.find_one_and_update = AsyncMock(return_value=None)
 
     with pytest.raises(HTTPException) as exc_info:
         await predict(**PREDICT_KWARGS)
@@ -385,7 +385,7 @@ async def test_predict_novita_failure_raises_500(
     mock_create_watermark,
 ):
     """A failed Novita task (status != SUCCEED) must surface as a 500."""
-    mock_users.find_one = AsyncMock(return_value={"_id": FAKE_IMAGE_ID, "credits": 10})
+    mock_users.find_one_and_update = AsyncMock(return_value={"_id": FAKE_IMAGE_ID, "credits": 10})
     mock_get.return_value.content = _white_png_bytes()
     mock_create_watermark.return_value = Image.new("RGB", (512, 512), "grey")
 

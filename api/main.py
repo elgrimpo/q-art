@@ -7,6 +7,9 @@ from pymongo import DESCENDING, ASCENDING
 from typing import Optional
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
 import os
 
 # App imports
@@ -17,12 +20,27 @@ from api.controllers.payment_controller import create_checkout_session, stripe_w
 from api.schemas.schemas import User, UserAuth
 from api.utils.auth import get_current_user, require_service_token
 
+
+def _get_real_ip(request: Request) -> str:
+    # Heroku (and most proxies) forward the real client IP in X-Forwarded-For.
+    # Take the leftmost entry (the originating client).
+    forwarded_for = request.headers.get("X-Forwarded-For")
+    if forwarded_for:
+        return forwarded_for.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
+
+
+limiter = Limiter(key_func=_get_real_ip)
+
 # ---------------------------------------------------------------------------- #
 #                                INITIALIZE APP                                #
 # ---------------------------------------------------------------------------- #
 load_dotenv()
 
 app = FastAPI()
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_middleware(SlowAPIMiddleware)
 
 # Session middleware
 app.add_middleware(
@@ -60,7 +78,9 @@ async def authenticate_user_endpoint(user_auth: UserAuth, _: None = Depends(requ
 
 # GENERATE IMAGE
 @app.get("/api/generate")
+@limiter.limit("20/hour")
 async def generate_endpoint(
+    request: Request,
     prompt,
     website,
     negative_prompt,

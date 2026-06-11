@@ -75,7 +75,7 @@ async def test_upscale_already_at_resolution_marks_downloaded(
 ):
     """When the image is already at the requested resolution, only downloaded=True is written."""
     mock_images.find_one = AsyncMock(return_value=_fake_image(width=512, downloaded=False))
-    mock_users.find_one = AsyncMock(return_value={"credits": 10})
+    mock_users.find_one_and_update = AsyncMock(return_value={"credits": 10})
     mock_update.return_value = {**_fake_image(width=512), "downloaded": True}
 
     await upscale(image_id=FAKE_IMAGE_ID, user_id=FAKE_USER_ID, resolution="512")
@@ -95,7 +95,7 @@ async def test_upscale_already_downloaded_at_resolution_skips_update(
 ):
     """When already downloaded at the same resolution, no DB write occurs."""
     mock_images.find_one = AsyncMock(return_value=_fake_image(width=512, downloaded=True))
-    mock_users.find_one = AsyncMock(return_value={"credits": 10})
+    mock_users.find_one_and_update = AsyncMock(return_value={"credits": 10})
 
     with patch("api.controllers.generate_controller.update_image", new_callable=AsyncMock) as mock_update:
         await upscale(image_id=FAKE_IMAGE_ID, user_id=FAKE_USER_ID, resolution="512")
@@ -124,7 +124,7 @@ async def test_upscale_calls_novita_and_stores_result(
 ):
     """When resolution > current width, Novita upscale is called and DB is updated with new size."""
     mock_images.find_one = AsyncMock(return_value=_fake_image(width=512, downloaded=False))
-    mock_users.find_one = AsyncMock(return_value={"credits": 50})
+    mock_users.find_one_and_update = AsyncMock(return_value={"credits": 50})
 
     mock_session, mock_s3_client = _mock_s3_session()
     mock_s3_session.client = mock_session.client
@@ -162,7 +162,7 @@ async def test_upscale_calls_novita_and_stores_result(
 async def test_upscale_insufficient_credits_raises_403(mock_images, mock_users):
     """A user without enough credits must get a 403."""
     mock_images.find_one = AsyncMock(return_value=_fake_image(width=512, downloaded=False))
-    mock_users.find_one = AsyncMock(return_value={"credits": 0})
+    mock_users.find_one_and_update = AsyncMock(return_value=None)
 
     with pytest.raises(HTTPException) as exc_info:
         await upscale(image_id=FAKE_IMAGE_ID, user_id=FAKE_USER_ID, resolution="1024")
@@ -180,14 +180,14 @@ async def test_upscale_rejects_non_owner(mock_images, mock_users):
     img = _fake_image()
     img["user_id"] = "someone_else"
     mock_images.find_one = AsyncMock(return_value=img)
-    mock_users.find_one = AsyncMock(return_value={"_id": FAKE_USER_ID, "credits": 1000})
+    mock_users.find_one_and_update = AsyncMock(return_value={"_id": FAKE_USER_ID, "credits": 1000})
 
     with pytest.raises(HTTPException) as exc:
         await upscale(FAKE_IMAGE_ID, FAKE_USER_ID, 1024)
 
     assert exc.value.status_code == 403
     # Credits must not be touched on a rejected upscale
-    mock_users.find_one.assert_not_called()
+    mock_users.find_one_and_update.assert_not_called()
 
 
 @patch("api.controllers.generate_controller.images")
