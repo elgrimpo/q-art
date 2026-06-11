@@ -44,9 +44,36 @@ const galleryImages = [
   },
 ];
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "AI QR Code Art Gallery",
+  "description": "Examples of AI-generated QR code artwork created with Stable Diffusion and ControlNet.",
+  "url": "https://www.qr-ai.co/gallery",
+  "itemListElement": galleryImages.map((image, idx) => ({
+    "@type": "ListItem",
+    "position": idx + 1,
+    "item": {
+      "@type": "ImageObject",
+      "contentUrl": image.url,
+      "name": `AI QR Code Art — ${image.style} Style`,
+      "description": image.alt,
+      "creator": {
+        "@type": "Organization",
+        "name": "QR AI",
+        "url": "https://www.qr-ai.co",
+      },
+    },
+  })),
+};
+
 export default function GalleryPage() {
   return (
     <Box sx={{ color: "#ccc" }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Typography
         variant="h1"
         color="primary"
