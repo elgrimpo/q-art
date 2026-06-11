@@ -61,14 +61,14 @@ async def test_toggle_like_removes_like_when_already_liked(mock_images):
 
 
 @patch("api.controllers.images_controller.images")
-async def test_toggle_like_image_not_found_returns_404(mock_images):
-    """When the image doesn't exist, toggle_like must return a 404 tuple."""
+async def test_toggle_like_image_not_found_raises_404(mock_images):
+    """When the image doesn't exist, toggle_like must raise a 404 HTTPException."""
     mock_images.find_one = AsyncMock(return_value=None)
 
-    result = await toggle_like(FAKE_IMAGE_ID, FAKE_USER_ID)
+    with pytest.raises(HTTPException) as exc_info:
+        await toggle_like(FAKE_IMAGE_ID, FAKE_USER_ID)
 
-    # The controller returns (dict, 404) for missing images
-    assert result[1] == 404
+    assert exc_info.value.status_code == 404
 
 
 # ---------------------------------------------------------------------------- #

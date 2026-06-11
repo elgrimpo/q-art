@@ -19,7 +19,7 @@ One module per domain. Routes in `api/main.py` call these. Each function is `asy
 ## Gotchas — read before editing
 
 - **`client` is rebound in `generate_controller.py`.** It's first assigned the Motor Mongo client, then **overwritten** with `NovitaClient(...)`. So inside that file `client` == Novita; Mongo is reached via `db` / `users` / `images`. Don't assume `client` is Mongo.
-- **`toggle_like` returns `(dict, int)` tuples** on error paths — FastAPI ignores the int and returns 200. Don't copy this; raise `HTTPException` instead (SCRUM-42).
+- **Error paths must `raise HTTPException`, never `return (dict, int)`** — FastAPI ignores the int and serializes the tuple as a 200-OK array, so error responses look successful. `toggle_like` used to do this; fixed in QRAI-42.
 - **`get_user_info` and several handlers leak `str(e)`** to the client and use `print()` for logging (SCRUM-46). Prefer generic client messages + real logging.
 - **`upscale()` reads `image["width"]` without a None-check** — a bad id 500s instead of 404 (SCRUM-41).
 - **Stripe webhook trusts client-supplied `credit_amount`** (passed through checkout metadata) and always returns 200 with no idempotency (SCRUM-35, SCRUM-36). Any change here is payment-critical — see epic SCRUM-28.

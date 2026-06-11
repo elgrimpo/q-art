@@ -269,7 +269,7 @@ async def toggle_like(id, user_id):
         image = await images.find_one({"_id": ObjectId(id)})
 
         if not image:
-            return {"message": "Image not found"}, 404
+            raise HTTPException(status_code=404, detail="Image not found")
 
         # -------------------------- UPDATE IMAGE DOC IN DB -------------------------- #
         # Update image document in DB
@@ -284,5 +284,10 @@ async def toggle_like(id, user_id):
 
         return {"message": "Like toggled successfully"}
 
-    except Exception as e:
-        return {"message": f"Error toggling like: {e}"}, 500
+    except HTTPException:
+        # Reraise HTTP exceptions for FastAPI to handle
+        raise
+    except Exception as unexpected_error:
+        # Log unexpected errors and return a generic error message
+        print(f"Error toggling like: {str(unexpected_error)}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
