@@ -11,7 +11,6 @@ export const createCheckout = async (item) => {
     {
       params: {
         stripeId: item.stripeId,
-        credit_amount: item.creditAmount,
       },
       headers: { Authorization: `Bearer ${token}` },
     }

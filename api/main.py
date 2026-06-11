@@ -134,10 +134,9 @@ async def delete_image_endpoint(id: str, current_user: dict = Depends(get_curren
 @app.post('/api/checkout')
 async def create_checkout_session_endpoint(
     stripeId: Optional[str] = None,
-    credit_amount: Optional[str] = None,
     current_user: dict = Depends(get_current_user),
 ):
-    return create_checkout_session(stripeId, credit_amount, current_user["user_id"])
+    return create_checkout_session(stripeId, current_user["user_id"])
 
 @app.post("/api/stripe-webhook")
 async def stripe_webhook_endpoint(request: Request, stripe_signature: str = Header(None)):
