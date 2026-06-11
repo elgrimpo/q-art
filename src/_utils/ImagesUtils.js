@@ -4,6 +4,7 @@
 import axios from "axios";
 import { notFound } from "next/navigation";
 import { revalidateTag } from 'next/cache'
+import { getBackendToken } from "./backendAuth";
 
 
 // App imports
@@ -70,16 +71,16 @@ export const getImages = async (params) => {
 /*                               GENERATE IMAGE                               */
 /* -------------------------------------------------------------------------- */
 
-export const generateImage = (generateFormValues, user) => {
+export const generateImage = async (generateFormValues, user) => {
+  const token = await getBackendToken();
   return new Promise((resolve, reject) => {
     const queryParams = new URLSearchParams(generateFormValues);
-    const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/generate/?user_id=${
-      user._id
-    }&${queryParams.toString()}`;
+    const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/generate/?${queryParams.toString()}`;
 
     fetch(url, {
       method: "GET",
       credentials: "include",
+      headers: { Authorization: `Bearer ${token}` },
     })
       .then((response) => {
         if (!response.ok) {
@@ -107,10 +108,13 @@ export const generateImage = (generateFormValues, user) => {
 /*                                DELETE IMAGE                                */
 /* -------------------------------------------------------------------------- */
 
-export const deleteImage = (id) => {
+export const deleteImage = async (id) => {
+  const token = await getBackendToken();
   return new Promise((resolve, reject) => {
     axios
-      .delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/images/delete/${id}`)
+      .delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/images/delete/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
       .then(() => {
         revalidateTag('images')
         resolve(true);
@@ -126,13 +130,14 @@ export const deleteImage = (id) => {
 /* -------------------------------------------------------------------------- */
 
 export const likeImage = async (imageId, userId) => {
+  const token = await getBackendToken();
   return new Promise((resolve, reject) => {
     axios
       .put(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/images/like/${imageId}`,
         null,
         {
-          params: { user_id: userId },
+          headers: { Authorization: `Bearer ${token}` },
         }
       )
       .then(() => {
@@ -149,12 +154,14 @@ export const likeImage = async (imageId, userId) => {
 /*                            UPSCALE Image                                   */
 /* -------------------------------------------------------------------------- */
 
-export const upscaleImage = (imageId, resolution, userId) => {
+export const upscaleImage = async (imageId, resolution, userId) => {
+  const token = await getBackendToken();
   return new Promise((resolve, reject) => {
     axios
       .get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/upscale/${imageId}`, {
-        params: { user_id: userId, resolution: resolution },
+        params: { resolution: resolution },
         withCredentials: true,
+        headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
         revalidateTag('images')

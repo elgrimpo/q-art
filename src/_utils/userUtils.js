@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { useStore } from "../store";
 import { revalidateTag } from "next/cache";
 import { authOptions } from "../app/api/auth/[...nextauth]/route";
+import { getBackendToken } from "./backendAuth";
 
 const getBaseUrl = () => {
   return process.env.NEXT_PUBLIC_URL || "http://localhost:3000";
@@ -36,13 +37,15 @@ export const getUserInfo = async () => {
       };
     }
 
+    const token = await getBackendToken();
     const response = await fetch(
-      `${
-        process.env.NEXT_PUBLIC_BACKEND_URL
-      }/api/user/info?email=${encodeURIComponent(session.user.email)}`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/info`,
       {
         method: "GET",
-        headers: { Cookie: cookies().toString() },
+        headers: {
+          Cookie: cookies().toString(),
+          Authorization: `Bearer ${token}`,
+        },
         credentials: "include",
         next: { revalidate: 3600, tags: ["user"] },
       }

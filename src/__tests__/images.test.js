@@ -3,6 +3,9 @@ import { generateImage } from '../_utils/ImagesUtils'
 // Mock Next.js server-only APIs used by ImagesUtils
 jest.mock('next/cache', () => ({ revalidateTag: jest.fn() }))
 jest.mock('next/navigation', () => ({ notFound: jest.fn() }))
+jest.mock('../_utils/backendAuth', () => ({
+  getBackendToken: jest.fn().mockResolvedValue('test-token'),
+}))
 
 const FAKE_USER = { _id: 'user_123' }
 const FAKE_FORM = { prompt: 'a dragon', website: 'https://example.com' }
@@ -56,5 +59,13 @@ describe('generateImage', () => {
 
     // A detail that is not exactly "Insufficient credits" must resolve, not reject
     await expect(generateImage(FAKE_FORM, FAKE_USER)).resolves.toBeDefined()
+  })
+
+  test('attaches Authorization header and omits user_id from query', async () => {
+    fetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ _id: 'img_1' }) })
+    await generateImage(FAKE_FORM, FAKE_USER)
+    const [url, opts] = fetch.mock.calls[0]
+    expect(opts.headers.Authorization).toBe('Bearer test-token')
+    expect(url).not.toContain('user_id=')
   })
 })
