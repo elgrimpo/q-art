@@ -4,8 +4,6 @@ import jwt
 from fastapi import Header, HTTPException
 import certifi
 import motor.motor_asyncio as motor
-from bson import ObjectId
-
 SECRET = os.environ["BACKEND_JWT_SECRET"]
 ALGORITHM = "HS256"
 
@@ -37,8 +35,13 @@ async def get_current_user(authorization: str = Header(None)) -> dict:
     is_guest = bool(claims.get("is_guest"))
 
     if is_guest:
-        return {"user_id": claims.get("sub"), "email": email, "is_guest": True}
+        sub = claims.get("sub")
+        if not sub:
+            raise HTTPException(status_code=401, detail="Invalid token claims")
+        return {"user_id": sub, "email": email, "is_guest": True}
 
+    if not email:
+        raise HTTPException(status_code=401, detail="Invalid token claims")
     user = await users.find_one({"email": email})
     if not user:
         raise HTTPException(status_code=401, detail="User not found")

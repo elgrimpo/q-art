@@ -7,7 +7,7 @@ from fastapi import HTTPException
 
 from api.utils.auth import decode_token, get_current_user, require_service_token
 
-SECRET = os.environ["BACKEND_JWT_SECRET"]
+SECRET = os.getenv("BACKEND_JWT_SECRET", "test-backend-secret")
 FAKE_OBJECT_ID = "507f1f77bcf86cd799439012"
 
 
@@ -81,6 +81,29 @@ async def test_get_current_user_missing_header_401():
 async def test_get_current_user_malformed_header_401():
     with pytest.raises(HTTPException) as exc:
         await get_current_user(authorization="NotBearer xyz")
+    assert exc.value.status_code == 401
+
+
+# --------------------------- require_service_token -------------------------- #
+
+async def test_get_current_user_guest_missing_sub_401():
+    token = _make_token({"email": "g@anonymous.com", "is_guest": True, "scope": "user"})
+    with pytest.raises(HTTPException) as exc:
+        await get_current_user(authorization=f"Bearer {token}")
+    assert exc.value.status_code == 401
+
+
+async def test_get_current_user_loggedin_missing_email_401():
+    token = _make_token({"sub": "x", "is_guest": False, "scope": "user"})
+    with pytest.raises(HTTPException) as exc:
+        await get_current_user(authorization=f"Bearer {token}")
+    assert exc.value.status_code == 401
+
+
+def test_decode_token_rejects_missing_scope():
+    token = _make_token({"email": "a@b.com"})  # no scope claim at all
+    with pytest.raises(HTTPException) as exc:
+        decode_token(token, expected_scope="user")
     assert exc.value.status_code == 401
 
 
