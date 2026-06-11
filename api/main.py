@@ -1,10 +1,10 @@
 # Libraries Import
-from fastapi import FastAPI, Header, Depends
+from fastapi import FastAPI, Header, Depends, Query
 from fastapi.middleware.cors import CORSMiddleware
 import requests as requests
 from dotenv import load_dotenv
 from pymongo import DESCENDING, ASCENDING
-from typing import Optional
+from typing import Annotated, Optional
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -81,14 +81,14 @@ async def authenticate_user_endpoint(user_auth: UserAuth, _: None = Depends(requ
 @limiter.limit("20/hour")
 async def generate_endpoint(
     request: Request,
-    prompt,
-    website,
-    negative_prompt,
-    seed,
-    qr_weight,
-    sd_model,
-    style_prompt,
-    style_title,
+    website: Annotated[str, Query(min_length=1, max_length=2048)],
+    sd_model: Annotated[str, Query(min_length=1, max_length=200)],
+    prompt: Annotated[str, Query(max_length=500)] = "",
+    negative_prompt: Annotated[str, Query(max_length=500)] = "",
+    style_prompt: Annotated[str, Query(max_length=1000)] = "",
+    style_title: Annotated[str, Query(max_length=100)] = "",
+    seed: Annotated[int, Query(ge=-1)] = -1,
+    qr_weight: Annotated[float, Query(ge=0.0, le=1.0)] = 0.5,
     current_user: dict = Depends(get_current_user),
 ):
     return await predict(

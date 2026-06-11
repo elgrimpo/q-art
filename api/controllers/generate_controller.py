@@ -85,15 +85,15 @@ async def download_image_bytes(image_url):
 
 
 async def predict(
-    prompt,
-    website,
-    negative_prompt,
-    seed,
-    qr_weight,
-    sd_model,
-    user_id,
-    style_prompt,
-    style_title,
+    prompt: str,
+    website: str,
+    negative_prompt: str,
+    seed: int,
+    qr_weight: float,
+    sd_model: str,
+    user_id: str,
+    style_prompt: str,
+    style_title: str,
 ):
     try:
         # --------------------------------- CHECK FUNDS ------------------------------- #

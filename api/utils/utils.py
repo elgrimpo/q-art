@@ -36,20 +36,20 @@ def parse_seed(metadata):
 
 
 def prepare_img2img_request(
-    prompt,
-    negative_prompt,
-    sd_model,
-    seed,
-    image_base64_str,
-    qr_weight,
-    style_prompt,
+    prompt: str,
+    negative_prompt: str,
+    sd_model: str,
+    seed: int,
+    image_base64_str: str,
+    qr_weight: float,
+    style_prompt: str,
 ):
     full_prompt = prompt + style_prompt
 
     # qr_weight slider (0..1) -> QR ControlNet strength + guidance start.
     # Higher weight = more scannable, lower = more artistic.
-    weight = round(0.85 + float(qr_weight) * 0.2, 2)           # 0.85 .. 1.05
-    guidance_start = round(0.40 - float(qr_weight) * 0.03, 2)  # 0.40 .. 0.37
+    weight = round(0.85 + qr_weight * 0.2, 2)           # 0.85 .. 1.05
+    guidance_start = round(0.40 - qr_weight * 0.03, 2)  # 0.40 .. 0.37
 
     # Neutral #808080 init image at the generation size. Novita deprecated
     # txt2img+ControlNet and forced us onto img2img; pairing a flat-gray init
@@ -72,7 +72,7 @@ def prepare_img2img_request(
         height=side,
         steps=30,
         guidance_scale=7,
-        seed=int(seed),
+        seed=seed,
         image_num=1,
         strength=1.0,
         controlnet_units=[
