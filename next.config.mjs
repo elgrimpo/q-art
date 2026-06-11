@@ -1,6 +1,18 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   poweredByHeader: false,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'qrartimages.s3.us-west-1.amazonaws.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'qrartimageswatermarked.s3.us-west-1.amazonaws.com',
+      },
+    ],
+  },
   env: {
     NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL,
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,

@@ -1,4 +1,5 @@
-import { Box, Typography, CardMedia } from "@mui/material";
+import Image from "next/image";
+import { Box, Typography } from "@mui/material";
 
 import GenerateForm from "./GenerateForm";
 import GuestGallery from "./GuestGallery";
@@ -73,10 +74,11 @@ export default function GeneratePage() {
           }}
         />
 
-        {/* Hero image */}
+        {/* Hero image — next/image auto-converts to WebP, generates srcset, preloads as LCP */}
         <Box
           className="BannerImage"
           sx={{
+            position: "relative",
             backgroundColor: "#A5FFC3",
             padding: { xs: "0.5rem", sm: "1rem" },
             paddingTop: { xs: "4.7rem", sm: "4.7rem", lg: "1rem" },
@@ -86,15 +88,13 @@ export default function GeneratePage() {
             justifySelf: "end",
           }}
         >
-          <CardMedia
-            component="img"
+          <Image
             src="https://qrartimages.s3.us-west-1.amazonaws.com/654f3d47bef0549f910f70ca.png"
-            sx={{
-              borderRadius: "5px",
-              aspectRatio: "1/1",
-              zIndex: 1,
-              order: 2,
-            }}
+            alt="Example AI-generated QR code artwork"
+            fill
+            sizes="(max-width: 1024px) 100vw, 70vw"
+            priority
+            style={{ borderRadius: "5px", objectFit: "cover" }}
           />
         </Box>
 
