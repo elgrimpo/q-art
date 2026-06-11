@@ -33,7 +33,7 @@ def _fake_image(width=512, downloaded=False):
         "qr_weight": 0.5,
         "width": width,
         "height": width,
-        "query_type": "txt2img",
+        "query_type": "img2img",
         "steps": 30,
         "controlnet0": {
             "model": "control_v1p_sd15_brightness",

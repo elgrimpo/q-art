@@ -18,5 +18,5 @@ This function encodes hard-won Novita quirks. The inline comments are load-beari
 ## Other notes
 
 - **`calculate_credits()` mirrors the frontend `src/_utils/utils.js`.** Pricing lives in **two places** — keep them in sync if you change credit costs.
-- **`prepare_doc()` hardcodes `query_type="txt2img"`** even though the pipeline is img2img (stale metadata, SCRUM-50). It also has large commented-out `controlnet1`/control-mode blocks (dead code, SCRUM-47).
+- **`prepare_doc()` sets `query_type="img2img"`** to match the actual pipeline (fixed in QRAI-50; the field is metadata-only and not read anywhere). It also has large commented-out `controlnet1`/control-mode blocks (dead code, SCRUM-47).
 - **`create_watermark()` builds an unused `BytesIO`** before returning the PIL image (leftover, SCRUM-51). It returns `None` on failure — callers should handle that.

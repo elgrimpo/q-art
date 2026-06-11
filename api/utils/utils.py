@@ -172,7 +172,7 @@ def prepare_doc(
         qr_weight=qr_weight,
         width=req["width"],
         height=req["height"],
-        query_type="txt2img",
+        query_type="img2img",
         steps=req["steps"],
         # cfg_scale=req["cfg_scale"],
         # sampler_name=sampler_name,
