@@ -38,6 +38,11 @@ Required keys (see `.env` for values):
 - `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY`
 - `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET`
 - `NEXTAUTH_SECRET` / `NEXTAUTH_URL`
+- `BACKEND_JWT_SECRET` — shared HS256 secret used to sign (Next.js) and verify (FastAPI) backend auth tokens. **Must be identical on both apps.** Next.js mints a short-lived JWT carrying the verified identity; FastAPI derives `user_id` from it instead of trusting query params (see `api/utils/auth.py`, `src/_utils/backendAuth.js`).
+
+## Auth model (QRAI-32)
+
+The FastAPI backend never trusts a client-supplied `user_id`/`email`. Every user-scoped call goes through a Next.js `"use server"` util that attaches `Authorization: Bearer <token>` (minted by `getBackendToken()`); FastAPI verifies it via `Depends(get_current_user)` and resolves the canonical `user_id` (guest id used directly; logged-in email → Mongo `_id`). `POST /api/user/auth` (sign-in bootstrap) uses a `service`-scoped token. Public routes (`GET /api/images/get`, `GET /api/images/get/{id}`, `POST /api/stripe-webhook`) stay open. Delete/upscale enforce ownership.
 
 ## Project Structure
 
