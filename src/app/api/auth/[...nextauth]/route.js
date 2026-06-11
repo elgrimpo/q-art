@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { getServerSession } from "next-auth/next"
+import { getServiceToken } from "@/_utils/backendAuth";
 
 // Store guest ID during the auth flow
 
@@ -96,10 +97,12 @@ export const authOptions = {
         };
 
         try {
+          const serviceToken = await getServiceToken();
           const response = await fetch(url, {
             method: "POST",
-            headers: { 
+            headers: {
               "Content-Type": "application/json",
+              Authorization: `Bearer ${serviceToken}`,
             },
             body: JSON.stringify(userData),
           });
