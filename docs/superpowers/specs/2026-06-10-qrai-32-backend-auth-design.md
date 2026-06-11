@@ -29,7 +29,12 @@ and (b) a plain secret + user_id header (no signing/expiry).
    (Heroku config var). High-entropy random string.
 2. **Next.js mint helper** (`src/_utils/backendAuth.js`, server-only): `getBackendToken()`
    - Reads the verified session via `getServerSession(authOptions)`.
-   - Mints an HS256 JWT with claims `{ sub: <user._id>, email, is_guest, scope: "user", exp: now+5min, iat }`.
+   - Mints an HS256 JWT with claims `{ sub, email, is_guest, scope: "user", exp: now+5min, iat }`.
+   - **`sub` / identity:** the next-auth session reliably carries `email` for logged-in users
+     but **not** the Mongo `_id` (the `jwt` callback only sets `token._id` for guests). So the
+     token carries: for **guests**, `sub = session.user._id` (the `guest_…` id) and `is_guest: true`;
+     for **logged-in** users, `sub = email`, `email = email`, `is_guest: false`. The Mongo `_id`
+     is resolved server-side by FastAPI (see below), matching how `image.user_id` is stored.
    - Signs with `BACKEND_JWT_SECRET` using `jose` (already a transitive dependency of next-auth; no new npm package).
    - Returns `null` when there is no session (caller decides how to handle).
    - A second helper `getServiceToken()` mints `{ scope: "service", exp: now+5min }` for the
@@ -37,11 +42,15 @@ and (b) a plain secret + user_id header (no signing/expiry).
 3. **FastAPI verification** (`api/utils/auth.py`):
    - `get_current_user` — FastAPI dependency. Reads `Authorization: Bearer <token>`, verifies
      signature + expiry with `pyjwt` (HS256, `BACKEND_JWT_SECRET`), requires `scope == "user"`,
-     returns a small object `{ user_id, email, is_guest }`. On any failure → `HTTPException(401)`.
+     then resolves the **canonical `user_id`**:
+     - guest (`is_guest` true) → `user_id = sub` (the `guest_…` id, used directly).
+     - logged-in → look up `users.find_one({"email": email})`; `user_id = str(_id)`. Unknown email → 401.
+     Returns `{ user_id, email, is_guest }`. On any failure → `HTTPException(401)`.
    - `require_service_token` — dependency for the bootstrap endpoint; verifies the same secret
      but requires `scope == "service"`.
    - Identity is taken from the token only. Query-string `user_id` / `email` are dropped from
-     protected routes.
+     protected routes. `image.user_id` stores the Mongo `_id` string for logged-in users and the
+     `guest_…` id for guests, so the resolved `user_id` compares directly in ownership checks.
 
 ### Dependencies
 
