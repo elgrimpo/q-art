@@ -3,6 +3,7 @@ from fastapi import HTTPException, Query
 from dotenv import load_dotenv
 import requests as requests
 import os
+import logging
 from bson import ObjectId
 import aioboto3
 from pymongo import DESCENDING, ASCENDING
@@ -19,6 +20,8 @@ from api.utils.utils import createImagesFilterQuery, prepare_doc
 
 
 load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 # ---------------------------- INITIALIZE CLIENTS ---------------------------- #
 
@@ -51,8 +54,8 @@ async def create_image_doc(req, seed, website, qr_weight, user_id, prompt, style
         # Return the inserted image ID
         return str(result.inserted_id)
 
-    except Exception as unexpected_error:
-        print(str(unexpected_error))
+    except Exception:
+        logger.error("Error in create_image_doc", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
@@ -82,8 +85,8 @@ async def upload_image_to_s3(image, object_name, s3_bucket_name):
         
         return image_url
 
-    except Exception as upload_error:
-        print(upload_error)
+    except Exception:
+        logger.error("S3 upload failed", exc_info=True)
         raise HTTPException(status_code=500, detail="S3 upload failed")
 
 # ---------------------------------------------------------------------------- #
@@ -108,10 +111,10 @@ async def update_image(document_id, update_data):
                 "message": f"Image with id {document_id} not found.",
             }
 
-    except Exception as e:
-        print(f"Error updating document: {str(e)}")
+    except Exception:
+        logger.error("Error updating document %s", document_id, exc_info=True)
         return {
-            "message": f"Error updating document: {str(e)}",
+            "message": f"Error updating document: {document_id}",
         }
 
 
@@ -252,9 +255,8 @@ async def delete_image(id: str, user_id: str):
     except HTTPException:
         # Reraise HTTP exceptions for FastAPI to handle
         raise
-    except Exception as unexpected_error:
-        # Log unexpected errors and return a generic error message
-        print(f"Error during image deletion: {str(unexpected_error)}")
+    except Exception:
+        logger.error("Unexpected error in delete_image", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
     # ---------------------------------------------------------------------------- #
@@ -287,7 +289,6 @@ async def toggle_like(id, user_id):
     except HTTPException:
         # Reraise HTTP exceptions for FastAPI to handle
         raise
-    except Exception as unexpected_error:
-        # Log unexpected errors and return a generic error message
-        print(f"Error toggling like: {str(unexpected_error)}")
+    except Exception:
+        logger.error("Unexpected error in toggle_like", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal Server Error")

@@ -3,6 +3,7 @@ import requests as requests
 from fastapi import HTTPException
 from bson import ObjectId
 import datetime
+import logging
 import os
 from datetime import datetime
 from fastapi.responses import JSONResponse
@@ -11,6 +12,8 @@ import motor.motor_asyncio as motor
 
 # App imports
 from api.schemas.schemas import PaymentHistory, User, UserAuth
+
+logger = logging.getLogger(__name__)
 
 # ---------------------------- INITIALIAZE CLIENT ---------------------------- #
 mongo_url = os.environ["MONGO_URL"]
@@ -33,9 +36,9 @@ async def get_user_info(email):
             raise HTTPException(status_code=404, detail="User not found")
     except HTTPException:
         raise
-    except Exception as e:
-        print(f"Error in get_user_info: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception:
+        logger.error("Error in get_user_info for %s", email, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 # ---------------------------------------------------------------------------- #
 #                               AUTHENTICATE USER                              #
@@ -95,9 +98,9 @@ async def authenticate_user(user_auth: UserAuth):
                 )
 
         return JSONResponse(content={"message": "User authenticated successfully"})
-    except Exception as e:
-        print(f"Error in authenticate_user: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception:
+        logger.error("Error in authenticate_user", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 # ---------------------------------------------------------------------------- #
 #                             INCREMENT USER COUNT                             #
@@ -164,11 +167,11 @@ async def increment_user_count(user_id, service_config, credits_deducted):
             },
             upsert=True,
         )
-        print("User count incremented successfully")
+        logger.debug("User count incremented successfully for %s", user_id)
 
-    except Exception as e:
-        print(f"Error in increment_user_count: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception:
+        logger.error("Error in increment_user_count for %s", user_id, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 # ---------------------------------------------------------------------------- #
 #                               Add User Payment                               #
@@ -197,8 +200,11 @@ async def add_user_payment(
             },
         )
         if result.modified_count == 0:
-            print(f"add_user_payment: payment_intent {payment_intent!r} already applied or user not found, skipping")
+            logger.warning(
+                "add_user_payment: payment_intent %r already applied or user not found, skipping",
+                payment_intent,
+            )
 
-    except Exception as e:
-        print(f"error at add_user_payment: {e}")
+    except Exception:
+        logger.error("Error in add_user_payment for payment_intent %r", payment_intent, exc_info=True)
         raise HTTPException(status_code=500, detail="Payment processing failed")

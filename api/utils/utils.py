@@ -1,6 +1,7 @@
 # Libraries Import
 import requests as requests
 import datetime
+import logging
 import re
 import base64
 from io import BytesIO
@@ -12,6 +13,8 @@ from novita_client import *
 
 # App imports
 from api.schemas.schemas import ImageDoc, ControlNet
+
+logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------- #
 #                                  PARSE SEED                                  #
@@ -134,8 +137,8 @@ def create_watermark(image):
 
         return watermarked_image
 
-    except Exception as e:
-        print(f"Error creating watermarked base64: {str(e)}")
+    except Exception:
+        logger.error("Error creating watermarked image", exc_info=True)
         return None
 
 

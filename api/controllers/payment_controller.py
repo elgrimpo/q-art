@@ -1,3 +1,4 @@
+import logging
 import os
 from fastapi import HTTPException
 from dotenv import load_dotenv
@@ -8,6 +9,8 @@ from datetime import datetime
 from api.controllers.users_controller import add_user_payment
 
 load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 stripe.api_key = os.environ["STRIPE_API_KEY"]
 frontend_url = os.environ["FRONTEND_URL"]
@@ -76,7 +79,7 @@ async def stripe_webhook(request, stripe_signature):
         product_id = session["metadata"]["product_id"]
         credit_amount = PRICE_CREDITS_MAP.get(product_id)
         if credit_amount is None:
-            print(f"stripe_webhook: unknown product_id {product_id!r}, skipping credit grant")
+            logger.warning("stripe_webhook: unknown product_id %r, skipping credit grant", product_id)
             return {"status": "ok"}
         payment_intent = session["payment_intent"]
         unix_timestamp = session["created"]

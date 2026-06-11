@@ -17,6 +17,7 @@ from io import BytesIO
 from PIL import Image
 import asyncio
 import functools
+import logging
 
 # App imports
 from api.controllers.images_controller import (
@@ -33,6 +34,8 @@ from api.controllers.users_controller import increment_user_count
 from api.schemas.schemas import ImageDoc
 
 load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 # ---------------------------- INITIALIZE CLIENTS ---------------------------- #
 
@@ -169,7 +172,7 @@ async def predict(
 
             task_id = txt2img_result.task.task_id
 
-            print("task id:" + task_id)
+            logger.debug("Novita task id: %s", task_id)
 
             res = await asyncio.to_thread(client.wait_for_task_v3, task_id)
 
@@ -190,7 +193,7 @@ async def predict(
                 await users.update_one(
                     {"_id": ObjectId(user_id)}, {"$inc": {"credits": credits_required}}
                 )
-            print(generation_error)
+            logger.error("Image generation failed", exc_info=True)
             raise HTTPException(status_code=500, detail="Image generation failed")
 
         # ------------------------------ UPDATE DATABASE ----------------------------- #
@@ -236,7 +239,7 @@ async def predict(
                 await users.update_one(
                     {"_id": ObjectId(user_id)}, {"$inc": {"credits": credits_required}}
                 )
-            print(db_error)
+            logger.error("Database insertion failed", exc_info=True)
             raise HTTPException(status_code=500, detail="Database insertion failed")
 
         # ---------------------- UPDATE USER CREDITS AND COUNT ---------------------- #
@@ -253,9 +256,8 @@ async def predict(
     except HTTPException:
         # Reraise HTTP exceptions for FastAPI to handle
         raise
-    except Exception as unexpected_error:
-        # Log unexpected errors and return a generic error message
-        print(str(unexpected_error))
+    except Exception:
+        logger.error("Unexpected error in predict", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
@@ -397,7 +399,6 @@ async def upscale(image_id, user_id, resolution):
     except HTTPException:
         # Reraise HTTP exceptions for FastAPI to handle
         raise
-    except Exception as unexpected_error:
-        # Log unexpected errors and return a generic error message
-        print(f"Error during upscaling: {str(unexpected_error)}")
+    except Exception:
+        logger.error("Unexpected error in upscale", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal Server Error")
