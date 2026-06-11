@@ -76,6 +76,18 @@ async def test_get_user_info_raises_404_when_not_found(mock_users):
     assert exc_info.value.status_code == 404
 
 
+@patch("api.controllers.users_controller.users")
+async def test_get_user_info_returns_matched_user(mock_users):
+    mock_users.find_one = AsyncMock(return_value={
+        "_id": "507f1f77bcf86cd799439012",
+        "name": "A", "email": "a@b.com",
+        "auth_providers": [], "credits": 10, "payment_history": [],
+    })
+    result = await get_user_info("a@b.com")
+    assert result.email == "a@b.com"
+    mock_users.find_one.assert_awaited_once_with({"email": "a@b.com"})
+
+
 # ---------------------------------------------------------------------------- #
 #                            AUTHENTICATE USER                                 #
 # ---------------------------------------------------------------------------- #
