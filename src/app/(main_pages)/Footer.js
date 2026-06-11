@@ -29,18 +29,14 @@ export default function Footer() {
         aria-label="footer navigation"
         sx={{ display: "flex", gap: 3, flexWrap: "wrap", justifyContent: "center" }}
       >
-        <Link href="/generate" style={{ color: "#888", textDecoration: "none" }}>
-          Generate
-        </Link>
-        <Link href="/privacy" style={{ color: "#888", textDecoration: "none" }}>
-          Privacy Policy
-        </Link>
-        <Link href="/terms" style={{ color: "#888", textDecoration: "none" }}>
-          Terms of Service
-        </Link>
-        <a href="mailto:support@qr-ai.co" style={{ color: "#888", textDecoration: "none" }}>
-          Contact
-        </a>
+        <Link href="/generate" style={{ color: "#888", textDecoration: "none" }}>Generate</Link>
+        <Link href="/gallery" style={{ color: "#888", textDecoration: "none" }}>Gallery</Link>
+        <Link href="/how-it-works" style={{ color: "#888", textDecoration: "none" }}>How It Works</Link>
+        <Link href="/pricing" style={{ color: "#888", textDecoration: "none" }}>Pricing</Link>
+        <Link href="/faq" style={{ color: "#888", textDecoration: "none" }}>FAQ</Link>
+        <Link href="/privacy" style={{ color: "#888", textDecoration: "none" }}>Privacy Policy</Link>
+        <Link href="/terms" style={{ color: "#888", textDecoration: "none" }}>Terms of Service</Link>
+        <a href="mailto:support@qr-ai.co" style={{ color: "#888", textDecoration: "none" }}>Contact</a>
       </Box>
     </Box>
   );
