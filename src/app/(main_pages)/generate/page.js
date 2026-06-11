@@ -3,6 +3,22 @@ import { Box, Typography, CardMedia } from "@mui/material";
 import GenerateForm from "./GenerateForm";
 import GuestGallery from "./GuestGallery";
 
+const softwareApplicationSchema = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "QR AI — AI QR Code Art Generator",
+  applicationCategory: "DesignApplication",
+  operatingSystem: "Web",
+  url: "https://www.qr-ai.co/generate",
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "USD",
+  },
+  description:
+    "Transform any URL into AI-generated QR code artwork. Enter your URL, pick an art style, and download a beautiful, fully scannable QR code in seconds.",
+};
+
 export const metadata = {
   title: "AI QR Code Art Generator – Create Beautiful QR Codes | QR AI",
   description:
@@ -34,6 +50,11 @@ export default function GeneratePage() {
         backgroundColor: "#161616",
       }}
     >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareApplicationSchema) }}
+      />
+
       {/* Banner Section */}
       <Box className="BannerSection">
         {/* Gradient overlay */}

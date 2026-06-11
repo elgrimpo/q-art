@@ -17,6 +17,22 @@ export const metadata = {
   description: "Turn your QR Code into a piece of Art",
 };
 
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "QR AI",
+  url: "https://www.qr-ai.co",
+  description: "AI-powered QR code art generator",
+};
+
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "QR AI",
+  url: "https://www.qr-ai.co",
+  logo: "https://www.qr-ai.co/logo.png",
+};
+
 export default async function RootLayout({ children }) {
   const user = await getUserInfo();
   const headersList = headers();
@@ -24,6 +40,14 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={inter.className}>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        />
         <Providers>
           <ThemeProvider theme={theme}>
             <StoreInitializer user={user}>
