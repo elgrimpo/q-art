@@ -14,7 +14,7 @@ One module per domain. Routes in `api/main.py` call these. Each function is `asy
 - **Credit flow:** `calculate_credits()` → `sufficient_credit()` (check) → do the work → `increment_user_count(..., credits_required)` (deduct). Check and deduct are **separate, non-atomic** steps (SCRUM-37).
 - **Guest users:** `user_id.startswith("guest_")` short-circuits the Mongo user credit check and counter update. Instead, `generate_controller.py` enforces a server-side per-session quota via an atomic counter in the `guest_credits` collection (`GUEST_FREE_CREDITS = 3`). The frontend mirrors this limit but is not trusted for enforcement. The `guest_credits` collection has no TTL index — old records accumulate but are harmless (each is tiny and guest IDs don't repeat across sessions).
 - **Error handling idiom:** inner `try/except` per stage raising a specific `HTTPException`, wrapped in an outer `try` that re-raises `HTTPException` and converts anything else to a generic 500. Follow this shape for new code.
-- **Heavy/blocking calls** (Novita) run in a `ProcessPoolExecutor` wrapped via `asyncio.wrap_future`. Note this pool is created **per request** (SCRUM-40), and the image download still uses blocking `requests.get` with no timeout (SCRUM-39).
+- **Heavy/blocking calls** (Novita) run in a `ProcessPoolExecutor` wrapped via `asyncio.wrap_future`. Note this pool is created **per request** (SCRUM-40). The generated-image download is awaited via `download_image_bytes()` using `httpx.AsyncClient` with an explicit `IMAGE_DOWNLOAD_TIMEOUT` (connect 10s / read 30s), so a slow CDN can't block the event loop — fixed in QRAI-39 (the old blocking `requests.get` is gone).
 
 ## Gotchas — read before editing
 

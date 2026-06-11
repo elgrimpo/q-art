@@ -1,6 +1,6 @@
 # Libraries Import
 import qrcode
-import requests
+import httpx
 from dotenv import load_dotenv
 import os
 import json
@@ -52,6 +52,24 @@ s3_bucket_watermarked_name = "qrartimageswatermarked"
 s3_session = aioboto3.Session()
 # Novita
 client = NovitaClient(os.environ["NOVITA_KEY"])
+
+# Bound how long we wait on the generated-image download from Novita's CDN.
+# Without a cap, one slow or hung upstream response blocks the async event loop
+# and can stall every concurrent request on the worker (QRAI-39).
+IMAGE_DOWNLOAD_TIMEOUT = httpx.Timeout(30.0, connect=10.0)
+
+
+async def download_image_bytes(image_url):
+    """Download the generated image asynchronously with explicit timeouts.
+
+    Replaces a blocking ``requests.get`` that ran inline on the event loop.
+    Awaiting an httpx client keeps the loop free and guarantees the call can't
+    hang indefinitely on a slow Novita/CDN response.
+    """
+    async with httpx.AsyncClient(timeout=IMAGE_DOWNLOAD_TIMEOUT) as http_client:
+        response = await http_client.get(image_url)
+        response.raise_for_status()
+        return response.content
 
 
 # ---------------------------------------------------------------------------- #
@@ -159,9 +177,9 @@ async def predict(
             seed = res.extra.seed if res.extra else None
             image_url = res.get_image_urls()[0]  # Or iterate if multiple
 
-            # Download image
-            image_data = requests.get(image_url)
-            generated_image = Image.open(BytesIO(image_data.content))
+            # Download image (async + timed out so a slow CDN can't hang the loop)
+            image_bytes = await download_image_bytes(image_url)
+            generated_image = Image.open(BytesIO(image_bytes))
 
         except Exception as generation_error:
             if credits_deducted:

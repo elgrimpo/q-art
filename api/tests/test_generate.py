@@ -1,4 +1,5 @@
 import concurrent.futures
+import httpx
 import pytest
 from io import BytesIO
 from PIL import Image
@@ -7,7 +8,11 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from fastapi import HTTPException
 from novita_client import V3TaskResponseStatus
 
-from api.controllers.generate_controller import predict
+from api.controllers.generate_controller import (
+    predict,
+    download_image_bytes,
+    IMAGE_DOWNLOAD_TIMEOUT,
+)
 
 
 # ---------------------------------------------------------------------------- #
@@ -67,29 +72,10 @@ def _setup_executor(mock_executor_class, img2img_result, task_result):
     return mock_executor
 
 
-# ---------------------------------------------------------------------------- #
-#                          SHARED PATCH STACK                                  #
-# ---------------------------------------------------------------------------- #
-# All tests in this file patch the same 8 external dependencies.
-# We stack them here as module-level decorators on a base fixture so each test
-# only needs to declare the args it cares about.
-
-_PATCHES = [
-    patch("api.controllers.generate_controller.users"),
-    patch("concurrent.futures.ProcessPoolExecutor"),
-    patch("api.controllers.generate_controller.requests.get"),
-    patch("api.controllers.generate_controller.create_watermark"),
-    patch("api.controllers.generate_controller.create_image_doc", new_callable=AsyncMock),
-    patch("api.controllers.generate_controller.upload_image_to_s3", new_callable=AsyncMock),
-    patch("api.controllers.generate_controller.update_image", new_callable=AsyncMock),
-    patch("api.controllers.generate_controller.increment_user_count", new_callable=AsyncMock),
-]
-
-
 async def _run_predict(
     mock_users,
     mock_executor_class,
-    mock_get,
+    mock_download,
     mock_create_watermark,
     mock_create_doc,
     mock_upload,
@@ -101,7 +87,7 @@ async def _run_predict(
     _setup_executor(mock_executor_class, img2img_result, task_result)
 
     mock_users.find_one_and_update = AsyncMock(return_value={"_id": FAKE_IMAGE_ID, "credits": 10})
-    mock_get.return_value.content = _white_png_bytes()
+    mock_download.return_value = _white_png_bytes()
     mock_create_watermark.return_value = Image.new("RGB", (512, 512), "grey")
     mock_create_doc.return_value = FAKE_IMAGE_ID
     mock_upload.side_effect = [ORIG_URL, WMARK_URL]
@@ -117,7 +103,7 @@ async def _run_predict(
         "upload": mock_upload,
         "update": mock_update,
         "executor": mock_executor_class,
-        "get": mock_get,
+        "download": mock_download,
     }
 
 
@@ -130,13 +116,13 @@ async def _run_predict(
 @patch("api.controllers.generate_controller.upload_image_to_s3", new_callable=AsyncMock)
 @patch("api.controllers.generate_controller.create_image_doc", new_callable=AsyncMock)
 @patch("api.controllers.generate_controller.create_watermark")
-@patch("api.controllers.generate_controller.requests.get")
+@patch("api.controllers.generate_controller.download_image_bytes", new_callable=AsyncMock)
 @patch("concurrent.futures.ProcessPoolExecutor")
 @patch("api.controllers.generate_controller.users")
 async def test_generate_returns_image_urls(
     mock_users,
     mock_executor_class,
-    mock_get,
+    mock_download,
     mock_create_watermark,
     mock_create_doc,
     mock_upload,
@@ -144,7 +130,7 @@ async def test_generate_returns_image_urls(
     mock_increment,
 ):
     result, _ = await _run_predict(
-        mock_users, mock_executor_class, mock_get, mock_create_watermark,
+        mock_users, mock_executor_class, mock_download, mock_create_watermark,
         mock_create_doc, mock_upload, mock_update, mock_increment,
     )
 
@@ -157,13 +143,13 @@ async def test_generate_returns_image_urls(
 @patch("api.controllers.generate_controller.upload_image_to_s3", new_callable=AsyncMock)
 @patch("api.controllers.generate_controller.create_image_doc", new_callable=AsyncMock)
 @patch("api.controllers.generate_controller.create_watermark")
-@patch("api.controllers.generate_controller.requests.get")
+@patch("api.controllers.generate_controller.download_image_bytes", new_callable=AsyncMock)
 @patch("concurrent.futures.ProcessPoolExecutor")
 @patch("api.controllers.generate_controller.users")
 async def test_generate_calls_novita_twice(
     mock_users,
     mock_executor_class,
-    mock_get,
+    mock_download,
     mock_create_watermark,
     mock_create_doc,
     mock_upload,
@@ -172,7 +158,7 @@ async def test_generate_calls_novita_twice(
 ):
     """Novita executor.submit is called once for img2img_v3 and once for wait_for_task_v3."""
     _, mocks = await _run_predict(
-        mock_users, mock_executor_class, mock_get, mock_create_watermark,
+        mock_users, mock_executor_class, mock_download, mock_create_watermark,
         mock_create_doc, mock_upload, mock_update, mock_increment,
     )
 
@@ -185,13 +171,13 @@ async def test_generate_calls_novita_twice(
 @patch("api.controllers.generate_controller.upload_image_to_s3", new_callable=AsyncMock)
 @patch("api.controllers.generate_controller.create_image_doc", new_callable=AsyncMock)
 @patch("api.controllers.generate_controller.create_watermark")
-@patch("api.controllers.generate_controller.requests.get")
+@patch("api.controllers.generate_controller.download_image_bytes", new_callable=AsyncMock)
 @patch("concurrent.futures.ProcessPoolExecutor")
 @patch("api.controllers.generate_controller.users")
 async def test_generate_checks_user_credits(
     mock_users,
     mock_executor_class,
-    mock_get,
+    mock_download,
     mock_create_watermark,
     mock_create_doc,
     mock_upload,
@@ -200,7 +186,7 @@ async def test_generate_checks_user_credits(
 ):
     """For non-guest users, predict() must query the DB for credits."""
     await _run_predict(
-        mock_users, mock_executor_class, mock_get, mock_create_watermark,
+        mock_users, mock_executor_class, mock_download, mock_create_watermark,
         mock_create_doc, mock_upload, mock_update, mock_increment,
     )
 
@@ -212,7 +198,7 @@ async def test_generate_checks_user_credits(
 @patch("api.controllers.generate_controller.upload_image_to_s3", new_callable=AsyncMock)
 @patch("api.controllers.generate_controller.create_image_doc", new_callable=AsyncMock)
 @patch("api.controllers.generate_controller.create_watermark")
-@patch("api.controllers.generate_controller.requests.get")
+@patch("api.controllers.generate_controller.download_image_bytes", new_callable=AsyncMock)
 @patch("concurrent.futures.ProcessPoolExecutor")
 @patch("api.controllers.generate_controller.guest_credits_col")
 @patch("api.controllers.generate_controller.users")
@@ -220,7 +206,7 @@ async def test_generate_guest_skips_db_credit_check(
     mock_users,
     mock_guest_credits,
     mock_executor_class,
-    mock_get,
+    mock_download,
     mock_create_watermark,
     mock_create_doc,
     mock_upload,
@@ -232,7 +218,7 @@ async def test_generate_guest_skips_db_credit_check(
     _setup_executor(mock_executor_class, img2img_result, task_result)
     mock_users.find_one = AsyncMock(return_value=None)
     mock_guest_credits.find_one_and_update = AsyncMock(return_value={"_id": "guest_abc123", "used": 1})
-    mock_get.return_value.content = _white_png_bytes()
+    mock_download.return_value = _white_png_bytes()
     mock_create_watermark.return_value = Image.new("RGB", (512, 512), "grey")
     mock_create_doc.return_value = FAKE_IMAGE_ID
     mock_upload.side_effect = [ORIG_URL, WMARK_URL]
@@ -269,13 +255,13 @@ async def test_generate_guest_exhausted_quota_raises_403(mock_guest_credits):
 @patch("api.controllers.generate_controller.upload_image_to_s3", new_callable=AsyncMock)
 @patch("api.controllers.generate_controller.create_image_doc", new_callable=AsyncMock)
 @patch("api.controllers.generate_controller.create_watermark")
-@patch("api.controllers.generate_controller.requests.get")
+@patch("api.controllers.generate_controller.download_image_bytes", new_callable=AsyncMock)
 @patch("concurrent.futures.ProcessPoolExecutor")
 @patch("api.controllers.generate_controller.users")
 async def test_storage_creates_image_doc(
     mock_users,
     mock_executor_class,
-    mock_get,
+    mock_download,
     mock_create_watermark,
     mock_create_doc,
     mock_upload,
@@ -284,7 +270,7 @@ async def test_storage_creates_image_doc(
 ):
     """predict() must insert an image document into MongoDB."""
     await _run_predict(
-        mock_users, mock_executor_class, mock_get, mock_create_watermark,
+        mock_users, mock_executor_class, mock_download, mock_create_watermark,
         mock_create_doc, mock_upload, mock_update, mock_increment,
     )
 
@@ -301,13 +287,13 @@ async def test_storage_creates_image_doc(
 @patch("api.controllers.generate_controller.upload_image_to_s3", new_callable=AsyncMock)
 @patch("api.controllers.generate_controller.create_image_doc", new_callable=AsyncMock)
 @patch("api.controllers.generate_controller.create_watermark")
-@patch("api.controllers.generate_controller.requests.get")
+@patch("api.controllers.generate_controller.download_image_bytes", new_callable=AsyncMock)
 @patch("concurrent.futures.ProcessPoolExecutor")
 @patch("api.controllers.generate_controller.users")
 async def test_storage_uploads_to_both_s3_buckets(
     mock_users,
     mock_executor_class,
-    mock_get,
+    mock_download,
     mock_create_watermark,
     mock_create_doc,
     mock_upload,
@@ -316,7 +302,7 @@ async def test_storage_uploads_to_both_s3_buckets(
 ):
     """Both original and watermarked images must be uploaded to their respective S3 buckets."""
     _, mocks = await _run_predict(
-        mock_users, mock_executor_class, mock_get, mock_create_watermark,
+        mock_users, mock_executor_class, mock_download, mock_create_watermark,
         mock_create_doc, mock_upload, mock_update, mock_increment,
     )
 
@@ -331,13 +317,13 @@ async def test_storage_uploads_to_both_s3_buckets(
 @patch("api.controllers.generate_controller.upload_image_to_s3", new_callable=AsyncMock)
 @patch("api.controllers.generate_controller.create_image_doc", new_callable=AsyncMock)
 @patch("api.controllers.generate_controller.create_watermark")
-@patch("api.controllers.generate_controller.requests.get")
+@patch("api.controllers.generate_controller.download_image_bytes", new_callable=AsyncMock)
 @patch("concurrent.futures.ProcessPoolExecutor")
 @patch("api.controllers.generate_controller.users")
 async def test_storage_updates_doc_with_urls(
     mock_users,
     mock_executor_class,
-    mock_get,
+    mock_download,
     mock_create_watermark,
     mock_create_doc,
     mock_upload,
@@ -346,7 +332,7 @@ async def test_storage_updates_doc_with_urls(
 ):
     """After upload, update_image must be called with both S3 URLs."""
     _, mocks = await _run_predict(
-        mock_users, mock_executor_class, mock_get, mock_create_watermark,
+        mock_users, mock_executor_class, mock_download, mock_create_watermark,
         mock_create_doc, mock_upload, mock_update, mock_increment,
     )
 
@@ -375,18 +361,18 @@ async def test_predict_insufficient_credits_raises_403(mock_users):
 
 
 @patch("api.controllers.generate_controller.create_watermark")
-@patch("api.controllers.generate_controller.requests.get")
+@patch("api.controllers.generate_controller.download_image_bytes", new_callable=AsyncMock)
 @patch("concurrent.futures.ProcessPoolExecutor")
 @patch("api.controllers.generate_controller.users")
 async def test_predict_novita_failure_raises_500(
     mock_users,
     mock_executor_class,
-    mock_get,
+    mock_download,
     mock_create_watermark,
 ):
     """A failed Novita task (status != SUCCEED) must surface as a 500."""
     mock_users.find_one_and_update = AsyncMock(return_value={"_id": FAKE_IMAGE_ID, "credits": 10})
-    mock_get.return_value.content = _white_png_bytes()
+    mock_download.return_value = _white_png_bytes()
     mock_create_watermark.return_value = Image.new("RGB", (512, 512), "grey")
 
     img2img_result = MagicMock()
@@ -402,3 +388,49 @@ async def test_predict_novita_failure_raises_500(
         await predict(**PREDICT_KWARGS)
 
     assert exc_info.value.status_code == 500
+
+
+# ---------------------------------------------------------------------------- #
+#          TEST 4: IMAGE DOWNLOAD IS ASYNC + TIMEOUT-BOUNDED (QRAI-39)         #
+# ---------------------------------------------------------------------------- #
+
+def _mock_async_client(mock_client_class, response):
+    """Wire an httpx.AsyncClient mock to behave as an async context manager
+    whose .get() resolves to `response`."""
+    mock_client = MagicMock()
+    mock_client.get = AsyncMock(return_value=response)
+    mock_client_class.return_value.__aenter__ = AsyncMock(return_value=mock_client)
+    mock_client_class.return_value.__aexit__ = AsyncMock(return_value=False)
+    return mock_client
+
+
+@patch("api.controllers.generate_controller.httpx.AsyncClient")
+async def test_download_image_bytes_uses_timeout_and_returns_content(mock_client_class):
+    """The download must run through an httpx.AsyncClient constructed with an
+    explicit timeout, await the GET, and return the response bytes — so a slow
+    upstream can never block the event loop indefinitely."""
+    png = _white_png_bytes()
+    response = MagicMock()
+    response.content = png
+    mock_client = _mock_async_client(mock_client_class, response)
+
+    result = await download_image_bytes("http://novita.example/img.png")
+
+    assert result == png
+    # Client must be given an explicit (non-default/unbounded) timeout.
+    assert mock_client_class.call_args.kwargs["timeout"] is IMAGE_DOWNLOAD_TIMEOUT
+    mock_client.get.assert_awaited_once_with("http://novita.example/img.png")
+    response.raise_for_status.assert_called_once()
+
+
+@patch("api.controllers.generate_controller.httpx.AsyncClient")
+async def test_download_image_bytes_raises_on_http_error(mock_client_class):
+    """A non-2xx download must raise so predict() refunds credits and 500s."""
+    response = MagicMock()
+    response.raise_for_status.side_effect = httpx.HTTPStatusError(
+        "404", request=MagicMock(), response=MagicMock()
+    )
+    _mock_async_client(mock_client_class, response)
+
+    with pytest.raises(httpx.HTTPStatusError):
+        await download_image_bytes("http://novita.example/missing.png")
