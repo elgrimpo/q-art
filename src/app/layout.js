@@ -8,7 +8,6 @@ import AmplitudeContextProvider from "@/_context/amplitudeContext";
 import { StoreInitializer } from "@/_components/StoreInitializer";
 import { getUserInfo } from "@/_utils/userUtils";
 import { Toaster } from "@/_components/Toaster";
-import { headers } from 'next/headers';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -35,7 +34,6 @@ const organizationSchema = {
 
 export default async function RootLayout({ children }) {
   const user = await getUserInfo();
-  const headersList = headers();
 
   return (
     <html lang="en">

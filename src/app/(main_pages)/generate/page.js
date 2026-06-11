@@ -20,6 +20,10 @@ const softwareApplicationSchema = {
     "Transform any URL into AI-generated QR code artwork. Enter your URL, pick an art style, and download a beautiful, fully scannable QR code in seconds.",
 };
 
+// ISR: re-render the static shell at most every hour.
+// Only takes effect once getUserInfo() is moved out of the root layout (QRAI-18).
+export const revalidate = 3600;
+
 export const metadata = {
   title: "AI QR Code Art Generator – Create Beautiful QR Codes | QR AI",
   description:
