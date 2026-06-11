@@ -1,0 +1,32 @@
+# QR AI
+> Transform any URL into AI-generated QR code artwork instantly
+
+QR AI is a web application that uses Stable Diffusion and ControlNet AI models to convert standard QR codes into visually stunning, fully scannable artwork. Users enter a URL, choose an art style, and receive a beautiful functional art QR code in seconds. No design skills required.
+
+## Key Features
+- AI-powered QR code art generation using Stable Diffusion + ControlNet
+- 13 curated art styles: Ukiyo-e, Expressionism, Dreamy, Low Poly Art, Photography, Vector Art, Doodle Art, Ink, Oil Painting, Chinese Art, Watercolor, Sticker, Color Blend
+- Random style option for automatic selection
+- Adjustable QR weight slider to balance scannability vs. artistic effect
+- Instant download of generated artwork
+- Personal gallery to save and manage created images
+- Free credits included to get started; additional credits available for purchase
+- No design skills required
+
+## Use Cases
+- Restaurant and café menu QR codes
+- Business cards and marketing materials
+- Event posters and invitations
+- Social media profile links
+- Product packaging and retail displays
+- Wedding and event invitations
+- Portfolio and creative projects
+
+## Technical Details
+- URL: https://www.qr-ai.co/generate
+- Type: Web application (browser-based, no install required)
+- Pricing: Free tier available; credit-based system for additional generations
+- Authentication: Google sign-in or anonymous guest access
+
+## About
+QR AI is a side project focused on making QR codes beautiful and on-brand. The AI pipeline uses Stable Diffusion 1.5 with two ControlNet units (brightness and QR code monster) to blend the QR pattern with the chosen art style while maintaining scannability.
