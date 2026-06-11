@@ -177,9 +177,6 @@ async def increment_user_count(user_id, service_config, credits_deducted):
 async def add_user_payment(
     user_id, transaction_amount, product_id, credit_amount, payment_intent, timestamp
 ):
-    print("Adding payment to user")
-
-    # Create a new payment history object
     payment_history_instance = PaymentHistory(
         date_time=timestamp,
         transaction_amount=int(transaction_amount),
@@ -189,17 +186,19 @@ async def add_user_payment(
     )
 
     try:
-        # Find and update the user document
-        await db["users"].update_one(
-            {"_id": ObjectId(user_id)},
+        result = await db["users"].update_one(
+            {
+                "_id": ObjectId(user_id),
+                "payment_history.payment_intent_id": {"$ne": payment_intent},
+            },
             {
                 "$push": {"payment_history": payment_history_instance.dict()},
                 "$inc": {"credits": int(credit_amount)},
             },
-            upsert=True,  # Return the modified document
         )
+        if result.modified_count == 0:
+            print(f"add_user_payment: payment_intent {payment_intent!r} already applied or user not found, skipping")
 
     except Exception as e:
-        print("error at add_user_payment")
-        print(e)
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"error at add_user_payment: {e}")
+        raise HTTPException(status_code=500, detail="Payment processing failed")

@@ -214,9 +214,11 @@ async def test_generate_checks_user_credits(
 @patch("api.controllers.generate_controller.create_watermark")
 @patch("api.controllers.generate_controller.requests.get")
 @patch("concurrent.futures.ProcessPoolExecutor")
+@patch("api.controllers.generate_controller.guest_credits_col")
 @patch("api.controllers.generate_controller.users")
 async def test_generate_guest_skips_db_credit_check(
     mock_users,
+    mock_guest_credits,
     mock_executor_class,
     mock_get,
     mock_create_watermark,
@@ -225,10 +227,11 @@ async def test_generate_guest_skips_db_credit_check(
     mock_update,
     mock_increment,
 ):
-    """Guest users (user_id starting with 'guest_') must bypass DB credit lookup."""
+    """Guest users must use the guest_credits quota, not the users collection."""
     img2img_result, task_result = _build_novita_mocks()
     _setup_executor(mock_executor_class, img2img_result, task_result)
-    mock_users.find_one = AsyncMock(return_value={"_id": "guest_abc", "credits": 1})
+    mock_users.find_one = AsyncMock(return_value=None)
+    mock_guest_credits.find_one_and_update = AsyncMock(return_value={"_id": "guest_abc123", "used": 1})
     mock_get.return_value.content = _white_png_bytes()
     mock_create_watermark.return_value = Image.new("RGB", (512, 512), "grey")
     mock_create_doc.return_value = FAKE_IMAGE_ID
@@ -238,6 +241,23 @@ async def test_generate_guest_skips_db_credit_check(
     await predict(**{**PREDICT_KWARGS, "user_id": "guest_abc123"})
 
     mock_users.find_one.assert_not_called()
+    mock_guest_credits.find_one_and_update.assert_called_once()
+
+
+@patch("api.controllers.generate_controller.guest_credits_col")
+async def test_generate_guest_exhausted_quota_raises_403(mock_guest_credits):
+    """A guest that has used all free credits must get a 403."""
+    mock_guest_credits.find_one_and_update = AsyncMock(
+        return_value={"_id": "guest_abc123", "used": 4}  # > GUEST_FREE_CREDITS (3)
+    )
+    mock_guest_credits.update_one = AsyncMock()
+
+    with pytest.raises(HTTPException) as exc_info:
+        await predict(**{**PREDICT_KWARGS, "user_id": "guest_abc123"})
+
+    assert exc_info.value.status_code == 403
+    assert "credits" in exc_info.value.detail.lower()
+    mock_guest_credits.update_one.assert_called_once()  # undo increment
 
 
 # ---------------------------------------------------------------------------- #

@@ -59,30 +59,29 @@ async def stripe_webhook(request, stripe_signature):
     endpoint_secret = os.environ["STRIPE_ENDPOINT_SECRET"]
 
     data = await request.body()
+
     try:
         event = stripe.Webhook.construct_event(
             payload=data,
             sig_header=stripe_signature,
             secret=endpoint_secret
         )
+    except stripe.error.SignatureVerificationError:
+        raise HTTPException(status_code=400, detail="Invalid signature")
 
-        if event["type"] == "checkout.session.completed":
-            session = event["data"]["object"]
-            user_id = session["client_reference_id"]
-            transaction_amount = session["amount_total"]
-            product_id = session["metadata"]["product_id"]
-            credit_amount = PRICE_CREDITS_MAP.get(product_id)
-            if credit_amount is None:
-                print(f"stripe_webhook: unknown product_id {product_id!r}, skipping credit grant")
-                return {}
-            payment_intent = session["payment_intent"]
-            unix_timestamp = session["created"]
-            timestamp = datetime.utcfromtimestamp(unix_timestamp)
+    if event["type"] == "checkout.session.completed":
+        session = event["data"]["object"]
+        user_id = session["client_reference_id"]
+        transaction_amount = session["amount_total"]
+        product_id = session["metadata"]["product_id"]
+        credit_amount = PRICE_CREDITS_MAP.get(product_id)
+        if credit_amount is None:
+            print(f"stripe_webhook: unknown product_id {product_id!r}, skipping credit grant")
+            return {"status": "ok"}
+        payment_intent = session["payment_intent"]
+        unix_timestamp = session["created"]
+        timestamp = datetime.utcfromtimestamp(unix_timestamp)
 
-            # Update user doc with payment and credits
-            await add_user_payment(user_id, transaction_amount, product_id, credit_amount, payment_intent, timestamp)
+        await add_user_payment(user_id, transaction_amount, product_id, credit_amount, payment_intent, timestamp)
 
-    except Exception as e:
-        print("error at stripe_webhook")
-        print(e)
-        return {"error": str(e)}
+    return {"status": "ok"}
