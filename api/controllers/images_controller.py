@@ -208,10 +208,17 @@ async def get_images(
 # ---------------------------------------------------------------------------- #
 
 
-async def delete_image(id: str):
+async def delete_image(id: str, user_id: str):
     try:
         object_id = ObjectId(id)
         object_name = f"{id}.png"
+
+        # --------------------------- OWNERSHIP CHECK -------------------------- #
+        image = await images.find_one({"_id": object_id})
+        if not image:
+            raise HTTPException(status_code=404, detail="Image not found")
+        if image.get("user_id") != user_id:
+            raise HTTPException(status_code=403, detail="Not authorized to delete this image")
 
         # --------------------------- DELETE IMAGE FROM S3 --------------------------- #
         try:

@@ -77,16 +77,19 @@ async def test_toggle_like_image_not_found_returns_404(mock_images):
 
 @patch("api.controllers.images_controller.s3_session")
 @patch("api.controllers.images_controller.db")
-async def test_delete_image_removes_from_s3_and_mongo(mock_db, mock_s3_session):
+@patch("api.controllers.images_controller.images")
+async def test_delete_image_removes_from_s3_and_mongo(mock_images, mock_db, mock_s3_session):
     """Happy path: both S3 objects deleted and MongoDB document removed."""
     mock_session, mock_s3_client = _mock_s3_session()
     mock_s3_session.client = mock_session.client
+
+    mock_images.find_one = AsyncMock(return_value={"_id": ObjectId(FAKE_IMAGE_ID), "user_id": FAKE_USER_ID})
 
     mock_collection = AsyncMock()
     mock_collection.delete_one = AsyncMock(return_value=MagicMock(deleted_count=1))
     mock_db.__getitem__ = MagicMock(return_value=mock_collection)
 
-    result = await delete_image(FAKE_IMAGE_ID)
+    result = await delete_image(FAKE_IMAGE_ID, FAKE_USER_ID)
 
     assert mock_s3_client.delete_object.call_count == 2
     bucket_names = {c.kwargs["Bucket"] for c in mock_s3_client.delete_object.call_args_list}
@@ -96,21 +99,54 @@ async def test_delete_image_removes_from_s3_and_mongo(mock_db, mock_s3_session):
     assert result == {"message": "Image and document deleted successfully"}
 
 
-@patch("api.controllers.images_controller.s3_session")
-@patch("api.controllers.images_controller.db")
-async def test_delete_image_not_found_raises_404(mock_db, mock_s3_session):
-    """When MongoDB finds nothing to delete, a 404 must be raised."""
-    mock_session, mock_s3_client = _mock_s3_session()
-    mock_s3_session.client = mock_session.client
-
-    mock_collection = AsyncMock()
-    mock_collection.delete_one = AsyncMock(return_value=MagicMock(deleted_count=0))
-    mock_db.__getitem__ = MagicMock(return_value=mock_collection)
+@patch("api.controllers.images_controller.images")
+async def test_delete_image_not_found_raises_404(mock_images):
+    """When the image doesn't exist in MongoDB, a 404 must be raised before S3 deletion."""
+    mock_images.find_one = AsyncMock(return_value=None)
 
     with pytest.raises(HTTPException) as exc_info:
-        await delete_image(FAKE_IMAGE_ID)
+        await delete_image(FAKE_IMAGE_ID, FAKE_USER_ID)
 
     assert exc_info.value.status_code == 404
+
+
+@patch("api.controllers.images_controller.db")
+@patch("api.controllers.images_controller.images")
+@patch("api.controllers.images_controller.s3_session")
+async def test_delete_image_rejects_non_owner(mock_s3_session, mock_images, mock_db):
+    mock_session, mock_s3_client = _mock_s3_session()
+    mock_s3_session.client = mock_session.client
+    mock_images.find_one = AsyncMock(return_value={"_id": ObjectId(FAKE_IMAGE_ID), "user_id": "someone_else"})
+
+    with pytest.raises(HTTPException) as exc:
+        await delete_image(FAKE_IMAGE_ID, FAKE_USER_ID)
+
+    assert exc.value.status_code == 403
+    mock_s3_client.delete_object.assert_not_called()
+
+
+@patch("api.controllers.images_controller.db")
+@patch("api.controllers.images_controller.images")
+@patch("api.controllers.images_controller.s3_session")
+async def test_delete_image_allows_owner(mock_s3_session, mock_images, mock_db):
+    mock_session, mock_s3_client = _mock_s3_session()
+    mock_s3_session.client = mock_session.client
+    mock_images.find_one = AsyncMock(return_value={"_id": ObjectId(FAKE_IMAGE_ID), "user_id": FAKE_USER_ID})
+    delete_result = MagicMock(deleted_count=1)
+    mock_db.__getitem__.return_value.delete_one = AsyncMock(return_value=delete_result)
+
+    result = await delete_image(FAKE_IMAGE_ID, FAKE_USER_ID)
+
+    assert result == {"message": "Image and document deleted successfully"}
+    assert mock_s3_client.delete_object.call_count == 2
+
+
+@patch("api.controllers.images_controller.images")
+async def test_delete_image_not_found_404(mock_images):
+    mock_images.find_one = AsyncMock(return_value=None)
+    with pytest.raises(HTTPException) as exc:
+        await delete_image(FAKE_IMAGE_ID, FAKE_USER_ID)
+    assert exc.value.status_code == 404
 
 
 # ---------------------------------------------------------------------------- #
