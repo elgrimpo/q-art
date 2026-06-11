@@ -30,16 +30,17 @@ export async function middleware(request) {
   return NextResponse.next();
 }
  
-// Update matcher to be more specific about which paths to handle
+// Allowlist: only run the auth middleware on routes that actually need a session.
+// Everything else (robots.txt, sitemap.xml, llms.txt, marketing pages, etc.)
+// bypasses the middleware so crawlers can access them without being 307-redirected
+// to the sign-in page.
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api/auth (auth endpoints)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
-    '/((?!api/auth|_next/static|_next/image|favicon.ico).*)',
+    '/generate',
+    '/mycodes',
+    '/mycodes/:path*',
+    '/profile',
+    '/profile/:path*',
+    '/images/:path*',
   ],
 };
