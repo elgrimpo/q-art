@@ -225,6 +225,12 @@ async def upscale(image_id, user_id, resolution):
         # -------------------------------- CHECK FUNDS ------------------------------- #
         image = await images.find_one({"_id": ObjectId(image_id)})
 
+        # --------------------------- OWNERSHIP CHECK -------------------------- #
+        if not image:
+            raise HTTPException(status_code=404, detail="Image not found")
+        if image.get("user_id") != user_id:
+            raise HTTPException(status_code=403, detail="Not authorized to upscale this image")
+
         service_config = {
             "upscale_resize": (
                 int(resolution) if image["width"] < int(resolution) else 0

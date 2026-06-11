@@ -168,3 +168,31 @@ async def test_upscale_insufficient_credits_raises_403(mock_images, mock_users):
         await upscale(image_id=FAKE_IMAGE_ID, user_id=FAKE_USER_ID, resolution="1024")
 
     assert exc_info.value.status_code == 403
+
+
+# ---------------------------------------------------------------------------- #
+#                         OWNERSHIP / NOT-FOUND GUARDS                         #
+# ---------------------------------------------------------------------------- #
+
+@patch("api.controllers.generate_controller.users")
+@patch("api.controllers.generate_controller.images")
+async def test_upscale_rejects_non_owner(mock_images, mock_users):
+    img = _fake_image()
+    img["user_id"] = "someone_else"
+    mock_images.find_one = AsyncMock(return_value=img)
+    mock_users.find_one = AsyncMock(return_value={"_id": FAKE_USER_ID, "credits": 1000})
+
+    with pytest.raises(HTTPException) as exc:
+        await upscale(FAKE_IMAGE_ID, FAKE_USER_ID, 1024)
+
+    assert exc.value.status_code == 403
+    # Credits must not be touched on a rejected upscale
+    mock_users.find_one.assert_not_called()
+
+
+@patch("api.controllers.generate_controller.images")
+async def test_upscale_image_not_found_404(mock_images):
+    mock_images.find_one = AsyncMock(return_value=None)
+    with pytest.raises(HTTPException) as exc:
+        await upscale(FAKE_IMAGE_ID, FAKE_USER_ID, 1024)
+    assert exc.value.status_code == 404
