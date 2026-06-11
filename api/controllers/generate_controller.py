@@ -8,6 +8,7 @@ from novita_client import *
 import aioboto3
 import base64
 from bson import ObjectId
+from bson.errors import InvalidId
 from fastapi import HTTPException
 import motor.motor_asyncio as motor
 from pymongo import ReturnDocument
@@ -44,6 +45,12 @@ images = db.get_collection("images")
 guest_credits_col = db.get_collection("guest_credits")
 
 GUEST_FREE_CREDITS = 3
+
+# Resolutions a user may request for an upscale. Must stay in sync with the
+# upscale_resize price map in api/utils/utils.calculate_credits — an off-tier
+# value isn't priced (calculate_credits would return 0), so it must be rejected
+# rather than run as a free arbitrary-size upscale.
+ALLOWED_UPSCALE_RESOLUTIONS = {512, 1024, 2048, 4096}
 
 # S3
 api_url = os.environ["S3_URL"]
@@ -262,8 +269,26 @@ async def predict(
 
 async def upscale(image_id, user_id, resolution):
     try:
+        # ------------------------------ VALIDATE INPUT ------------------------------ #
+        # Reject an unknown resolution up front: a non-numeric value would raise
+        # ValueError on int() and an off-tier size would run a real upscale for 0
+        # credits (it isn't in the price map). Either way -> clean 400, not a raw 500.
+        try:
+            resolution = int(resolution)
+        except (TypeError, ValueError):
+            raise HTTPException(status_code=400, detail="Invalid resolution")
+        if resolution not in ALLOWED_UPSCALE_RESOLUTIONS:
+            raise HTTPException(status_code=400, detail="Invalid resolution")
+
+        # A malformed id can't be a real document — treat it as not found rather than
+        # letting ObjectId() raise InvalidId and surface as a generic 500.
+        try:
+            object_id = ObjectId(image_id)
+        except (InvalidId, TypeError):
+            raise HTTPException(status_code=404, detail="Image not found")
+
         # -------------------------------- CHECK FUNDS ------------------------------- #
-        image = await images.find_one({"_id": ObjectId(image_id)})
+        image = await images.find_one({"_id": object_id})
 
         # --------------------------- OWNERSHIP CHECK -------------------------- #
         if not image:
@@ -273,7 +298,7 @@ async def upscale(image_id, user_id, resolution):
 
         service_config = {
             "upscale_resize": (
-                int(resolution) if image["width"] < int(resolution) else 0
+                resolution if image["width"] < resolution else 0
             ),
             "download": not image.get("downloaded", False),
         }
@@ -288,7 +313,7 @@ async def upscale(image_id, user_id, resolution):
             raise HTTPException(status_code=403, detail="Insufficient credits")
 
         # ------------------------------ UPSCALE REQUIRED ----------------------------- #
-        if int(resolution) > image["width"]:
+        if resolution > image["width"]:
 
             # ----------------------------- GET IMAGE FROM S3 ---------------------------- #
             try:
@@ -315,8 +340,8 @@ async def upscale(image_id, user_id, resolution):
             try:
                 upscale_request = UpscaleRequest(
                     image=base64_image,
-                    upscaling_resize_w=int(resolution),
-                    upscaling_resize_h=int(resolution),
+                    upscaling_resize_w=resolution,
+                    upscaling_resize_h=resolution,
                     resize_mode=UpscaleResizeMode.SIZE,
                 )
                 # Start a process pool executor
@@ -347,8 +372,8 @@ async def upscale(image_id, user_id, resolution):
                         Body=upscaled_image_content,
                     )
                 update_data = {
-                    "width": int(resolution),
-                    "height": int(resolution),
+                    "width": resolution,
+                    "height": resolution,
                     "downloaded": True,
                 }
 

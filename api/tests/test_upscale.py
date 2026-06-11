@@ -196,3 +196,38 @@ async def test_upscale_image_not_found_404(mock_images):
     with pytest.raises(HTTPException) as exc:
         await upscale(FAKE_IMAGE_ID, FAKE_USER_ID, 1024)
     assert exc.value.status_code == 404
+
+
+@patch("api.controllers.generate_controller.images")
+async def test_upscale_malformed_image_id_404(mock_images):
+    """A malformed id must return a clean 404, not a raw 500 from ObjectId()."""
+    mock_images.find_one = AsyncMock()
+    with pytest.raises(HTTPException) as exc:
+        await upscale("not-a-valid-objectid", FAKE_USER_ID, 1024)
+    assert exc.value.status_code == 404
+    # The DB is never touched for an id that can't be a real document.
+    mock_images.find_one.assert_not_called()
+
+
+# ---------------------------------------------------------------------------- #
+#                         RESOLUTION VALIDATION → 400                          #
+# ---------------------------------------------------------------------------- #
+
+@patch("api.controllers.generate_controller.images")
+async def test_upscale_non_numeric_resolution_400(mock_images):
+    """A non-numeric resolution is rejected before any DB access."""
+    mock_images.find_one = AsyncMock()
+    with pytest.raises(HTTPException) as exc:
+        await upscale(FAKE_IMAGE_ID, FAKE_USER_ID, "huge")
+    assert exc.value.status_code == 400
+    mock_images.find_one.assert_not_called()
+
+
+@patch("api.controllers.generate_controller.images")
+async def test_upscale_off_tier_resolution_400(mock_images):
+    """An off-tier size (not in the price map) must be rejected, not run for free."""
+    mock_images.find_one = AsyncMock()
+    with pytest.raises(HTTPException) as exc:
+        await upscale(FAKE_IMAGE_ID, FAKE_USER_ID, 999)
+    assert exc.value.status_code == 400
+    mock_images.find_one.assert_not_called()
