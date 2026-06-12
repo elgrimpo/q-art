@@ -17,7 +17,8 @@ import certifi
 def mongo_db():
     """Motor connection to QART (production DB). Cleaned up after the session."""
     mongo_url = os.environ["MONGO_URL"]
-    client = motor.AsyncIOMotorClient(mongo_url, tlsCAFile=certifi.where())
+    _tls = {"tlsCAFile": certifi.where()} if "localhost" not in mongo_url else {}
+    client = motor.AsyncIOMotorClient(mongo_url, **_tls)
     db = client.get_database("QART")
     yield db
     client.close()

@@ -41,7 +41,8 @@ logger = logging.getLogger(__name__)
 
 # MONGO DB
 mongo_url = os.environ["MONGO_URL"]
-client = motor.AsyncIOMotorClient(mongo_url, tlsCAFile=certifi.where())
+_tls = {"tlsCAFile": certifi.where()} if "localhost" not in mongo_url else {}
+client = motor.AsyncIOMotorClient(mongo_url, **_tls)
 db = client.get_database("QART")
 users = db.get_collection("users")
 images = db.get_collection("images")
