@@ -12,12 +12,13 @@ Notes:
   add_user_payment); replaying the same payment_intent must NOT grant credits twice.
 - The test seeds a real user doc in QART.users and deletes it in a finally block.
 """
+import hashlib
+import hmac
 import json
 import os
 import time
 import httpx
 import pytest
-import stripe
 from bson import ObjectId
 from datetime import datetime, timezone
 
@@ -56,15 +57,12 @@ def _build_checkout_event(user_id: str, payment_intent: str) -> dict:
 
 
 def _sign_payload(payload_bytes: bytes) -> str:
-    """Sign a raw payload with STRIPE_ENDPOINT_SECRET using the Stripe test helper."""
+    """Sign a raw payload with STRIPE_ENDPOINT_SECRET using Stripe's v1 HMAC scheme."""
     secret = os.environ["STRIPE_ENDPOINT_SECRET"]
     timestamp = int(time.time())
-    return stripe.WebhookSignature.generate_header(
-        payload=payload_bytes,
-        secret=secret,
-        timestamp=timestamp,
-        scheme=stripe.WebhookSignature.EXPECTED_SCHEME,
-    )
+    signed_payload = f"{timestamp}.{payload_bytes.decode('utf-8')}"
+    sig = hmac.new(secret.encode(), signed_payload.encode(), hashlib.sha256).hexdigest()
+    return f"t={timestamp},v1={sig}"
 
 
 def _client():
