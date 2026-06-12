@@ -68,7 +68,6 @@ async def _run_predict(
     mock_novita_client.img2img_v3.return_value = img2img_result
     mock_novita_client.wait_for_task_v3.return_value = task_result
 
-    mock_users.find_one_and_update = AsyncMock(return_value={"_id": FAKE_IMAGE_ID, "credits": 10})
     mock_download.return_value = _white_png_bytes()
     mock_create_watermark.return_value = Image.new("RGB", (512, 512), "grey")
     mock_create_doc.return_value = FAKE_IMAGE_ID
@@ -349,7 +348,6 @@ async def test_predict_novita_failure_raises_500(
     mock_create_watermark,
 ):
     """A failed Novita task (status != SUCCEED) must surface as a 500."""
-    mock_users.find_one_and_update = AsyncMock(return_value={"_id": FAKE_IMAGE_ID, "credits": 10})
     mock_download.return_value = _white_png_bytes()
     mock_create_watermark.return_value = Image.new("RGB", (512, 512), "grey")
 
@@ -404,7 +402,7 @@ async def test_download_image_bytes_uses_timeout_and_returns_content(mock_client
 
 @patch("api.controllers.generate_controller.httpx.AsyncClient")
 async def test_download_image_bytes_raises_on_http_error(mock_client_class):
-    """A non-2xx download must raise so predict() refunds credits and 500s."""
+    """A non-2xx download must propagate as an exception so predict() surfaces a 500."""
     response = MagicMock()
     response.raise_for_status.side_effect = httpx.HTTPStatusError(
         "404", request=MagicMock(), response=MagicMock()
