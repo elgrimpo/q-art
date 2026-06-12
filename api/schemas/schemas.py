@@ -22,6 +22,7 @@ class ImageCounts(BaseModel):
     upscale: Optional[int] = None
 
 
+# TODO(QRAI-53 Task 5): remove PaymentHistory — no longer used by User after credit system removal
 class PaymentHistory(BaseModel):
     date_time: datetime
     transaction_amount: int

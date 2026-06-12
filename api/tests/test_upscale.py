@@ -1,3 +1,6 @@
+# TODO(QRAI-53 Task 3/7): test_upscale.py exercises the pre-migration upscale() controller
+# which still uses "downloaded" field and the old route. This file will be deleted in Task 7
+# when /api/upscale/{image_id} is retired. Assertions here use raw dicts, not Pydantic models.
 import pytest
 from datetime import datetime, timezone
 from unittest.mock import AsyncMock, MagicMock, patch
