@@ -46,7 +46,7 @@ jobs:
           python-version: '3.11'
           cache: pip
       - run: pip install -r requirements.txt
-      - run: python -m pytest api/tests/ -v --ignore=api/tests/e2e
+      - run: python -m pytest api/tests/ -v -m "not e2e"
       - name: Run DB-backed e2e tests
         run: python -m pytest api/tests/e2e/ -v -m "e2e and not novita" --timeout=30
         env:
