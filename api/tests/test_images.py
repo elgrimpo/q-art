@@ -6,7 +6,7 @@ from pymongo import DESCENDING, ASCENDING
 
 from fastapi import HTTPException
 
-from api.controllers.images_controller import toggle_like, delete_image, get_images
+from api.controllers.images_controller import toggle_like, delete_image, get_images, get_image
 
 
 FAKE_IMAGE_ID = "507f1f77bcf86cd799439011"
@@ -232,3 +232,37 @@ async def test_get_images_sort_most_liked(mock_db):
     sort_stage = next(s for s in pipeline if "$sort" in s)
     assert sort_stage["$sort"]["likes_count"] == DESCENDING
     assert sort_stage["$sort"]["created_at"] == DESCENDING
+
+
+# ---------------------------------------------------------------------------- #
+#                           GET IMAGE BY ID                                    #
+# ---------------------------------------------------------------------------- #
+
+@patch("api.controllers.images_controller.db")
+async def test_get_image_found(mock_db):
+    """get_image returns the document with _id converted to str."""
+    image_doc = {
+        "_id": ObjectId(FAKE_IMAGE_ID),
+        "user_id": FAKE_USER_ID,
+        "prompt": "a dragon",
+    }
+    mock_db.__getitem__.return_value.find_one = AsyncMock(return_value=image_doc)
+
+    result = await get_image(FAKE_IMAGE_ID)
+
+    assert result["_id"] == FAKE_IMAGE_ID
+    assert result["prompt"] == "a dragon"
+    mock_db.__getitem__.return_value.find_one.assert_awaited_once_with(
+        {"_id": ObjectId(FAKE_IMAGE_ID)}
+    )
+
+
+@patch("api.controllers.images_controller.db")
+async def test_get_image_not_found_raises_404(mock_db):
+    """get_image raises HTTPException 404 when no document matches."""
+    mock_db.__getitem__.return_value.find_one = AsyncMock(return_value=None)
+
+    with pytest.raises(HTTPException) as exc_info:
+        await get_image(FAKE_IMAGE_ID)
+
+    assert exc_info.value.status_code == 404
