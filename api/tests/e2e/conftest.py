@@ -5,12 +5,20 @@ All tests write to the real QART database and clean up after themselves.
 Run with: pytest api/tests/e2e/ -v --co  (to list without running)
           pytest api/tests/e2e/ -v        (to run all e2e tests)
 """
+import asyncio
 import os
 import time
 import jwt
 import pytest
 import motor.motor_asyncio as motor
 import certifi
+
+
+@pytest.fixture(scope="session")
+def event_loop():
+    loop = asyncio.new_event_loop()
+    yield loop
+    loop.close()
 
 
 @pytest.fixture(scope="session")
