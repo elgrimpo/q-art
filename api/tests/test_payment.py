@@ -6,7 +6,7 @@ import stripe
 from bson import ObjectId
 from fastapi import HTTPException
 
-from api.controllers.payment_controller import stripe_webhook, PRICE_CREDITS_MAP
+from api.controllers.payment_controller import stripe_webhook, PRICE_CREDITS_MAP, create_checkout_session
 from api.controllers.users_controller import add_user_payment
 
 # Use a real price ID from the map so tests reflect the actual product catalogue.
@@ -171,4 +171,38 @@ async def test_add_payment_db_error_raises_500(mock_db):
     with pytest.raises(HTTPException) as exc_info:
         await add_user_payment(FAKE_USER_ID, 999, VALID_PRICE_ID, VALID_CREDITS, FAKE_PI, datetime.utcnow())
 
+    assert exc_info.value.status_code == 500
+
+
+# ---------------------------------------------------------------------------- #
+#                         create_checkout_session                              #
+# ---------------------------------------------------------------------------- #
+
+@patch("api.controllers.payment_controller.stripe.checkout.Session.create")
+def test_create_checkout_returns_session_url(mock_create):
+    """Happy path: a valid price_id returns the Stripe session URL."""
+    mock_session = MagicMock()
+    mock_session.url = "https://checkout.stripe.com/pay/cs_test_abc"
+    mock_create.return_value = mock_session
+
+    result = create_checkout_session(VALID_PRICE_ID, FAKE_USER_ID)
+
+    assert result == {"session_url": "https://checkout.stripe.com/pay/cs_test_abc"}
+    mock_create.assert_called_once()
+
+
+def test_create_checkout_unknown_price_id_raises_400():
+    """An unrecognised price_id must raise 400 before calling Stripe."""
+    with pytest.raises(HTTPException) as exc_info:
+        create_checkout_session("price_unknown_bogus", FAKE_USER_ID)
+    assert exc_info.value.status_code == 400
+
+
+@patch("api.controllers.payment_controller.stripe.checkout.Session.create")
+def test_create_checkout_stripe_error_raises_500(mock_create):
+    """A Stripe API failure must surface as 500, not propagate raw."""
+    mock_create.side_effect = Exception("Stripe connection refused")
+
+    with pytest.raises(HTTPException) as exc_info:
+        create_checkout_session(VALID_PRICE_ID, FAKE_USER_ID)
     assert exc_info.value.status_code == 500
