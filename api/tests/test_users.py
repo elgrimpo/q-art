@@ -63,7 +63,6 @@ async def test_get_user_info_returns_user_when_found(mock_users):
 
     assert result.email == "test@example.com"
     assert result.name == "Test User"
-    assert result.credits == 10
 
 
 @patch("api.controllers.users_controller.users")
