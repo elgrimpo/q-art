@@ -32,6 +32,8 @@ describe('AmplitudeContextProvider — identify', () => {
     useStore.setState({ user: { _id: 'me123', email: 'biedermann.chris@gmail.com' } });
     render(<AmplitudeContextProvider><div /></AmplitudeContextProvider>);
 
+    expect(amplitude.setUserId).toHaveBeenCalledWith('me123');
+    expect(amplitude.Identify).toHaveBeenCalledTimes(1);
     const instance = amplitude.Identify.mock.results[0].value;
     expect(instance.set).toHaveBeenCalledWith('is_internal', true);
   });
@@ -40,6 +42,8 @@ describe('AmplitudeContextProvider — identify', () => {
     useStore.setState({ user: { _id: 'me456', email: 'christopherpeterman812@gmail.com' } });
     render(<AmplitudeContextProvider><div /></AmplitudeContextProvider>);
 
+    expect(amplitude.setUserId).toHaveBeenCalledWith('me456');
+    expect(amplitude.Identify).toHaveBeenCalledTimes(1);
     const instance = amplitude.Identify.mock.results[0].value;
     expect(instance.set).toHaveBeenCalledWith('is_internal', true);
   });
