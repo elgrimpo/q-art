@@ -1,8 +1,10 @@
-import { generateImage } from '../_utils/ImagesUtils'
+import { generateImage, deleteImage, likeImage, upscaleImage, getImages, getImageById } from '../_utils/ImagesUtils'
+import axios from 'axios'
 
 // Mock Next.js server-only APIs used by ImagesUtils
 jest.mock('next/cache', () => ({ revalidateTag: jest.fn() }))
 jest.mock('next/navigation', () => ({ notFound: jest.fn() }))
+jest.mock('axios')
 jest.mock('../_utils/backendAuth', () => ({
   getBackendToken: jest.fn().mockResolvedValue('test-token'),
 }))
@@ -67,5 +69,154 @@ describe('generateImage', () => {
     const [url, opts] = fetch.mock.calls[0]
     expect(opts.headers.Authorization).toBe('Bearer test-token')
     expect(url).not.toContain('user_id=')
+  })
+})
+
+// --------------------------------------------------------------------------
+// deleteImage
+// --------------------------------------------------------------------------
+
+describe('deleteImage', () => {
+  test('calls axios.delete with correct URL and auth header', async () => {
+    axios.delete.mockResolvedValueOnce({})
+    await deleteImage('img_123')
+    const [url, config] = axios.delete.mock.calls[0]
+    expect(url).toContain('/api/images/delete/img_123')
+    expect(config.headers.Authorization).toBe('Bearer test-token')
+  })
+
+  test('resolves true on success', async () => {
+    axios.delete.mockResolvedValueOnce({})
+    await expect(deleteImage('img_123')).resolves.toBe(true)
+  })
+
+  test('rejects when axios.delete throws', async () => {
+    axios.delete.mockRejectedValueOnce(new Error('Network error'))
+    await expect(deleteImage('img_123')).rejects.toThrow('Network error')
+  })
+})
+
+// --------------------------------------------------------------------------
+// likeImage
+// --------------------------------------------------------------------------
+
+describe('likeImage', () => {
+  test('calls axios.put with correct URL and auth header', async () => {
+    axios.put.mockResolvedValueOnce({})
+    await likeImage('img_456', 'user_1')
+    const [url, , config] = axios.put.mock.calls[0]
+    expect(url).toContain('/api/images/like/img_456')
+    expect(config.headers.Authorization).toBe('Bearer test-token')
+  })
+
+  test('resolves true on success', async () => {
+    axios.put.mockResolvedValueOnce({})
+    await expect(likeImage('img_456', 'user_1')).resolves.toBe(true)
+  })
+
+  test('rejects when axios.put throws', async () => {
+    axios.put.mockRejectedValueOnce(new Error('Like failed'))
+    await expect(likeImage('img_456', 'user_1')).rejects.toThrow('Like failed')
+  })
+})
+
+// --------------------------------------------------------------------------
+// upscaleImage
+// --------------------------------------------------------------------------
+
+describe('upscaleImage', () => {
+  test('calls axios.get with resolution param and auth header', async () => {
+    const fakeImage = { _id: 'img_789', width: 1024 }
+    axios.get.mockResolvedValueOnce({ data: fakeImage })
+    await upscaleImage('img_789', 1024, 'user_1')
+    const [url, config] = axios.get.mock.calls[0]
+    expect(url).toContain('/api/upscale/img_789')
+    expect(config.params.resolution).toBe(1024)
+    expect(config.headers.Authorization).toBe('Bearer test-token')
+  })
+
+  test('resolves with the image data on success', async () => {
+    const fakeImage = { _id: 'img_789', width: 1024, image_url: 'https://s3/img.png' }
+    axios.get.mockResolvedValueOnce({ data: fakeImage })
+    const result = await upscaleImage('img_789', 1024, 'user_1')
+    expect(result).toEqual(fakeImage)
+  })
+
+  test('rejects when axios.get throws (e.g. 403 insufficient credits)', async () => {
+    const err = Object.assign(new Error('Request failed'), { response: { status: 403 } })
+    axios.get.mockRejectedValueOnce(err)
+    await expect(upscaleImage('img_789', 1024, 'user_1')).rejects.toThrow()
+  })
+})
+
+// --------------------------------------------------------------------------
+// getImages
+// --------------------------------------------------------------------------
+
+describe('getImages', () => {
+  test('calls fetch with forwarded query params', async () => {
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve([]),
+    })
+    await getImages({ page: 2, image_style: 'Anime' })
+    const [url] = fetch.mock.calls[0]
+    expect(url).toContain('page=2')
+    expect(url).toContain('image_style=Anime')
+  })
+
+  test('resolves with the image array', async () => {
+    const fakeImages = [{ _id: 'img1' }, { _id: 'img2' }]
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve(fakeImages),
+    })
+    const result = await getImages({})
+    expect(result).toEqual(fakeImages)
+  })
+
+  test('rejects when response is not ok', async () => {
+    fetch.mockResolvedValueOnce({ ok: false, status: 500 })
+    await expect(getImages({})).rejects.toThrow()
+  })
+})
+
+// --------------------------------------------------------------------------
+// getImageById
+// --------------------------------------------------------------------------
+
+describe('getImageById', () => {
+  test('calls fetch with the correct image URL', async () => {
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ _id: 'img_abc' }),
+    })
+    await getImageById('img_abc')
+    const [url] = fetch.mock.calls[0]
+    expect(url).toContain('/api/images/get/img_abc')
+  })
+
+  test('resolves with the image data', async () => {
+    const fakeImage = { _id: 'img_abc', prompt: 'a dragon' }
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve(fakeImage),
+    })
+    const result = await getImageById('img_abc')
+    expect(result).toEqual(fakeImage)
+  })
+
+  test('calls notFound() when response is 404', async () => {
+    const { notFound } = require('next/navigation')
+    fetch.mockResolvedValueOnce({
+      ok: false,
+      status: 404,
+      json: () => Promise.resolve({}),
+    })
+    // notFound() is called inside the catch block when status === 404
+    try {
+      await getImageById('missing_id')
+    } catch (_) { /* expected */ }
+    expect(notFound).toHaveBeenCalled()
   })
 })
