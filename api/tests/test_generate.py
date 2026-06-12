@@ -156,7 +156,7 @@ async def test_generate_calls_novita_twice(
 @patch("api.controllers.generate_controller.download_image_bytes", new_callable=AsyncMock)
 @patch("api.controllers.generate_controller.client")
 @patch("api.controllers.generate_controller.users")
-async def test_generate_checks_user_credits(
+async def test_generate_does_not_check_credits_for_logged_in_user(
     mock_users,
     mock_novita_client,
     mock_download,
@@ -166,13 +166,20 @@ async def test_generate_checks_user_credits(
     mock_update,
     mock_increment,
 ):
-    """For non-guest users, predict() must query the DB for credits."""
-    await _run_predict(
-        mock_users, mock_novita_client, mock_download, mock_create_watermark,
-        mock_create_doc, mock_upload, mock_update, mock_increment,
-    )
+    """Logged-in users must generate without any DB credit check."""
+    img2img_result, task_result = _build_novita_mocks()
+    mock_novita_client.img2img_v3.return_value = img2img_result
+    mock_novita_client.wait_for_task_v3.return_value = task_result
+    mock_download.return_value = _white_png_bytes()
+    mock_create_watermark.return_value = Image.new("RGB", (512, 512), "grey")
+    mock_create_doc.return_value = FAKE_IMAGE_ID
+    mock_upload.side_effect = [ORIG_URL, WMARK_URL]
+    mock_update.return_value = {"_id": FAKE_IMAGE_ID, "image_url": ORIG_URL, "watermarked_image_url": WMARK_URL}
 
-    mock_users.find_one_and_update.assert_called_once()
+    await predict(**PREDICT_KWARGS)
+
+    # Must NOT touch the users collection for credit purposes
+    mock_users.find_one_and_update.assert_not_called()
 
 
 @patch("api.controllers.generate_controller.increment_user_count", new_callable=AsyncMock)
@@ -330,18 +337,6 @@ async def test_storage_updates_doc_with_urls(
 # ---------------------------------------------------------------------------- #
 #                         TEST 3: ERROR PATHS                                  #
 # ---------------------------------------------------------------------------- #
-
-@patch("api.controllers.generate_controller.users")
-async def test_predict_insufficient_credits_raises_403(mock_users):
-    """A user with 0 credits must get a 403, not a 500."""
-    mock_users.find_one_and_update = AsyncMock(return_value=None)
-
-    with pytest.raises(HTTPException) as exc_info:
-        await predict(**PREDICT_KWARGS)
-
-    assert exc_info.value.status_code == 403
-    assert "credits" in exc_info.value.detail.lower()
-
 
 @patch("api.controllers.generate_controller.create_watermark")
 @patch("api.controllers.generate_controller.download_image_bytes", new_callable=AsyncMock)

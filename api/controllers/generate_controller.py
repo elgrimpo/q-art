@@ -101,10 +101,6 @@ async def predict(
 ):
     try:
         # --------------------------------- CHECK FUNDS ------------------------------- #
-        service_config = {"generate": "1"}
-        credits_required = calculate_credits(service_config)
-        credits_deducted = False
-
         # Handle guest users: enforce server-side quota via atomic MongoDB counter.
         if str(user_id).startswith("guest_"):
             result = await guest_credits_col.find_one_and_update(
@@ -117,15 +113,6 @@ async def predict(
                 # Undo the increment so the counter stays stable at the limit.
                 await guest_credits_col.update_one({"_id": user_id}, {"$inc": {"used": -1}})
                 raise HTTPException(status_code=403, detail="Insufficient credits")
-        else:
-            # Atomic check-and-deduct: no match means insufficient credits.
-            result = await users.find_one_and_update(
-                {"_id": ObjectId(user_id), "credits": {"$gte": credits_required}},
-                {"$inc": {"credits": -credits_required}},
-            )
-            if result is None:
-                raise HTTPException(status_code=403, detail="Insufficient credits")
-            credits_deducted = True
 
         # ------------------------------ CREATE QR CODE ------------------------------ #
         qr = qrcode.QRCode(
@@ -190,10 +177,6 @@ async def predict(
             generated_image = Image.open(BytesIO(image_bytes))
 
         except Exception as generation_error:
-            if credits_deducted:
-                await users.update_one(
-                    {"_id": ObjectId(user_id)}, {"$inc": {"credits": credits_required}}
-                )
             logger.error("Image generation failed", exc_info=True)
             raise HTTPException(status_code=500, detail="Image generation failed")
 
@@ -236,18 +219,13 @@ async def predict(
             updated_image = await update_image(inserted_image_id, updated_data)
 
         except Exception as db_error:
-            if credits_deducted:
-                await users.update_one(
-                    {"_id": ObjectId(user_id)}, {"$inc": {"credits": credits_required}}
-                )
             logger.error("Database insertion failed", exc_info=True)
             raise HTTPException(status_code=500, detail="Database insertion failed")
 
         # ---------------------- UPDATE USER CREDITS AND COUNT ---------------------- #
         try:
             if not str(user_id).startswith("guest_"):
-                # Credits already atomically deducted above; pass 0 to only update counters.
-                await increment_user_count(user_id, service_config, 0)
+                await increment_user_count(user_id, {"generate": "1"}, 0)
         except Exception:
             # Handle user count update error
             raise HTTPException(status_code=500, detail="User count update failed")
