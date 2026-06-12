@@ -35,6 +35,7 @@ def _client():
 
 
 @pytest.mark.e2e
+@pytest.mark.novita
 async def test_generate_produces_scannable_image(mongo_db):
     """
     Full generation flow: real Novita call produces image, stored in S3 and MongoDB.

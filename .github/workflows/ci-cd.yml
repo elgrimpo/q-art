@@ -34,6 +34,11 @@ jobs:
   test-backend:
     name: Backend Tests
     runs-on: ubuntu-latest
+    services:
+      mongodb:
+        image: mongo:7
+        ports:
+          - 27017:27017
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -41,7 +46,13 @@ jobs:
           python-version: '3.11'
           cache: pip
       - run: pip install -r requirements.txt
-      - run: python -m pytest api/tests/ -v
+      - run: python -m pytest api/tests/ -v --ignore=api/tests/e2e
+      - name: Run DB-backed e2e tests
+        run: python -m pytest api/tests/e2e/ -v -m "e2e and not novita" --timeout=30
+        env:
+          MONGO_URL: mongodb://localhost:27017
+          BACKEND_JWT_SECRET: ${{ secrets.BACKEND_JWT_SECRET }}
+          STRIPE_ENDPOINT_SECRET: ${{ secrets.STRIPE_ENDPOINT_SECRET }}
 
   deploy:
     name: Deploy to Heroku

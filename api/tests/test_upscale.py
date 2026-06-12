@@ -1,4 +1,3 @@
-import concurrent.futures
 import pytest
 from datetime import datetime, timezone
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -12,12 +11,6 @@ FAKE_IMAGE_ID = "507f1f77bcf86cd799439011"
 FAKE_USER_ID = "507f1f77bcf86cd799439012"
 ORIG_URL = f"https://qrartimages.s3.us-west-1.amazonaws.com/{FAKE_IMAGE_ID}.png"
 WMARK_URL = f"https://qrartimageswatermarked.s3.us-west-1.amazonaws.com/{FAKE_IMAGE_ID}.png"
-
-
-def _resolved_future(result):
-    f = concurrent.futures.Future()
-    f.set_result(result)
-    return f
 
 
 def _fake_image(width=512, downloaded=False):
@@ -108,7 +101,6 @@ async def test_upscale_already_downloaded_at_resolution_skips_update(
 
 @patch("api.controllers.generate_controller.increment_user_count", new_callable=AsyncMock)
 @patch("api.controllers.generate_controller.update_image", new_callable=AsyncMock)
-@patch("concurrent.futures.ProcessPoolExecutor")
 @patch("api.controllers.generate_controller.client")
 @patch("api.controllers.generate_controller.s3_session")
 @patch("api.controllers.generate_controller.users")
@@ -118,7 +110,6 @@ async def test_upscale_calls_novita_and_stores_result(
     mock_users,
     mock_s3_session,
     mock_novita_client,
-    mock_executor_class,
     mock_update,
     _mock_increment,
 ):
@@ -136,17 +127,13 @@ async def test_upscale_calls_novita_and_stores_result(
 
     mock_upscale_response = MagicMock()
     mock_upscale_response.data.imgs_bytes = [b"upscaled-content"]
-
-    mock_executor = MagicMock()
-    mock_executor_class.return_value.__enter__.return_value = mock_executor
-    mock_executor_class.return_value.__exit__.return_value = False
-    mock_executor.submit.return_value = _resolved_future(mock_upscale_response)
+    mock_novita_client.sync_upscale.return_value = mock_upscale_response
 
     mock_update.return_value = {**_fake_image(width=1024), "downloaded": True}
 
     await upscale(image_id=FAKE_IMAGE_ID, user_id=FAKE_USER_ID, resolution="1024")
 
-    mock_executor.submit.assert_called_once()
+    mock_novita_client.sync_upscale.assert_called_once()
     mock_s3_client.put_object.assert_called_once()
     update_data = mock_update.call_args.args[1]
     assert update_data["width"] == 1024
