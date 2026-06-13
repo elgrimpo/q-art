@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { List, ListItemText, Typography, Box, Stack, CircularProgress } from "@mui/material";
 import dayjs from "dayjs";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { useRouter, useSearchParams } from "next/navigation";
 import theme from "@/_styles/theme";
 
 //App imports
@@ -30,12 +31,11 @@ export default function ImageSidebar({
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { openAlert } = useStore();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const isOwner = user?._id === image?.user_id;
   const isGuestUser = !user?._id || user?.is_guest;
 
-  const searchParams = typeof window !== "undefined"
-    ? new URLSearchParams(window.location.search)
-    : null;
   const stripeSessionId = searchParams?.get("stripe_session_id");
   const justGenerated = searchParams?.get("justGenerated") === "true";
 
@@ -44,6 +44,9 @@ export default function ImageSidebar({
 
   /* -------------------------------- EFFECTS --------------------------------- */
 
+  // Sync local state when the image prop changes (e.g. navigating between images in the modal).
+  useEffect(() => { setCurrentImage(image); }, [image]);
+
   useEffect(() => {
     if (currentImage?.unlocked) return;
     const shouldUnlock = stripeSessionId || currentImage?.unlock_pending;
@@ -51,10 +54,14 @@ export default function ImageSidebar({
 
     setUnlocking(true);
     unlockImage(currentImage._id, stripeSessionId)
-      .then((updatedImage) => setCurrentImage(updatedImage))
+      .then((updatedImage) => {
+        setCurrentImage(updatedImage);
+        // Refresh server components so ImageFill also shows the HD image.
+        router.refresh();
+      })
       .catch(() => openAlert("error", "Image preparation failed — please try again or contact support."))
       .finally(() => setUnlocking(false));
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
@@ -130,7 +137,7 @@ export default function ImageSidebar({
           )}
           <CopyButton image={currentImage} />
 
-          {isOwner && !isGuestUser && <UnlockButton image={currentImage} />}
+          {isOwner && !isGuestUser && !(justGenerated && !currentImage?.unlocked) && <UnlockButton image={currentImage} />}
         </Stack>
         <Typography variant="h5" align={isMobile ? "center" : "left"}>
           Image Details
