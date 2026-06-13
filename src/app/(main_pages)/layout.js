@@ -1,10 +1,13 @@
 // Libraries
 import "../globals.css";
 import { Container } from "@mui/material";
+import dynamic from "next/dynamic";
 
 // App imports
-import NavBarDesktop from "./(navbar)/NavBarDesktop";
-import NavBarMobile from "./(navbar)/NavBarMobile";
+// ssr:false prevents hydration mismatches — both navbars read Zustand state
+// which persists across client navigations but is empty on the server.
+const NavBarDesktop = dynamic(() => import("./(navbar)/NavBarDesktop"), { ssr: false });
+const NavBarMobile = dynamic(() => import("./(navbar)/NavBarMobile"), { ssr: false });
 import Footer from "./Footer";
 
 /* -------------------------------------------------------------------------- */
