@@ -18,9 +18,7 @@ function ImageCard(props) {
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
   const { variant, image, index, handleCardClick, customLikeAction } = props;
 
-  const { user, processingImages } = useStore();
-
-  const isImageProcessing = processingImages.includes(image?._id);
+  const { user } = useStore();
 
   /* -------------------------------- FUNCTIONS ------------------------------- */
 
@@ -47,7 +45,7 @@ function ImageCard(props) {
         color="primary"
       >
         {/* Skeleton (if loading) */}
-        {variant === "skeleton" || isImageProcessing ? (
+        {variant === "skeleton" ? (
           <SkeletonCard index={index} key={index} />
         ) : (
           /* ------------------------------ IMAGE ------------------------------ */
