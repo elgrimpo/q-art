@@ -272,4 +272,5 @@ async def test_unlock_route_returns_200(mock_unlock):
             headers=_guest_auth_headers(),
         )
     assert resp.status_code == 200
-    mock_unlock.assert_called_once()
+    assert resp.json()["unlocked"] is True
+    mock_unlock.assert_called_once_with("507f1f77bcf86cd799439011", "cs_test_abc123", mock_unlock.call_args.args[2])
