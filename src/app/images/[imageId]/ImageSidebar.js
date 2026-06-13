@@ -26,7 +26,6 @@ export default function ImageSidebar({
   user,
   customDeleteAction,
   customLikeAction,
-  isNewGuestImage,
 }) {
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -68,7 +67,7 @@ export default function ImageSidebar({
   /* -------------------------------------------------------------------------- */
 
   // Show signup prompt if this is a newly generated image by a guest user
-  if (isNewGuestImage && isGuestUser) {
+  if (justGenerated && isGuestUser) {
     return <GuestSignupPrompt />;
   }
 
