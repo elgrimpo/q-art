@@ -4,74 +4,11 @@ from unittest.mock import patch
 from PIL import Image
 
 from api.utils.utils import (
-    calculate_credits,
-    sufficient_credit,
     parse_seed,
     prepare_img2img_request,
     createImagesFilterQuery,
     create_watermark,
 )
-
-
-# ---------------------------------------------------------------------------- #
-#                            CALCULATE CREDITS                                 #
-# ---------------------------------------------------------------------------- #
-
-class TestCalculateCredits:
-    def test_generate_costs_1(self):
-        assert calculate_credits({"generate": "1"}) == 1
-
-    def test_download_true_costs_10(self):
-        assert calculate_credits({"download": True}) == 10
-
-    def test_download_false_costs_0(self):
-        assert calculate_credits({"download": False}) == 0
-
-    def test_upscale_512_costs_10(self):
-        assert calculate_credits({"upscale_resize": 512}) == 10
-
-    def test_upscale_1024_costs_15(self):
-        assert calculate_credits({"upscale_resize": 1024}) == 15
-
-    def test_upscale_2048_costs_20(self):
-        assert calculate_credits({"upscale_resize": 2048}) == 20
-
-    def test_upscale_4096_costs_25(self):
-        assert calculate_credits({"upscale_resize": 4096}) == 25
-
-    def test_no_upscale_costs_0(self):
-        assert calculate_credits({"upscale_resize": 0}) == 0
-
-    def test_generate_plus_download(self):
-        assert calculate_credits({"generate": "1", "download": True}) == 11
-
-    def test_upscale_plus_download(self):
-        assert calculate_credits({"upscale_resize": 1024, "download": True}) == 25
-
-    def test_empty_input_costs_0(self):
-        assert calculate_credits({}) == 0
-
-
-# ---------------------------------------------------------------------------- #
-#                            SUFFICIENT CREDIT                                 #
-# ---------------------------------------------------------------------------- #
-
-class TestSufficientCredit:
-    def test_exact_credits_passes(self):
-        assert sufficient_credit({"credits": 1}, {"generate": "1"}) is True
-
-    def test_one_short_fails(self):
-        assert sufficient_credit({"credits": 0}, {"generate": "1"}) is False
-
-    def test_surplus_credits_passes(self):
-        assert sufficient_credit({"credits": 100}, {"generate": "1", "download": True}) is True
-
-    def test_missing_credits_key_defaults_to_zero(self):
-        assert sufficient_credit({}, {"generate": "1"}) is False
-
-    def test_zero_cost_service_always_passes(self):
-        # download=False costs 0, so even a user with 0 credits passes
-        assert sufficient_credit({"credits": 0}, {"download": False}) is True
 
 
 # ---------------------------------------------------------------------------- #

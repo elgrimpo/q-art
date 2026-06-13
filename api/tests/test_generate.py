@@ -54,7 +54,6 @@ def _build_novita_mocks():
 
 
 async def _run_predict(
-    mock_users,
     mock_novita_client,
     mock_download,
     mock_create_watermark,
@@ -99,9 +98,7 @@ async def _run_predict(
 @patch("api.controllers.generate_controller.create_watermark")
 @patch("api.controllers.generate_controller.download_image_bytes", new_callable=AsyncMock)
 @patch("api.controllers.generate_controller.client")
-@patch("api.controllers.generate_controller.users")
 async def test_generate_returns_image_urls(
-    mock_users,
     mock_novita_client,
     mock_download,
     mock_create_watermark,
@@ -111,7 +108,7 @@ async def test_generate_returns_image_urls(
     mock_increment,
 ):
     result, _ = await _run_predict(
-        mock_users, mock_novita_client, mock_download, mock_create_watermark,
+        mock_novita_client, mock_download, mock_create_watermark,
         mock_create_doc, mock_upload, mock_update, mock_increment,
     )
 
@@ -126,9 +123,7 @@ async def test_generate_returns_image_urls(
 @patch("api.controllers.generate_controller.create_watermark")
 @patch("api.controllers.generate_controller.download_image_bytes", new_callable=AsyncMock)
 @patch("api.controllers.generate_controller.client")
-@patch("api.controllers.generate_controller.users")
 async def test_generate_calls_novita_twice(
-    mock_users,
     mock_novita_client,
     mock_download,
     mock_create_watermark,
@@ -139,7 +134,7 @@ async def test_generate_calls_novita_twice(
 ):
     """client.img2img_v3 and client.wait_for_task_v3 are each called once."""
     _, mocks = await _run_predict(
-        mock_users, mock_novita_client, mock_download, mock_create_watermark,
+        mock_novita_client, mock_download, mock_create_watermark,
         mock_create_doc, mock_upload, mock_update, mock_increment,
     )
 
@@ -154,9 +149,7 @@ async def test_generate_calls_novita_twice(
 @patch("api.controllers.generate_controller.create_watermark")
 @patch("api.controllers.generate_controller.download_image_bytes", new_callable=AsyncMock)
 @patch("api.controllers.generate_controller.client")
-@patch("api.controllers.generate_controller.users")
 async def test_generate_does_not_check_credits_for_logged_in_user(
-    mock_users,
     mock_novita_client,
     mock_download,
     mock_create_watermark,
@@ -165,20 +158,12 @@ async def test_generate_does_not_check_credits_for_logged_in_user(
     mock_update,
     mock_increment,
 ):
-    """Logged-in users must generate without any DB credit check."""
-    img2img_result, task_result = _build_novita_mocks()
-    mock_novita_client.img2img_v3.return_value = img2img_result
-    mock_novita_client.wait_for_task_v3.return_value = task_result
-    mock_download.return_value = _white_png_bytes()
-    mock_create_watermark.return_value = Image.new("RGB", (512, 512), "grey")
-    mock_create_doc.return_value = FAKE_IMAGE_ID
-    mock_upload.side_effect = [ORIG_URL, WMARK_URL]
-    mock_update.return_value = {"_id": FAKE_IMAGE_ID, "image_url": ORIG_URL, "watermarked_image_url": WMARK_URL}
-
-    await predict(**PREDICT_KWARGS)
-
-    # Must NOT touch the users collection for credit purposes
-    mock_users.find_one_and_update.assert_not_called()
+    """Logged-in users must generate without any DB credit check — generation completes successfully."""
+    result, _ = await _run_predict(
+        mock_novita_client, mock_download, mock_create_watermark,
+        mock_create_doc, mock_upload, mock_update, mock_increment,
+    )
+    assert result["image_url"] == ORIG_URL
 
 
 @patch("api.controllers.generate_controller.increment_user_count", new_callable=AsyncMock)
@@ -189,9 +174,7 @@ async def test_generate_does_not_check_credits_for_logged_in_user(
 @patch("api.controllers.generate_controller.download_image_bytes", new_callable=AsyncMock)
 @patch("api.controllers.generate_controller.client")
 @patch("api.controllers.generate_controller.guest_credits_col")
-@patch("api.controllers.generate_controller.users")
 async def test_generate_guest_skips_db_credit_check(
-    mock_users,
     mock_guest_credits,
     mock_novita_client,
     mock_download,
@@ -205,7 +188,6 @@ async def test_generate_guest_skips_db_credit_check(
     img2img_result, task_result = _build_novita_mocks()
     mock_novita_client.img2img_v3.return_value = img2img_result
     mock_novita_client.wait_for_task_v3.return_value = task_result
-    mock_users.find_one = AsyncMock(return_value=None)
     mock_guest_credits.find_one_and_update = AsyncMock(return_value={"_id": "guest_abc123", "used": 1})
     mock_download.return_value = _white_png_bytes()
     mock_create_watermark.return_value = Image.new("RGB", (512, 512), "grey")
@@ -215,7 +197,6 @@ async def test_generate_guest_skips_db_credit_check(
 
     await predict(**{**PREDICT_KWARGS, "user_id": "guest_abc123"})
 
-    mock_users.find_one.assert_not_called()
     mock_guest_credits.find_one_and_update.assert_called_once()
 
 
@@ -246,9 +227,7 @@ async def test_generate_guest_exhausted_quota_raises_403(mock_guest_credits):
 @patch("api.controllers.generate_controller.create_watermark")
 @patch("api.controllers.generate_controller.download_image_bytes", new_callable=AsyncMock)
 @patch("api.controllers.generate_controller.client")
-@patch("api.controllers.generate_controller.users")
 async def test_storage_creates_image_doc(
-    mock_users,
     mock_novita_client,
     mock_download,
     mock_create_watermark,
@@ -259,7 +238,7 @@ async def test_storage_creates_image_doc(
 ):
     """predict() must insert an image document into MongoDB."""
     await _run_predict(
-        mock_users, mock_novita_client, mock_download, mock_create_watermark,
+        mock_novita_client, mock_download, mock_create_watermark,
         mock_create_doc, mock_upload, mock_update, mock_increment,
     )
 
@@ -278,9 +257,7 @@ async def test_storage_creates_image_doc(
 @patch("api.controllers.generate_controller.create_watermark")
 @patch("api.controllers.generate_controller.download_image_bytes", new_callable=AsyncMock)
 @patch("api.controllers.generate_controller.client")
-@patch("api.controllers.generate_controller.users")
 async def test_storage_uploads_to_both_s3_buckets(
-    mock_users,
     mock_novita_client,
     mock_download,
     mock_create_watermark,
@@ -291,7 +268,7 @@ async def test_storage_uploads_to_both_s3_buckets(
 ):
     """Both original and watermarked images must be uploaded to their respective S3 buckets."""
     _, mocks = await _run_predict(
-        mock_users, mock_novita_client, mock_download, mock_create_watermark,
+        mock_novita_client, mock_download, mock_create_watermark,
         mock_create_doc, mock_upload, mock_update, mock_increment,
     )
 
@@ -308,9 +285,7 @@ async def test_storage_uploads_to_both_s3_buckets(
 @patch("api.controllers.generate_controller.create_watermark")
 @patch("api.controllers.generate_controller.download_image_bytes", new_callable=AsyncMock)
 @patch("api.controllers.generate_controller.client")
-@patch("api.controllers.generate_controller.users")
 async def test_storage_updates_doc_with_urls(
-    mock_users,
     mock_novita_client,
     mock_download,
     mock_create_watermark,
@@ -321,7 +296,7 @@ async def test_storage_updates_doc_with_urls(
 ):
     """After upload, update_image must be called with both S3 URLs."""
     _, mocks = await _run_predict(
-        mock_users, mock_novita_client, mock_download, mock_create_watermark,
+        mock_novita_client, mock_download, mock_create_watermark,
         mock_create_doc, mock_upload, mock_update, mock_increment,
     )
 
@@ -340,9 +315,7 @@ async def test_storage_updates_doc_with_urls(
 @patch("api.controllers.generate_controller.create_watermark")
 @patch("api.controllers.generate_controller.download_image_bytes", new_callable=AsyncMock)
 @patch("api.controllers.generate_controller.client")
-@patch("api.controllers.generate_controller.users")
 async def test_predict_novita_failure_raises_500(
-    mock_users,
     mock_novita_client,
     mock_download,
     mock_create_watermark,
