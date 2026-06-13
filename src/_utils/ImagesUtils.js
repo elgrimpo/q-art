@@ -151,27 +151,26 @@ export const likeImage = async (imageId, userId) => {
 };
 
 /* -------------------------------------------------------------------------- */
-/*                            UPSCALE Image                                   */
+/*                               UNLOCK IMAGE                                 */
 /* -------------------------------------------------------------------------- */
 
-export const upscaleImage = async (imageId, resolution, userId) => {
+export const unlockImage = async (imageId, stripeSessionId) => {
   const token = await getBackendToken();
   return new Promise((resolve, reject) => {
+    const params = stripeSessionId ? { stripe_session_id: stripeSessionId } : {};
     axios
-      .get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/upscale/${imageId}`, {
-        params: { resolution: resolution },
-        withCredentials: true,
-        headers: { Authorization: `Bearer ${token}` },
-      })
+      .post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/unlock/${imageId}`,
+        null,
+        {
+          params,
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      )
       .then((response) => {
-        revalidateTag('images')
-        revalidateTag('user')
-
-        const upscaledImage = response.data;
-        resolve(upscaledImage);
+        revalidateTag("images");
+        resolve(response.data);
       })
-      .catch((err) => {
-        reject(err);
-      });
+      .catch((err) => reject(err));
   });
 };
