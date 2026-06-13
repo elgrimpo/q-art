@@ -38,7 +38,7 @@ export default function AccountMenuMobile(props) {
   };
 
   // User
-  const user = useStore.getState().user;
+  const { user } = useStore();
 
   /* -------------------------------- FUNCTIONS ------------------------------- */
 

@@ -12,13 +12,9 @@ import useScrollTrigger from "@mui/material/useScrollTrigger";
 
 // App Imports
 import "@/app/globals.css";
-import dynamic from "next/dynamic";
 import { useStore } from "@/store";
 import theme from "@/_styles/theme";
-
-// Disable SSR: AccountMenuDesktop reads Zustand state which persists across
-// client navigations, causing server/client hydration mismatches.
-const AccountMenuDesktop = dynamic(() => import("./AccountMenuDesktop"), { ssr: false });
+import AccountMenuDesktop from "./AccountMenuDesktop";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */

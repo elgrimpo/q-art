@@ -19,20 +19,14 @@ import theme from "@/_styles/theme";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react"
 
-// App import
-import { useStore } from "@/store";
-
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
 /* -------------------------------------------------------------------------- */
 
-export default function AccountMenuDesktop() {
-  
+export default function AccountMenuDesktop({ user }) {
+
   /* ---------------------------- DECLARE VARIABLE ---------------------------- */
   const router = useRouter();
-
-  // User
-  const user = useStore.getState().user;
 
   // Anchor Element for Account Menu
   const [anchorEl, setAnchorEl] = React.useState(null);

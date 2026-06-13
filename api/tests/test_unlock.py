@@ -31,25 +31,8 @@ def _stripe_session(image_id=FAKE_IMAGE_ID, status="complete", payment_status="p
     return session
 
 
-def _upscale_response():
-    resp = MagicMock()
-    resp.data.imgs_bytes = [b"fake-png-bytes"]
-    return resp
-
-
-@patch("api.controllers.unlock_controller.update_image", new_callable=AsyncMock)
-@patch("api.controllers.unlock_controller.s3_session")
-@patch("api.controllers.unlock_controller.novita_client")
-@patch("api.controllers.unlock_controller.stripe")
-@patch("api.controllers.unlock_controller.images")
-async def test_unlock_success_via_stripe_session(
-    mock_images, mock_stripe, mock_novita, mock_s3, mock_update_image
-):
-    """Happy path: valid Stripe session → upscale → DB update → return unlocked image."""
-    mock_images.find_one = AsyncMock(return_value=_image_doc())
-    mock_stripe.checkout.Session.retrieve.return_value = _stripe_session()
-
-    # Mock S3 get (download original)
+def _mock_s3(mock_s3):
+    """Wire an aioboto3-style mock whose client supports get/put_object as an async ctx mgr."""
     mock_body = AsyncMock()
     mock_body.read = AsyncMock(return_value=b"fake-original-bytes")
     mock_s3_client = AsyncMock()
@@ -58,8 +41,24 @@ async def test_unlock_success_via_stripe_session(
     mock_s3_client.__aenter__ = AsyncMock(return_value=mock_s3_client)
     mock_s3_client.__aexit__ = AsyncMock(return_value=False)
     mock_s3.client.return_value = mock_s3_client
+    return mock_s3_client
 
-    mock_novita.sync_upscale.return_value = _upscale_response()
+
+@patch("api.controllers.unlock_controller.update_image", new_callable=AsyncMock)
+@patch("api.controllers.unlock_controller._run_upscale", new_callable=AsyncMock)
+@patch("api.controllers.unlock_controller.s3_session")
+@patch("api.controllers.unlock_controller.stripe")
+@patch("api.controllers.unlock_controller.images")
+async def test_unlock_success_via_stripe_session(
+    mock_images, mock_stripe, mock_s3, mock_run_upscale, mock_update_image
+):
+    """Happy path: valid Stripe session → upscale → DB update → return unlocked image."""
+    mock_images.find_one = AsyncMock(return_value=_image_doc())
+    mock_stripe.checkout.Session.retrieve.return_value = _stripe_session()
+    mock_s3_client = _mock_s3(mock_s3)
+
+    # _run_upscale returns (bytes, width, height)
+    mock_run_upscale.return_value = (b"fake-png-bytes", 2048, 2048)
 
     unlocked_doc = {**_image_doc(unlocked=True), "_id": FAKE_IMAGE_ID, "width": 2048, "height": 2048}
     mock_update_image.return_value = unlocked_doc
@@ -118,25 +117,17 @@ async def test_unlock_session_image_mismatch_raises_400(mock_images, mock_stripe
 
 
 @patch("api.controllers.unlock_controller.update_image", new_callable=AsyncMock)
+@patch("api.controllers.unlock_controller._run_upscale", new_callable=AsyncMock)
 @patch("api.controllers.unlock_controller.s3_session")
-@patch("api.controllers.unlock_controller.novita_client")
 @patch("api.controllers.unlock_controller.images")
 async def test_unlock_via_pending_flag_no_session_id(
-    mock_images, mock_novita, mock_s3, mock_update_image
+    mock_images, mock_s3, mock_run_upscale, mock_update_image
 ):
     """Tab-close path: unlock_pending=True with no stripe_session_id triggers upscale."""
     mock_images.find_one = AsyncMock(return_value=_image_doc(unlock_pending=True))
+    _mock_s3(mock_s3)
 
-    mock_body = AsyncMock()
-    mock_body.read = AsyncMock(return_value=b"fake-original-bytes")
-    mock_s3_client = AsyncMock()
-    mock_s3_client.get_object = AsyncMock(return_value={"Body": mock_body})
-    mock_s3_client.put_object = AsyncMock()
-    mock_s3_client.__aenter__ = AsyncMock(return_value=mock_s3_client)
-    mock_s3_client.__aexit__ = AsyncMock(return_value=False)
-    mock_s3.client.return_value = mock_s3_client
-
-    mock_novita.sync_upscale.return_value = _upscale_response()
+    mock_run_upscale.return_value = (b"fake-png-bytes", 2048, 2048)
     unlocked_doc = {**_image_doc(unlocked=True), "_id": FAKE_IMAGE_ID, "width": 2048, "height": 2048}
     mock_update_image.return_value = unlocked_doc
 
@@ -177,27 +168,19 @@ async def test_unlock_stripe_network_error_raises_502(mock_images, mock_stripe):
 
 
 @patch("api.controllers.unlock_controller.update_image", new_callable=AsyncMock)
+@patch("api.controllers.unlock_controller._run_upscale", new_callable=AsyncMock)
 @patch("api.controllers.unlock_controller.s3_session")
-@patch("api.controllers.unlock_controller.novita_client")
 @patch("api.controllers.unlock_controller.stripe")
 @patch("api.controllers.unlock_controller.images")
 async def test_unlock_update_image_failure_raises_500(
-    mock_images, mock_stripe, mock_novita, mock_s3, mock_update_image
+    mock_images, mock_stripe, mock_s3, mock_run_upscale, mock_update_image
 ):
     """If update_image returns an error dict after successful upscale, raise 500."""
     mock_images.find_one = AsyncMock(return_value=_image_doc())
     mock_stripe.checkout.Session.retrieve.return_value = _stripe_session()
+    _mock_s3(mock_s3)
 
-    mock_body = AsyncMock()
-    mock_body.read = AsyncMock(return_value=b"fake-original-bytes")
-    mock_s3_client = AsyncMock()
-    mock_s3_client.get_object = AsyncMock(return_value={"Body": mock_body})
-    mock_s3_client.put_object = AsyncMock()
-    mock_s3_client.__aenter__ = AsyncMock(return_value=mock_s3_client)
-    mock_s3_client.__aexit__ = AsyncMock(return_value=False)
-    mock_s3.client.return_value = mock_s3_client
-
-    mock_novita.sync_upscale.return_value = _upscale_response()
+    mock_run_upscale.return_value = (b"fake-png-bytes", 2048, 2048)
     mock_update_image.return_value = {"message": "Error updating document: ..."}
 
     with pytest.raises(HTTPException) as exc_info:
