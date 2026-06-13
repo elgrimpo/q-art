@@ -94,7 +94,7 @@ async def test_get_user_info_returns_matched_user(mock_users):
 @patch("api.controllers.users_controller.images")
 @patch("api.controllers.users_controller.users")
 async def test_authenticate_creates_new_user(mock_users, mock_images):
-    """First-time login: a new user document is inserted with 10 starter credits."""
+    """First-time login: a new user document is inserted without a credits field."""
     mock_users.find_one = AsyncMock(return_value=None)
     mock_users.insert_one = AsyncMock(return_value=MagicMock(inserted_id=ObjectId(FAKE_USER_ID)))
     mock_images.update_many = AsyncMock()
@@ -104,7 +104,7 @@ async def test_authenticate_creates_new_user(mock_users, mock_images):
     mock_users.insert_one.assert_called_once()
     inserted_doc = mock_users.insert_one.call_args.args[0]
     assert inserted_doc["email"] == "test@example.com"
-    assert inserted_doc["credits"] == 10
+    assert "credits" not in inserted_doc
     assert isinstance(response, JSONResponse)
 
 
@@ -191,24 +191,9 @@ async def test_authenticate_ignores_invalid_guest_id(mock_users, mock_images):
 @patch("api.controllers.users_controller.db")
 async def test_increment_skips_db_for_guest_user(mock_db):
     """Guest users must never trigger any database write."""
-    await increment_user_count("guest_abc123", {"generate": "1"}, 1)
+    await increment_user_count("guest_abc123", {"generate": "1"})
 
     mock_db.__getitem__.assert_not_called()
-
-
-@patch("api.controllers.users_controller.db")
-async def test_increment_deducts_credits(mock_db):
-    """Credits must be decremented by the exact amount passed."""
-    mock_collection = AsyncMock()
-    mock_db.__getitem__ = MagicMock(return_value=mock_collection)
-
-    await increment_user_count(FAKE_USER_ID, {"generate": "1"}, 1)
-
-    credit_update = next(
-        c for c in mock_collection.update_one.call_args_list
-        if "$inc" in c.args[1] and "credits" in c.args[1]["$inc"]
-    )
-    assert credit_update.args[1]["$inc"]["credits"] == -1
 
 
 @patch("api.controllers.users_controller.db")
@@ -217,7 +202,7 @@ async def test_increment_generate_increments_count(mock_db):
     mock_collection = AsyncMock()
     mock_db.__getitem__ = MagicMock(return_value=mock_collection)
 
-    await increment_user_count(FAKE_USER_ID, {"generate": "1"}, 1)
+    await increment_user_count(FAKE_USER_ID, {"generate": "1"})
 
     generate_call = next(
         c for c in mock_collection.update_one.call_args_list
@@ -227,12 +212,24 @@ async def test_increment_generate_increments_count(mock_db):
 
 
 @patch("api.controllers.users_controller.db")
+async def test_increment_generate_does_not_touch_credits(mock_db):
+    """increment_user_count must not modify the credits field."""
+    mock_collection = AsyncMock()
+    mock_db.__getitem__ = MagicMock(return_value=mock_collection)
+
+    await increment_user_count(FAKE_USER_ID, {"generate": "1"})
+
+    for c in mock_collection.update_one.call_args_list:
+        assert "credits" not in c.args[1].get("$inc", {})
+
+
+@patch("api.controllers.users_controller.db")
 async def test_increment_upscale_increments_count(mock_db):
     """An upscale action must increment the image_counts.year.month.upscale field."""
     mock_collection = AsyncMock()
     mock_db.__getitem__ = MagicMock(return_value=mock_collection)
 
-    await increment_user_count(FAKE_USER_ID, {"upscale_resize": 1024}, 15)
+    await increment_user_count(FAKE_USER_ID, {"upscale_resize": 1024})
 
     upscale_call = next(
         c for c in mock_collection.update_one.call_args_list
@@ -247,10 +244,37 @@ async def test_increment_download_increments_count(mock_db):
     mock_collection = AsyncMock()
     mock_db.__getitem__ = MagicMock(return_value=mock_collection)
 
-    await increment_user_count(FAKE_USER_ID, {"download": True}, 10)
+    await increment_user_count(FAKE_USER_ID, {"download": True})
 
     download_call = next(
         c for c in mock_collection.update_one.call_args_list
         if any("download" in k for k in c.args[1].get("$inc", {}).keys())
     )
     assert download_call is not None
+
+
+@patch("api.controllers.users_controller.users")
+@patch("api.controllers.users_controller.images")
+async def test_new_user_created_without_credits(mock_images, mock_users):
+    """New users must not receive a credits field on creation."""
+    from api.controllers.users_controller import authenticate_user
+    from api.schemas.schemas import UserAuth, AuthProvider
+    from unittest.mock import AsyncMock, MagicMock
+    from bson import ObjectId
+
+    mock_users.find_one = AsyncMock(return_value=None)
+    inserted = MagicMock()
+    inserted.inserted_id = ObjectId()
+    mock_users.insert_one = AsyncMock(return_value=inserted)
+    mock_images.update_many = AsyncMock()
+
+    user_auth = UserAuth(
+        name="Test User",
+        email="test@example.com",
+        auth_providers=[AuthProvider(provider="google", providerId="123")],
+    )
+    await authenticate_user(user_auth)
+
+    call_args = mock_users.insert_one.call_args.args[0]
+    assert "credits" not in call_args
+    assert "payment_history" not in call_args

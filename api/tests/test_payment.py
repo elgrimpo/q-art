@@ -3,11 +3,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from datetime import datetime
 
 import stripe
-from bson import ObjectId
 from fastapi import HTTPException
 
 from api.controllers.payment_controller import stripe_webhook, PRICE_CREDITS_MAP, create_checkout_session
-from api.controllers.users_controller import add_user_payment
 
 # Use a real price ID from the map so tests reflect the actual product catalogue.
 VALID_PRICE_ID = "price_1OpINoAaPyl1Ov3PufRg0KrR"   # 100 credits
@@ -130,48 +128,6 @@ async def test_webhook_unknown_event_type_does_not_add_payment(mock_construct, m
     await stripe_webhook(_mock_request(), "valid-sig")
 
     mock_add_payment.assert_not_called()
-
-
-# ---------------------------------------------------------------------------- #
-#                          add_user_payment idempotency                        #
-# ---------------------------------------------------------------------------- #
-
-@patch("api.controllers.users_controller.db")
-async def test_add_payment_applies_credits_first_time(mock_db):
-    """First call with a new payment_intent must update credits in Mongo."""
-    mock_update = AsyncMock(return_value=MagicMock(modified_count=1))
-    mock_db.__getitem__.return_value.update_one = mock_update
-
-    await add_user_payment(FAKE_USER_ID, 999, VALID_PRICE_ID, VALID_CREDITS, FAKE_PI, datetime.utcnow())
-
-    mock_update.assert_awaited_once()
-    filter_arg = mock_update.call_args.args[0]
-    assert filter_arg["_id"] == ObjectId(FAKE_USER_ID)
-    # Guard: only apply if this payment_intent is not already in history.
-    assert filter_arg["payment_history.payment_intent_id"] == {"$ne": FAKE_PI}
-
-
-@patch("api.controllers.users_controller.db")
-async def test_add_payment_skips_duplicate_without_error(mock_db):
-    """A replayed event (modified_count==0) must not raise — idempotent no-op."""
-    mock_update = AsyncMock(return_value=MagicMock(modified_count=0))
-    mock_db.__getitem__.return_value.update_one = mock_update
-
-    # Should complete without raising
-    await add_user_payment(FAKE_USER_ID, 999, VALID_PRICE_ID, VALID_CREDITS, FAKE_PI, datetime.utcnow())
-
-    mock_update.assert_awaited_once()
-
-
-@patch("api.controllers.users_controller.db")
-async def test_add_payment_db_error_raises_500(mock_db):
-    """A Mongo failure must raise HTTPException(500) so the webhook returns 500 to Stripe."""
-    mock_db.__getitem__.return_value.update_one = AsyncMock(side_effect=Exception("connection refused"))
-
-    with pytest.raises(HTTPException) as exc_info:
-        await add_user_payment(FAKE_USER_ID, 999, VALID_PRICE_ID, VALID_CREDITS, FAKE_PI, datetime.utcnow())
-
-    assert exc_info.value.status_code == 500
 
 
 # ---------------------------------------------------------------------------- #

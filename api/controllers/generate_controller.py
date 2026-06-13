@@ -225,7 +225,7 @@ async def predict(
         # ---------------------- UPDATE USER CREDITS AND COUNT ---------------------- #
         try:
             if not str(user_id).startswith("guest_"):
-                await increment_user_count(user_id, {"generate": "1"}, 0)
+                await increment_user_count(user_id, {"generate": "1"})
         except Exception:
             # Handle user count update error
             raise HTTPException(status_code=500, detail="User count update failed")
@@ -367,8 +367,8 @@ async def upscale(image_id, user_id, resolution):
                 updated_image = image
         # ---------------------- UPDATE USER CREDITS AND COUNT ---------------------- #
         try:
-            # Credits already atomically deducted above; pass 0 to only update counters.
-            await increment_user_count(user_id, service_config, 0)
+            # Credits already atomically deducted above; only update counters.
+            await increment_user_count(user_id, service_config)
         except Exception:
             # Handle user count update error
             raise HTTPException(status_code=500, detail="User count update failed")
