@@ -259,19 +259,19 @@ async def test_checkout_requires_auth():
     async with _client() as client:
         resp = await client.post(
             "/api/checkout",
-            params={"stripeId": "price_1OpIN8AaPyl1Ov3Pi3q6dkEC"},
+            params={"image_id": "607f1f77bcf86cd799439022"},
         )
     assert resp.status_code == 401
 
 
-@patch("api.main.create_checkout_session")
+@patch("api.main.create_unlock_checkout_session")
 async def test_checkout_returns_session_url(mock_checkout):
     """POST /api/checkout returns session_url with valid auth."""
     mock_checkout.return_value = {"session_url": "https://checkout.stripe.com/pay/cs_test"}
     async with _client() as client:
         resp = await client.post(
             "/api/checkout",
-            params={"stripeId": "price_1OpIN8AaPyl1Ov3Pi3q6dkEC"},
+            params={"image_id": "607f1f77bcf86cd799439022"},
             headers=_guest_auth_headers(),
         )
     assert resp.status_code == 200

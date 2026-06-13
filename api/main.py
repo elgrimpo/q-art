@@ -22,7 +22,7 @@ logging.basicConfig(
 from api.controllers.images_controller import get_images, get_image, toggle_like, delete_image
 from api.controllers.generate_controller import predict, upscale
 from api.controllers.users_controller import get_user_info, authenticate_user
-from api.controllers.payment_controller import create_checkout_session, stripe_webhook
+from api.controllers.payment_controller import create_unlock_checkout_session, stripe_webhook
 from api.schemas.schemas import User, UserAuth
 from api.utils.auth import get_current_user, require_service_token
 
@@ -159,10 +159,10 @@ async def delete_image_endpoint(id: str, current_user: dict = Depends(get_curren
 
 @app.post('/api/checkout')
 async def create_checkout_session_endpoint(
-    stripeId: Optional[str] = None,
+    image_id: str,
     current_user: dict = Depends(get_current_user),
 ):
-    return create_checkout_session(stripeId, current_user["user_id"])
+    return create_unlock_checkout_session(image_id, current_user["user_id"])
 
 @app.post("/api/stripe-webhook")
 async def stripe_webhook_endpoint(request: Request, stripe_signature: str = Header(None)):

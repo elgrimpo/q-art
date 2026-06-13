@@ -163,14 +163,3 @@ async def increment_user_count(user_id, service_config):
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
-# ---------------------------------------------------------------------------- #
-#                        add_user_payment (deprecated stub)                    #
-# ---------------------------------------------------------------------------- #
-# TODO(Task 5): remove this stub and update payment_controller.py to use the
-# new pay-per-result unlock flow.  The real implementation was removed as part
-# of the QRAI-53 credit-system teardown; this shim exists only so that the
-# legacy payment_controller import does not break until Task 5 replaces it.
-
-async def add_user_payment(*args, **kwargs):
-    # TODO(QRAI-53 Task 5): remove this stub — payment_controller.py imports it and will be replaced
-    raise HTTPException(status_code=500, detail="add_user_payment has been removed")
