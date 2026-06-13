@@ -20,9 +20,10 @@ logging.basicConfig(
 
 # App imports
 from api.controllers.images_controller import get_images, get_image, toggle_like, delete_image
-from api.controllers.generate_controller import predict, upscale
+from api.controllers.generate_controller import predict
 from api.controllers.users_controller import get_user_info, authenticate_user
 from api.controllers.payment_controller import create_unlock_checkout_session, stripe_webhook
+from api.controllers.unlock_controller import unlock_image
 from api.schemas.schemas import User, UserAuth
 from api.utils.auth import get_current_user, require_service_token
 
@@ -109,19 +110,6 @@ async def generate_endpoint(
         style_title
     )
 
-# UPSCALE IMAGE
-@app.get("/api/upscale/{image_id}")
-async def upscale_endpoint(
-    image_id,
-    resolution,
-    current_user: dict = Depends(get_current_user),
-):
-    return await upscale(
-        image_id,
-        current_user["user_id"],
-        resolution
-    )
-
 # ------------------------------- IMAGE ROUTES ------------------------------- #
 
 # GET IMAGES
@@ -157,12 +145,20 @@ async def delete_image_endpoint(id: str, current_user: dict = Depends(get_curren
 
 # ------------------------------ PAYMENTS ROUTES ----------------------------- #
 
-@app.post('/api/checkout')
-async def create_checkout_session_endpoint(
+@app.post('/api/checkout/unlock')
+async def create_unlock_checkout_endpoint(
     image_id: str,
     current_user: dict = Depends(get_current_user),
 ):
     return create_unlock_checkout_session(image_id, current_user["user_id"])
+
+@app.post('/api/unlock/{image_id}')
+async def unlock_endpoint(
+    image_id: str,
+    stripe_session_id: Optional[str] = None,
+    current_user: dict = Depends(get_current_user),
+):
+    return await unlock_image(image_id, stripe_session_id, current_user["user_id"])
 
 @app.post("/api/stripe-webhook")
 async def stripe_webhook_endpoint(request: Request, stripe_signature: str = Header(None)):
