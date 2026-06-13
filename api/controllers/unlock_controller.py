@@ -38,6 +38,9 @@ def _verify_stripe_session(stripe_session_id: str, image_id: str):
         session = stripe.checkout.Session.retrieve(stripe_session_id)
     except stripe.error.InvalidRequestError:
         raise HTTPException(status_code=402, detail="Payment session not found")
+    except Exception:
+        logger.error("Stripe session retrieve failed for %s", stripe_session_id, exc_info=True)
+        raise HTTPException(status_code=502, detail="Payment verification unavailable — please try again")
     if session.status != "complete" or session.payment_status != "paid":
         raise HTTPException(status_code=402, detail="Payment not completed")
     if session.metadata.get("image_id") != image_id:
@@ -121,4 +124,7 @@ async def unlock_image(image_id: str, stripe_session_id: str | None, user_id: st
         "height": UPSCALE_SIZE,
     }
     updated = await update_image(image_id, update_data)
+    if not updated or "message" in updated:
+        logger.error("update_image returned an error for image %s after successful upscale", image_id)
+        raise HTTPException(status_code=500, detail="Image preparation failed — please try again")
     return updated

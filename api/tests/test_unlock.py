@@ -152,3 +152,54 @@ async def test_unlock_no_session_and_no_pending_raises_402(mock_images):
     with pytest.raises(HTTPException) as exc_info:
         await unlock_image(FAKE_IMAGE_ID, None, FAKE_USER_ID)
     assert exc_info.value.status_code == 402
+
+
+@patch("api.controllers.unlock_controller.images")
+async def test_unlock_invalid_image_id_raises_404(mock_images):
+    """A malformed image_id must raise 404, not a raw ObjectId exception."""
+    with pytest.raises(HTTPException) as exc_info:
+        await unlock_image("not-a-valid-object-id", FAKE_SESSION_ID, FAKE_USER_ID)
+    assert exc_info.value.status_code == 404
+    mock_images.find_one.assert_not_called()
+
+
+@patch("api.controllers.unlock_controller.stripe")
+@patch("api.controllers.unlock_controller.images")
+async def test_unlock_stripe_network_error_raises_502(mock_images, mock_stripe):
+    """A Stripe network error during session retrieval must raise 502, not 500."""
+    import stripe as stripe_module
+    mock_images.find_one = AsyncMock(return_value=_image_doc())
+    mock_stripe.checkout.Session.retrieve.side_effect = stripe_module.error.APIConnectionError("timeout")
+    mock_stripe.error.InvalidRequestError = stripe_module.error.InvalidRequestError
+    with pytest.raises(HTTPException) as exc_info:
+        await unlock_image(FAKE_IMAGE_ID, FAKE_SESSION_ID, FAKE_USER_ID)
+    assert exc_info.value.status_code == 502
+
+
+@patch("api.controllers.unlock_controller.update_image", new_callable=AsyncMock)
+@patch("api.controllers.unlock_controller.s3_session")
+@patch("api.controllers.unlock_controller.novita_client")
+@patch("api.controllers.unlock_controller.stripe")
+@patch("api.controllers.unlock_controller.images")
+async def test_unlock_update_image_failure_raises_500(
+    mock_images, mock_stripe, mock_novita, mock_s3, mock_update_image
+):
+    """If update_image returns an error dict after successful upscale, raise 500."""
+    mock_images.find_one = AsyncMock(return_value=_image_doc())
+    mock_stripe.checkout.Session.retrieve.return_value = _stripe_session()
+
+    mock_body = AsyncMock()
+    mock_body.read = AsyncMock(return_value=b"fake-original-bytes")
+    mock_s3_client = AsyncMock()
+    mock_s3_client.get_object = AsyncMock(return_value={"Body": mock_body})
+    mock_s3_client.put_object = AsyncMock()
+    mock_s3_client.__aenter__ = AsyncMock(return_value=mock_s3_client)
+    mock_s3_client.__aexit__ = AsyncMock(return_value=False)
+    mock_s3.client.return_value = mock_s3_client
+
+    mock_novita.sync_upscale.return_value = _upscale_response()
+    mock_update_image.return_value = {"message": "Error updating document: ..."}
+
+    with pytest.raises(HTTPException) as exc_info:
+        await unlock_image(FAKE_IMAGE_ID, FAKE_SESSION_ID, FAKE_USER_ID)
+    assert exc_info.value.status_code == 500
