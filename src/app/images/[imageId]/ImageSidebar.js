@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { List, ListItemText, Typography, Box, Stack, CircularProgress } from "@mui/material";
 import dayjs from "dayjs";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import theme from "@/_styles/theme";
 
 //App imports
@@ -31,12 +31,12 @@ export default function ImageSidebar({
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { openAlert } = useStore();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const isOwner = user?._id === image?.user_id;
   const isGuestUser = !user?._id || user?.is_guest;
 
-  const stripeSessionId = searchParams?.get("stripe_session_id");
-  const justGenerated = searchParams?.get("justGenerated") === "true";
+  // Read URL params client-side only (after hydration) to avoid server/client mismatch.
+  const [stripeSessionId, setStripeSessionId] = useState(null);
+  const [justGenerated, setJustGenerated] = useState(false);
 
   const [unlocking, setUnlocking] = useState(false);
   const [currentImage, setCurrentImage] = useState(image);
@@ -45,6 +45,14 @@ export default function ImageSidebar({
 
   // Sync local state when the image prop changes (e.g. navigating between images in the modal).
   useEffect(() => { setCurrentImage(image); }, [image]);
+
+  // Read URL params after hydration — both server and client start with null/false,
+  // preventing a hydration mismatch from conditionally-rendered elements.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setStripeSessionId(params.get("stripe_session_id"));
+    setJustGenerated(params.get("justGenerated") === "true");
+  }, []);
 
   useEffect(() => {
     if (currentImage?.unlocked) return;

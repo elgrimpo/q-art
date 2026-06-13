@@ -1,5 +1,5 @@
 // Libraries imports
-import React, { Suspense } from "react";
+import React from "react";
 import { Box } from "@mui/material";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -91,17 +91,15 @@ export default async function ImagePage({ params, searchParams }) {
 
         {/* -------------------- Sidebar ------------------- */}
 
-        <Suspense fallback={null}>
-          <ImageSidebar
-            image={image}
-            user={user ? {
-              _id: user._id,
-              is_guest: user.is_guest || false,
-              ...user
-            } : null}
-            customDeleteAction={customDeleteAction}
-          />
-        </Suspense>
+        <ImageSidebar
+          image={image}
+          user={user ? {
+            _id: user._id,
+            is_guest: user.is_guest || false,
+            ...user
+          } : null}
+          customDeleteAction={customDeleteAction}
+        />
       </Box>
     </Box>
   );
