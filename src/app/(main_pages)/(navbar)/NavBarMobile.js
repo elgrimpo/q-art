@@ -23,9 +23,11 @@ import Slide from "@mui/material/Slide";
 
 // App Imports
 import "@/app/globals.css";
+import dynamic from "next/dynamic";
 import { useStore } from "@/store";
 import theme from "@/_styles/theme";
-import AccountMenuMobile from "./AccountMenuMobile";
+
+const AccountMenuMobile = dynamic(() => import("./AccountMenuMobile"), { ssr: false });
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
