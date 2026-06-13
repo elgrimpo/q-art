@@ -172,4 +172,5 @@ async def increment_user_count(user_id, service_config):
 # legacy payment_controller import does not break until Task 5 replaces it.
 
 async def add_user_payment(*args, **kwargs):
-    raise NotImplementedError("add_user_payment has been removed — use the new unlock flow (Task 5)")
+    # TODO(QRAI-53 Task 5): remove this stub — payment_controller.py imports it and will be replaced
+    raise HTTPException(status_code=500, detail="add_user_payment has been removed")

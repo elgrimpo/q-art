@@ -105,6 +105,7 @@ async def test_authenticate_creates_new_user(mock_users, mock_images):
     inserted_doc = mock_users.insert_one.call_args.args[0]
     assert inserted_doc["email"] == "test@example.com"
     assert "credits" not in inserted_doc
+    assert "payment_history" not in inserted_doc
     assert isinstance(response, JSONResponse)
 
 
@@ -253,28 +254,3 @@ async def test_increment_download_increments_count(mock_db):
     assert download_call is not None
 
 
-@patch("api.controllers.users_controller.users")
-@patch("api.controllers.users_controller.images")
-async def test_new_user_created_without_credits(mock_images, mock_users):
-    """New users must not receive a credits field on creation."""
-    from api.controllers.users_controller import authenticate_user
-    from api.schemas.schemas import UserAuth, AuthProvider
-    from unittest.mock import AsyncMock, MagicMock
-    from bson import ObjectId
-
-    mock_users.find_one = AsyncMock(return_value=None)
-    inserted = MagicMock()
-    inserted.inserted_id = ObjectId()
-    mock_users.insert_one = AsyncMock(return_value=inserted)
-    mock_images.update_many = AsyncMock()
-
-    user_auth = UserAuth(
-        name="Test User",
-        email="test@example.com",
-        auth_providers=[AuthProvider(provider="google", providerId="123")],
-    )
-    await authenticate_user(user_auth)
-
-    call_args = mock_users.insert_one.call_args.args[0]
-    assert "credits" not in call_args
-    assert "payment_history" not in call_args
