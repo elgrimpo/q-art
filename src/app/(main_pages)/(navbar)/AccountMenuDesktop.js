@@ -6,7 +6,6 @@ import Link from "next/link";
 import {
   Avatar,
   Button,
-  Chip,
   Box,
   MenuItem,
   Menu,
@@ -15,7 +14,6 @@ import {
   Tooltip,
 } from "@mui/material";
 import ListItemIcon from "@mui/material/ListItemIcon";
-import DiamondTwoToneIcon from "@mui/icons-material/DiamondTwoTone";
 import Logout from "@mui/icons-material/Logout";
 import theme from "@/_styles/theme";
 import { useRouter } from "next/navigation";
@@ -74,33 +72,19 @@ export default function AccountMenuDesktop() {
     <div>
       {/* ACCOUNT */}
       {!user?.is_guest ? (
-        <Box sx={{display: "flex", alignItems: "center", justifyContent: "center"}}>
-          {/* -------------------------- USER CREDITS --------------------------- */}
-          <Chip
-            variant="outlined"
-            icon={<DiamondTwoToneIcon sx={{color: theme.palette.primary.light}} />}
-            label={user?.credits || 0}
-            sx={{ height: "40px", borderRadius: "24px", color: theme.palette.primary.light, borderColor: theme.palette.primary.light, '& .MuiChip-icon': {color: theme.palette.primary.light} }}
-          />
-          <Box
-            sx={{ display: "flex", alignItems: "center", textAlign: "center" }}
-          >
-            <Tooltip title="Account settings">
-              <IconButton
-                onClick={handleClick}
-                size="small"
-                sx={{ ml: 2 }}
-                aria-controls={open ? "account-menu" : undefined}
-                aria-haspopup="true"
-                aria-expanded={open ? "true" : undefined}
-              >
-                {/* ------------------------- USER ACCOUNT ------------------------- */}
-
-                {/* AVATAR */}
-                <Avatar {...stringAvatar(user)} />
-              </IconButton>
-            </Tooltip>
-          </Box>
+        <Box sx={{ display: "flex", alignItems: "center", textAlign: "center" }}>
+          <Tooltip title="Account settings">
+            <IconButton
+              onClick={handleClick}
+              size="small"
+              aria-controls={open ? "account-menu" : undefined}
+              aria-haspopup="true"
+              aria-expanded={open ? "true" : undefined}
+            >
+              {/* AVATAR */}
+              <Avatar {...stringAvatar(user)} />
+            </IconButton>
+          </Tooltip>
 
           {/* MENU */}
           <Menu
