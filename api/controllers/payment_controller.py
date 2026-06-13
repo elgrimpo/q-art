@@ -1,6 +1,5 @@
 import logging
 import os
-from datetime import datetime
 
 import stripe
 from bson import ObjectId
@@ -69,6 +68,12 @@ async def stripe_webhook(request, stripe_signature):
         session = event["data"]["object"]
         image_id = session.get("metadata", {}).get("image_id")
         if image_id:
-            await mark_image_unlock_paid(image_id)
+            try:
+                await mark_image_unlock_paid(image_id)
+            except Exception:
+                # Log and continue — always return 200 so Stripe doesn't retry indefinitely.
+                # The unlock_pending flag is a best-effort backstop; the primary unlock path
+                # is the sync verify-and-upscale call when the user returns from Stripe.
+                logger.error("mark_image_unlock_paid failed in webhook for image %s", image_id, exc_info=True)
 
     return {"status": "ok"}
