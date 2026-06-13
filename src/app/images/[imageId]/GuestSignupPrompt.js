@@ -19,10 +19,10 @@ export default function GuestSignupPrompt() {
       }}
     >
       <Typography variant="h4" sx={{ mb: 3 }}>
-        Your QR Art is Ready!
+        Save your image to your profile
       </Typography>
       <Typography variant="body1" sx={{ mb: 4 }}>
-        Sign in now to save your creation and generate more amazing QR codes.
+        Sign in to save this image and keep generating for free.
       </Typography>
       <Stack
         spacing={2}

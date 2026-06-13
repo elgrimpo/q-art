@@ -1,8 +1,7 @@
 "use client";
 // Libraries imports
 import React, { useEffect, useState } from "react";
-import { Button, Box, Stack, Typography, Divider } from "@mui/material";
-import DiamondTwoToneIcon from "@mui/icons-material/DiamondTwoTone";
+import { Button, Box, Stack, Divider } from "@mui/material";
 import * as amplitude from "@amplitude/analytics-browser";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -13,7 +12,6 @@ import theme from "@/_styles/theme";
 import "../../globals.css";
 import promptRandomizer from "@/_utils/PromptGenerator";
 import { useStore } from "@/store";
-import { calculateCredits } from "@/_utils/utils";
 import SimpleDialog from "@/_components/SimpleDialog";
 import UrlPrompt from "./(formComponents)/UrlPrompt";
 import StylesModal from "./(formComponents)/StylesModal";
@@ -69,9 +67,6 @@ function GenerateForm() {
   // Submit Button state
   const [submitDisabled, setSubmitDisabled] = useState(true);
 
-  // Track user credits
-  const [price, setPrice] = useState(calculateCredits({ generate: 1 }));
-
   /* -------------------------------- FUNCTIONS ------------------------------- */
 
   // Handle input change
@@ -101,16 +96,11 @@ function GenerateForm() {
   };
 
   const handleInsufficientCredits = () => {
-    const description = user?.is_guest
-      ? "Sign up to get more credits and unlock all features!"
-      : "You don't have enough credits to generate this image. Please go to your account to purchase additional credits.";
-
     setDialogContent({
-      title: "Insufficient Credits",
-      description,
-      primaryActionText: user?.is_guest ? "Sign Up" : "Add Credits",
-      primaryAction: () =>
-        router.push(user?.is_guest ? "/api/auth/signin" : "/profile"),
+      title: "Sign in to keep going",
+      description: "Sign in to keep generating and save your images to your profile.",
+      primaryActionText: "Sign In",
+      primaryAction: () => router.push("/api/auth/signin"),
       secondaryActionText: "Close",
       secondaryAction: handleDialogClose,
     });
@@ -168,12 +158,6 @@ function GenerateForm() {
     setGeneratingImage(true);
 
     try {
-      if (user?.credits < 1) {
-        handleInsufficientCredits();
-        setGeneratingImage(false);
-        return;
-      }
-
       amplitude.track("Generate Image", {
         userId: user?.id,
         url: generateFormValues.website,
@@ -199,7 +183,7 @@ function GenerateForm() {
         const updated = await updateGuestCredits(newCredits);
 
         if (updated) {
-          router.push(`/images/${image._id}?isNewGuestImage=true`);
+          router.push(`/images/${image._id}?justGenerated=true`);
         } else {
           console.error("handleGenerate: Failed to update credits");
           openAlert(
@@ -208,7 +192,7 @@ function GenerateForm() {
           );
         }
       } else {
-        router.push(`/images/${image._id}`);
+        router.push(`/images/${image._id}?justGenerated=true`);
       }
     } catch (error) {
       console.error("handleGenerate: Generation error:", error);
@@ -282,23 +266,7 @@ function GenerateForm() {
               disabled={submitDisabled}
               onClick={() => handleGenerate()}
             >
-              <Typography
-                variant="body1"
-                component="div"
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  flexWrap: "wrap",
-                }}
-              >
-                Generate ( {price}
-                <DiamondTwoToneIcon
-                  fontSize="small"
-                  color="primary"
-                  sx={{ mr: "4px" }}
-                />{" "}
-                )
-              </Typography>
+              Generate
             </Button>
           </Box>
         )}
