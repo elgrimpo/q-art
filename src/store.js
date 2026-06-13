@@ -19,20 +19,7 @@ export const useStore = create((set) => ({
     sd_model: "cyberrealistic_v40_151857.safetensors",
   },
   generatingImage: false,
-  processingImages: [],
 
-
-  // Function to add an image to the processing images array
-  addImageProcessing: (imageId) =>
-    set((state) => ({
-      processingImages: [...state.processingImages, imageId],
-    })),
-
-  // Function to remove an image from the processing images array
-  removeImageProcessing: (imageId) =>
-    set((state) => ({
-      processingImages: state.processingImages.filter((id) => id !== imageId),
-    })),
   setGenerateFormValues: (values) =>
     set((state) => ({
       ...state,
