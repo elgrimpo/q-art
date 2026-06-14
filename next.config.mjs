@@ -25,7 +25,7 @@ const nextConfig = {
       ];
     },
     async headers() {
-      return [
+      const headerRules = [
         {
           source: '/(.*)',
           headers: [
@@ -37,13 +37,22 @@ const nextConfig = {
             { key: 'Strict-Transport-Security', value: 'max-age=31536000' },
           ],
         },
-        {
+      ];
+
+      // Only mark static chunks immutable in production, where filenames are
+      // content-hashed. In dev, chunk URLs are stable (e.g. page.js), so a
+      // year-long immutable cache makes the browser serve stale JS after every
+      // recompile — code edits silently never take effect.
+      if (process.env.NODE_ENV === 'production') {
+        headerRules.push({
           source: '/_next/static/(.*)',
           headers: [
             { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
           ],
-        },
-      ];
+        });
+      }
+
+      return headerRules;
     },
     async rewrites() {
         return [
