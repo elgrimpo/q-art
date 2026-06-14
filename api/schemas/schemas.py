@@ -22,6 +22,7 @@ class ImageCounts(BaseModel):
     upscale: Optional[int] = None
 
 
+# TODO(QRAI-53 Task 5): remove PaymentHistory — no longer used by User after credit system removal
 class PaymentHistory(BaseModel):
     date_time: datetime
     transaction_amount: int
@@ -41,8 +42,6 @@ class User(BaseModel):
     email: str
     image_counts: Optional[Dict[str, Dict[str, ImageCounts]]] = {}
     last_image_created_at: Optional[datetime] = None
-    credits: Optional[int] = 10
-    payment_history: Optional[List[PaymentHistory]] = []
 
 class UserAuth(BaseModel):
     name: str
@@ -91,4 +90,5 @@ class ImageDoc(BaseModel):
     image_url: Optional[str] = None
     watermarked_image_url: Optional[str] = None
     likes: Optional[List[Like]] = []
-    downloaded: Optional[bool] = False
+    unlocked: Optional[bool] = False
+    unlock_pending: Optional[bool] = False

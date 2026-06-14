@@ -41,7 +41,6 @@ export default async function ImagePage({ params, searchParams }) {
   const { imageId } = params;
   const image = await getImageById(imageId);
   const user = await getUserInfo();
-  const isNewGuestImage = searchParams?.isNewGuestImage === 'true';
 
   /* -------------------------------- FUNCTIONS ------------------------------- */
 
@@ -100,7 +99,6 @@ export default async function ImagePage({ params, searchParams }) {
             ...user
           } : null}
           customDeleteAction={customDeleteAction}
-          isNewGuestImage={isNewGuestImage}
         />
       </Box>
     </Box>

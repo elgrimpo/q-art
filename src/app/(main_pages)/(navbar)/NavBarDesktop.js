@@ -12,9 +12,9 @@ import useScrollTrigger from "@mui/material/useScrollTrigger";
 
 // App Imports
 import "@/app/globals.css";
-import AccountMenuDesktop from "./AccountMenuDesktop";
 import { useStore } from "@/store";
 import theme from "@/_styles/theme";
+import AccountMenuDesktop from "./AccountMenuDesktop";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */

@@ -3,7 +3,6 @@ import qrcode
 import httpx
 from dotenv import load_dotenv
 import os
-import json
 from novita_client import *
 import aioboto3
 import base64
@@ -28,10 +27,9 @@ from api.controllers.images_controller import (
 from api.utils.utils import (
     prepare_img2img_request,
     create_watermark,
-    calculate_credits,
 )
 from api.controllers.users_controller import increment_user_count
-from api.schemas.schemas import ImageDoc
+
 
 load_dotenv()
 
@@ -44,17 +42,10 @@ mongo_url = os.environ["MONGO_URL"]
 _tls = {"tlsCAFile": certifi.where()} if "localhost" not in mongo_url else {}
 client = motor.AsyncIOMotorClient(mongo_url, **_tls)
 db = client.get_database("QART")
-users = db.get_collection("users")
 images = db.get_collection("images")
 guest_credits_col = db.get_collection("guest_credits")
 
 GUEST_FREE_CREDITS = 3
-
-# Resolutions a user may request for an upscale. Must stay in sync with the
-# upscale_resize price map in api/utils/utils.calculate_credits — an off-tier
-# value isn't priced (calculate_credits would return 0), so it must be rejected
-# rather than run as a free arbitrary-size upscale.
-ALLOWED_UPSCALE_RESOLUTIONS = {512, 1024, 2048, 4096}
 
 # S3
 api_url = os.environ["S3_URL"]
@@ -101,10 +92,6 @@ async def predict(
 ):
     try:
         # --------------------------------- CHECK FUNDS ------------------------------- #
-        service_config = {"generate": "1"}
-        credits_required = calculate_credits(service_config)
-        credits_deducted = False
-
         # Handle guest users: enforce server-side quota via atomic MongoDB counter.
         if str(user_id).startswith("guest_"):
             result = await guest_credits_col.find_one_and_update(
@@ -117,15 +104,6 @@ async def predict(
                 # Undo the increment so the counter stays stable at the limit.
                 await guest_credits_col.update_one({"_id": user_id}, {"$inc": {"used": -1}})
                 raise HTTPException(status_code=403, detail="Insufficient credits")
-        else:
-            # Atomic check-and-deduct: no match means insufficient credits.
-            result = await users.find_one_and_update(
-                {"_id": ObjectId(user_id), "credits": {"$gte": credits_required}},
-                {"$inc": {"credits": -credits_required}},
-            )
-            if result is None:
-                raise HTTPException(status_code=403, detail="Insufficient credits")
-            credits_deducted = True
 
         # ------------------------------ CREATE QR CODE ------------------------------ #
         qr = qrcode.QRCode(
@@ -190,10 +168,6 @@ async def predict(
             generated_image = Image.open(BytesIO(image_bytes))
 
         except Exception as generation_error:
-            if credits_deducted:
-                await users.update_one(
-                    {"_id": ObjectId(user_id)}, {"$inc": {"credits": credits_required}}
-                )
             logger.error("Image generation failed", exc_info=True)
             raise HTTPException(status_code=500, detail="Image generation failed")
 
@@ -236,18 +210,13 @@ async def predict(
             updated_image = await update_image(inserted_image_id, updated_data)
 
         except Exception as db_error:
-            if credits_deducted:
-                await users.update_one(
-                    {"_id": ObjectId(user_id)}, {"$inc": {"credits": credits_required}}
-                )
             logger.error("Database insertion failed", exc_info=True)
             raise HTTPException(status_code=500, detail="Database insertion failed")
 
         # ---------------------- UPDATE USER CREDITS AND COUNT ---------------------- #
         try:
             if not str(user_id).startswith("guest_"):
-                # Credits already atomically deducted above; pass 0 to only update counters.
-                await increment_user_count(user_id, service_config, 0)
+                await increment_user_count(user_id, {"generate": "1"})
         except Exception:
             # Handle user count update error
             raise HTTPException(status_code=500, detail="User count update failed")
@@ -259,147 +228,4 @@ async def predict(
         raise
     except Exception:
         logger.error("Unexpected error in predict", exc_info=True)
-        raise HTTPException(status_code=500, detail="Internal Server Error")
-
-
-# ---------------------------------------------------------------------------- #
-#                                    UPSCALE                                   #
-# ---------------------------------------------------------------------------- #
-
-
-async def upscale(image_id, user_id, resolution):
-    try:
-        # ------------------------------ VALIDATE INPUT ------------------------------ #
-        # Reject an unknown resolution up front: a non-numeric value would raise
-        # ValueError on int() and an off-tier size would run a real upscale for 0
-        # credits (it isn't in the price map). Either way -> clean 400, not a raw 500.
-        try:
-            resolution = int(resolution)
-        except (TypeError, ValueError):
-            raise HTTPException(status_code=400, detail="Invalid resolution")
-        if resolution not in ALLOWED_UPSCALE_RESOLUTIONS:
-            raise HTTPException(status_code=400, detail="Invalid resolution")
-
-        # A malformed id can't be a real document — treat it as not found rather than
-        # letting ObjectId() raise InvalidId and surface as a generic 500.
-        try:
-            object_id = ObjectId(image_id)
-        except (InvalidId, TypeError):
-            raise HTTPException(status_code=404, detail="Image not found")
-
-        # -------------------------------- CHECK FUNDS ------------------------------- #
-        image = await images.find_one({"_id": object_id})
-
-        # --------------------------- OWNERSHIP CHECK -------------------------- #
-        if not image:
-            raise HTTPException(status_code=404, detail="Image not found")
-        if image.get("user_id") != user_id:
-            raise HTTPException(status_code=403, detail="Not authorized to upscale this image")
-
-        service_config = {
-            "upscale_resize": (
-                resolution if image["width"] < resolution else 0
-            ),
-            "download": not image.get("downloaded", False),
-        }
-
-        credits_required = calculate_credits(service_config)
-
-        result = await users.find_one_and_update(
-            {"_id": ObjectId(user_id), "credits": {"$gte": credits_required}},
-            {"$inc": {"credits": -credits_required}},
-        )
-        if result is None:
-            raise HTTPException(status_code=403, detail="Insufficient credits")
-
-        # ------------------------------ UPSCALE REQUIRED ----------------------------- #
-        if resolution > image["width"]:
-
-            # ----------------------------- GET IMAGE FROM S3 ---------------------------- #
-            try:
-                async with s3_session.client(
-                    "s3",
-                    aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
-                    aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
-                ) as s3_client:
-
-                    # Upload file to S3 asynchronously
-                    object_name = image_id + ".png"
-                    response = await s3_client.get_object(Bucket=s3_bucket_name, Key=object_name)
-                    image_content = await response["Body"].read()
-                    base64_image = base64.b64encode(image_content).decode()
-            except Exception:
-                await users.update_one(
-                    {"_id": ObjectId(user_id)}, {"$inc": {"credits": credits_required}}
-                )
-                raise HTTPException(
-                    status_code=500, detail="Failed to retrieve image from S3"
-                )
-
-            # ------------------------------ UPSCALE IMAGE ----------------------------- #
-            try:
-                upscale_request = UpscaleRequest(
-                    image=base64_image,
-                    upscaling_resize_w=resolution,
-                    upscaling_resize_h=resolution,
-                    resize_mode=UpscaleResizeMode.SIZE,
-                )
-                upscale_response = await asyncio.to_thread(
-                    client.sync_upscale, upscale_request
-                )
-
-            except Exception:
-                await users.update_one(
-                    {"_id": ObjectId(user_id)}, {"$inc": {"credits": credits_required}}
-                )
-                raise HTTPException(status_code=500, detail="Image upscaling failed")
-
-            # ------------------------------ UPDATE DATABASE ----------------------------- #
-            try:
-                async with s3_session.client(
-                    "s3",
-                    aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
-                    aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
-                ) as s3_client:
-                    upscaled_image_content = upscale_response.data.imgs_bytes[0]
-                    await s3_client.put_object(
-                        Bucket=s3_bucket_name,
-                        Key=object_name,
-                        Body=upscaled_image_content,
-                    )
-                update_data = {
-                    "width": resolution,
-                    "height": resolution,
-                    "downloaded": True,
-                }
-
-                updated_image = await update_image(image_id, update_data)
-            except Exception:
-                await users.update_one(
-                    {"_id": ObjectId(user_id)}, {"$inc": {"credits": credits_required}}
-                )
-                raise HTTPException(status_code=500, detail="Database update failed")
-
-            # --------------------------- UPSCALE NOT REQUIRED --------------------------- #
-        else:
-            if not image.get("downloaded"):
-                update_data = {"downloaded": True}
-                updated_image = await update_image(image_id, update_data)
-            else:
-                updated_image = image
-        # ---------------------- UPDATE USER CREDITS AND COUNT ---------------------- #
-        try:
-            # Credits already atomically deducted above; pass 0 to only update counters.
-            await increment_user_count(user_id, service_config, 0)
-        except Exception:
-            # Handle user count update error
-            raise HTTPException(status_code=500, detail="User count update failed")
-
-        return ImageDoc(**updated_image)
-
-    except HTTPException:
-        # Reraise HTTP exceptions for FastAPI to handle
-        raise
-    except Exception:
-        logger.error("Unexpected error in upscale", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal Server Error")

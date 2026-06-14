@@ -223,56 +223,54 @@ async def test_get_image_by_id_not_found_returns_404(mock_get_image):
 
 
 # ---------------------------------------------------------------------------- #
-#                            UPSCALE ROUTE                                     #
+#                            CHECKOUT/UNLOCK ROUTE                             #
 # ---------------------------------------------------------------------------- #
 
-async def test_upscale_requires_auth():
-    """GET /api/upscale/:id must return 401 with no token."""
-    async with _client() as client:
-        resp = await client.get(
-            "/api/upscale/507f1f77bcf86cd799439011",
-            params={"resolution": "1024"},
-        )
-    assert resp.status_code == 401
-
-
-@patch("api.main.upscale", new_callable=AsyncMock)
-async def test_upscale_route_returns_200(mock_upscale):
-    """GET /api/upscale/:id returns 200 with valid auth and params."""
-    mock_upscale.return_value = {"_id": "507f1f77bcf86cd799439011", "width": 1024}
-    async with _client() as client:
-        resp = await client.get(
-            "/api/upscale/507f1f77bcf86cd799439011",
-            params={"resolution": "1024"},
-            headers=_guest_auth_headers(),
-        )
-    assert resp.status_code == 200
-    mock_upscale.assert_called_once()
-
-
-# ---------------------------------------------------------------------------- #
-#                            CHECKOUT ROUTE                                    #
-# ---------------------------------------------------------------------------- #
-
-async def test_checkout_requires_auth():
-    """POST /api/checkout must return 401 with no token."""
+async def test_checkout_unlock_requires_auth():
+    """POST /api/checkout/unlock must return 401 with no token."""
     async with _client() as client:
         resp = await client.post(
-            "/api/checkout",
-            params={"stripeId": "price_1OpIN8AaPyl1Ov3Pi3q6dkEC"},
+            "/api/checkout/unlock",
+            params={"image_id": "607f1f77bcf86cd799439022"},
         )
     assert resp.status_code == 401
 
 
-@patch("api.main.create_checkout_session")
-async def test_checkout_returns_session_url(mock_checkout):
-    """POST /api/checkout returns session_url with valid auth."""
+@patch("api.main.create_unlock_checkout_session")
+async def test_checkout_unlock_returns_session_url(mock_checkout):
+    """POST /api/checkout/unlock returns session_url with valid auth."""
     mock_checkout.return_value = {"session_url": "https://checkout.stripe.com/pay/cs_test"}
     async with _client() as client:
         resp = await client.post(
-            "/api/checkout",
-            params={"stripeId": "price_1OpIN8AaPyl1Ov3Pi3q6dkEC"},
+            "/api/checkout/unlock",
+            params={"image_id": "607f1f77bcf86cd799439022"},
             headers=_guest_auth_headers(),
         )
     assert resp.status_code == 200
     assert resp.json()["session_url"] == "https://checkout.stripe.com/pay/cs_test"
+
+
+# ---------------------------------------------------------------------------- #
+#                            UNLOCK ROUTE                                      #
+# ---------------------------------------------------------------------------- #
+
+async def test_unlock_requires_auth():
+    """POST /api/unlock/:id must return 401 with no token."""
+    async with _client() as client:
+        resp = await client.post("/api/unlock/507f1f77bcf86cd799439011")
+    assert resp.status_code == 401
+
+
+@patch("api.main.unlock_image", new_callable=AsyncMock)
+async def test_unlock_route_returns_200(mock_unlock):
+    """POST /api/unlock/:id returns 200 with valid auth."""
+    mock_unlock.return_value = {"_id": "507f1f77bcf86cd799439011", "unlocked": True}
+    async with _client() as client:
+        resp = await client.post(
+            "/api/unlock/507f1f77bcf86cd799439011",
+            params={"stripe_session_id": "cs_test_abc123"},
+            headers=_guest_auth_headers(),
+        )
+    assert resp.status_code == 200
+    assert resp.json()["unlocked"] is True
+    mock_unlock.assert_called_once_with("507f1f77bcf86cd799439011", "cs_test_abc123", mock_unlock.call_args.args[2])

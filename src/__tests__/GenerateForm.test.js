@@ -25,9 +25,9 @@ jest.mock('next/navigation', () => ({
 
 jest.mock('next-auth/react', () => ({
   useSession: () => ({
-    data: { user: { email: 'test@example.com', credits: 5 } },
+    data: { user: { email: 'test@example.com' } },
     status: 'authenticated',
-    update: jest.fn().mockResolvedValue({ user: { credits: 4 } }),
+    update: jest.fn().mockResolvedValue({ user: {} }),
   }),
 }))
 
@@ -42,7 +42,7 @@ jest.mock('../_utils/ImagesUtils', () => ({
   getImageById: jest.fn(),
   deleteImage: jest.fn(),
   likeImage: jest.fn(),
-  upscaleImage: jest.fn(),
+  unlockImage: jest.fn(),
 }))
 
 // ---- Heavy sub-components ----
@@ -79,7 +79,7 @@ function getGenerateBtn() {
 /** Reset Zustand store to a clean state before each test */
 function resetStore(overrides = {}) {
   useStore.setState({
-    user: { id: 'user_123', credits: 5, is_guest: false },
+    user: { id: 'user_123', is_guest: false },
     generateFormValues: {
       website: '',
       prompt: 'a random prompt', // non-empty so button enables when website is filled
@@ -201,10 +201,14 @@ describe('GenerateForm', () => {
     expect(screen.queryByRole('button', { name: 'generate' })).not.toBeInTheDocument()
   })
 
-  // ---- 6. Shows InsufficientCredits dialog when user has 0 credits ----
-  test('shows InsufficientCredits dialog when user has 0 credits and clicks Generate', async () => {
+  // ---- 6. Logged-in users have no client-side credit gate — generation proceeds ----
+  test('calls generateImage even when logged-in user has no credits field', async () => {
+    const fakeImage = { _id: 'img_abc' }
+    mockGenerateImage.mockResolvedValueOnce(fakeImage)
+
+    // No credits field on user — logged-in users are no longer credit-gated on the frontend
     resetStore({
-      user: { id: 'user_123', credits: 0, is_guest: false },
+      user: { id: 'user_123', is_guest: false },
       generateFormValues: {
         website: 'example.com',
         prompt: 'a dragon',
@@ -225,15 +229,12 @@ describe('GenerateForm', () => {
     })
 
     await waitFor(() => {
-      expect(screen.getByText('Insufficient Credits')).toBeInTheDocument()
+      expect(mockGenerateImage).toHaveBeenCalledTimes(1)
     })
-
-    // generateImage should NOT have been called
-    expect(mockGenerateImage).not.toHaveBeenCalled()
   })
 
-  // ---- 7. Shows InsufficientCredits dialog when backend rejects with that error ----
-  test('shows InsufficientCredits dialog when backend rejects with InsufficientCredits error', async () => {
+  // ---- 7. Shows "Sign in to keep going" dialog when backend rejects with InsufficientCredits error ----
+  test('shows "Sign in to keep going" dialog when backend rejects with InsufficientCredits error', async () => {
     mockGenerateImage.mockRejectedValueOnce(new Error('InsufficientCredits'))
 
     resetStore({
@@ -257,7 +258,7 @@ describe('GenerateForm', () => {
     })
 
     await waitFor(() => {
-      expect(screen.getByText('Insufficient Credits')).toBeInTheDocument()
+      expect(screen.getByText('Sign in to keep going')).toBeInTheDocument()
     })
   })
 })

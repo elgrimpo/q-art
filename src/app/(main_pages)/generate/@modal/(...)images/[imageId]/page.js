@@ -27,7 +27,6 @@ export default function ImagePage({ params }) {
   const [image, setImage] = useState(null);
   const { user, resetGenerateFormValues } = useStore();
   const searchParams = useSearchParams();
-  const isNewGuestImage = searchParams.get('isNewGuestImage') === 'true';
 
   const router = useRouter();
   const isFullScreen = useMediaQuery(theme.breakpoints.down("md"));
@@ -114,7 +113,6 @@ export default function ImagePage({ params }) {
           image={image}
           user={user}
           customDeleteAction={customDeleteAction}
-          isNewGuestImage={isNewGuestImage}
         />
 
       </Box>

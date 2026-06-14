@@ -55,8 +55,6 @@ async def authenticate_user(user_auth: UserAuth):
             "auth_providers": auth_providers_dicts,
             "picture": user_auth.picture,
             "image_counts": {},
-            "credits": 10,
-            "payment_history": []
         }
         
         # Check if user exists
@@ -107,7 +105,7 @@ async def authenticate_user(user_auth: UserAuth):
 #                             INCREMENT USER COUNT                             #
 # ---------------------------------------------------------------------------- #
 
-async def increment_user_count(user_id, service_config, credits_deducted):
+async def increment_user_count(user_id, service_config):
     try:
         # Skip database operations for guest users
         if str(user_id).startswith('guest_'):
@@ -158,54 +156,10 @@ async def increment_user_count(user_id, service_config, credits_deducted):
                 upsert=True,
             )
 
-        # ---------------------------- UPDATE USER CREDITS --------------------------- #
-        await db["users"].update_one(
-            {"_id": ObjectId(user_id)},
-            {
-                "$inc": {
-                    "credits": -credits_deducted,
-                },
-            },
-            upsert=True,
-        )
         logger.debug("User count incremented successfully for %s", user_id)
 
     except Exception:
         logger.error("Error in increment_user_count for %s", user_id, exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error")
 
-# ---------------------------------------------------------------------------- #
-#                               Add User Payment                               #
-# ---------------------------------------------------------------------------- #
 
-async def add_user_payment(
-    user_id, transaction_amount, product_id, credit_amount, payment_intent, timestamp
-):
-    payment_history_instance = PaymentHistory(
-        date_time=timestamp,
-        transaction_amount=int(transaction_amount),
-        product_id=product_id,
-        credit_amount=int(credit_amount),
-        payment_intent_id=payment_intent,
-    )
-
-    try:
-        result = await db["users"].update_one(
-            {
-                "_id": ObjectId(user_id),
-                "payment_history.payment_intent_id": {"$ne": payment_intent},
-            },
-            {
-                "$push": {"payment_history": payment_history_instance.dict()},
-                "$inc": {"credits": int(credit_amount)},
-            },
-        )
-        if result.modified_count == 0:
-            logger.warning(
-                "add_user_payment: payment_intent %r already applied or user not found, skipping",
-                payment_intent,
-            )
-
-    except Exception:
-        logger.error("Error in add_user_payment for payment_intent %r", payment_intent, exc_info=True)
-        raise HTTPException(status_code=500, detail="Payment processing failed")

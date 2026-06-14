@@ -25,8 +25,9 @@ export default function MyCodes() {
 
   const pathname = usePathname();
 
-  // User
-  const user = useStore.getState().user;
+  // User — reactive read so the page re-renders once StoreInitializer seeds the
+  // store on the client (getState() returns the empty server snapshot and never updates).
+  const user = useStore((state) => state.user);
   // Screen size
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [images, setImages] = useState([]);
@@ -78,6 +79,19 @@ export default function MyCodes() {
     setPage(0);
     setImages([]);
   }, [pathname]);
+
+  // Redirect guests / signed-out users away from their personal gallery. Runs after
+  // render (never during) so it can't touch window.location on the server. We key off
+  // email + is_guest rather than _id: StoreInitializer briefly seeds the next-auth
+  // session user (which has an email but no Mongo _id yet) before the backend user
+  // arrives, so a _id check would wrongly bounce a logged-in user on a full page load.
+  useEffect(() => {
+    const userResolved = user && Object.keys(user).length > 0;
+    const isGuestOrSignedOut = !user?.email || user?.is_guest;
+    if (userResolved && isGuestOrSignedOut && pathname === "/mycodes") {
+      router.push("/generate");
+    }
+  }, [user, pathname, router]);
 
   const loadMoreImages = async (params, replace = false) => {
     const newImages = await getImages(params);
@@ -165,10 +179,6 @@ export default function MyCodes() {
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
   /* -------------------------------------------------------------------------- */
-  if (!user._id && pathname === "/mycodes") {
-    router.push("/generate");
-    }
-
   return images.length === 0 && page === -1 && pathname === "/mycodes" ? (
     /* --------------------------- NO USER IMAGES --------------------------- */
     <Box

@@ -1,4 +1,4 @@
-import { generateImage, deleteImage, likeImage, upscaleImage, getImages, getImageById } from '../_utils/ImagesUtils'
+import { generateImage, deleteImage, likeImage, unlockImage, getImages, getImageById } from '../_utils/ImagesUtils'
 import axios from 'axios'
 
 // Mock Next.js server-only APIs used by ImagesUtils
@@ -70,6 +70,17 @@ describe('generateImage', () => {
     expect(opts.headers.Authorization).toBe('Bearer test-token')
     expect(url).not.toContain('user_id=')
   })
+
+  // The slider sends qr_weight on a -3..+3 scale, but the backend only accepts
+  // [0, 1]. generateImage must translate it, or generation 422s for any
+  // non-zero slider value (the original bug).
+  test('maps the -3..+3 slider qr_weight into the backend [0, 1] range', async () => {
+    fetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ _id: 'img_1' }) })
+    await generateImage({ ...FAKE_FORM, qr_weight: -3 }, FAKE_USER)
+    const [url] = fetch.mock.calls[0]
+    const sent = new URL(url).searchParams.get('qr_weight')
+    expect(Number(sent)).toBe(0)
+  })
 })
 
 // --------------------------------------------------------------------------
@@ -121,31 +132,47 @@ describe('likeImage', () => {
 })
 
 // --------------------------------------------------------------------------
-// upscaleImage
+// unlockImage
 // --------------------------------------------------------------------------
 
-describe('upscaleImage', () => {
-  test('calls axios.get with resolution param and auth header', async () => {
-    const fakeImage = { _id: 'img_789', width: 1024 }
-    axios.get.mockResolvedValueOnce({ data: fakeImage })
-    await upscaleImage('img_789', 1024, 'user_1')
-    const [url, config] = axios.get.mock.calls[0]
-    expect(url).toContain('/api/upscale/img_789')
-    expect(config.params.resolution).toBe(1024)
+describe('unlockImage', () => {
+  test('posts to /api/unlock/:imageId with stripe_session_id param and auth header when stripeSessionId is provided', async () => {
+    const fakeImage = { _id: 'img_789', image_url: 'https://s3/img.png', unlocked: true }
+    axios.post.mockResolvedValueOnce({ data: fakeImage })
+    await unlockImage('img_789', 'sess_abc')
+    const [url, body, config] = axios.post.mock.calls[0]
+    expect(url).toContain('/api/unlock/img_789')
+    expect(body).toBeNull()
+    expect(config.params.stripe_session_id).toBe('sess_abc')
     expect(config.headers.Authorization).toBe('Bearer test-token')
   })
 
-  test('resolves with the image data on success', async () => {
-    const fakeImage = { _id: 'img_789', width: 1024, image_url: 'https://s3/img.png' }
-    axios.get.mockResolvedValueOnce({ data: fakeImage })
-    const result = await upscaleImage('img_789', 1024, 'user_1')
+  test('passes empty params object when stripeSessionId is falsy', async () => {
+    const fakeImage = { _id: 'img_789', unlocked: true }
+    axios.post.mockResolvedValueOnce({ data: fakeImage })
+    await unlockImage('img_789', null)
+    const [, , config] = axios.post.mock.calls[0]
+    expect(config.params).toEqual({})
+  })
+
+  test('resolves with response.data on success', async () => {
+    const fakeImage = { _id: 'img_789', image_url: 'https://s3/img.png', unlocked: true }
+    axios.post.mockResolvedValueOnce({ data: fakeImage })
+    const result = await unlockImage('img_789', 'sess_abc')
     expect(result).toEqual(fakeImage)
   })
 
-  test('rejects when axios.get throws (e.g. 403 insufficient credits)', async () => {
+  test('calls revalidateTag("images") on success', async () => {
+    const { revalidateTag } = require('next/cache')
+    axios.post.mockResolvedValueOnce({ data: { _id: 'img_789' } })
+    await unlockImage('img_789', 'sess_abc')
+    expect(revalidateTag).toHaveBeenCalledWith('images')
+  })
+
+  test('rejects when axios.post throws', async () => {
     const err = Object.assign(new Error('Request failed'), { response: { status: 403 } })
-    axios.get.mockRejectedValueOnce(err)
-    await expect(upscaleImage('img_789', 1024, 'user_1')).rejects.toThrow()
+    axios.post.mockRejectedValueOnce(err)
+    await expect(unlockImage('img_789', 'sess_abc')).rejects.toThrow()
   })
 })
 

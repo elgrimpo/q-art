@@ -202,50 +202,6 @@ def prepare_doc(
 
 
 # ---------------------------------------------------------------------------- #
-#                               CALCULATE CREDITS                              #
-# ---------------------------------------------------------------------------- #
-
-
-def calculate_credits(service):
-
-    price = {
-        "generate": {
-            "1": 1,
-        },
-        "download": {False: 0, True: 10},
-        "upscale_resize": {0: 0, 512: 10, 1024: 15, 2048: 20, 4096: 25},
-    }
-
-    total_credits = 0
-
-    # Calculate credits based on image quality
-    generate = service.get("generate", "none")
-    total_credits += price["generate"].get(generate, 0)
-
-    # Calculate credits based on download
-    download = service.get("download", "none")
-    total_credits += price["download"].get(download, False)
-
-    # Calculate credits based on upscale_resize
-    upscale_resize = service.get("upscale_resize", "0")
-    total_credits += price["upscale_resize"].get(upscale_resize, 0)
-
-    return total_credits
-
-
-# ---------------------------------------------------------------------------- #
-#                              SUFFICIENT CREDITS                              #
-# ---------------------------------------------------------------------------- #
-
-
-def sufficient_credit(user, service):
-    user_credits = user.get("credits", 0)
-    total_credits = calculate_credits(service)
-
-    return user_credits >= total_credits
-
-
-# ---------------------------------------------------------------------------- #
 #                          CREATE IMAGES FILTER QUERY                          #
 # ---------------------------------------------------------------------------- #
 

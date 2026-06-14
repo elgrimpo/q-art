@@ -1,90 +1,79 @@
 import logging
 import os
+
+import stripe
+from bson import ObjectId
 from fastapi import HTTPException
 from dotenv import load_dotenv
-import stripe
-from datetime import datetime
-
-# App imports
-from api.controllers.users_controller import add_user_payment
+import motor.motor_asyncio as motor
+import certifi
 
 load_dotenv()
-
 logger = logging.getLogger(__name__)
 
 stripe.api_key = os.environ["STRIPE_API_KEY"]
 frontend_url = os.environ["FRONTEND_URL"]
+unlock_price_id = os.environ["STRIPE_UNLOCK_PRICE_ID"]
 
-# Server-side source of truth: Stripe price ID → credits granted.
-# Never accept credit_amount from the client.
-PRICE_CREDITS_MAP = {
-    "price_1OpIN8AaPyl1Ov3Pi3q6dkEC": 50,
-    "price_1OpINoAaPyl1Ov3PufRg0KrR": 100,
-    "price_1OpIOmAaPyl1Ov3P170gEWNn": 250,
-}
+mongo_url = os.environ["MONGO_URL"]
+_tls = {"tlsCAFile": certifi.where()} if "localhost" not in mongo_url else {}
+_motor_client = motor.AsyncIOMotorClient(mongo_url, **_tls)
+_db = _motor_client.get_database("QART")
+_images = _db.get_collection("images")
 
-# ---------------------------------------------------------------------------- #
-#                                   CHECKOUT                                   #
-# ---------------------------------------------------------------------------- #
 
-def create_checkout_session(stripeId, user_id):
-    credit_amount = PRICE_CREDITS_MAP.get(stripeId)
-    if credit_amount is None:
-        raise HTTPException(status_code=400, detail="Invalid product")
+async def mark_image_unlock_paid(image_id: str):
+    """Webhook backstop: mark the image so the frontend can retry unlock without a session ID."""
     try:
-        checkout_session = stripe.checkout.Session.create(
-            line_items=[
-                {
-                    "price": stripeId,
-                    "quantity": 1,
-                },
-            ],
-            mode="payment",
-            success_url=frontend_url + "/profile" + "?success=true" + "&product_id=" + str(stripeId),
-            cancel_url=frontend_url + "/profile" + "?canceled=true",
-            client_reference_id=user_id,
-            metadata={
-                "product_id": stripeId,
-            }
+        await _images.update_one(
+            {"_id": ObjectId(image_id)},
+            {"$set": {"unlock_pending": True}},
         )
-        return {"session_url": checkout_session.url}
+    except Exception:
+        logger.error("mark_image_unlock_paid failed for image %s", image_id, exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to record unlock pending")
+
+
+def create_unlock_checkout_session(image_id: str, user_id: str):
+    try:
+        session = stripe.checkout.Session.create(
+            line_items=[{"price": unlock_price_id, "quantity": 1}],
+            mode="payment",
+            success_url=(
+                f"{frontend_url}/images/{image_id}"
+                f"?stripe_session_id={{CHECKOUT_SESSION_ID}}"
+            ),
+            cancel_url=f"{frontend_url}/images/{image_id}?canceled=true",
+            client_reference_id=user_id,
+            metadata={"image_id": image_id},
+        )
+        return {"session_url": session.url}
     except HTTPException:
         raise
     except Exception:
         raise HTTPException(status_code=500, detail="Payment failed")
 
-# ---------------------------------------------------------------------------- #
-#                                STRIPE WEBHOOK                                #
-# ---------------------------------------------------------------------------- #
 
 async def stripe_webhook(request, stripe_signature):
-
     endpoint_secret = os.environ["STRIPE_ENDPOINT_SECRET"]
-
     data = await request.body()
-
     try:
         event = stripe.Webhook.construct_event(
-            payload=data,
-            sig_header=stripe_signature,
-            secret=endpoint_secret
+            payload=data, sig_header=stripe_signature, secret=endpoint_secret
         )
     except stripe.error.SignatureVerificationError:
         raise HTTPException(status_code=400, detail="Invalid signature")
 
     if event["type"] == "checkout.session.completed":
         session = event["data"]["object"]
-        user_id = session["client_reference_id"]
-        transaction_amount = session["amount_total"]
-        product_id = session["metadata"]["product_id"]
-        credit_amount = PRICE_CREDITS_MAP.get(product_id)
-        if credit_amount is None:
-            logger.warning("stripe_webhook: unknown product_id %r, skipping credit grant", product_id)
-            return {"status": "ok"}
-        payment_intent = session["payment_intent"]
-        unix_timestamp = session["created"]
-        timestamp = datetime.utcfromtimestamp(unix_timestamp)
-
-        await add_user_payment(user_id, transaction_amount, product_id, credit_amount, payment_intent, timestamp)
+        image_id = session.get("metadata", {}).get("image_id")
+        if image_id:
+            try:
+                await mark_image_unlock_paid(image_id)
+            except Exception:
+                # Log and continue — always return 200 so Stripe doesn't retry indefinitely.
+                # The unlock_pending flag is a best-effort backstop; the primary unlock path
+                # is the sync verify-and-upscale call when the user returns from Stripe.
+                logger.error("mark_image_unlock_paid failed in webhook for image %s", image_id, exc_info=True)
 
     return {"status": "ok"}

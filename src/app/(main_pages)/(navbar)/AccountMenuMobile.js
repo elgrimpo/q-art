@@ -4,7 +4,6 @@
 import React from "react";
 import Image from "next/image";
 import {
-  Chip,
   Box,
   Divider,
   Drawer,
@@ -16,7 +15,6 @@ import {
 } from "@mui/material";
 import PersonOutlineTwoToneIcon from "@mui/icons-material/PersonOutlineTwoTone";
 import ListItemIcon from "@mui/material/ListItemIcon";
-import DiamondTwoToneIcon from "@mui/icons-material/DiamondTwoTone";
 import Logout from "@mui/icons-material/Logout";
 import theme from "@/_styles/theme";
 import { useRouter } from "next/navigation";
@@ -40,7 +38,7 @@ export default function AccountMenuMobile(props) {
   };
 
   // User
-  const user = useStore.getState().user;
+  const { user } = useStore();
 
   /* -------------------------------- FUNCTIONS ------------------------------- */
 
@@ -70,16 +68,6 @@ export default function AccountMenuMobile(props) {
             </Box>
           </ListItem>
 
-          {/* USER CREDITS */}
-          <ListItem>
-            <Chip
-              color="primary"
-              variant="outlined"
-              icon={<DiamondTwoToneIcon />}
-              label={user?.credits}
-              sx={{ height: "40px", borderRadius: "24px", width: "100%" }}
-            />
-          </ListItem>
         </List>
 
         {/* ------------------------------- MENU ITEMS ------------------------------- */}

@@ -2,7 +2,6 @@
 // Libraries imports
 import React from "react";
 import { Box, CardMedia, Skeleton } from "@mui/material";
-import { useStore } from "@/store";
 
 //App imports
 
@@ -15,9 +14,6 @@ export default function ImageFill(props) {
   const isMobile = false;
   // const { handleClose } = props;
   const { image } = props;
-  const { processingImages } = useStore();
-
-  const isImageProcessing = processingImages.includes(image?._id)
   /* -------------------------------- FUNCTIONS ------------------------------- */
 
   /* -------------------------------------------------------------------------- */
@@ -35,7 +31,7 @@ export default function ImageFill(props) {
         flex: { xs: "2", lg: "3" },
       }}
     >
-      {!image?.watermarked_image_url || isImageProcessing ? (
+      {!image?.watermarked_image_url ? (
         <Skeleton
           variant="rounded"
           animation="wave"
@@ -53,7 +49,7 @@ export default function ImageFill(props) {
       ) : (
         <CardMedia
           component="img"
-          image={image?.watermarked_image_url}
+          image={image?.unlocked ? image?.image_url : image?.watermarked_image_url}
           sx={{
             borderRadius: { md: "12px" },
             objectFit: "contain",
