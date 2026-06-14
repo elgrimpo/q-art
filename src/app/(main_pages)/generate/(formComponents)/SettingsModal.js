@@ -36,7 +36,9 @@ function SettingsModal(props) {
   // Context variables
   const { generateFormValues } = useStore();
 
-  // Slider for (QR Code Weight)
+  // Slider for (QR Code Weight). Presented on a -3..+3 scale (Weak -> Strong).
+  // The backend only accepts qr_weight in [0, 1], so this value is translated
+  // via sliderToQrWeight() before the request is sent (see _utils/qrWeight.js).
   const qrWeight = [{ value: -3 }, { value: 3 }];
 
     // Screen size

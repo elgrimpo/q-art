@@ -70,6 +70,17 @@ describe('generateImage', () => {
     expect(opts.headers.Authorization).toBe('Bearer test-token')
     expect(url).not.toContain('user_id=')
   })
+
+  // The slider sends qr_weight on a -3..+3 scale, but the backend only accepts
+  // [0, 1]. generateImage must translate it, or generation 422s for any
+  // non-zero slider value (the original bug).
+  test('maps the -3..+3 slider qr_weight into the backend [0, 1] range', async () => {
+    fetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ _id: 'img_1' }) })
+    await generateImage({ ...FAKE_FORM, qr_weight: -3 }, FAKE_USER)
+    const [url] = fetch.mock.calls[0]
+    const sent = new URL(url).searchParams.get('qr_weight')
+    expect(Number(sent)).toBe(0)
+  })
 })
 
 // --------------------------------------------------------------------------

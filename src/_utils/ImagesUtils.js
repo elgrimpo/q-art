@@ -5,6 +5,7 @@ import axios from "axios";
 import { notFound } from "next/navigation";
 import { revalidateTag } from 'next/cache'
 import { getBackendToken } from "./backendAuth";
+import { sliderToQrWeight } from "./qrWeight";
 
 
 // App imports
@@ -74,7 +75,13 @@ export const getImages = async (params) => {
 export const generateImage = async (generateFormValues, user) => {
   const token = await getBackendToken();
   return new Promise((resolve, reject) => {
-    const queryParams = new URLSearchParams(generateFormValues);
+    // The slider lives on a -3..+3 UI scale; the backend only accepts qr_weight
+    // in [0, 1]. Translate before sending so the request passes validation.
+    const payload = {
+      ...generateFormValues,
+      qr_weight: sliderToQrWeight(generateFormValues.qr_weight),
+    };
+    const queryParams = new URLSearchParams(payload);
     const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/generate/?${queryParams.toString()}`;
 
     fetch(url, {
