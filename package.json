@@ -10,8 +10,8 @@
     "fastapi-build": "pip3 install -r requirements.txt",
     "build": "npm run next-build && npm run fastapi-build",
     "next-start": "next start",
-    "start": "concurrently \"npm run next-start\" \"npm run fastapi-start\"",
-    "fastapi-start": "uvicorn api.main:app --reload",
+    "start": "concurrently -k -n next,api \"npm run next-start\" \"npm run fastapi-start\"",
+    "fastapi-start": "uvicorn api.main:app --host 127.0.0.1 --port 8000",
     "lint": "next lint",
     "test:frontend": "jest"
   },
