@@ -1,11 +1,21 @@
 "use client";
 // Libraries imports
 import React, { useState, useEffect } from "react";
-import { List, ListItemText, Typography, Box, Stack, CircularProgress } from "@mui/material";
+import {
+  List,
+  ListItemText,
+  Typography,
+  Box,
+  Stack,
+  CircularProgress,
+  Card,
+  Button,
+} from "@mui/material";
 import dayjs from "dayjs";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useRouter } from "next/navigation";
 import theme from "@/_styles/theme";
+import DoneIcon from "@mui/icons-material/Done";
 
 //App imports
 import DeleteButton from "@/_components/actions/DeleteButton";
@@ -44,29 +54,37 @@ export default function ImageSidebar({
   /* -------------------------------- EFFECTS --------------------------------- */
 
   // Sync local state when the image prop changes (e.g. navigating between images in the modal).
-  useEffect(() => { setCurrentImage(image); }, [image]);
+  useEffect(() => {
+    setCurrentImage(image);
+  }, [image]);
 
-  // Read URL params after hydration — both server and client start with null/false,
-  // preventing a hydration mismatch from conditionally-rendered elements.
+  // Read URL params after hydration (avoids server/client mismatch) and, in the
+  // same pass, kick off the unlock if we just returned from Stripe or the webhook
+  // already flagged the image as paid. Doing both in one mount effect avoids
+  // relying on a second render to propagate the param into the unlock trigger.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    setStripeSessionId(params.get("stripe_session_id"));
+    const sessionId = params.get("stripe_session_id");
+    setStripeSessionId(sessionId);
     setJustGenerated(params.get("justGenerated") === "true");
-  }, []);
 
-  useEffect(() => {
     if (currentImage?.unlocked) return;
-    const shouldUnlock = stripeSessionId || currentImage?.unlock_pending;
+    const shouldUnlock = sessionId || currentImage?.unlock_pending;
     if (!shouldUnlock) return;
 
     setUnlocking(true);
-    unlockImage(currentImage._id, stripeSessionId)
+    unlockImage(currentImage._id, sessionId)
       .then((updatedImage) => {
         setCurrentImage(updatedImage);
         // Refresh server components so ImageFill also shows the HD image.
         router.refresh();
       })
-      .catch(() => openAlert("error", "Image preparation failed — please try again or contact support."))
+      .catch(() =>
+        openAlert(
+          "error",
+          "Image preparation failed — please try again or contact support.",
+        ),
+      )
       .finally(() => setUnlocking(false));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -94,26 +112,10 @@ export default function ImageSidebar({
     >
       {/* -------------------------------- METADATA -------------------------------- */}
       <div style={{ maxHeight: "100%" }}>
-        {/* ------------------------------ UNLOCK LOADING / BANNER ------------------------------ */}
-        {unlocking && (
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-            <CircularProgress size={20} color="secondary" />
-            <Typography variant="body2" color="text.secondary">
-              Preparing your HD image…
-            </Typography>
-          </Box>
-        )}
-
-        {justGenerated && !currentImage?.unlocked && !unlocking && (
-          <Box sx={{ mb: 2, p: 2, borderRadius: 2, backgroundColor: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}>
-            <Typography variant="body1" color="primary" sx={{ mb: 1, fontWeight: 600 }}>
-              Your QR art is ready!
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
-              Unlock the HD version for $3.99 — no watermark, 2048×2048px, yours to keep.
-            </Typography>
-            <UnlockButton image={currentImage} />
-          </Box>
+        {justGenerated && (
+          <Typography variant="h3" color="text.secondary">
+            Your QR Art is Ready!
+          </Typography>
         )}
 
         {/* ------------------------------ ICON BUTTONS ------------------------------ */}
@@ -143,9 +145,72 @@ export default function ImageSidebar({
             />
           )}
           <CopyButton image={currentImage} />
-
-          {isOwner && !isGuestUser && !(justGenerated && !currentImage?.unlocked) && <UnlockButton image={currentImage} />}
         </Stack>
+        {/* ------------------------------ UNLOCK CARD ------------------------------ */}
+
+        {(justGenerated || isOwner) && (
+          <Card
+            sx={{
+              mb: 2,
+              p: 2,
+              borderRadius: 2,
+              backgroundColor: "rgb(142, 245, 194)",
+              border: "1px solid rgba(255,255,255,0.1)",
+            }}
+          >
+            {/* Not yet unlocked */}
+            {!currentImage?.unlocked && !unlocking && (
+              <>
+                <Typography variant="h5" color="text.secondary" sx={{ mb: 1.5 }}>
+                  Unlock the HD version
+                </Typography>
+                <Stack direction="column" sx={{ mb: "1rem" }}>
+                  <Stack direction="row" alignItems="center" spacing={0.5}>
+                    <DoneIcon />
+                    <Typography>HD Image (2048px x 2048px)</Typography>
+                  </Stack>
+                  <Stack direction="row" alignItems="center" spacing={0.5}>
+                    <DoneIcon />
+                    <Typography>Remove Watermark</Typography>
+                  </Stack>
+                  <Stack direction="row" alignItems="center" spacing={0.5}>
+                    <DoneIcon />
+                    <Typography>Unlock once, download forever</Typography>
+                  </Stack>
+                </Stack>
+                <UnlockButton image={currentImage} />
+              </>
+            )}
+
+            {/* Generating HD image after payment */}
+            {unlocking && (
+              <>
+                <Typography variant="h5" color="text.secondary" sx={{ mb: 1.5 }}>
+                  HD Image Unlocked!
+                </Typography>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  disabled
+                  startIcon={<CircularProgress size={16} color="inherit" />}
+                >
+                  Generating HD Image…
+                </Button>
+              </>
+            )}
+
+            {/* HD image ready — show download */}
+            {currentImage?.unlocked && !unlocking && (
+              <>
+                <Typography variant="h5" color="text.secondary" sx={{ mb: 1.5 }}>
+                  HD Image Unlocked!
+                </Typography>
+                <UnlockButton image={currentImage} />
+              </>
+            )}
+          </Card>
+        )}
+
         <Typography variant="h5" align={isMobile ? "center" : "left"}>
           Image Details
         </Typography>
