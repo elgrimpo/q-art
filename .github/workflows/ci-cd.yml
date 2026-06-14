@@ -54,17 +54,9 @@ jobs:
           BACKEND_JWT_SECRET: ${{ secrets.BACKEND_JWT_SECRET }}
           STRIPE_ENDPOINT_SECRET: ${{ secrets.STRIPE_ENDPOINT_SECRET }}
 
-  deploy:
-    name: Deploy to Heroku
-    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-    needs: [lint, test-frontend, test-backend]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: akhileshns/heroku-deploy@v3.13.15
-        with:
-          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-          heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
-          heroku_email: ${{ secrets.HEROKU_EMAIL }}
+  # Deployment is handled by Heroku's own GitHub integration (Automatic deploys
+  # from master), so there is no deploy job here. A previous akhileshns/heroku-deploy
+  # job depended on a Heroku CLI that GitHub's ubuntu-latest runners no longer ship,
+  # so it failed on every push — and with "Wait for CI to pass" enabled that failing
+  # check blocked Heroku's auto-deploys. Keeping CI to lint + tests only lets the
+  # check go green so Heroku deploys.
