@@ -1,57 +1,117 @@
 "use client";
 import { signIn, useSession } from "next-auth/react";
-import { useEffect } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { Button, Box, Typography, Stack } from "@mui/material";
+import { useEffect, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import {
+  Button,
+  Box,
+  Typography,
+  Stack,
+  TextField,
+  Divider,
+  Link,
+} from "@mui/material";
 import GoogleIcon from "@mui/icons-material/Google";
+
+const ERROR_MESSAGES = {
+  InvalidEmail: "Please enter a valid email address.",
+  ResendCooldown: "Please wait a moment before requesting another code.",
+  TooManyRequests: "Too many code requests. Try again later.",
+  RequestFailed: "Couldn't send the code. Please try again.",
+};
 
 export default function SignIn() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { data: session } = useSession();
 
+  const [step, setStep] = useState("email"); // "email" | "code"
+  const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+
   useEffect(() => {
     const handleAnonymousSignIn = async () => {
-      const isAnonymous = searchParams.get('anonymous') === 'true';
-      
+      const isAnonymous = searchParams.get("anonymous") === "true";
       if (isAnonymous) {
         try {
-          const result = await signIn("anonymous", { 
+          const result = await signIn("anonymous", {
             redirect: false,
-            callbackUrl: '/generate'
+            callbackUrl: "/generate",
           });
-          
           if (result?.error) {
-            console.error('SignIn: Anonymous sign in failed:', result.error);
+            console.error("SignIn: Anonymous sign in failed:", result.error);
           } else if (result?.url) {
             router.push(result.url);
           }
-        } catch (error) {
-          console.error('SignIn: Error during anonymous sign in:', error);
+        } catch (err) {
+          console.error("SignIn: Error during anonymous sign in:", err);
         }
       }
     };
-
     handleAnonymousSignIn();
   }, [searchParams, router]);
 
-  const handleGoogleSignIn = async () => {
+  // Resend cooldown countdown.
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const t = setTimeout(() => setCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [cooldown]);
 
-    // If we have a guest session, ensure it's included in the state
-    if (session?.user?.is_guest) {
-      // The guest ID will be captured by the JWT callback
+  const handleGoogleSignIn = async () => {
+    await signIn("google", { callbackUrl: "/generate" });
+  };
+
+  const sendCode = async () => {
+    setError("");
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/request-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        setError(ERROR_MESSAGES[body.error] || ERROR_MESSAGES.RequestFailed);
+        return;
+      }
+      setStep("code");
+      setCooldown(60);
+    } catch {
+      setError(ERROR_MESSAGES.RequestFailed);
+    } finally {
+      setLoading(false);
     }
-    await signIn("google", { 
-      callbackUrl: "/generate",
-    });
+  };
+
+  const verifyCode = async () => {
+    setError("");
+    setLoading(true);
+    try {
+      const result = await signIn("email-code", {
+        email,
+        code,
+        redirect: false,
+        callbackUrl: "/generate",
+      });
+      if (result?.error) {
+        setError("That code is invalid or expired. Please try again.");
+      } else if (result?.url) {
+        router.push(result.url);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <Box
       sx={{
-        width: "300px",
-        height: "100%",
-        maxHeight: "400px",
+        width: "320px",
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
@@ -60,19 +120,87 @@ export default function SignIn() {
         backgroundColor: "white",
       }}
     >
-      <Stack useFlexGap flexWrap="wrap" spacing={1} sx={{ width: "100%" }}>
+      <Stack useFlexGap spacing={2} sx={{ width: "100%" }}>
         <Typography variant="h5" align="center">
           Sign in to QR AI
         </Typography>
 
-        <Button
-          startIcon={<GoogleIcon />}
-          variant="contained"
-          color="primary"
-          onClick={handleGoogleSignIn}
-        >
-          Google
-        </Button>
+        {step === "email" && (
+          <>
+            <Button
+              startIcon={<GoogleIcon />}
+              variant="contained"
+              color="primary"
+              onClick={handleGoogleSignIn}
+            >
+              Continue with Google
+            </Button>
+
+            <Divider>or</Divider>
+
+            <TextField
+              label="Email address"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              fullWidth
+            />
+            <Button
+              variant="outlined"
+              disabled={loading || !email}
+              onClick={sendCode}
+            >
+              Continue with email
+            </Button>
+          </>
+        )}
+
+        {step === "code" && (
+          <>
+            <Typography variant="body2" align="center">
+              We sent a 6-digit code to <strong>{email}</strong>.
+            </Typography>
+            <TextField
+              label="6-digit code"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              inputProps={{ inputMode: "numeric", maxLength: 6 }}
+              fullWidth
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              disabled={loading || code.length < 6}
+              onClick={verifyCode}
+            >
+              Verify & sign in
+            </Button>
+            <Button
+              variant="text"
+              disabled={cooldown > 0 || loading}
+              onClick={sendCode}
+            >
+              {cooldown > 0 ? `Resend code (${cooldown}s)` : "Resend code"}
+            </Button>
+            <Link
+              component="button"
+              variant="body2"
+              onClick={() => {
+                setStep("email");
+                setCode("");
+                setError("");
+              }}
+            >
+              Use a different email
+            </Link>
+          </>
+        )}
+
+        {error && (
+          <Typography variant="body2" color="error" align="center">
+            {error}
+          </Typography>
+        )}
       </Stack>
     </Box>
   );
