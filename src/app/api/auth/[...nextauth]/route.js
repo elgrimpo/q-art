@@ -40,24 +40,29 @@ export const authOptions = {
         code: { label: "Code", type: "text" },
       },
       async authorize(credentials) {
-        const email = credentials?.email;
+        const email = credentials?.email?.trim().toLowerCase();
         const code = credentials?.code;
         if (!email || !code) return null;
 
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/verify-code`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${await getServiceToken()}`,
-            },
-            body: JSON.stringify({ email, code }),
-          }
-        );
-        if (!res.ok) return null;            // invalid/expired → sign-in fails
-        const data = await res.json();
-        return { email, name: data.name, is_guest: false };
+        try {
+          const res = await fetch(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/verify-code`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${await getServiceToken()}`,
+              },
+              body: JSON.stringify({ email, code }),
+            }
+          );
+          if (!res.ok) return null;            // invalid/expired → sign-in fails
+          const data = await res.json();
+          return { email, name: data.name, is_guest: false };
+        } catch (err) {
+          console.error("email-code authorize error:", err);
+          return null;
+        }
       },
     }),
   ],
@@ -84,14 +89,8 @@ export const authOptions = {
         };
       }
 
-      // Handle Google sign in
-      if (account?.provider === "google") {
-        token.is_guest = false;
-        delete token.credits;
-      }
-
-      // Handle email-code sign in
-      if (account?.provider === "email-code") {
+      // Handle Google / email-code sign in
+      if (account?.provider === "google" || account?.provider === "email-code") {
         token.is_guest = false;
         delete token.credits;
       }
