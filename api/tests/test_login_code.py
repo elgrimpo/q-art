@@ -1,3 +1,4 @@
+import json
 import os
 from datetime import datetime, timedelta
 from unittest.mock import AsyncMock, patch
@@ -10,6 +11,7 @@ from api.controllers.login_code_controller import (
     request_login_code,
     verify_login_code,
     _hash_code,
+    MAX_ATTEMPTS,
 )
 
 EMAIL = "user@example.com"
@@ -118,6 +120,8 @@ async def test_verify_success_returns_name_and_clears_code(mock_codes):
 
     assert isinstance(result, JSONResponse)
     mock_codes.delete_one.assert_awaited_once_with({"email": EMAIL})
+    body = json.loads(result.body)
+    assert body["name"] == "user"
 
 
 @patch("api.controllers.login_code_controller.login_codes")
@@ -155,7 +159,7 @@ async def test_verify_expired_code(mock_codes):
 
 @patch("api.controllers.login_code_controller.login_codes")
 async def test_verify_locks_out_after_max_attempts(mock_codes):
-    mock_codes.find_one = AsyncMock(return_value=_valid_doc("123456", attempts=5))
+    mock_codes.find_one = AsyncMock(return_value=_valid_doc("123456", attempts=MAX_ATTEMPTS))
     with pytest.raises(HTTPException) as exc:
         await verify_login_code(EMAIL, "123456")
     assert exc.value.detail == "TooManyAttempts"
