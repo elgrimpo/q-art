@@ -83,6 +83,9 @@ async def request_login_code(email: str):
             raise HTTPException(status_code=429, detail="ResendCooldown")
 
         code = str(secrets.randbelow(900000) + 100000)  # always 6 digits, no leading zero
+        # Send before persisting: if Resend fails we don't burn a rate-limit slot,
+        # start the cooldown, or overwrite a still-valid prior code.
+        await send_login_code_email(email, code)
         await login_codes.replace_one(
             {"email": email},
             {
@@ -96,8 +99,6 @@ async def request_login_code(email: str):
             },
             upsert=True,
         )
-
-        await send_login_code_email(email, code)
         return JSONResponse(content={"message": "Code sent"})
     except HTTPException:
         raise
