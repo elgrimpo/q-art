@@ -32,6 +32,34 @@ export const authOptions = {
         return user;
       },
     }),
+    CredentialsProvider({
+      id: "email-code",
+      name: "Email",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        code: { label: "Code", type: "text" },
+      },
+      async authorize(credentials) {
+        const email = credentials?.email;
+        const code = credentials?.code;
+        if (!email || !code) return null;
+
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/verify-code`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${await getServiceToken()}`,
+            },
+            body: JSON.stringify({ email, code }),
+          }
+        );
+        if (!res.ok) return null;            // invalid/expired → sign-in fails
+        const data = await res.json();
+        return { email, name: data.name, is_guest: false };
+      },
+    }),
   ],
 
   callbacks: {
@@ -62,6 +90,12 @@ export const authOptions = {
         delete token.credits;
       }
 
+      // Handle email-code sign in
+      if (account?.provider === "email-code") {
+        token.is_guest = false;
+        delete token.credits;
+      }
+
       return token;
     },
 
@@ -79,21 +113,22 @@ export const authOptions = {
     },
 
     async signIn({ user, account }) {
-      const session = await getServerSession(authOptions)
-      if (account?.provider === "google") {
+      const session = await getServerSession(authOptions);
+
+      const isGoogle = account?.provider === "google";
+      const isEmailCode = account?.provider === "email-code";
+
+      if (isGoogle || isEmailCode) {
         const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/auth`;
-        
+        const authProvider = isGoogle
+          ? { provider: "google", providerId: account.providerAccountId }
+          : { provider: "email", providerId: user.email };
 
         const userData = {
           name: user.name,
           email: user.email,
-          auth_providers: [
-            {
-              provider: account.provider,
-              providerId: account.providerAccountId,
-            },
-          ],
-          guest_id: session?.user._id,
+          auth_providers: [authProvider],
+          guest_id: session?.user?._id,
         };
 
         try {
@@ -112,17 +147,11 @@ export const authOptions = {
             console.error("Failed to authenticate user:", errorText);
             return false;
           }
-
-          const responseData = await response.json();
-
           return true;
         } catch (error) {
           console.error("Error authenticating user:", error);
           return false;
         }
-      }
-
-      if (user?.is_guest) {
       }
 
       return true;
