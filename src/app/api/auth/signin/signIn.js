@@ -161,7 +161,7 @@ export default function SignIn() {
             <TextField
               label="6-digit code"
               value={code}
-              onChange={(e) => setCode(e.target.value)}
+              onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
               inputProps={{ inputMode: "numeric", maxLength: 6 }}
               fullWidth
             />
