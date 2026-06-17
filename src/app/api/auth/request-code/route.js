@@ -15,7 +15,12 @@ export async function POST(request) {
     return NextResponse.json({ error: "InvalidEmail" }, { status: 400 });
   }
 
-  const token = await getServiceToken();
+  let token;
+  try {
+    token = await getServiceToken();
+  } catch {
+    return NextResponse.json({ error: "ServiceUnavailable" }, { status: 500 });
+  }
   const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/request-code`, {
     method: "POST",
     headers: {
