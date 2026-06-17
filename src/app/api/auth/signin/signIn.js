@@ -1,5 +1,5 @@
 "use client";
-import { signIn, useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
@@ -23,8 +23,6 @@ const ERROR_MESSAGES = {
 export default function SignIn() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { data: session } = useSession();
-
   const [step, setStep] = useState("email"); // "email" | "code"
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
@@ -99,7 +97,7 @@ export default function SignIn() {
         callbackUrl: "/generate",
       });
       if (result?.error) {
-        setError("That code is invalid or expired. Please try again.");
+        setError("We couldn't sign you in with that code. Please try again or resend a new code.");
       } else if (result?.url) {
         router.push(result.url);
       }
@@ -147,7 +145,7 @@ export default function SignIn() {
             />
             <Button
               variant="outlined"
-              disabled={loading || !email}
+              disabled={loading || !email.trim()}
               onClick={sendCode}
             >
               Continue with email

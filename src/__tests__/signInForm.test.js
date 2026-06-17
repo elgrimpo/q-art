@@ -31,3 +31,17 @@ test('sends a code and advances to the code-entry step', async () => {
   )
   expect(await screen.findByLabelText(/code/i)).toBeInTheDocument()
 })
+
+test('shows a friendly error when the backend rejects the request', async () => {
+  global.fetch = jest.fn().mockResolvedValue({
+    ok: false,
+    json: async () => ({ error: 'TooManyRequests' }),
+  })
+
+  render(<SignIn />)
+
+  await userEvent.type(screen.getByLabelText(/email/i), 'a@b.com')
+  await userEvent.click(screen.getByRole('button', { name: /continue with email/i }))
+
+  expect(await screen.findByText(/too many code requests/i)).toBeInTheDocument()
+})
