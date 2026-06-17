@@ -139,6 +139,33 @@ async def send_login_code_email(email: str, code: str):
         raise HTTPException(status_code=502, detail="EmailSendFailed")
 
 
-# verify_login_code is implemented in Task 2; stub keeps the module importable.
+# ---------------------------------------------------------------------------- #
+#                                VERIFY A CODE                                 #
+# ---------------------------------------------------------------------------- #
+
 async def verify_login_code(email: str, code: str):
-    raise NotImplementedError
+    try:
+        email = email.strip().lower()
+        now = datetime.utcnow()
+        doc = await login_codes.find_one({"email": email})
+
+        if not doc:
+            raise HTTPException(status_code=400, detail="InvalidCode")
+        if doc["expires_at"] < now:
+            await login_codes.delete_one({"email": email})
+            raise HTTPException(status_code=400, detail="CodeExpired")
+        if doc.get("attempts", 0) >= MAX_ATTEMPTS:
+            raise HTTPException(status_code=400, detail="TooManyAttempts")
+        if not hmac.compare_digest(doc["code_hash"], _hash_code(email, code)):
+            await login_codes.update_one({"email": email}, {"$inc": {"attempts": 1}})
+            raise HTTPException(status_code=400, detail="InvalidCode")
+
+        await login_codes.delete_one({"email": email})
+        # Suggested display name for brand-new users; the signIn callback's
+        # /api/user/auth call owns the actual upsert + guest-image transfer.
+        return JSONResponse(content={"name": email.split("@")[0]})
+    except HTTPException:
+        raise
+    except Exception:
+        logger.error("Error in verify_login_code", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error")

@@ -94,3 +94,68 @@ async def test_request_does_not_persist_when_send_fails(mock_codes, _idx, mock_s
 
     assert exc.value.status_code == 502
     mock_codes.replace_one.assert_not_awaited()
+
+
+# ------------------------------- VERIFY CODE ------------------------------- #
+
+def _valid_doc(code, **overrides):
+    base = {
+        "email": EMAIL,
+        "code_hash": _hash_code(EMAIL, code),
+        "expires_at": datetime.utcnow() + timedelta(minutes=5),
+        "attempts": 0,
+    }
+    base.update(overrides)
+    return base
+
+
+@patch("api.controllers.login_code_controller.login_codes")
+async def test_verify_success_returns_name_and_clears_code(mock_codes):
+    mock_codes.find_one = AsyncMock(return_value=_valid_doc("123456"))
+    mock_codes.delete_one = AsyncMock()
+
+    result = await verify_login_code(EMAIL, "123456")
+
+    assert isinstance(result, JSONResponse)
+    mock_codes.delete_one.assert_awaited_once_with({"email": EMAIL})
+
+
+@patch("api.controllers.login_code_controller.login_codes")
+async def test_verify_wrong_code_increments_attempts(mock_codes):
+    mock_codes.find_one = AsyncMock(return_value=_valid_doc("123456"))
+    mock_codes.update_one = AsyncMock()
+
+    with pytest.raises(HTTPException) as exc:
+        await verify_login_code(EMAIL, "000000")
+
+    assert exc.value.status_code == 400
+    assert exc.value.detail == "InvalidCode"
+    inc = mock_codes.update_one.await_args.args[1]
+    assert inc["$inc"]["attempts"] == 1
+
+
+@patch("api.controllers.login_code_controller.login_codes")
+async def test_verify_no_code_is_invalid(mock_codes):
+    mock_codes.find_one = AsyncMock(return_value=None)
+    with pytest.raises(HTTPException) as exc:
+        await verify_login_code(EMAIL, "123456")
+    assert exc.value.detail == "InvalidCode"
+
+
+@patch("api.controllers.login_code_controller.login_codes")
+async def test_verify_expired_code(mock_codes):
+    mock_codes.find_one = AsyncMock(
+        return_value=_valid_doc("123456", expires_at=datetime.utcnow() - timedelta(seconds=1))
+    )
+    mock_codes.delete_one = AsyncMock()
+    with pytest.raises(HTTPException) as exc:
+        await verify_login_code(EMAIL, "123456")
+    assert exc.value.detail == "CodeExpired"
+
+
+@patch("api.controllers.login_code_controller.login_codes")
+async def test_verify_locks_out_after_max_attempts(mock_codes):
+    mock_codes.find_one = AsyncMock(return_value=_valid_doc("123456", attempts=5))
+    with pytest.raises(HTTPException) as exc:
+        await verify_login_code(EMAIL, "123456")
+    assert exc.value.detail == "TooManyAttempts"
