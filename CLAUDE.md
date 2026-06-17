@@ -39,10 +39,13 @@ Required keys (see `.env` for values):
 - `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET`
 - `NEXTAUTH_SECRET` / `NEXTAUTH_URL`
 - `BACKEND_JWT_SECRET` — shared HS256 secret used to sign (Next.js) and verify (FastAPI) backend auth tokens. **Must be identical on both apps.** Next.js mints a short-lived JWT carrying the verified identity; FastAPI derives `user_id` from it instead of trusting query params (see `api/utils/auth.py`, `src/_utils/backendAuth.js`).
+- `RESEND_API_KEY` / `EMAIL_FROM` — passwordless email-code login (QRAI-82); FastAPI sends 6-digit login codes via Resend.
 
 ## Auth model (QRAI-32)
 
 The FastAPI backend never trusts a client-supplied `user_id`/`email`. Every user-scoped call goes through a Next.js `"use server"` util that attaches `Authorization: Bearer <token>` (minted by `getBackendToken()`); FastAPI verifies it via `Depends(get_current_user)` and resolves the canonical `user_id` (guest id used directly; logged-in email → Mongo `_id`). `POST /api/user/auth` (sign-in bootstrap) uses a `service`-scoped token. Public routes (`GET /api/images/get`, `GET /api/images/get/{id}`, `POST /api/stripe-webhook`) stay open. Delete/upscale enforce ownership.
+
+Email login (QRAI-82): `POST /api/user/request-code` + `POST /api/user/verify-code` (both service-token gated) issue/verify a 6-digit code stored hashed in the `login_codes` collection (TTL-indexed for auto-cleanup); the `email-code` next-auth Credentials provider then upserts the user via the same `/api/user/auth` path as Google (so guest-image transfer and account-linking-by-email work identically).
 
 ## Project Structure
 
