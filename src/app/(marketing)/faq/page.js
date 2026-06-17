@@ -61,9 +61,25 @@ const faqs = [
   },
 ];
 
+// FAQPage structured data — makes the page eligible for FAQ rich results.
+// Built from the same `faqs` array rendered below, so they never drift apart.
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqs.map(({ q, a }) => ({
+    "@type": "Question",
+    name: q,
+    acceptedAnswer: { "@type": "Answer", text: a },
+  })),
+};
+
 export default function FAQPage() {
   return (
     <Box sx={{ maxWidth: "860px", mx: "auto", color: "#ccc" }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
       <Typography
         variant="h1"
         color="primary"

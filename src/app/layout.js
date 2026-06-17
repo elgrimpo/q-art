@@ -12,8 +12,20 @@ import { Toaster } from "@/_components/Toaster";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "QR AI",
-  description: "Turn your QR Code into a piece of Art",
+  // Without metadataBase, Next.js builds absolute URLs for metadata images
+  // (including the opengraph-image file convention) from http://localhost:<port>,
+  // which breaks every social share preview in production. (SEO audit 2026-06)
+  metadataBase: new URL("https://www.qr-ai.co"),
+  title: "AI QR Code Art Generator | QR AI",
+  description:
+    "Transform any URL into AI-generated QR code artwork. Free to try — pick a style, download a fully scannable art QR code. No design skills needed.",
+  openGraph: {
+    siteName: "QR AI",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
 };
 
 const websiteSchema = {

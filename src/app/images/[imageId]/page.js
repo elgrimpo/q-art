@@ -21,6 +21,11 @@ export async function generateMetadata({ params }) {
   return {
     title: "QR AI",
     description: "Generate Art with QR Codes",
+    // Per-image pages are thin and near-duplicate, so keep them out of the
+    // search index (they stay shareable on social — noindex only affects search,
+    // not OG/Twitter). `follow` lets crawlers still discover linked pages.
+    // (SEO audit 2026-06 — revisit if these become unique, enriched landing pages.)
+    robots: { index: false, follow: true },
     twitter: {
       card: "summary_large_image",
       title: "QR AI",
@@ -31,7 +36,7 @@ export async function generateMetadata({ params }) {
       images: [image?.watermarked_image_url],
       title: "QR AI",
       description: "Generate Art with QR Codes",
-      url: "https://qr-ai.co",
+      url: `https://www.qr-ai.co/images/${imageId}`,
     },
   };
 }

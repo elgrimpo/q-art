@@ -31,18 +31,10 @@ export const metadata = {
   alternates: {
     canonical: "https://www.qr-ai.co/generate",
   },
-  openGraph: {
-    title: "AI QR Code Art Generator | QR AI",
-    description: "Transform QR codes into AI-generated artwork instantly.",
-    url: "https://www.qr-ai.co/generate",
-    siteName: "QR AI",
-    type: "website",
-  },
-  twitter: {
-    title: "AI QR Code Art Generator | QR AI",
-    description:
-      "Transform any URL into AI-generated QR code artwork. Free to try — no design skills needed.",
-  },
+  // No openGraph/twitter override here on purpose: defining an openGraph object
+  // would shallow-replace the root one and drop the site-wide opengraph-image.
+  // og:title/og:description auto-populate from title/description above; og:image,
+  // site_name, type and twitter.card are inherited from the root layout.
 };
 
 export default function GeneratePage() {

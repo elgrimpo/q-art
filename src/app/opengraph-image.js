@@ -1,5 +1,8 @@
 import { ImageResponse } from 'next/og';
 
+// Site-wide default Open Graph / Twitter image. Lives at the app root so every
+// route inherits it unless a segment overrides it. Combined with `metadataBase`
+// in the root layout, Next.js emits an absolute https://www.qr-ai.co/... URL.
 export const runtime = 'nodejs';
 export const alt = 'QR AI — Transform any URL into AI-generated QR code artwork';
 export const size = { width: 1200, height: 630 };
