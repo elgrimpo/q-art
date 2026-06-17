@@ -22,9 +22,10 @@ logging.basicConfig(
 from api.controllers.images_controller import get_images, get_image, toggle_like, delete_image
 from api.controllers.generate_controller import predict
 from api.controllers.users_controller import get_user_info, authenticate_user
+from api.controllers.login_code_controller import request_login_code, verify_login_code
 from api.controllers.payment_controller import create_unlock_checkout_session, stripe_webhook
 from api.controllers.unlock_controller import unlock_image
-from api.schemas.schemas import User, UserAuth
+from api.schemas.schemas import User, UserAuth, LoginCodeRequest, LoginCodeVerify
 from api.utils.auth import get_current_user, require_service_token
 
 
@@ -80,6 +81,16 @@ async def get_user_info_endpoint(current_user: dict = Depends(get_current_user))
 @app.post("/api/user/auth")
 async def authenticate_user_endpoint(user_auth: UserAuth, _: None = Depends(require_service_token)):
     return await authenticate_user(user_auth)
+
+# REQUEST EMAIL LOGIN CODE (service-token protected)
+@app.post("/api/user/request-code")
+async def request_code_endpoint(body: LoginCodeRequest, _: None = Depends(require_service_token)):
+    return await request_login_code(body.email)
+
+# VERIFY EMAIL LOGIN CODE (service-token protected)
+@app.post("/api/user/verify-code")
+async def verify_code_endpoint(body: LoginCodeVerify, _: None = Depends(require_service_token)):
+    return await verify_login_code(body.email, body.code)
 
 # ------------------------------ GENERATE ROUTES ----------------------------- #
 

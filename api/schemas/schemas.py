@@ -50,6 +50,13 @@ class UserAuth(BaseModel):
     guest_id: Optional[str] = None
     picture: Optional[str] = None
 
+class LoginCodeRequest(BaseModel):
+    email: str
+
+class LoginCodeVerify(BaseModel):
+    email: str
+    code: str
+
 # ---------------------------------------------------------------------------- #
 #                                IMAGES CLASSES                                #
 # ---------------------------------------------------------------------------- #

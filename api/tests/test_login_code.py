@@ -163,3 +163,23 @@ async def test_verify_locks_out_after_max_attempts(mock_codes):
     with pytest.raises(HTTPException) as exc:
         await verify_login_code(EMAIL, "123456")
     assert exc.value.detail == "TooManyAttempts"
+
+
+# ------------------------------ ROUTE WIRING ------------------------------- #
+
+@patch("api.main.request_login_code", new_callable=AsyncMock)
+async def test_request_code_endpoint_delegates(mock_req):
+    from api.main import request_code_endpoint
+    from api.schemas.schemas import LoginCodeRequest
+
+    await request_code_endpoint(LoginCodeRequest(email=EMAIL), _=None)
+    mock_req.assert_awaited_once_with(EMAIL)
+
+
+@patch("api.main.verify_login_code", new_callable=AsyncMock)
+async def test_verify_code_endpoint_delegates(mock_verify):
+    from api.main import verify_code_endpoint
+    from api.schemas.schemas import LoginCodeVerify
+
+    await verify_code_endpoint(LoginCodeVerify(email=EMAIL, code="123456"), _=None)
+    mock_verify.assert_awaited_once_with(EMAIL, "123456")
