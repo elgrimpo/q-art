@@ -1,7 +1,6 @@
 # Libraries Import
 import requests as requests
 import datetime
-import logging
 import re
 import base64
 from io import BytesIO
@@ -13,8 +12,6 @@ from novita_client import *
 
 # App imports
 from api.schemas.schemas import ImageDoc, ControlNet
-
-logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------- #
 #                                  PARSE SEED                                  #
@@ -39,26 +36,20 @@ def parse_seed(metadata):
 
 
 def prepare_img2img_request(
-    prompt: str,
-    negative_prompt: str,
-    sd_model: str,
-    seed: int,
-    image_base64_str: str,
-    qr_weight: float,
-    style_prompt: str,
+    prompt,
+    negative_prompt,
+    sd_model,
+    seed,
+    image_base64_str,
+    qr_weight,
+    style_prompt,
 ):
     full_prompt = prompt + style_prompt
 
     # qr_weight slider (0..1) -> QR ControlNet strength + guidance start.
     # Higher weight = more scannable, lower = more artistic.
-    weight = round(0.85 + qr_weight * 0.2, 2)           # 0.85 .. 1.05
-    guidance_start = round(0.40 - qr_weight * 0.03, 2)  # 0.40 .. 0.37
-
-    # Neutral #808080 init image at the generation size. Novita deprecated
-    # txt2img+ControlNet and forced us onto img2img; pairing a flat-gray init
-    # with strength=1.0 makes img2img start from pure noise, i.e. behave like
-    # txt2img. The model paints freely while the QR structure is enforced
-    # entirely through ControlNet. This recovers the quality lost in the move.
+    weight = round(0.65 + float(qr_weight) * 0.2, 2)           # 0.85 .. 1.05
+    guidance_start = round(0.40 - float(qr_weight) * 0.03, 2)  # 0.40 .. 0.37
     side = 768
     gray = Image.new("RGB", (side, side), (128, 128, 128))
     _buf = BytesIO()
@@ -69,13 +60,13 @@ def prepare_img2img_request(
         model_name=sd_model,
         input_image=gray_init_base64,
         prompt=full_prompt,
-        negative_prompt=negative_prompt,
+        negative_prompt="blurry, low contrast, washed out",
         sampler_name="DPM++ 2M Karras",
         width=side,
         height=side,
         steps=30,
         guidance_scale=7,
-        seed=seed,
+        seed=int(seed),
         image_num=1,
         strength=1.0,
         controlnet_units=[
@@ -85,25 +76,18 @@ def prepare_img2img_request(
                 image_base64=image_base64_str,
                 model_name="control_v1p_sd15_brightness",
                 strength=0.35,
-                # Pass Python None (-> JSON null) so Novita skips preprocessing
-                # and uses the raw QR. Do NOT send the string 'none': it's not in
-                # Novita's preprocessor enum and triggers "Failed to exec". And
-                # don't just omit this kwarg — if the SDK default is the NULL enum
-                # it serializes back to 'none'. Explicit None is the safe form.
-                preprocessor=None,
-                guidance_start=0.0,
-                guidance_end=1.0,
+                preprocessor=None, # this needs to be None, otherwise API breaks
+                guidance_start=0.3,
+                guidance_end=0.7,
             ),
-            # QR Code Monster v2 — enforces the scannable QR pattern. Feeding the
-            # raw QR with NO preprocessor is required; the old LINEART/CANNY step
-            # pre-mangled the QR and is what destroyed scannability + quality.
+            # QR Code Monster v2 — enforces the scannable QR pattern. 
             Img2ImgV3ControlNetUnit(
                 image_base64=image_base64_str,
                 model_name="control_v1p_sd15_qrcode_monster_v2",
-                strength=weight,
-                preprocessor=None,  # JSON null -> no preprocessing (raw QR)
+                strength=1.0,
+                preprocessor=None, # this needs to be None, otherwise API breaks
                 guidance_start=guidance_start,
-                guidance_end=0.85,
+                guidance_end=0.9,
             ),
         ],
     )
@@ -137,8 +121,8 @@ def create_watermark(image):
 
         return watermarked_image
 
-    except Exception:
-        logger.error("Error creating watermarked image", exc_info=True)
+    except Exception as e:
+        print(f"Error creating watermarked base64: {str(e)}")
         return None
 
 
@@ -175,7 +159,7 @@ def prepare_doc(
         qr_weight=qr_weight,
         width=req["width"],
         height=req["height"],
-        query_type="img2img",
+        query_type="txt2img",
         steps=req["steps"],
         # cfg_scale=req["cfg_scale"],
         # sampler_name=sampler_name,
@@ -199,6 +183,50 @@ def prepare_doc(
         # ),
     )
     return doc
+
+
+# ---------------------------------------------------------------------------- #
+#                               CALCULATE CREDITS                              #
+# ---------------------------------------------------------------------------- #
+
+
+def calculate_credits(service):
+
+    price = {
+        "generate": {
+            "1": 1,
+        },
+        "download": {False: 0, True: 10},
+        "upscale_resize": {0: 0, 512: 10, 1024: 15, 2048: 20, 4096: 25},
+    }
+
+    total_credits = 0
+
+    # Calculate credits based on image quality
+    generate = service.get("generate", "none")
+    total_credits += price["generate"].get(generate, 0)
+
+    # Calculate credits based on download
+    download = service.get("download", "none")
+    total_credits += price["download"].get(download, False)
+
+    # Calculate credits based on upscale_resize
+    upscale_resize = service.get("upscale_resize", "0")
+    total_credits += price["upscale_resize"].get(upscale_resize, 0)
+
+    return total_credits
+
+
+# ---------------------------------------------------------------------------- #
+#                              SUFFICIENT CREDITS                              #
+# ---------------------------------------------------------------------------- #
+
+
+def sufficient_credit(user, service):
+    user_credits = user.get("credits", 0)
+    total_credits = calculate_credits(service)
+
+    return user_credits >= total_credits
 
 
 # ---------------------------------------------------------------------------- #
