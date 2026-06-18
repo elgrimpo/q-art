@@ -99,7 +99,10 @@ export default function SignIn() {
       if (result?.error) {
         setError("We couldn't sign you in with that code. Please try again or resend a new code.");
       } else if (result?.url) {
-        router.push(result.url);
+        // Full-page navigation (not router.push): the root layout seeds auth
+        // state via getUserInfo() on a server render, which a soft client
+        // navigation would skip — leaving the user "signed in but not logged in".
+        window.location.assign(result.url);
       }
     } finally {
       setLoading(false);

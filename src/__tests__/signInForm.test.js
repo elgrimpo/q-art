@@ -10,6 +10,7 @@ jest.mock('next/navigation', () => ({
   useSearchParams: () => ({ get: () => null }),
 }))
 
+import { signIn } from 'next-auth/react'
 import SignIn from '../app/api/auth/signin/signIn'
 
 beforeEach(() => {
@@ -44,4 +45,37 @@ test('shows a friendly error when the backend rejects the request', async () => 
   await userEvent.click(screen.getByRole('button', { name: /continue with email/i }))
 
   expect(await screen.findByText(/too many code requests/i)).toBeInTheDocument()
+})
+
+test('does a full-page navigation on successful verification so the layout re-reads the session', async () => {
+  const originalLocation = window.location
+  const assignMock = jest.fn()
+  Object.defineProperty(window, 'location', {
+    configurable: true,
+    value: { assign: assignMock },
+  })
+
+  try {
+    render(<SignIn />)
+
+    // Step 1: request a code → advance to the code step.
+    await userEvent.type(screen.getByLabelText(/email/i), 'a@b.com')
+    await userEvent.click(screen.getByRole('button', { name: /continue with email/i }))
+
+    // Step 2: a successful verify returns a callback url.
+    signIn.mockResolvedValueOnce({ ok: true, error: null, url: 'http://localhost/generate' })
+    await userEvent.type(await screen.findByLabelText(/code/i), '123456')
+    await userEvent.click(screen.getByRole('button', { name: /verify & sign in/i }))
+
+    // A soft router.push would NOT re-run the server layout that seeds auth
+    // state — so success must trigger a full navigation instead.
+    await waitFor(() =>
+      expect(assignMock).toHaveBeenCalledWith('http://localhost/generate')
+    )
+  } finally {
+    Object.defineProperty(window, 'location', {
+      configurable: true,
+      value: originalLocation,
+    })
+  }
 })
