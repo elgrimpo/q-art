@@ -26,6 +26,8 @@ import ShareButton from "@/_components/actions/ShareButton";
 import GuestSignupPrompt from "./GuestSignupPrompt";
 import { useStore } from "@/store";
 import { unlockImage } from "@/_utils/ImagesUtils";
+import * as amplitude from "@amplitude/analytics-browser";
+import { EVENTS, trackUnlockRevenue } from "@/_utils/analytics";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
@@ -68,6 +70,10 @@ export default function ImageSidebar({
     setStripeSessionId(sessionId);
     setJustGenerated(params.get("justGenerated") === "true");
 
+    if (params.get("canceled") === "true" && currentImage?._id) {
+      amplitude.track(EVENTS.PURCHASE_ABANDONED, { imageId: currentImage._id });
+    }
+
     if (currentImage?.unlocked) return;
     const shouldUnlock = sessionId || currentImage?.unlock_pending;
     if (!shouldUnlock) return;
@@ -75,16 +81,21 @@ export default function ImageSidebar({
     setUnlocking(true);
     unlockImage(currentImage._id, sessionId)
       .then((updatedImage) => {
+        trackUnlockRevenue(currentImage._id);
         setCurrentImage(updatedImage);
         // Refresh server components so ImageFill also shows the HD image.
         router.refresh();
       })
-      .catch(() =>
+      .catch(() => {
+        amplitude.track(EVENTS.PURCHASE_FAILED, {
+          imageId: currentImage._id,
+          stage: "fulfillment",
+        });
         openAlert(
           "error",
           "Image preparation failed — please try again or contact support.",
-        ),
-      )
+        );
+      })
       .finally(() => setUnlocking(false));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
