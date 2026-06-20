@@ -45,6 +45,7 @@ async function renderSidebar() {
 beforeEach(() => {
   jest.clearAllMocks()
   setSearch('')
+  window.sessionStorage.clear()
 })
 
 test('fires Purchase Completed + revenue when unlock resolves', async () => {
@@ -65,6 +66,19 @@ test('fires Purchase Abandoned when returning with ?canceled=true', async () => 
     expect(amplitude.track).toHaveBeenCalledWith(EVENTS.PURCHASE_ABANDONED, { imageId: 'img1' }),
   )
   expect(mockUnlockImage).not.toHaveBeenCalled()
+})
+
+test('does not re-fire Purchase Abandoned on remount when ?canceled=true param persists', async () => {
+  setSearch('?canceled=true')
+
+  // First mount (e.g. initial page load)
+  await renderSidebar()
+  // Second mount (e.g. refresh / remount with same URL — sessionStorage persists)
+  await renderSidebar()
+
+  expect(
+    amplitude.track.mock.calls.filter((c) => c[0] === EVENTS.PURCHASE_ABANDONED)
+  ).toHaveLength(1)
 })
 
 test('fires Purchase Failed (fulfillment) when the post-payment unlock throws', async () => {

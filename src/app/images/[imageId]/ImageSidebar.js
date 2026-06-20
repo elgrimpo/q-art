@@ -71,7 +71,26 @@ export default function ImageSidebar({
     setJustGenerated(params.get("justGenerated") === "true");
 
     if (params.get("canceled") === "true" && currentImage?._id) {
-      amplitude.track(EVENTS.PURCHASE_ABANDONED, { imageId: currentImage._id });
+      // Dedupe per image: the ?canceled=true param persists in the URL, so a
+      // refresh/remount would otherwise re-fire this and inflate the funnel's
+      // abandon count. sessionStorage survives reloads within the tab session.
+      const abandonKey = `qrai_abandoned_${currentImage._id}`;
+      let alreadyTracked = false;
+      try {
+        alreadyTracked = window.sessionStorage.getItem(abandonKey) === "1";
+      } catch {
+        alreadyTracked = false;
+      }
+      if (!alreadyTracked) {
+        amplitude.track(EVENTS.PURCHASE_ABANDONED, {
+          imageId: currentImage._id,
+        });
+        try {
+          window.sessionStorage.setItem(abandonKey, "1");
+        } catch {
+          /* ignore storage failures (private mode, etc.) */
+        }
+      }
     }
 
     if (currentImage?.unlocked) return;
