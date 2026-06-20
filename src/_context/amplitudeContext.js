@@ -2,6 +2,7 @@
 import { useEffect, createContext } from "react";
 import { init, track, identify, setUserId, Identify } from "@amplitude/analytics-browser";
 import { useStore } from "../store";
+import { captureLandingVariant } from "../_utils/attribution";
 
 const AMPLITUDE_API_KEY = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY;
 
@@ -19,6 +20,7 @@ const AmplitudeContextProvider = ({ children }) => {
     init(AMPLITUDE_API_KEY, {
       defaultTracking: true,
     });
+    captureLandingVariant();
   }, []);
 
   useEffect(() => {
