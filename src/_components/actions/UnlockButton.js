@@ -7,6 +7,7 @@ import DownloadIcon from "@mui/icons-material/Download";
 import * as amplitude from "@amplitude/analytics-browser";
 import { useStore } from "@/store";
 import { createUnlockCheckout } from "@/_utils/paymentUtils";
+import { EVENTS, UNLOCK_PRICE, CURRENCY } from "@/_utils/analytics";
 
 export default function UnlockButton({ image }) {
   const { openAlert } = useStore();
@@ -35,11 +36,24 @@ export default function UnlockButton({ image }) {
       amplitude.track("Unlock Image Clicked", { imageId: image._id });
       const sessionUrl = await createUnlockCheckout(image._id);
       if (sessionUrl) {
+        amplitude.track(EVENTS.CHECKOUT_STARTED, {
+          imageId: image._id,
+          price: UNLOCK_PRICE,
+          currency: CURRENCY,
+        });
         window.location.href = sessionUrl;
       } else {
+        amplitude.track(EVENTS.PURCHASE_FAILED, {
+          imageId: image._id,
+          stage: "checkout_creation",
+        });
         openAlert("error", "Could not start checkout. Please try again.");
       }
     } catch {
+      amplitude.track(EVENTS.PURCHASE_FAILED, {
+        imageId: image._id,
+        stage: "checkout_creation",
+      });
       openAlert("error", "Could not start checkout. Please try again.");
     } finally {
       setLoading(false);
