@@ -21,6 +21,28 @@ import { generateImage } from "@/_utils/ImagesUtils";
 import { styles } from "@/_utils/ImageStyles";
 
 /* -------------------------------------------------------------------------- */
+/*                            MODULE-SCOPE HELPERS                            */
+/* -------------------------------------------------------------------------- */
+
+// Per-tab-session generation counter. sessionStorage (not a module variable)
+// because the app navigates to /images/{id} after each generate and back to
+// /generate — a module variable would reset on that full navigation.
+function nextGenerationNumber() {
+  if (typeof window === "undefined") return 1;
+  try {
+    const prev = parseInt(
+      window.sessionStorage.getItem("qrai_generation_count") || "0",
+      10,
+    );
+    const next = Number.isNaN(prev) ? 1 : prev + 1;
+    window.sessionStorage.setItem("qrai_generation_count", String(next));
+    return next;
+  } catch {
+    return 1;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
 /* -------------------------------------------------------------------------- */
 
@@ -158,12 +180,15 @@ function GenerateForm() {
     setGeneratingImage(true);
 
     try {
+      const generationNumber = nextGenerationNumber();
       amplitude.track("Generate Image", {
         userId: user?.id,
         url: generateFormValues.website,
         style_title: generateFormValues.style_title,
         qr_weight: generateFormValues.qr_weight,
         isGuest: user?.is_guest || false,
+        generation_number: generationNumber,
+        is_first_generation: generationNumber === 1,
       });
 
       let generateForm = generateFormValues

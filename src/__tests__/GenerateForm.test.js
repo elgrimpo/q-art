@@ -15,6 +15,7 @@
 import React from 'react'
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import * as amplitude from '@amplitude/analytics-browser'
 
 // ---- Next.js / auth mocks (must come before component import) ----
 const mockPush = jest.fn()
@@ -110,6 +111,8 @@ beforeEach(() => {
   resetStore()
   mockPush.mockClear()
   mockGenerateImage.mockReset()
+  window.sessionStorage.clear()
+  amplitude.track.mockClear()
 })
 
 /* -------------------------------------------------------------------------- */
@@ -260,5 +263,47 @@ describe('GenerateForm', () => {
     await waitFor(() => {
       expect(screen.getByText('Sign in to keep going')).toBeInTheDocument()
     })
+  })
+
+  // ---- 8 & 9. Regeneration props on Generate Image event ----
+
+  function getGenerateImageProps() {
+    const call = amplitude.track.mock.calls.find((c) => c[0] === 'Generate Image')
+    return call ? call[1] : null
+  }
+
+  function fillForm() {
+    resetStore({
+      generateFormValues: {
+        website: 'example.com', prompt: 'a dragon', style_id: 2,
+        style_title: 'Anime', style_prompt: 'anime style', qr_weight: 0.0,
+        negative_prompt: '', seed: -1, sd_model: 'cyberrealistic_v40_151857.safetensors',
+      },
+    })
+  }
+
+  test('first generation tags the event as generation_number 1 / is_first_generation true', async () => {
+    mockGenerateImage.mockResolvedValueOnce({ _id: 'img_abc' })
+    fillForm()
+    render(<GenerateForm />)
+
+    await act(async () => { fireEvent.click(getGenerateBtn()) })
+
+    await waitFor(() => expect(getGenerateImageProps()).not.toBeNull())
+    expect(getGenerateImageProps().generation_number).toBe(1)
+    expect(getGenerateImageProps().is_first_generation).toBe(true)
+  })
+
+  test('a repeat generation in the same session increments generation_number', async () => {
+    window.sessionStorage.setItem('qrai_generation_count', '1')
+    mockGenerateImage.mockResolvedValueOnce({ _id: 'img_def' })
+    fillForm()
+    render(<GenerateForm />)
+
+    await act(async () => { fireEvent.click(getGenerateBtn()) })
+
+    await waitFor(() => expect(getGenerateImageProps()).not.toBeNull())
+    expect(getGenerateImageProps().generation_number).toBe(2)
+    expect(getGenerateImageProps().is_first_generation).toBe(false)
   })
 })
