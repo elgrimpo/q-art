@@ -24,7 +24,14 @@ def main(argv: list[str]) -> int:
         return 1
     results = []
     for path in paths:
-        res = scorer.score_image(Image.open(path), path.name)
+        try:
+            with Image.open(path) as img:
+                img.load()
+                res = scorer.score_image(img, path.name)
+        except Exception as exc:
+            print(f"  WARNING: skipping {path.name} — {exc}")
+            print()
+            continue
         results.append(res)
         print(scorer.format_result(res))
         print()

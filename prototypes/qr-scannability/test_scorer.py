@@ -155,3 +155,15 @@ def test_format_result_contains_key_lines():
     assert "Excellent" in text
     assert "https://qr-ai.co/fmt" in text
     assert "downscale" in text
+
+
+def test_cli_skips_unreadable_file_and_continues(tmp_path, capsys):
+    import score_qr
+    scorer.render_qr("https://qr-ai.co/cli-good").save(tmp_path / "good.png")
+    (tmp_path / "bad.png").write_bytes(b"not an image")
+    rc = score_qr.main(["score_qr.py", str(tmp_path)])
+    out = capsys.readouterr().out
+    assert rc == 0
+    assert "good.png" in out          # the valid image was still scored
+    assert "WARNING" in out and "bad.png" in out  # the bad file was skipped, not fatal
+    assert "SUMMARY" in out           # the summary table still printed
