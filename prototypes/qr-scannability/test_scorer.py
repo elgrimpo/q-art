@@ -128,3 +128,21 @@ def test_score_noise_is_zero():
     assert res.score == 0
     assert res.band == "Won't scan"
     assert res.decoded_url is None
+
+
+def test_score_decodable_but_degraded_lands_midrange():
+    # A blurry, low-contrast capture: still scannable, but visibly more fragile
+    # than a pristine QR. Exercises the full score_image path with BOTH methods
+    # producing real intermediate values — the product's core "scannable but
+    # slow" case, which the extreme fixtures (clean/corrupted/noise) miss.
+    from PIL import ImageFilter, ImageEnhance
+    text = "https://qr-ai.co/midband"
+    degraded = ImageEnhance.Contrast(
+        scorer.render_qr(text).filter(ImageFilter.GaussianBlur(4))
+    ).enhance(0.4)
+    res = scorer.score_image(degraded, "degraded.png")
+    assert res.decoded_url == text                  # still scannable when clean
+    assert res.method_b is not None and res.method_a is not None
+    assert 0 < res.score < 100                       # strictly intermediate
+    assert res.method_b < 100                        # Method B is the discriminator
+    assert res.method_a < 100                        # Method A also registers degradation
