@@ -160,3 +160,27 @@ class TestCreateWatermark:
         with patch("api.utils.utils.Image.open", side_effect=FileNotFoundError):
             result = create_watermark(self._img())
         assert result is None
+
+
+# ---------------------------------------------------------------------------- #
+#                          STRUCTURAL SCORE                                     #
+# ---------------------------------------------------------------------------- #
+
+from api.utils.structural_score import structural_score
+
+class TestStructuralScore:
+    def test_returns_score_for_plain_image(self):
+        img = Image.new("RGB", (512, 512), "white")
+        result = structural_score(img, "https://example.com")
+        assert isinstance(result.score, float)
+        assert 0.0 <= result.score <= 100.0
+
+    def test_plain_qr_scores_high(self):
+        import qrcode as qrcode_lib
+        qr = qrcode_lib.QRCode(
+            error_correction=qrcode_lib.constants.ERROR_CORRECT_H, border=4
+        )
+        qr.add_data("https://example.com")
+        img = qr.make_image(fill_color="black", back_color="white").convert("RGB")
+        result = structural_score(img, "https://example.com")
+        assert result.score >= 80.0, f"Expected ≥80 for clean QR, got {result.score}"
