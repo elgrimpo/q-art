@@ -228,3 +228,19 @@ def score_image(img: Image.Image, name: str) -> ScoreResult:
     method_a = margin_score(img, payload)
     final = blend_score(method_b, method_a)
     return ScoreResult(name, final, band(final), payload, baseline, method_b, method_a, breakpoints)
+
+
+def format_result(res: ScoreResult) -> str:
+    lines = [
+        f"{res.name}  —  {res.score}/100  [{res.band}]",
+        f"  decoded:  {res.decoded_url or '(could not decode)'}",
+    ]
+    if res.decoded_url is not None:
+        decoders = ", ".join(k for k, v in res.baseline_decoders.items() if v) or "none"
+        lines.append(f"  clean read by: {decoders}")
+        lines.append(f"  robustness (Method B): {res.method_b}")
+        margin = "n/a — localization failed" if res.method_a is None else f"{res.method_a}% headroom"
+        lines.append(f"  EC margin (Method A):  {margin}")
+        bp = "  ".join(f"{k}={v}" for k, v in res.breakpoints.items())
+        lines.append(f"  breaking points (level idx): {bp}")
+    return "\n".join(lines)

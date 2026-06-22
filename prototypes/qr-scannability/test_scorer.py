@@ -146,3 +146,12 @@ def test_score_decodable_but_degraded_lands_midrange():
     assert 0 < res.score < 100                       # strictly intermediate
     assert res.method_b < 100                        # Method B is the discriminator
     assert res.method_a < 100                        # Method A also registers degradation
+
+
+def test_format_result_contains_key_lines():
+    res = scorer.score_image(scorer.render_qr("https://qr-ai.co/fmt"), "fmt.png")
+    text = scorer.format_result(res)
+    assert "fmt.png" in text
+    assert "Excellent" in text
+    assert "https://qr-ai.co/fmt" in text
+    assert "downscale" in text
