@@ -14,3 +14,9 @@ def test_user_has_no_credits_or_payment_history():
     fields = User.model_fields
     assert "credits" not in fields
     assert "payment_history" not in fields
+
+
+def test_image_doc_has_scannability_score():
+    fields = ImageDoc.model_fields
+    assert "scannability_score" in fields
+    assert fields["scannability_score"].default is None

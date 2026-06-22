@@ -99,3 +99,4 @@ class ImageDoc(BaseModel):
     likes: Optional[List[Like]] = []
     unlocked: Optional[bool] = False
     unlock_pending: Optional[bool] = False
+    scannability_score: Optional[float] = None
