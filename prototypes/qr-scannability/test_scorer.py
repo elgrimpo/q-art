@@ -76,3 +76,14 @@ def test_robustness_degraded_qr_scores_lower_than_clean():
     assert scorer.decode_text(degraded_img) == text  # still scannable when clean
     degraded_score, _ = scorer.robustness_score(degraded_img, text, ref)
     assert degraded_score < clean_score
+
+
+def test_robustness_undecodable_image_scores_zero():
+    # robustness_score on an image that does not decode even at level 0 must
+    # score 0 and honestly report -1 breakpoints (not a false 0).
+    rng = np.random.default_rng(7)
+    noise = Image.fromarray(rng.integers(0, 255, (300, 300, 3), dtype=np.uint8))
+    ref = scorer.render_qr("https://qr-ai.co/ref")
+    score, bp = scorer.robustness_score(noise, "https://qr-ai.co/ref", ref)
+    assert score == 0.0
+    assert all(v == -1 for v in bp.values())

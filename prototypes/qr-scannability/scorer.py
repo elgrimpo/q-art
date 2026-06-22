@@ -118,7 +118,9 @@ def _apply_jpeg(img, quality):
     buf = BytesIO()
     img.save(buf, format="JPEG", quality=quality)
     buf.seek(0)
-    return Image.open(buf).convert("RGB")
+    out = Image.open(buf).convert("RGB")
+    buf.close()
+    return out
 
 
 _AXES = {
@@ -132,8 +134,9 @@ _AXES = {
 
 
 def _breaking_index(work: Image.Image, expected: str, levels, apply_fn) -> int:
-    """Highest severity index (0-based) that still decodes correctly."""
-    last_ok = 0
+    """Highest severity index that still decodes correctly; -1 if even the
+    level-0 (no-degradation) image fails to decode."""
+    last_ok = -1
     for i, level in enumerate(levels):
         if is_decodable(apply_fn(work, level), expected):
             last_ok = i
@@ -145,10 +148,14 @@ def robustness_score(img, expected: str, reference: Image.Image):
     ref_work = _resize_work(reference)
     breakpoints, contributions = {}, 0.0
     for axis, (weight, levels, apply_fn) in _AXES.items():
-        max_idx = len(levels) - 1
         styled_idx = _breaking_index(work, expected, levels, apply_fn)
-        ref_idx = _breaking_index(ref_work, expected, levels, apply_fn) or max_idx
+        ref_idx = _breaking_index(ref_work, expected, levels, apply_fn)
         breakpoints[axis] = styled_idx
-        sub = min(1.0, styled_idx / ref_idx) if ref_idx else 1.0
+        if ref_idx <= 0:
+            # Degenerate reference (a pristine QR never lands here): only credit
+            # the axis if the styled image is at least as robust as the ref.
+            sub = 1.0 if styled_idx >= ref_idx else 0.0
+        else:
+            sub = max(0.0, min(1.0, styled_idx / ref_idx))
         contributions += weight * sub
     return round(100.0 * contributions, 1), breakpoints
