@@ -51,3 +51,28 @@ def test_blend_clamps():
 ])
 def test_band(score, expected):
     assert scorer.band(score) == expected
+
+
+def test_robustness_clean_qr_scores_high():
+    img = scorer.render_qr("https://qr-ai.co/robust")
+    ref = scorer.render_qr("https://qr-ai.co/robust")
+    score, breakpoints = scorer.robustness_score(img, "https://qr-ai.co/robust", ref)
+    assert score >= 85
+    assert set(breakpoints) == {"downscale", "blur", "contrast", "rotation", "perspective", "jpeg"}
+
+
+def test_robustness_degraded_qr_scores_lower_than_clean():
+    # A blurry, low-contrast capture: still decodable when clean, but visibly
+    # more fragile than a pristine QR. GaussianBlur(3) alone is too mild to
+    # move a breaking point against this tolerant decoder, so we combine a
+    # stronger blur with a contrast crush (a realistic poor-photo condition).
+    from PIL import ImageFilter, ImageEnhance
+    text = "https://qr-ai.co/cmp"
+    ref = scorer.render_qr(text)
+    clean_score, _ = scorer.robustness_score(scorer.render_qr(text), text, ref)
+    degraded_img = ImageEnhance.Contrast(
+        scorer.render_qr(text).filter(ImageFilter.GaussianBlur(4))
+    ).enhance(0.4)
+    assert scorer.decode_text(degraded_img) == text  # still scannable when clean
+    degraded_score, _ = scorer.robustness_score(degraded_img, text, ref)
+    assert degraded_score < clean_score
