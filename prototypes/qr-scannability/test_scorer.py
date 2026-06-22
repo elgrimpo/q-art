@@ -109,12 +109,17 @@ def test_score_plain_qr_is_excellent():
 
 
 def test_score_corrupted_qr_is_low():
-    rng = np.random.default_rng(0)
-    arr = np.array(scorer.render_qr("https://qr-ai.co/corrupt").convert("L"))
-    mask = rng.random(arr.shape) < 0.18           # flip 18% of pixels
-    arr[mask] = 255 - arr[mask]
-    corrupted = Image.fromarray(arr).convert("RGB")
-    res = scorer.score_image(corrupted, "corrupt.png")
+    # Corruption must be at the MODULE level to actually lower the score.  Light
+    # per-pixel noise does not: each 10px module stays mostly intact and a
+    # phone-grade decoder reads it fine — that a weak decoder failed on such
+    # noise was exactly the false-0 bug this rebuild fixed.  Blanking the bottom
+    # 45% destroys a finder pattern plus far more than level-H's ~30% budget, so
+    # no decoder can recover it.
+    from PIL import ImageDraw
+    img = scorer.render_qr("https://qr-ai.co/corrupt").convert("RGB")
+    w, h = img.size
+    ImageDraw.Draw(img).rectangle([0, int(h * 0.55), w, h], fill=(255, 255, 255))
+    res = scorer.score_image(img, "corrupt.png")
     assert res.score < 40                          # Risky or Won't scan
 
 

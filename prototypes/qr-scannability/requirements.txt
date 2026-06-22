@@ -1,6 +1,13 @@
 pillow==10.3.0
 numpy==1.24.3
 qrcode==7.3.1
-opencv-python==4.10.0.84
+# opencv-contrib-python (not plain opencv-python) — bundles the WeChat CNN QR
+# detector used by decoders.py. The two packages conflict; install only this one.
+opencv-contrib-python==4.10.0.84
 zxing-cpp==2.2.0
 pytest==8.2.0
+# Apple Vision (macOS only) — the primary, phone-grade QR decoder. Skipped on
+# other platforms via the marker; decoders.py falls back to WeChat + zxing there.
+pyobjc-framework-Vision==12.2.1; sys_platform == "darwin"
+pyobjc-framework-Quartz==12.2.1; sys_platform == "darwin"
+pyobjc-framework-Cocoa==12.2.1; sys_platform == "darwin"

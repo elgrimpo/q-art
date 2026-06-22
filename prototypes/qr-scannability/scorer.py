@@ -3,12 +3,13 @@ import numpy as np
 import qrcode
 from PIL import Image, ImageEnhance, ImageFilter
 import cv2
-import zxingcpp
 from io import BytesIO
 from dataclasses import dataclass, field
 
-# Stateless across calls — build once and reuse rather than re-instantiating on
-# every decode (Method B runs dozens of decodes per scored image).
+import decoders
+from decoders import decode_text, decode_battery, is_decodable, DECODER_NAMES
+
+# Method A localizes the QR with OpenCV's basic detector; stateless, build once.
 _QR_DETECTOR = cv2.QRCodeDetector()
 
 
@@ -21,39 +22,6 @@ def render_qr(text: str, box_size: int = 10, border: int = 4) -> Image.Image:
     qr.add_data(text)
     qr.make(fit=True)
     return qr.make_image(fill_color="black", back_color="white").convert("RGB")
-
-
-def _to_rgb_array(img: Image.Image) -> np.ndarray:
-    return np.array(img.convert("RGB"))
-
-
-def _zxing_text(img: Image.Image) -> str | None:
-    results = zxingcpp.read_barcodes(_to_rgb_array(img))
-    for r in results:
-        if r.text:
-            return r.text
-    return None
-
-
-def _opencv_text(img: Image.Image) -> str | None:
-    arr = cv2.cvtColor(_to_rgb_array(img), cv2.COLOR_RGB2BGR)
-    data, _, _ = _QR_DETECTOR.detectAndDecode(arr)
-    return data or None
-
-
-def decode_text(img: Image.Image) -> str | None:
-    return _zxing_text(img) or _opencv_text(img)
-
-
-def decode_battery(img: Image.Image, expected: str | None = None) -> dict[str, bool]:
-    texts = {"zxing": _zxing_text(img), "opencv": _opencv_text(img)}
-    if expected is None:
-        return {k: bool(v) for k, v in texts.items()}
-    return {k: (v == expected) for k, v in texts.items()}
-
-
-def is_decodable(img: Image.Image, expected: str) -> bool:
-    return any(decode_battery(img, expected=expected).values())
 
 
 def blend_score(method_b: float, method_a: float | None) -> float:
@@ -139,12 +107,12 @@ _AXES = {
 }
 
 
-def _breaking_index(work: Image.Image, expected: str, levels, apply_fn) -> int:
+def _breaking_index(work, expected: str, levels, apply_fn, decode_fn) -> int:
     """Highest severity index that still decodes correctly; -1 if even the
     level-0 (no-degradation) image fails to decode."""
     last_ok = -1
     for i, level in enumerate(levels):
-        if is_decodable(apply_fn(work, level), expected):
+        if decode_fn(apply_fn(work, level)) == expected:
             last_ok = i
     return last_ok
 
@@ -198,13 +166,22 @@ def margin_score(img: Image.Image, payload: str) -> float | None:
     return round((1.0 - budget_used) * 100.0, 1)
 
 
-def robustness_score(img, expected: str, reference: Image.Image):
+def robustness_score(img, expected: str, reference: Image.Image, decode_fn=None):
+    """Degrade the image along each axis and measure how far the styled code
+    survives relative to a clean reference QR, using one consistent decoder.
+
+    `decode_fn(img) -> str|None` drives the sweep.  When None, it is the single
+    strongest decoder (Vision > WeChat > zxing) that reads the clean work image,
+    so the breaking points reflect a phone-grade reader rather than the weakest
+    one — the whole reason the score now tracks real scannability."""
     work = _resize_work(img)
     ref_work = _resize_work(reference)
+    if decode_fn is None:
+        decode_fn = decoders.primary_decoder(work, expected) or decoders.decode_text
     breakpoints, contributions = {}, 0.0
     for axis, (weight, levels, apply_fn) in _AXES.items():
-        styled_idx = _breaking_index(work, expected, levels, apply_fn)
-        ref_idx = _breaking_index(ref_work, expected, levels, apply_fn)
+        styled_idx = _breaking_index(work, expected, levels, apply_fn, decode_fn)
+        ref_idx = _breaking_index(ref_work, expected, levels, apply_fn, decode_fn)
         breakpoints[axis] = styled_idx
         if ref_idx <= 0:
             # Degenerate reference (a pristine QR never lands here): only credit
@@ -232,7 +209,8 @@ def score_image(img: Image.Image, name: str) -> ScoreResult:
     img = img.convert("RGB")
     payload = decode_text(img)
     if payload is None:
-        return ScoreResult(name, 0.0, band(0), None, {"zxing": False, "opencv": False}, None, None, {})
+        return ScoreResult(name, 0.0, band(0), None,
+                           {n: False for n in DECODER_NAMES}, None, None, {})
     baseline = decode_battery(img, expected=payload)
     reference = render_qr(payload)
     method_b, breakpoints = robustness_score(img, payload, reference)
@@ -247,8 +225,8 @@ def format_result(res: ScoreResult) -> str:
         f"  decoded:  {res.decoded_url or '(could not decode)'}",
     ]
     if res.decoded_url is not None:
-        decoders = ", ".join(k for k, v in res.baseline_decoders.items() if v) or "none"
-        lines.append(f"  clean read by: {decoders}")
+        read_by = ", ".join(k for k, v in res.baseline_decoders.items() if v) or "none"
+        lines.append(f"  clean read by: {read_by}")
         lines.append(f"  robustness (Method B): {res.method_b}")
         margin = "n/a — localization failed" if res.method_a is None else f"{res.method_a}% headroom"
         lines.append(f"  EC margin (Method A):  {margin}")

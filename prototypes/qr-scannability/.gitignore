@@ -2,3 +2,6 @@ venv/
 samples/*
 !samples/.gitkeep
 __pycache__/
+# gallery output (regenerate with build_gallery.py)
+gallery_thumbs/
+scores_gallery.html
