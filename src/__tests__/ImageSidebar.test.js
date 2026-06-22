@@ -1,6 +1,6 @@
 // src/__tests__/ImageSidebar.test.js
 import React from 'react'
-import { render, waitFor, act } from '@testing-library/react'
+import { render, screen, waitFor, act } from '@testing-library/react'
 
 jest.mock('next/navigation', () => ({ useRouter: () => ({ refresh: jest.fn() }) }))
 jest.mock('@amplitude/analytics-browser', () => ({ track: jest.fn() }))
@@ -22,6 +22,10 @@ jest.mock('@/_components/actions/LikeButton', () => ({ __esModule: true, default
 jest.mock('@/_components/actions/UnlockButton', () => ({ __esModule: true, default: () => <div /> }))
 jest.mock('@/_components/actions/ShareButton', () => ({ __esModule: true, default: () => <div /> }))
 jest.mock('../app/images/[imageId]/GuestSignupPrompt', () => ({ __esModule: true, default: () => <div /> }))
+jest.mock('@/_components/ScannabilityBadge', () => ({
+  __esModule: true,
+  default: ({ score }) => score != null ? <div data-testid="scannability-badge">{score}</div> : null,
+}))
 
 import * as amplitude from '@amplitude/analytics-browser'
 import { EVENTS } from '../_utils/analytics'
@@ -92,4 +96,25 @@ test('fires Purchase Failed (fulfillment) when the post-payment unlock throws', 
       imageId: 'img1', stage: 'fulfillment',
     }),
   )
+})
+
+describe('ScannabilityBadge integration', () => {
+  test('shows scannability section when image has a score', async () => {
+    setSearch('')
+    const imageWithScore = { ...IMAGE, scannability_score: 78 }
+    await act(async () => {
+      render(<ImageSidebar image={imageWithScore} user={USER} customDeleteAction={jest.fn()} />)
+    })
+    expect(screen.getByText('Scannability')).toBeInTheDocument()
+    expect(screen.getByTestId('scannability-badge')).toBeInTheDocument()
+  })
+
+  test('hides scannability section when image has no score', async () => {
+    setSearch('')
+    await act(async () => {
+      render(<ImageSidebar image={IMAGE} user={USER} customDeleteAction={jest.fn()} />)
+    })
+    expect(screen.queryByText('Scannability')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('scannability-badge')).not.toBeInTheDocument()
+  })
 })

@@ -24,6 +24,7 @@ import LikeButton from "@/_components/actions/LikeButton";
 import UnlockButton from "@/_components/actions/UnlockButton";
 import ShareButton from "@/_components/actions/ShareButton";
 import GuestSignupPrompt from "./GuestSignupPrompt";
+import ScannabilityBadge from '@/_components/ScannabilityBadge';
 import { useStore } from "@/store";
 import { unlockImage } from "@/_utils/ImagesUtils";
 import * as amplitude from "@amplitude/analytics-browser";
@@ -239,6 +240,18 @@ export default function ImageSidebar({
               </>
             )}
           </Card>
+        )}
+
+        {/* ----------------------------- SCANNABILITY ----------------------------- */}
+        {currentImage?.scannability_score != null && (
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="h5" align={isMobile ? "center" : "left"} sx={{ mb: 1 }}>
+              Scannability
+            </Typography>
+            <Box sx={{ display: 'flex', justifyContent: isMobile ? 'center' : 'flex-start' }}>
+              <ScannabilityBadge score={currentImage.scannability_score} />
+            </Box>
+          </Box>
         )}
 
         <Typography variant="h5" align={isMobile ? "center" : "left"}>
