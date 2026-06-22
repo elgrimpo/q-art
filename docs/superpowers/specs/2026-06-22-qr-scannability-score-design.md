@@ -169,6 +169,13 @@ known-easy codes outrank known-hard ones.
 ## Open questions / future work (not this prototype)
 
 - Calibration of exact ladder steps/weights against a larger real sample.
+- **Method A polarity-robustness (top follow-up):** Method A currently assumes
+  standard dark-on-light QR polarity (Otsu + `dark = binar < 128`). An AI-styled
+  QR with a dark/colored background could invert this and produce a misleadingly
+  low margin. Bounded today (Method A is the secondary 30%, falls back to `None`
+  on localization failure; Method B unaffected), but a polarity-agnostic match
+  (compare the sampled grid against the ideal matrix *and its inverse*, take the
+  better) would fix it cheaply.
 - Whether to upgrade Method A to true codeword-level (ISO 15415) grading.
 - Integration target if validated: post-generation gate vs. on-demand check vs.
   UI badge (decide after seeing the prototype's numbers).

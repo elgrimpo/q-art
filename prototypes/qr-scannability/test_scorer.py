@@ -101,9 +101,6 @@ def test_margin_returns_none_on_unlocalizable():
     assert scorer.margin_score(noise, "https://qr-ai.co/x") is None
 
 
-from dataclasses import asdict
-
-
 def test_score_plain_qr_is_excellent():
     res = scorer.score_image(scorer.render_qr("https://qr-ai.co/excellent"), "plain.png")
     assert res.score >= 80

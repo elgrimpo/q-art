@@ -7,6 +7,10 @@ import zxingcpp
 from io import BytesIO
 from dataclasses import dataclass, field
 
+# Stateless across calls — build once and reuse rather than re-instantiating on
+# every decode (Method B runs dozens of decodes per scored image).
+_QR_DETECTOR = cv2.QRCodeDetector()
+
 
 def render_qr(text: str, box_size: int = 10, border: int = 4) -> Image.Image:
     qr = qrcode.QRCode(
@@ -33,7 +37,7 @@ def _zxing_text(img: Image.Image) -> str | None:
 
 def _opencv_text(img: Image.Image) -> str | None:
     arr = cv2.cvtColor(_to_rgb_array(img), cv2.COLOR_RGB2BGR)
-    data, _, _ = cv2.QRCodeDetector().detectAndDecode(arr)
+    data, _, _ = _QR_DETECTOR.detectAndDecode(arr)
     return data or None
 
 
@@ -71,7 +75,7 @@ def band(score: float) -> str:
 
 _WORK_SIZE = 512
 
-# Each axis: (weight, [severity levels], apply_fn(work_img, level) -> PIL.Image)
+
 def _resize_work(img: Image.Image) -> Image.Image:
     w, h = img.size
     scale = _WORK_SIZE / max(w, h)
@@ -124,6 +128,7 @@ def _apply_jpeg(img, quality):
     return out
 
 
+# Each axis: (weight, [severity levels], apply_fn(work_img, level) -> PIL.Image)
 _AXES = {
     "downscale":   (0.25, [1.0, 0.5, 0.35, 0.25, 0.18, 0.12], _apply_downscale),
     "blur":        (0.25, [0, 1.0, 2.0, 3.0, 4.5, 6.0], _apply_blur),
@@ -156,7 +161,7 @@ def _ideal_matrix(payload: str) -> np.ndarray:
 
 def _locate_corners(img: Image.Image):
     gray = cv2.cvtColor(np.array(img.convert("RGB")), cv2.COLOR_RGB2GRAY)
-    ok, points = cv2.QRCodeDetector().detect(gray)
+    ok, points = _QR_DETECTOR.detect(gray)
     if not ok or points is None:
         return None, gray
     return points.reshape(4, 2).astype("float32"), gray
@@ -174,6 +179,12 @@ def margin_score(img: Image.Image, payload: str) -> float | None:
     m = cv2.getPerspectiveTransform(corners, dst)
     warped = cv2.warpPerspective(gray, m, (side, side))
     _, binar = cv2.threshold(warped, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    # NOTE (prototype limitation): assumes standard dark-on-light QR polarity.
+    # An AI-styled QR with a dark/colored background could invert this and yield
+    # a misleadingly low margin. Method A is the secondary 30% (Method B, the 70%
+    # primary, is unaffected) and falls back to None on localization failure, so
+    # the blast radius is bounded. A polarity-agnostic match (compare against the
+    # inverse too) is the top follow-up — see the spec's future-work section.
     dark = binar < 128  # True = dark module
     observed = np.zeros((n, n), dtype=bool)
     pad = samples // 4
