@@ -14,6 +14,19 @@ from api.controllers.generate_controller import (
 )
 
 
+@pytest.fixture(autouse=True)
+def mock_structural_score():
+    """Patch the scorer for all generate tests. Tests can mutate the mock to
+    test failure cases — e.g. mock_structural_score.side_effect = RuntimeError()."""
+    result = MagicMock()
+    result.score = 75.0
+    with patch(
+        "api.controllers.generate_controller.structural_score",
+        return_value=result,
+    ) as m:
+        yield m
+
+
 # ---------------------------------------------------------------------------- #
 #                                   HELPERS                                    #
 # ---------------------------------------------------------------------------- #
@@ -384,3 +397,63 @@ async def test_download_image_bytes_raises_on_http_error(mock_client_class):
 
     with pytest.raises(httpx.HTTPStatusError):
         await download_image_bytes("http://novita.example/missing.png")
+
+
+# ---------------------------------------------------------------------------- #
+#          TEST 5: SCANNABILITY SCORE IS STORED (QRAI-110)                     #
+# ---------------------------------------------------------------------------- #
+
+@patch("api.controllers.generate_controller.increment_user_count", new_callable=AsyncMock)
+@patch("api.controllers.generate_controller.update_image", new_callable=AsyncMock)
+@patch("api.controllers.generate_controller.upload_image_to_s3", new_callable=AsyncMock)
+@patch("api.controllers.generate_controller.create_image_doc", new_callable=AsyncMock)
+@patch("api.controllers.generate_controller.create_watermark")
+@patch("api.controllers.generate_controller.download_image_bytes", new_callable=AsyncMock)
+@patch("api.controllers.generate_controller.client")
+async def test_generate_stores_scannability_score(
+    mock_novita_client,
+    mock_download,
+    mock_create_watermark,
+    mock_create_doc,
+    mock_upload,
+    mock_update,
+    mock_increment,
+):
+    """scannability_score must be passed to update_image alongside the S3 URLs."""
+    _, mocks = await _run_predict(
+        mock_novita_client, mock_download, mock_create_watermark,
+        mock_create_doc, mock_upload, mock_update, mock_increment,
+    )
+    call_args = mocks["update"].call_args
+    update_data = call_args[0][1]  # second positional arg is the update dict
+    assert "scannability_score" in update_data
+    assert update_data["scannability_score"] == 75.0
+
+
+@patch("api.controllers.generate_controller.increment_user_count", new_callable=AsyncMock)
+@patch("api.controllers.generate_controller.update_image", new_callable=AsyncMock)
+@patch("api.controllers.generate_controller.upload_image_to_s3", new_callable=AsyncMock)
+@patch("api.controllers.generate_controller.create_image_doc", new_callable=AsyncMock)
+@patch("api.controllers.generate_controller.create_watermark")
+@patch("api.controllers.generate_controller.download_image_bytes", new_callable=AsyncMock)
+@patch("api.controllers.generate_controller.client")
+async def test_scorer_failure_does_not_block_generation(
+    mock_novita_client,
+    mock_download,
+    mock_create_watermark,
+    mock_create_doc,
+    mock_upload,
+    mock_update,
+    mock_increment,
+    mock_structural_score,  # inject autouse fixture to override it
+):
+    """If the scorer raises, predict() must still succeed with scannability_score=None."""
+    mock_structural_score.side_effect = RuntimeError("scorer exploded")
+    result, mocks = await _run_predict(
+        mock_novita_client, mock_download, mock_create_watermark,
+        mock_create_doc, mock_upload, mock_update, mock_increment,
+    )
+    assert result is not None  # generation succeeded
+    call_args = mocks["update"].call_args
+    update_data = call_args[0][1]
+    assert update_data.get("scannability_score") is None

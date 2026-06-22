@@ -29,6 +29,7 @@ from api.utils.utils import (
     create_watermark,
 )
 from api.controllers.users_controller import increment_user_count
+from api.utils.structural_score import structural_score
 
 
 load_dotenv()
@@ -167,6 +168,17 @@ async def predict(
             image_bytes = await download_image_bytes(image_url)
             generated_image = Image.open(BytesIO(image_bytes))
 
+            # Score the styled image structurally. Non-fatal — a failure must
+            # never block delivery.
+            try:
+                score_result = await asyncio.to_thread(
+                    structural_score, generated_image, website
+                )
+                scannability_score = score_result.score
+            except Exception:
+                logger.warning("Scannability scoring failed", exc_info=True)
+                scannability_score = None
+
         except Exception as generation_error:
             logger.error("Image generation failed", exc_info=True)
             raise HTTPException(status_code=500, detail="Image generation failed")
@@ -205,6 +217,7 @@ async def predict(
             updated_data = {
                 "image_url": original_image_url,
                 "watermarked_image_url": watermarked_image_url,
+                "scannability_score": scannability_score,
             }
 
             updated_image = await update_image(inserted_image_id, updated_data)
