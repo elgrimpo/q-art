@@ -1,0 +1,6 @@
+pillow==10.3.0
+numpy==1.24.3
+qrcode==7.3.1
+opencv-python==4.10.0.84
+zxing-cpp==2.2.0
+pytest==8.2.0
