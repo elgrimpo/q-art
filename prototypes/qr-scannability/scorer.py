@@ -48,3 +48,20 @@ def decode_battery(img: Image.Image, expected: str | None = None) -> dict[str, b
 
 def is_decodable(img: Image.Image, expected: str) -> bool:
     return any(decode_battery(img, expected=expected).values())
+
+
+def blend_score(method_b: float, method_a: float | None) -> float:
+    raw = method_b if method_a is None else 0.70 * method_b + 0.30 * method_a
+    return round(max(0.0, min(100.0, raw)), 1)
+
+
+def band(score: float) -> str:
+    if score <= 0:
+        return "Won't scan"
+    if score < 40:
+        return "Risky"
+    if score < 60:
+        return "Fragile (scans slowly)"
+    if score < 80:
+        return "Good"
+    return "Excellent"
