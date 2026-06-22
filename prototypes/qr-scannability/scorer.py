@@ -143,6 +143,49 @@ def _breaking_index(work: Image.Image, expected: str, levels, apply_fn) -> int:
     return last_ok
 
 
+_BUDGET_H = 0.30  # ECC level H corrects ~30% of codewords
+
+
+def _ideal_matrix(payload: str) -> np.ndarray:
+    qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H, border=0)
+    qr.add_data(payload)
+    qr.make(fit=True)
+    return np.array(qr.get_matrix(), dtype=bool)  # True = dark module
+
+
+def _locate_corners(img: Image.Image):
+    gray = cv2.cvtColor(np.array(img.convert("RGB")), cv2.COLOR_RGB2GRAY)
+    ok, points = cv2.QRCodeDetector().detect(gray)
+    if not ok or points is None:
+        return None, gray
+    return points.reshape(4, 2).astype("float32"), gray
+
+
+def margin_score(img: Image.Image, payload: str) -> float | None:
+    corners, gray = _locate_corners(img)
+    if corners is None:
+        return None
+    ideal = _ideal_matrix(payload)
+    n = ideal.shape[0]
+    samples = 8
+    side = n * samples
+    dst = np.float32([[0, 0], [side, 0], [side, side], [0, side]])
+    m = cv2.getPerspectiveTransform(corners, dst)
+    warped = cv2.warpPerspective(gray, m, (side, side))
+    _, binar = cv2.threshold(warped, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    dark = binar < 128  # True = dark module
+    observed = np.zeros((n, n), dtype=bool)
+    pad = samples // 4
+    for r in range(n):
+        for c in range(n):
+            cell = dark[r*samples+pad:(r+1)*samples-pad, c*samples+pad:(c+1)*samples-pad]
+            observed[r, c] = cell.mean() > 0.5
+    mismatches = int((observed != ideal).sum())
+    module_error_rate = mismatches / float(n * n)
+    budget_used = min(1.0, module_error_rate / _BUDGET_H)
+    return round((1.0 - budget_used) * 100.0, 1)
+
+
 def robustness_score(img, expected: str, reference: Image.Image):
     work = _resize_work(img)
     ref_work = _resize_work(reference)

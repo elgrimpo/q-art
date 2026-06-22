@@ -87,3 +87,15 @@ def test_robustness_undecodable_image_scores_zero():
     score, bp = scorer.robustness_score(noise, "https://qr-ai.co/ref", ref)
     assert score == 0.0
     assert all(v == -1 for v in bp.values())
+
+
+def test_margin_clean_qr_near_full():
+    text = "https://qr-ai.co/margin"
+    score = scorer.margin_score(scorer.render_qr(text), text)
+    assert score is not None and score >= 90
+
+
+def test_margin_returns_none_on_unlocalizable():
+    rng = np.random.default_rng(1)
+    noise = Image.fromarray(rng.integers(0, 255, (300, 300, 3), dtype=np.uint8))
+    assert scorer.margin_score(noise, "https://qr-ai.co/x") is None
