@@ -99,3 +99,32 @@ def test_margin_returns_none_on_unlocalizable():
     rng = np.random.default_rng(1)
     noise = Image.fromarray(rng.integers(0, 255, (300, 300, 3), dtype=np.uint8))
     assert scorer.margin_score(noise, "https://qr-ai.co/x") is None
+
+
+from dataclasses import asdict
+
+
+def test_score_plain_qr_is_excellent():
+    res = scorer.score_image(scorer.render_qr("https://qr-ai.co/excellent"), "plain.png")
+    assert res.score >= 80
+    assert res.band == "Excellent"
+    assert res.decoded_url == "https://qr-ai.co/excellent"
+
+
+def test_score_corrupted_qr_is_low():
+    rng = np.random.default_rng(0)
+    arr = np.array(scorer.render_qr("https://qr-ai.co/corrupt").convert("L"))
+    mask = rng.random(arr.shape) < 0.18           # flip 18% of pixels
+    arr[mask] = 255 - arr[mask]
+    corrupted = Image.fromarray(arr).convert("RGB")
+    res = scorer.score_image(corrupted, "corrupt.png")
+    assert res.score < 40                          # Risky or Won't scan
+
+
+def test_score_noise_is_zero():
+    rng = np.random.default_rng(2)
+    noise = Image.fromarray(rng.integers(0, 255, (256, 256, 3), dtype=np.uint8))
+    res = scorer.score_image(noise, "noise.png")
+    assert res.score == 0
+    assert res.band == "Won't scan"
+    assert res.decoded_url is None

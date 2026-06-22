@@ -5,6 +5,7 @@ from PIL import Image, ImageEnhance, ImageFilter
 import cv2
 import zxingcpp
 from io import BytesIO
+from dataclasses import dataclass, field
 
 
 def render_qr(text: str, box_size: int = 10, border: int = 4) -> Image.Image:
@@ -202,3 +203,28 @@ def robustness_score(img, expected: str, reference: Image.Image):
             sub = max(0.0, min(1.0, styled_idx / ref_idx))
         contributions += weight * sub
     return round(100.0 * contributions, 1), breakpoints
+
+
+@dataclass
+class ScoreResult:
+    name: str
+    score: float
+    band: str
+    decoded_url: str | None
+    baseline_decoders: dict
+    method_b: float | None
+    method_a: float | None
+    breakpoints: dict = field(default_factory=dict)
+
+
+def score_image(img: Image.Image, name: str) -> ScoreResult:
+    img = img.convert("RGB")
+    payload = decode_text(img)
+    if payload is None:
+        return ScoreResult(name, 0.0, band(0), None, {"zxing": False, "opencv": False}, None, None, {})
+    baseline = decode_battery(img, expected=payload)
+    reference = render_qr(payload)
+    method_b, breakpoints = robustness_score(img, payload, reference)
+    method_a = margin_score(img, payload)
+    final = blend_score(method_b, method_a)
+    return ScoreResult(name, final, band(final), payload, baseline, method_b, method_a, breakpoints)
