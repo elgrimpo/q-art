@@ -105,3 +105,49 @@ def test_portrait_render_scores_far_higher_after_localization():
     assert full_frame < 0.3             # raw portrait grid is broken
     assert res.finder > 0.8             # localized finder is recovered
     assert res.localized is True
+
+
+def test_data_region_mask_excludes_finders_and_border():
+    n = ss.ideal_matrix(URL).shape[0]
+    m = ss.data_region_mask(n)
+    b = ss._BORDER
+    assert not m[b, b]                       # TL finder corner excluded
+    assert not m[b, n - b - 1]               # TR finder corner excluded
+    assert not m[0, 0]                        # border excluded
+    assert m[n // 2, n // 2]                  # central data module included
+
+
+def test_data_reliability_tracks_data_region_only():
+    # Corrupting the data region must drop data_reliability sharply; the metric
+    # is restricted to data modules, so this is the lever the score needs.
+    img = _clean()
+    n = ss.ideal_matrix(URL).shape[0]
+    ideal = ss.ideal_matrix(URL)
+    base = ss.data_reliability(
+        ss.sample_modules(np.array(img.convert("L"), float), n), ideal)
+    w, h = img.size
+    rng = np.random.default_rng(2)
+    arr = np.array(img)
+    y0, y1 = int(h * 0.30), int(h * 0.70)
+    x0, x1 = int(w * 0.30), int(w * 0.70)
+    arr[y0:y1, x0:x1] = rng.integers(0, 255, arr[y0:y1, x0:x1].shape, dtype=np.uint8)
+    damaged = ss.data_reliability(
+        ss.sample_modules(np.array(Image.fromarray(arr).convert("L"), float), n), ideal)
+    assert damaged < base - 0.1
+
+
+def test_finders_intact_but_data_shredded_scores_low():
+    # The false-positive failure mode: pristine finders, destroyed interior.
+    img = _clean()
+    n = ss.ideal_matrix(URL).shape[0]
+    w, h = img.size
+    rng = np.random.default_rng(1)
+    arr = np.array(img)
+    sx, sy = w / n, h / n
+    b = ss._BORDER
+    y0, y1 = int((b + 8) * sy), int((n - b - 8) * sy)
+    x0, x1 = int((b + 8) * sx), int((n - b - 8) * sx)
+    arr[y0:y1, x0:x1] = rng.integers(0, 255, arr[y0:y1, x0:x1].shape, dtype=np.uint8)
+    res = ss.structural_score(Image.fromarray(arr), URL)
+    assert res.finder > 0.8                  # finders untouched
+    assert res.score < 55                    # but overall must read as risky

@@ -17,12 +17,17 @@ import qrcode
 from PIL import Image
 from dataclasses import dataclass
 
-_BUDGET_H = 0.30   # ECC level H corrects ~30% of modules
+_BUDGET_H = 0.30      # ECC level H corrects ~30% of modules (used by ecc_margin)
+_BUDGET_DATA = 0.15   # local-threshold error budget for data_reliability; tighter
+                      # than ECC capacity because adaptive binarization turns random
+                      # noise into ~50% per-module errors, so 15% over the whole
+                      # data region already signals heavy corruption.
 _BORDER = 4        # quiet-zone modules, matches the app's QR generation
 
-# Headline weights — finder leads because it is the validated discriminator.
-# Calibration parameters; tuned against the phone labels.
-_W_FINDER, _W_CONTRAST, _W_MARGIN = 0.45, 0.25, 0.30
+# Geometric blend exponents — finder × local data reliability, so BOTH must be
+# high (additive lets a perfect finder mask dead data). Contrast dropped (AUC ≈
+# 0.50). Final values fitted in Task 3 (see eval/refit_weights.py).
+_W_FINDER, _W_DATA = 0.60, 0.40   # _W_FINDER + _W_DATA == 1
 
 
 def localize_qr(img: Image.Image) -> Image.Image:
@@ -110,6 +115,52 @@ def ecc_margin(means: np.ndarray, ideal: np.ndarray) -> float:
     return float(max(0.0, 1.0 - min(1.0, err / _BUDGET_H)))
 
 
+def data_region_mask(n: int) -> np.ndarray:
+    """True for payload/data modules: excludes the 4-module quiet zone and the
+    three 8×8 finder+separator blocks. The finder term already covers those."""
+    b = _BORDER
+    m = np.zeros((n, n), dtype=bool)
+    m[b:n - b, b:n - b] = True
+    m[b:b + 8, b:b + 8] = False                  # top-left finder
+    m[b:b + 8, n - b - 8:n - b] = False          # top-right finder
+    m[n - b - 8:n - b, b:b + 8] = False          # bottom-left finder
+    return m
+
+
+def _box_mean(a: np.ndarray, k: int) -> np.ndarray:
+    """Per-cell mean over a (2k+1)² window via an integral image. Pure NumPy."""
+    pad = np.pad(a, k + 1, mode="edge")
+    ii = pad.cumsum(0).cumsum(1)
+    n0, n1 = a.shape
+    out = np.empty_like(a)
+    for i in range(n0):
+        for j in range(n1):
+            y0, y1 = i, i + 2 * k + 1
+            x0, x1 = j, j + 2 * k + 1
+            total = ii[y1, x1] - ii[y0, x1] - ii[y1, x0] + ii[y0, x0]
+            out[i, j] = total / ((2 * k + 1) ** 2)
+    return out
+
+
+def local_threshold(means: np.ndarray, k: int = 4) -> np.ndarray:
+    """Adaptive per-module threshold (local 9×9 mean), mimicking a phone's local
+    binarization instead of one global cut."""
+    return _box_mean(means, k)
+
+
+def data_reliability(means: np.ndarray, ideal: np.ndarray) -> float:
+    """1 − (local-threshold module-error rate in the data region / data budget),
+    clamped to [0,1]. Polarity-agnostic: take whichever polarity fits better."""
+    mask = data_region_mask(ideal.shape[0])
+    if not mask.any():
+        return 0.0
+    thr = local_threshold(means)
+    observed_dark = means < thr
+    err = (observed_dark[mask] != ideal[mask]).mean()
+    err = min(err, 1.0 - err)
+    return float(max(0.0, 1.0 - min(1.0, err / _BUDGET_DATA)))
+
+
 def min_scannable_modules(gray: np.ndarray, ideal: np.ndarray, floor: float = 0.5) -> float:
     """Smallest pixels-per-module at which finder integrity stays above `floor` —
     a proxy for 'how small / far can this print and still be found' (the
@@ -147,7 +198,8 @@ def structural_score(img: Image.Image, payload: str) -> StructuralResult:
     means = sample_modules(gray, n)
     f = finder_integrity(means, ideal)
     ct = contrast(means, ideal)
-    mg = ecc_margin(means, ideal)
-    score = round(100.0 * (_W_FINDER * f + _W_CONTRAST * ct + _W_MARGIN * mg), 1)
+    mg = data_reliability(means, ideal)
+    f_c, mg_c = max(f, 1e-9), max(mg, 1e-9)
+    score = round(100.0 * (f_c ** _W_FINDER) * (mg_c ** _W_DATA), 1)
     mn = min_scannable_modules(gray, ideal)
     return StructuralResult(score, round(f, 3), round(ct, 3), round(mg, 3), mn, n, was_localized)
