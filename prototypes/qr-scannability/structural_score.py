@@ -18,16 +18,17 @@ from PIL import Image
 from dataclasses import dataclass
 
 _BUDGET_H = 0.30      # ECC level H corrects ~30% of modules (used by ecc_margin)
-_BUDGET_DATA = 0.15   # local-threshold error budget for data_reliability; tighter
+_BUDGET_DATA = 0.14   # local-threshold error budget for data_reliability; tighter
                       # than ECC capacity because adaptive binarization turns random
-                      # noise into ~50% per-module errors, so 15% over the whole
+                      # noise into ~50% per-module errors, so 14% over the whole
                       # data region already signals heavy corruption.
+                      # Fitted on 247 labeled codes (eval/refit_weights.py).
 _BORDER = 4        # quiet-zone modules, matches the app's QR generation
 
 # Geometric blend exponents — finder × local data reliability, so BOTH must be
 # high (additive lets a perfect finder mask dead data). Contrast dropped (AUC ≈
 # 0.50). Final values fitted in Task 3 (see eval/refit_weights.py).
-_W_FINDER, _W_DATA = 0.60, 0.40   # _W_FINDER + _W_DATA == 1
+_W_FINDER, _W_DATA = 0.55, 0.45   # Fitted on 247 labeled codes (eval/refit_weights.py): CV-AUC 0.792.
 
 
 def localize_qr(img: Image.Image) -> Image.Image:
