@@ -1,64 +1,100 @@
 'use client'
-// Libraries imports
+
 import React from "react";
-import { Box, CardMedia, Skeleton } from "@mui/material";
+import { Box, CardMedia, Skeleton, Chip, IconButton } from "@mui/material";
+import LockIcon from "@mui/icons-material/Lock";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 
-//App imports
-
-/* -------------------------------------------------------------------------- */
-/*                               COMPONENT START                              */
-/* -------------------------------------------------------------------------- */
-
-export default function ImageFill(props) {
-  /* ---------------------------- DECLARE VARIABLES --------------------------- */
-  const isMobile = false;
-  // const { handleClose } = props;
-  const { image } = props;
-  /* -------------------------------- FUNCTIONS ------------------------------- */
-
-  /* -------------------------------------------------------------------------- */
-  /*                              COMPONENT RENDER                              */
-  /* -------------------------------------------------------------------------- */
+export default function ImageFill({ image, sx, onPrev, onNext, topOverlay }) {
+  const imageUrl = image?.unlocked ? image?.image_url : image?.watermarked_image_url;
 
   return (
-    <Box // Image Background fill
+    <Box
       sx={{
-        width: "100%",
-        backgroundColor: "#70E195",
-        display: "flex",
-        justifyContent: "center",
-        padding: { xs: "0rem", md: "2rem", lg: "2rem" },
-        flex: { xs: "2", lg: "3" },
+        position: "relative",
+        borderRadius: { xs: 0, md: "16px" },
+        overflow: "hidden",
+        bgcolor: "#0e0e0e",
+        ...sx,
       }}
     >
-      {!image?.watermarked_image_url ? (
+      {!imageUrl ? (
         <Skeleton
           variant="rounded"
           animation="wave"
-          sx={{
-            borderRadius: { md: "12px" },
-            objectFit: "contain",
-            maxWidth: "100%",
-            maxHeight: "100%",
-            width: "auto",
-            height: "auto",
-            aspectRatio: "1/1",
-            minWidth: {xs: "360px", sm: "600px", md: "400px"},
-          }}
+          sx={{ width: "100%", aspectRatio: "1/1" }}
         />
       ) : (
         <CardMedia
           component="img"
-          image={image?.unlocked ? image?.image_url : image?.watermarked_image_url}
+          image={imageUrl}
           sx={{
-            borderRadius: { md: "12px" },
-            objectFit: "contain",
-            maxWidth: "100%",
-            maxHeight: "100%",
+            display: "block",
             width: "100%",
-            height: "auto",
             aspectRatio: "1/1",
+            objectFit: "cover",
             pointerEvents: "none",
+          }}
+        />
+      )}
+
+      {onPrev && (
+        <IconButton
+          onClick={onPrev}
+          sx={{
+            position: "absolute",
+            left: 10,
+            top: "50%",
+            transform: "translateY(-50%)",
+            zIndex: 1,
+            bgcolor: "rgba(0,0,0,0.45)",
+            color: "#ededed",
+            "&:hover": { bgcolor: "rgba(0,0,0,0.7)" },
+          }}
+        >
+          <ChevronLeftIcon />
+        </IconButton>
+      )}
+
+      {onNext && (
+        <IconButton
+          onClick={onNext}
+          sx={{
+            position: "absolute",
+            right: 10,
+            top: "50%",
+            transform: "translateY(-50%)",
+            zIndex: 1,
+            bgcolor: "rgba(0,0,0,0.45)",
+            color: "#ededed",
+            "&:hover": { bgcolor: "rgba(0,0,0,0.7)" },
+          }}
+        >
+          <ChevronRightIcon />
+        </IconButton>
+      )}
+
+      {topOverlay}
+
+      {!image?.unlocked && imageUrl && (
+        <Chip
+          icon={<LockIcon />}
+          label="LOCKED PREVIEW"
+          size="small"
+          sx={{
+            position: "absolute",
+            bottom: 16,
+            left: 16,
+            bgcolor: "rgba(14,14,14,0.72)",
+            backdropFilter: "blur(4px)",
+            border: "1px solid #2e2e2e",
+            color: "#ededed",
+            fontWeight: 700,
+            fontSize: "11px",
+            letterSpacing: "0.08em",
+            borderRadius: "999px",
+            "& .MuiChip-icon": { color: "#a6ffc3", fontSize: "14px" },
           }}
         />
       )}

@@ -1,19 +1,11 @@
-// Libraries imports
 import React from "react";
 import { Box } from "@mui/material";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
-//App imports
 import { getImageById } from "@/_utils/ImagesUtils";
 import { getUserInfo } from "@/_utils/userUtils";
-import StyledIconButton from "@/_components/StyledIconButton";
-import ImageFill from "./ImageFill";
-import ImageSidebar from "./ImageSidebar";
+import ImageDetailContent from "./ImageDetailContent";
 
-/* -------------------------------------------------------------------------- */
-/*                               COMPONENT START                              */
-/* -------------------------------------------------------------------------- */
 export async function generateMetadata({ params }) {
   const { imageId } = params;
   const image = await getImageById(imageId);
@@ -21,10 +13,6 @@ export async function generateMetadata({ params }) {
   return {
     title: "QR AI",
     description: "Generate Art with QR Codes",
-    // Per-image pages are thin and near-duplicate, so keep them out of the
-    // search index (they stay shareable on social — noindex only affects search,
-    // not OG/Twitter). `follow` lets crawlers still discover linked pages.
-    // (SEO audit 2026-06 — revisit if these become unique, enriched landing pages.)
     robots: { index: false, follow: true },
     twitter: {
       card: "summary_large_image",
@@ -41,68 +29,34 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default async function ImagePage({ params, searchParams }) {
-  /* ---------------------------- DECLARE VARIABLES --------------------------- */
+export default async function ImagePage({ params }) {
   const { imageId } = params;
   const image = await getImageById(imageId);
   const user = await getUserInfo();
 
-  /* -------------------------------- FUNCTIONS ------------------------------- */
-
   const customDeleteAction = async () => {
     "use server";
-    redirect("/generate");
+    redirect("/explore");
   };
 
-  /* -------------------------------------------------------------------------- */
-  /*                              COMPONENT RENDER                              */
-  /* -------------------------------------------------------------------------- */
+  const userProp = user
+    ? { _id: user._id, is_guest: user.is_guest || false, ...user }
+    : null;
 
   return (
-    <Box sx={{ height: "100vh" }}>
-      {/* ------------------------ NAVIGATION BUTTON ----------------------- */}
-
-      {/* CLOSE */}
+    <Box sx={{ minHeight: "100vh", bgcolor: "#161616" }}>
       <Box
         sx={{
-          margin: { sx: "0rem", lg: "1rem" },
-          position: "fixed",
-          top: { xs: "0.5rem" },
-          right: { xs: "0.5rem" },
-          zIndex: "2000",
+          maxWidth: "1600px",
+          mx: "auto",
+          px: { xs: 2, md: 4 },
+          pt: { xs: 2, sm: 3.5 },
+          pb: 10,
         }}
       >
-        <Link href="/generate">
-          <StyledIconButton
-            variant="contained"
-            color="secondary"
-            type="close"
-          />
-        </Link>
-      </Box>
-
-      {/* ----------------------------- DIALOG CONTENT ----------------------------- */}
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          overflowY: { xs: "scroll", md: "hidden" },
-          height: "100%",
-        }}
-      >
-        {/* ------------ Image ------------- */}
-
-        <ImageFill image={image} />
-
-        {/* -------------------- Sidebar ------------------- */}
-
-        <ImageSidebar
+        <ImageDetailContent
           image={image}
-          user={user ? {
-            _id: user._id,
-            is_guest: user.is_guest || false,
-            ...user
-          } : null}
+          user={userProp}
           customDeleteAction={customDeleteAction}
         />
       </Box>

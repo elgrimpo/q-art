@@ -1,56 +1,39 @@
 'use client'
-// Libraries imports
+
 import React, { useRef } from "react";
 import { Box, Dialog, Grow } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useSwipeable } from "react-swipeable";
 import theme from "@/_styles/theme";
 
-//App imports
-import StyledIconButton from "@/_components/StyledIconButton";
-import ImageFill from "../../images/[imageId]/ImageFill";
-import ImageSidebar from "../../images/[imageId]/ImageSidebar";
+import ImageDetailContent from "../../images/[imageId]/ImageDetailContent";
 import { useStore } from "@/store";
 
-/* -------------------------------------------------------------------------- */
-/*                               COMPONENT START                              */
-/* -------------------------------------------------------------------------- */
-
-export default function ImageModal(props) {
-  /* ---------------------------- DECLARE VARIABLES --------------------------- */
-  const {
-    open,
-    images,
-    setImages,
-    index,
-    handleClose,
-    handleNext, 
-    handlePrevious, 
-    customLikeAction
-  } = props;
+export default function ImageModal({
+  open,
+  images,
+  setImages,
+  index,
+  handleClose,
+  handleNext,
+  handlePrevious,
+  customLikeAction,
+}) {
   const image = images[index];
   const isFullScreen = useMediaQuery(theme.breakpoints.down("md"));
-
   const { user } = useStore();
-  // Ref for CardMedia component
   const modalRef = useRef(null);
 
-  /* -------------------------------- FUNCTIONS ------------------------------- */
-
   const handlers = useSwipeable({
-    // Other handlers for left, right, up, etc.
     onSwipedLeft: () => handleNext(),
     onSwipedRight: () => handlePrevious(),
     onSwipedDown: (eventData) => {
       const { deltaY } = eventData;
-      const modalElement = modalRef.current; // Get the modal element by ID
-
+      const modalElement = modalRef.current;
       if (modalElement) {
         const modalTopPosition = modalElement.getBoundingClientRect().top;
-        const sensitivity = 50; // Adjust this value based on your needs for swipe sensitivity
-
-        if (Math.abs(deltaY) > sensitivity && modalTopPosition >= 0) {
-          handleClose(); // Close the modal if swipe is mostly downward and at the top
+        if (Math.abs(deltaY) > 50 && modalTopPosition >= 0) {
+          handleClose();
         }
       }
     },
@@ -58,19 +41,9 @@ export default function ImageModal(props) {
 
   const customDeleteAction = () => {
     if (index > -1) {
-
-      // Remove image from array
-      const updatedImages = [
-        ...images.slice(0, index),
-        ...images.slice(index + 1),
-      ];
-      setImages(updatedImages);
+      setImages([...images.slice(0, index), ...images.slice(index + 1)]);
     }
   };
-
-  /* -------------------------------------------------------------------------- */
-  /*                              COMPONENT RENDER                              */
-  /* -------------------------------------------------------------------------- */
 
   return (
     <Dialog
@@ -78,92 +51,56 @@ export default function ImageModal(props) {
       TransitionComponent={Grow}
       open={open}
       onClose={handleClose}
-      sx={{
-        margin: "auto",
-        maxWidth: "1400px",
-        "& .MuiDialog-paper": { 
-          maxHeight: "100%",
-          maxWidth: "100%" 
-        }
+      slotProps={{
+        backdrop: {
+          sx: {
+            backgroundColor: "rgba(255, 255, 255, 0.3)",
+            backdropFilter: "blur(4px)",
+          },
+        },
       }}
-      // PaperProps={{ sx: .MuiDialog-paper: { height: "100vh" } }}
+      PaperProps={{
+        sx: {
+          bgcolor: "#161616",
+          backgroundImage: "none",
+          // The app-wide `.MuiDialog-paper { max-width: 80%; max-height: 80% }`
+          // rule (globals.css) otherwise caps width AND breaks fullscreen — the
+          // `&.MuiDialog-paper` selector outranks it for this dialog only.
+          ...(isFullScreen
+            ? { "&.MuiDialog-paper": { maxWidth: "100%", maxHeight: "100%" } }
+            : {
+                width: "90vw",
+                height: "auto",
+                borderRadius: "16px",
+                "&.MuiDialog-paper": {
+                  maxWidth: "1600px",
+                  maxHeight: "calc(100vh - 40px)",
+                },
+              }),
+        },
+      }}
       {...handlers}
     >
-      {/* ------------------------ NAVIGATION BUTTON ----------------------- */}
-
-      {/* PREVIOUS */}
       <Box
+        ref={modalRef}
         sx={{
-          position: "fixed",
-          bottom: "50%",
-          left: { xs: "1rem", md: "0.5rem" },
-          zIndex: "2000",
+          flex: 1,
+          minHeight: 0,
+          overflowY: "auto",
+          px: { xs: 2, md: 3 },
+          pt: { xs: 0, md: 3 },
+          pb: 3,
         }}
       >
-        <StyledIconButton
-          variant="contained"
-          color="secondary"
-          type="previous"
-          handleClick={handlePrevious}
-        />
-      </Box>
-
-      {/* NEXT */}
-      <Box
-        sx={{
-          position: "fixed",
-          bottom: "50%",
-          right: { xs: "1rem", md: "0.5rem" },
-          zIndex: "2000",
-        }}
-      >
-        <StyledIconButton
-          variant="contained"
-          color="secondary"
-          type="next"
-          handleClick={handleNext}
-        />
-      </Box>
-
-      {/* CLOSE */}
-      {isFullScreen && (
-        <Box
-          sx={{
-            margin: { sx: "0rem", lg: "1rem" },
-            position: "fixed",
-            top: { xs: "0.5rem" },
-            right: { xs: "0.5rem" },
-            zIndex: "2000",
-          }}
-        >
-          <StyledIconButton
-            variant="contained"
-            color="secondary"
-            type="close"
-            handleClick={handleClose}
-          />
-        </Box>
-      )}
-
-      {/* ----------------------------- DIALOG CONTENT ----------------------------- */}
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          overflowY: { xs: "scroll", md: "hidden" },
-        }}
-      >
-        {/* ------------ Image ------------- */}
-
-        <ImageFill image={image} />
-
-        {/* -------------------- Sidebar ------------------- */}
-
-        <ImageSidebar
+        <ImageDetailContent
           image={image}
           user={user}
+          onBack={handleClose}
+          onPrev={handlePrevious}
+          onNext={handleNext}
           customDeleteAction={customDeleteAction}
           customLikeAction={customLikeAction}
+          fitHeight
         />
       </Box>
     </Dialog>

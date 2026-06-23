@@ -1,120 +1,84 @@
 "use client";
 
-// Libraries imports
 import React, { useEffect, useState } from "react";
-import { Box, Dialog, Button, Stack } from "@mui/material";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import ReplayTwoToneIcon from "@mui/icons-material/ReplayTwoTone";
-import EditTwoToneIcon from "@mui/icons-material/EditTwoTone";
+import { Box, Dialog } from "@mui/material";
+import { useRouter } from "next/navigation";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import theme from "@/_styles/theme";
 
-//App imports
 import { getImageById } from "@/_utils/ImagesUtils";
-import StyledIconButton from "@/_components/StyledIconButton";
-import ImageFill from "@/app/images/[imageId]/ImageFill";
-import ImageSidebar from "@/app/images/[imageId]/ImageSidebar";
+import ImageDetailContent from "@/app/images/[imageId]/ImageDetailContent";
 import { useStore } from "@/store";
 
-/* -------------------------------------------------------------------------- */
-/*                               COMPONENT START                              */
-/* -------------------------------------------------------------------------- */
-
 export default function ImagePage({ params }) {
-  /* ---------------------------- DECLARE VARIABLES --------------------------- */
   const { imageId } = params;
   const [image, setImage] = useState(null);
-  const { user, resetGenerateFormValues } = useStore();
-  const searchParams = useSearchParams();
-
+  const { user } = useStore();
   const router = useRouter();
   const isFullScreen = useMediaQuery(theme.breakpoints.down("md"));
 
-  /* -------------------------------- FUNCTIONS ------------------------------- */
-
   useEffect(() => {
     const getImage = async () => {
-      const image = await getImageById(imageId);
-      setImage(image);
+      const img = await getImageById(imageId);
+      setImage(img);
     };
     getImage();
   }, [imageId]);
 
-  const handleClose = () => {
-    router.back();
-  };
-
-  const handleReset = () => {
-    resetGenerateFormValues();
-    router.back();
-  };
-
-  const customDeleteAction = () => {
-    router.back();
-  };
-  /* -------------------------------------------------------------------------- */
-  /*                              COMPONENT RENDER                              */
-  /* -------------------------------------------------------------------------- */
+  const handleClose = () => router.back();
+  const customDeleteAction = () => router.back();
 
   return (
     <Dialog
-    fullScreen={isFullScreen}
-    open={open}
-    onClose={handleClose}
-    sx={{
-      margin: "auto",
-      ...(isFullScreen && {
-      "& .MuiDialog-paper": { 
-        maxHeight: "100%",
-        width: "100%" 
-      }}),
-      "& .MuiDialog-paper": {maxWidth: "1400px" },
-    }}
+      open
+      onClose={handleClose}
+      fullScreen={isFullScreen}
+      slotProps={{
+        backdrop: {
+          sx: {
+            backgroundColor: "rgba(255, 255, 255, 0.3)",
+            backdropFilter: "blur(4px)",
+          },
+        },
+      }}
+      PaperProps={{
+        sx: {
+          bgcolor: "#161616",
+          backgroundImage: "none",
+          // The app-wide `.MuiDialog-paper { max-width: 80%; max-height: 80% }`
+          // rule (globals.css) otherwise caps width AND breaks fullscreen — the
+          // `&.MuiDialog-paper` selector outranks it for this dialog only.
+          ...(isFullScreen
+            ? { "&.MuiDialog-paper": { maxWidth: "100%", maxHeight: "100%" } }
+            : {
+                width: "90vw",
+                height: "auto",
+                borderRadius: "16px",
+                "&.MuiDialog-paper": {
+                  maxWidth: "1600px",
+                  maxHeight: "calc(100vh - 40px)",
+                },
+              }),
+        },
+      }}
     >
-      {/* ------------------------ NAVIGATION BUTTON ----------------------- */}
-
-      {/* CLOSE */}
       <Box
         sx={{
-          margin: { sx: "0rem", lg: "1rem" },
-          position: "fixed",
-          top: { xs: "0.5rem" },
-          right: { xs: "0.5rem" },
-          zIndex: "2000",
+          flex: 1,
+          minHeight: 0,
+          overflowY: "auto",
+          px: { xs: 2, md: 3 },
+          pt: { xs: 0, md: 3 },
+          pb: 3,
         }}
       >
-        <Link href="/generate">
-          <StyledIconButton
-            variant="contained"
-            color="secondary"
-            type="close"
-            handleClick={handleClose}
-          />
-        </Link>
-      </Box>
-
-      {/* ----------------------------- DIALOG CONTENT ----------------------------- */}
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          overflowY: { xs: "scroll", md: "hidden" },
-          width: "100%"
-        }}
-      >
-        {/* ------------ Image ------------- */}
-
-        <ImageFill image={image} />
-
-        {/* -------------------- Sidebar ------------------- */}
-
-        <ImageSidebar
+        <ImageDetailContent
           image={image}
           user={user}
+          onBack={handleClose}
           customDeleteAction={customDeleteAction}
+          fitHeight
         />
-
       </Box>
     </Dialog>
   );
