@@ -74,3 +74,34 @@ def test_inverted_polarity_still_scores_high():
 def test_min_scannable_modules_smaller_for_clean_than_corrupted():
     clean = ss.structural_score(_clean(), URL)
     assert clean.min_modules <= 8              # clean QR is found even when small
+
+
+def test_localize_qr_is_noop_on_square():
+    img = _clean()                      # square, full-frame
+    out = ss.localize_qr(img)
+    assert out.size == img.size
+
+
+def test_localize_qr_crops_portrait_to_centered_square():
+    img = _clean()                      # WxW
+    w, h = img.size
+    # pad to portrait: add scenery above and below, QR centered
+    padded = Image.new("RGB", (w, h + 400), (90, 120, 60))
+    padded.paste(img, (0, 200))
+    out = ss.localize_qr(padded)
+    assert out.size == (w, w)           # cropped back to the square QR region
+
+
+def test_portrait_render_scores_far_higher_after_localization():
+    img = _clean()
+    w, h = img.size
+    padded = Image.new("RGB", (w, h + 400), (90, 120, 60))
+    padded.paste(img, (0, 200))
+    full_frame = ss.finder_integrity(
+        ss.sample_modules(np.array(padded.convert("L"), dtype=float),
+                          ss.ideal_matrix(URL).shape[0]),
+        ss.ideal_matrix(URL))
+    res = ss.structural_score(padded, URL)
+    assert full_frame < 0.3             # raw portrait grid is broken
+    assert res.finder > 0.8             # localized finder is recovered
+    assert res.localized is True

@@ -25,6 +25,22 @@ _BORDER = 4        # quiet-zone modules, matches the app's QR generation
 _W_FINDER, _W_CONTRAST, _W_MARGIN = 0.45, 0.25, 0.30
 
 
+def localize_qr(img: Image.Image) -> Image.Image:
+    """Crop to the centered min(w,h) square so the module grid maps onto the QR.
+
+    The app composes the QR as a centered square; portrait/landscape renders pad
+    it. Full-frame N×N sampling on a non-square image misaligns every module, so
+    we realign by cropping to center. Identity on already-square images. (cv2's
+    detector fails on styled codes, so we deliberately use geometry, not a
+    detector.)"""
+    w, h = img.size
+    if w == h:
+        return img
+    s = min(w, h)
+    left, top = (w - s) // 2, (h - s) // 2
+    return img.crop((left, top, left + s, top + s))
+
+
 def ideal_matrix(payload: str) -> np.ndarray:
     """N×N bool grid (True = dark), including the 4-module border — exactly the
     QR the app generates for `payload`."""
@@ -119,10 +135,13 @@ class StructuralResult:
     margin: float
     min_modules: float
     n: int
+    localized: bool
 
 
 def structural_score(img: Image.Image, payload: str) -> StructuralResult:
-    gray = np.array(img.convert("L"), dtype=float)
+    localized_img = localize_qr(img)
+    was_localized = localized_img.size != img.size
+    gray = np.array(localized_img.convert("L"), dtype=float)
     ideal = ideal_matrix(payload)
     n = ideal.shape[0]
     means = sample_modules(gray, n)
@@ -131,4 +150,4 @@ def structural_score(img: Image.Image, payload: str) -> StructuralResult:
     mg = ecc_margin(means, ideal)
     score = round(100.0 * (_W_FINDER * f + _W_CONTRAST * ct + _W_MARGIN * mg), 1)
     mn = min_scannable_modules(gray, ideal)
-    return StructuralResult(score, round(f, 3), round(ct, 3), round(mg, 3), mn, n)
+    return StructuralResult(score, round(f, 3), round(ct, 3), round(mg, 3), mn, n, was_localized)
