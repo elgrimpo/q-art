@@ -132,14 +132,13 @@ def _box_mean(a: np.ndarray, k: int) -> np.ndarray:
     pad = np.pad(a, k + 1, mode="edge")
     ii = pad.cumsum(0).cumsum(1)
     n0, n1 = a.shape
-    out = np.empty_like(a)
-    for i in range(n0):
-        for j in range(n1):
-            y0, y1 = i, i + 2 * k + 1
-            x0, x1 = j, j + 2 * k + 1
-            total = ii[y1, x1] - ii[y0, x1] - ii[y1, x0] + ii[y0, x0]
-            out[i, j] = total / ((2 * k + 1) ** 2)
-    return out
+    total = (
+        ii[2*k+1:2*k+1+n0, 2*k+1:2*k+1+n1]
+        - ii[0:n0, 2*k+1:2*k+1+n1]
+        - ii[2*k+1:2*k+1+n0, 0:n1]
+        + ii[0:n0, 0:n1]
+    )
+    return total / (2 * k + 1) ** 2
 
 
 def local_threshold(means: np.ndarray, k: int = 4) -> np.ndarray:
@@ -149,7 +148,7 @@ def local_threshold(means: np.ndarray, k: int = 4) -> np.ndarray:
 
 
 def data_reliability(means: np.ndarray, ideal: np.ndarray) -> float:
-    """1 − (local-threshold module-error rate in the data region / data budget),
+    """1 − (local-threshold module-error rate in the data region / _BUDGET_DATA),
     clamped to [0,1]. Polarity-agnostic: take whichever polarity fits better."""
     mask = data_region_mask(ideal.shape[0])
     if not mask.any():
