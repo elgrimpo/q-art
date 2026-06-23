@@ -285,24 +285,29 @@ git commit -m "feat(qrai-110): local-threshold data-region reliability, drop con
 
 **Files:**
 - Create: `prototypes/qr-scannability/eval/refit_weights.py`
-- Modify: `prototypes/qr-scannability/structural_score.py` (paste fitted weights)
+- Modify: `prototypes/qr-scannability/structural_score.py` (paste fitted weights + budget)
 - Uses: `eval/rated_with_payload.json`, `eval/decode_results.json` (committed)
 
 **Interfaces:**
-- Consumes: `structural_score`, `localize_qr`, `finder_integrity`, `data_reliability`, `sample_modules`, `ideal_matrix` from `structural_score.py`.
-- Produces: a script that downloads the 247 codes, recomputes v2 features, grid-searches the convex weight `w_finder` (with `w_data = 1 - w_finder`) maximizing 5-fold-CV AUC vs the `decodable` label, and prints the chosen weights + held-out AUC + baseline AUCs. No library ML — AUC and CV are hand-rolled NumPy.
+- Consumes: `localize_qr`, `finder_integrity`, `data_reliability`, `sample_modules`, `ideal_matrix`, and the module constant `_BUDGET_DATA` from `structural_score.py`.
+- Produces: a script that downloads the 247 codes, recomputes v2 features, and jointly grid-searches the geometric weight `w_finder` (with `w_data = 1 - w_finder`) **and** the `_BUDGET_DATA` constant, maximizing 5-fold-CV AUC vs the `decodable` label. Prints the chosen weights, chosen budget, CV-AUC, and baseline finder-only AUC. No library ML — AUC and CV are hand-rolled NumPy; the budget sweep temporarily sets `ss._BUDGET_DATA` (restored after each candidate).
+
+**Note on the Task 2 deviation:** Task 2 introduced `_BUDGET_DATA = 0.15` (the brief's `_BUDGET_H = 0.30` made Task 2's own `score < 55` test impossible). This task makes that constant data-driven by fitting it here, so it is no longer a hand-picked value.
 
 - [ ] **Step 1: Write the fit/validation script**
 
 Create `prototypes/qr-scannability/eval/refit_weights.py`:
 
 ```python
-"""Fit scannability v2 blend weights against decoder-truth labels and report AUC.
+"""Fit scannability v2 blend weight AND the _BUDGET_DATA constant against
+decoder-truth labels, and report AUC.
 
 Run: cd prototypes/qr-scannability && ./venv/bin/python eval/refit_weights.py
 Downloads the 247 eval images (cached under eval/_imgcache/), recomputes v2
-features, grid-searches the convex finder/data weight by 5-fold CV AUC, and
-prints a ready-to-paste weight block. Network needed once; cached thereafter.
+features, grid-searches the geometric finder/data weight and the _BUDGET_DATA
+constant jointly by 5-fold CV AUC, and prints a ready-to-paste block. Network
+needed once; cached thereafter. (Task 2 introduced _BUDGET_DATA=0.15 as a
+starting value; this script makes it data-driven.)
 """
 import json, os, sys, io, urllib.request, time
 import numpy as np
@@ -333,11 +338,13 @@ def load_img(row):
     return None
 
 def features(img, payload):
+    """Return (finder, means, ideal) so data_reliability can be recomputed at any
+    candidate _BUDGET_DATA during the sweep."""
     loc = ss.localize_qr(img)
     gray = np.array(loc.convert("L"), dtype=float)
     ideal = ss.ideal_matrix(payload)
     means = ss.sample_modules(gray, ideal.shape[0])
-    return ss.finder_integrity(means, ideal), ss.data_reliability(means, ideal)
+    return ss.finder_integrity(means, ideal), means, ideal
 
 def auc(scores, labels):
     pos = [s for s, l in zip(scores, labels) if l]
@@ -346,45 +353,58 @@ def auc(scores, labels):
         return float("nan")
     return sum((a > b) + 0.5 * (a == b) for a in pos for b in neg) / (len(pos) * len(neg))
 
+def reliab_at(budget, means_list, ideal_list):
+    """data_reliability for every image at a candidate budget. data_reliability
+    reads the module-level _BUDGET_DATA at call time, so we set it for the sweep
+    and restore it after (offline calibration only)."""
+    saved = ss._BUDGET_DATA
+    ss._BUDGET_DATA = budget
+    try:
+        return np.clip([ss.data_reliability(m, idl)
+                        for m, idl in zip(means_list, ideal_list)], 1e-9, 1.0)
+    finally:
+        ss._BUDGET_DATA = saved
+
 def main():
     rated = json.load(open(os.path.join(HERE, "rated_with_payload.json")))
     labels_by_id = {r["image_id"]: r["decodable"]
                     for r in json.load(open(os.path.join(HERE, "decode_results.json")))}
-    F, D, Y = [], [], []
+    F, M, I, Y = [], [], [], []
     for i, row in enumerate(rated):
         img = load_img(row)
         if img is None:
             continue
-        f, d = features(img, row["content"])
-        F.append(f); D.append(d); Y.append(bool(labels_by_id.get(row["image_id"])))
+        f, means, ideal = features(img, row["content"])
+        F.append(f); M.append(means); I.append(ideal)
+        Y.append(bool(labels_by_id.get(row["image_id"])))
         if (i + 1) % 25 == 0:
             print(f"  {i+1}/{len(rated)} features computed", flush=True)
-    F, D, Y = np.clip(np.array(F), 1e-9, 1.0), np.clip(np.array(D), 1e-9, 1.0), np.array(Y)
+    F, Y = np.clip(np.array(F), 1e-9, 1.0), np.array(Y)
     print(f"\nN={len(Y)}  decodable={Y.sum()}")
     print(f"finder-only AUC = {auc(F, Y):.3f}")
-    print(f"data-only   AUC = {auc(D, Y):.3f}")
-
-    def blend_of(w):                      # geometric: F**w * D**(1-w)
-        return F ** w * D ** (1 - w)
 
     rng = np.random.default_rng(0)
-    idx = rng.permutation(len(Y))
-    folds = np.array_split(idx, 5)
-    best_w, best_cv = 0.5, -1.0
-    for w in np.linspace(0.05, 0.95, 19):
-        blend = blend_of(w)
-        cv = float(np.nanmean([auc(blend[folds[k]], Y[folds[k]]) for k in range(5)]))
-        if cv > best_cv:
-            best_cv, best_w = cv, w
-    full_auc = auc(blend_of(best_w), Y)
-    print(f"\nBEST  w_finder={best_w:.2f}  w_data={1-best_w:.2f}  "
-          f"CV-AUC={best_cv:.3f}  full-AUC={full_auc:.3f}")
+    folds = np.array_split(rng.permutation(len(Y)), 5)
+    budgets = [round(float(b), 2) for b in np.linspace(0.10, 0.30, 11)]
+    best = {"cv": -1.0, "w": 0.5, "budget": ss._BUDGET_DATA}
+    for budget in budgets:
+        D = reliab_at(budget, M, I)
+        for w in np.linspace(0.05, 0.95, 19):
+            blend = F ** w * D ** (1 - w)
+            cv = float(np.nanmean([auc(blend[folds[k]], Y[folds[k]]) for k in range(5)]))
+            if cv > best["cv"]:
+                best = {"cv": cv, "w": float(w), "budget": budget}
+    D = reliab_at(best["budget"], M, I)
+    full_auc = auc(F ** best["w"] * D ** (1 - best["w"]), Y)
+    print(f"\nBEST  w_finder={best['w']:.2f}  w_data={1 - best['w']:.2f}  "
+          f"_BUDGET_DATA={best['budget']:.2f}  CV-AUC={best['cv']:.3f}  full-AUC={full_auc:.3f}")
     print("\n--- paste into structural_score.py ---")
-    print(f"_W_FINDER, _W_DATA = {best_w:.2f}, {1 - best_w:.2f}")
-    if best_cv <= 0.617:
-        print(f"\nGATE FAILED: CV-AUC {best_cv:.3f} ≤ baseline 0.617")
+    print(f"_W_FINDER, _W_DATA = {best['w']:.2f}, {1 - best['w']:.2f}")
+    print(f"_BUDGET_DATA = {best['budget']:.2f}")
+    if best["cv"] <= 0.617:
+        print(f"\nGATE FAILED: CV-AUC {best['cv']:.3f} ≤ baseline 0.617")
         sys.exit(1)
-    print(f"\nGATE PASSED: CV-AUC {best_cv:.3f} > baseline 0.617")
+    print(f"\nGATE PASSED: CV-AUC {best['cv']:.3f} > baseline 0.617")
 
 if __name__ == "__main__":
     main()
@@ -393,11 +413,11 @@ if __name__ == "__main__":
 - [ ] **Step 2: Run the fit**
 
 Run: `cd prototypes/qr-scannability && ./venv/bin/python eval/refit_weights.py`
-Expected: prints per-feature AUCs, a `BEST w_finder=… w_data=…` line with `CV-AUC` > 0.617, and `GATE PASSED`. (First run downloads 247 images to `eval/_imgcache/`; S3 can be slow — the script retries.) If `GATE FAILED`, stop and report — do not proceed; the components need rework, not a weight tweak.
+Expected: prints `finder-only AUC`, then a `BEST w_finder=… w_data=… _BUDGET_DATA=… CV-AUC=…` line with `CV-AUC` > 0.617, and `GATE PASSED`. (First run downloads 247 images to `eval/_imgcache/`; S3 can be slow — the script retries.) The `CV-AUC` is a selection-optimistic estimate — weight and budget are chosen on the same folds — so treat it as directional, not a guarantee; the real validation is the production behavior and spot re-decodes. If `GATE FAILED`, stop and report — do not proceed; the components need rework, not a weight tweak.
 
-- [ ] **Step 3: Paste the fitted weights**
+- [ ] **Step 3: Paste the fitted weights and budget**
 
-Edit `structural_score.py`: replace the `_W_FINDER, _W_DATA = 0.60, 0.40` line with the exact `_W_FINDER, _W_DATA = …` line the script printed. Update the comment to cite the CV-AUC, e.g. `# Fitted on 247 labeled codes (eval/refit_weights.py): CV-AUC 0.7x.`
+Edit `structural_score.py`: replace the `_W_FINDER, _W_DATA = 0.60, 0.40` line with the exact `_W_FINDER, _W_DATA = …` line the script printed, and replace the `_BUDGET_DATA = 0.15` line with the exact `_BUDGET_DATA = …` line printed. Update the weight comment to cite the CV-AUC, e.g. `# Fitted on 247 labeled codes (eval/refit_weights.py): CV-AUC 0.7x.`, and add a short note on the `_BUDGET_DATA` line that it was fitted too. If the printed `_BUDGET_DATA` equals 0.15, keep it — that just means the starting value was already optimal.
 
 - [ ] **Step 4: Add the cache to gitignore and re-run tests**
 
@@ -414,7 +434,7 @@ Expected: all PASS (synthetic test thresholds are weight-robust; if the clean-QR
 
 ```bash
 git add prototypes/qr-scannability/eval/refit_weights.py prototypes/qr-scannability/structural_score.py prototypes/qr-scannability/.gitignore
-git commit -m "feat(qrai-110): fit scorer v2 blend weights on labeled set (CV-AUC gate)"
+git commit -m "feat(qrai-110): fit scorer v2 blend weight + data budget on labeled set (CV-AUC gate)"
 ```
 
 ---
