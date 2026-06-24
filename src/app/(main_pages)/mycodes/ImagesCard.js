@@ -110,6 +110,7 @@ export default function ImageCard({ variant, image, index, handleCardClick, cust
         <SkeletonCard index={index} />
       ) : (
         <Box
+          onClick={handleCardClick}
           sx={{
             bgcolor: "#161616",
             borderRadius: "12px",
@@ -126,7 +127,6 @@ export default function ImageCard({ variant, image, index, handleCardClick, cust
               component="img"
               src={image.watermarked_image_url}
               alt={image.content}
-              onClick={handleCardClick}
               onContextMenu={preventRightClick}
               sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
             />
