@@ -437,6 +437,46 @@ async def test_generate_stores_scannability_score(
 @patch("api.controllers.generate_controller.create_watermark")
 @patch("api.controllers.generate_controller.download_image_bytes", new_callable=AsyncMock)
 @patch("api.controllers.generate_controller.client")
+@patch("api.controllers.generate_controller.prepare_img2img_request")
+async def test_predict_passes_parsed_loras_to_request_builder(
+    mock_prepare,
+    mock_novita_client,
+    mock_download,
+    mock_create_watermark,
+    mock_create_doc,
+    mock_upload,
+    mock_update,
+    mock_increment,
+):
+    """predict() must parse style_loras and pass the LoRA objects to the builder."""
+    from novita_client import Img2V3ImgLoRA
+
+    mock_prepare.return_value = {"model_name": "sd-v1-5"}  # trivial valid req dict
+    img2img_result, task_result = _build_novita_mocks()
+    mock_novita_client.img2img_v3.return_value = img2img_result
+    mock_novita_client.wait_for_task_v3.return_value = task_result
+    mock_download.return_value = _white_png_bytes()
+    mock_create_watermark.return_value = Image.new("RGB", (512, 512), "grey")
+    mock_create_doc.return_value = FAKE_IMAGE_ID
+    mock_upload.side_effect = [ORIG_URL, WMARK_URL]
+    mock_update.return_value = {"_id": FAKE_IMAGE_ID, "image_url": ORIG_URL, "watermarked_image_url": WMARK_URL}
+
+    await predict(
+        **{**PREDICT_KWARGS, "style_loras": '[{"model_name": "LAS_17554", "strength": 0.7}]'}
+    )
+
+    assert mock_prepare.call_args.kwargs["loras"] == [
+        Img2V3ImgLoRA(model_name="LAS_17554", strength=0.7)
+    ]
+
+
+@patch("api.controllers.generate_controller.increment_user_count", new_callable=AsyncMock)
+@patch("api.controllers.generate_controller.update_image", new_callable=AsyncMock)
+@patch("api.controllers.generate_controller.upload_image_to_s3", new_callable=AsyncMock)
+@patch("api.controllers.generate_controller.create_image_doc", new_callable=AsyncMock)
+@patch("api.controllers.generate_controller.create_watermark")
+@patch("api.controllers.generate_controller.download_image_bytes", new_callable=AsyncMock)
+@patch("api.controllers.generate_controller.client")
 async def test_scorer_failure_does_not_block_generation(
     mock_novita_client,
     mock_download,

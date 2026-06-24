@@ -105,6 +105,7 @@ async def generate_endpoint(
     negative_prompt: Annotated[str, Query(max_length=500)] = "",
     style_prompt: Annotated[str, Query(max_length=1000)] = "",
     style_title: Annotated[str, Query(max_length=100)] = "",
+    style_loras: Annotated[str, Query(max_length=2000)] = "[]",
     seed: Annotated[int, Query(ge=-1)] = -1,
     qr_weight: Annotated[float, Query(ge=0.0, le=1.0)] = 0.5,
     current_user: dict = Depends(get_current_user),
@@ -118,7 +119,8 @@ async def generate_endpoint(
         sd_model,
         current_user["user_id"],
         style_prompt,
-        style_title
+        style_title,
+        style_loras,
     )
 
 # ------------------------------- IMAGE ROUTES ------------------------------- #

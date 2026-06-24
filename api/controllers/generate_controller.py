@@ -27,6 +27,7 @@ from api.controllers.images_controller import (
 from api.utils.utils import (
     prepare_img2img_request,
     create_watermark,
+    parse_style_loras,
 )
 from api.controllers.users_controller import increment_user_count
 from api.utils.structural_score import structural_score
@@ -90,6 +91,7 @@ async def predict(
     user_id: str,
     style_prompt: str,
     style_title: str,
+    style_loras: str = "[]",
 ):
     try:
         # --------------------------------- CHECK FUNDS ------------------------------- #
@@ -126,6 +128,8 @@ async def predict(
 
         # -------------------------- GENERATE IMAGE AND SAVE ------------------------- #
 
+        loras = parse_style_loras(style_loras)
+
         req = prepare_img2img_request(
                     prompt,
                     negative_prompt,
@@ -134,6 +138,7 @@ async def predict(
                     image_base64_str,
                     qr_weight,
                     style_prompt,
+                    loras=loras,
                 )
 
         try:
