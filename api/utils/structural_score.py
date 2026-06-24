@@ -1,15 +1,20 @@
-"""Decoder-independent structural scannability score.
+"""Decoder-independent structural scannability score (v2).
 
 Answers a different question from `scorer.py`: given the QR we *generated*
 (known payload → known module grid), how structurally sound is the styled
 rendering? No decoder, no Apple Vision — pure NumPy on the known grid — so it
 runs natively on the Linux backend and scores every generated code.
 
-Validated empirically on 113 real Q-Art codes: the QR sits full-frame at the
-known grid (no localization needed), and **finder-pattern integrity** separates
-phone-scannable from not at AUC 0.75 on the hardest cases. That is the spine of
-the score; contrast and ECC-margin refine it. All three are continuous, so the
-score spreads out instead of clustering at 0/100 like the decoder-based one.
+v2 model (see eval/refit_weights.py):
+  1. **Localization** — `localize_qr` crops to the centered square before
+     sampling, so portrait/landscape renders align the module grid correctly.
+  2. **Score** — a geometric blend of `finder_integrity` and
+     `data_reliability` (local/adaptive-threshold error rate in the data
+     region): ``score = 100 × finder**_W_FINDER × data_reliability**_W_DATA``.
+     Both components must be high; the geometric form prevents a near-perfect
+     finder from masking a corrupted data region.
+  3. **Diagnostics** — `contrast` and `ecc_margin` are retained for
+     observability but are NOT part of the blend.
 """
 from __future__ import annotations
 import numpy as np
@@ -29,6 +34,8 @@ _BORDER = 4        # quiet-zone modules, matches the app's QR generation
 # high (additive lets a perfect finder mask dead data). Contrast dropped (AUC ≈
 # 0.50). Final values fitted in Task 3 (see eval/refit_weights.py).
 _W_FINDER, _W_DATA = 0.55, 0.45   # Fitted on 247 labeled codes (eval/refit_weights.py): CV-AUC 0.792.
+                                   # Note: this AUC is selection-optimistic / directional — weights and
+                                   # _BUDGET_DATA were chosen on the same CV folds used to report it.
 
 
 def localize_qr(img: Image.Image) -> Image.Image:
@@ -106,7 +113,9 @@ def ecc_margin(means: np.ndarray, ideal: np.ndarray) -> float:
     """1 − (module-error rate / 30% budget), clamped to [0,1]. The threshold is
     the midpoint of the two known module classes (we know the grid), which avoids
     the quiet-zone class imbalance a global median suffers. Polarity-agnostic:
-    take whichever polarity yields fewer mismatches."""
+    take whichever polarity yields fewer mismatches.
+
+    Diagnostic only — not used in the score blend (the blend uses data_reliability)."""
     if ideal.all() or not ideal.any():
         return 0.0
     thr = (means[ideal].mean() + means[~ideal].mean()) / 2.0
