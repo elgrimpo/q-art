@@ -221,7 +221,7 @@ export default function MyCodes() {
         direction="row"
         justifyContent="center"
         alignItems="stretch"
-        columns={{ xs: 1, sm: 2, md: 2, lg: 3, xl: 4 }}
+        columns={{ xs: 1, sm: 2, md: 2, lg: 3, xl: 3 }}
         spacing={{ xs: 1, sm: 2, md: 2, lg: 3, xl: 3 }}
         sx={{ mb: "1.5rem" }}
       >
@@ -247,7 +247,7 @@ export default function MyCodes() {
           direction="row"
           justifyContent="center"
           alignItems="stretch"
-          columns={{ xs: 1, sm: 2, md: 2, lg: 3, xl: 4 }}
+          columns={{ xs: 1, sm: 2, md: 2, lg: 3, xl: 3 }}
           spacing={{ xs: 1, sm: 2, md: 2, lg: 3, xl: 3 }}
           sx={{ mb: "1.5rem" }}
         >
