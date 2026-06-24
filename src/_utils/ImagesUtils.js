@@ -77,9 +77,13 @@ export const generateImage = async (generateFormValues, user) => {
   return new Promise((resolve, reject) => {
     // The slider lives on a -3..+3 UI scale; the backend only accepts qr_weight
     // in [0, 1]. Translate before sending so the request passes validation.
+    // loras is an array of objects, which URLSearchParams can't serialize — send
+    // it as a single JSON string param (style_loras) the backend decodes.
+    const { loras, ...rest } = generateFormValues;
     const payload = {
-      ...generateFormValues,
+      ...rest,
       qr_weight: sliderToQrWeight(generateFormValues.qr_weight),
+      style_loras: JSON.stringify(loras ?? []),
     };
     const queryParams = new URLSearchParams(payload);
     const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/generate/?${queryParams.toString()}`;

@@ -173,6 +173,7 @@ function GenerateForm() {
       style_prompt: randomStyle.prompt,
       style_title: randomStyle.title,
       sd_model: randomStyle.sd_model,
+      loras: randomStyle.loras ?? [],
     };
   };
 

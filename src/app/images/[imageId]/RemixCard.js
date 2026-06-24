@@ -6,6 +6,7 @@ import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { useRouter } from "next/navigation";
 import { useStore } from "@/store";
+import { styles } from "@/_utils/ImageStyles";
 
 export default function RemixCard({ image }) {
   const router = useRouter();
@@ -13,11 +14,13 @@ export default function RemixCard({ image }) {
 
   const handleRemix = () => {
     if (!image) return;
+    const matchedStyle = styles.find((s) => s.title === image.style_title);
     setGenerateFormValues({
       website: image.content,
       prompt: image.prompt,
       style_title: image.style_title,
       style_prompt: image.style_prompt,
+      loras: matchedStyle?.loras ?? [],
       qr_weight: image.qr_weight,
       negative_prompt: image.negative_prompt,
       seed: image.seed,

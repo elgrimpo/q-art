@@ -81,6 +81,26 @@ describe('generateImage', () => {
     const sent = new URL(url).searchParams.get('qr_weight')
     expect(Number(sent)).toBe(0)
   })
+
+  test('serializes loras into a style_loras JSON query param', async () => {
+    fetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ _id: 'img_1' }) })
+    const form = { ...FAKE_FORM, loras: [{ model_name: 'LAS_17554', strength: 0.7 }] }
+    await generateImage(form, FAKE_USER)
+    const [url] = fetch.mock.calls[0]
+    const params = new URL(url).searchParams
+    expect(JSON.parse(params.get('style_loras'))).toEqual([
+      { model_name: 'LAS_17554', strength: 0.7 },
+    ])
+    // The raw array must not be sent as its own param.
+    expect(params.has('loras')).toBe(false)
+  })
+
+  test('sends style_loras="[]" when the form has no loras', async () => {
+    fetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ _id: 'img_1' }) })
+    await generateImage(FAKE_FORM, FAKE_USER)
+    const [url] = fetch.mock.calls[0]
+    expect(new URL(url).searchParams.get('style_loras')).toBe('[]')
+  })
 })
 
 // --------------------------------------------------------------------------
