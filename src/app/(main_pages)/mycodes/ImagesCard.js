@@ -12,15 +12,17 @@ import { useStore } from "@/store.js";
 /*  Scannability thresholds — kept in sync with ImageSidebar.js               */
 /* -------------------------------------------------------------------------- */
 const SCANNABILITY_LEVELS = [
-  { min: 85, label: "Excellent",   color: "#4A8C5C" },
-  { min: 70, label: "Good",        color: "#8BC989" },
-  { min: 50, label: "Fair",        color: "#D4B44A" },
-  { min: 20, label: "Poor",        color: "#D97B7B" },
-  { min: 0,  label: "Unscannable", color: "#8B2020" },
+  { min: 85, label: "Excellent", color: "#4A8C5C" },
+  { min: 70, label: "Good", color: "#8BC989" },
+  { min: 50, label: "Fair", color: "#D4B44A" },
+  { min: 20, label: "Poor", color: "#D97B7B" },
+  { min: 0, label: "No", color: "#d22c2c" },
 ];
 
 function getScannability(score) {
-  return SCANNABILITY_LEVELS.find((l) => score >= l.min) ?? SCANNABILITY_LEVELS[4];
+  return (
+    SCANNABILITY_LEVELS.find((l) => score >= l.min) ?? SCANNABILITY_LEVELS[4]
+  );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -68,7 +70,9 @@ function ScannabilityWidget({ score }) {
             justifyContent: "center",
           }}
         >
-          <Typography sx={{ fontSize: "9px", fontWeight: 800, color, lineHeight: 1 }}>
+          <Typography
+            sx={{ fontSize: "9px", fontWeight: 800, color, lineHeight: 1 }}
+          >
             {pct}
           </Typography>
         </Box>
@@ -82,7 +86,6 @@ function ScannabilityWidget({ score }) {
             fontSize: "11px",
             fontWeight: 700,
             fontFamily: "Roboto Serif, Georgia, serif",
-            fontStyle: "italic",
             color,
           }}
         >
@@ -94,7 +97,6 @@ function ScannabilityWidget({ score }) {
             fontSize: "11px",
             fontWeight: 700,
             fontFamily: "Roboto Serif, Georgia, serif",
-            fontStyle: "italic",
             color,
           }}
         >
@@ -108,7 +110,13 @@ function ScannabilityWidget({ score }) {
 /* -------------------------------------------------------------------------- */
 /*  ImageCard                                                                  */
 /* -------------------------------------------------------------------------- */
-export default function ImageCard({ variant, image, index, handleCardClick, customLikeAction }) {
+export default function ImageCard({
+  variant,
+  image,
+  index,
+  handleCardClick,
+  customLikeAction,
+}) {
   const { user } = useStore();
 
   const preventRightClick = (e) => e.preventDefault();
@@ -121,29 +129,48 @@ export default function ImageCard({ variant, image, index, handleCardClick, cust
         <Box
           onClick={handleCardClick}
           sx={{
-            bgcolor: "#161616",
+            bgcolor: "#232323",
             borderRadius: "12px",
             overflow: "hidden",
-            border: "1px solid",
+            border: "0.5px solid",
             borderColor: "primary.main",
             cursor: "pointer",
             transition: "border-color 0.2s, transform 0.15s",
-            "&:hover": { borderColor: "primary.light", transform: "translateY(-2px)" },
+            "&:hover": {
+              borderColor: "primary.light",
+              transform: "translateY(-2px)",
+            },
           }}
         >
           {/* ── Image area ── */}
-          <Box sx={{ position: "relative", width: "100%", aspectRatio: "1/1", overflow: "hidden" }}>
+          <Box
+            sx={{
+              position: "relative",
+              width: "100%",
+              aspectRatio: "1/1",
+              overflow: "hidden",
+            }}
+          >
             <Box
               component="img"
               src={image.watermarked_image_url}
               alt={image.content}
               onContextMenu={preventRightClick}
-              sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+              sx={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                display: "block",
+              }}
             />
 
             {/* Like button — top right */}
             <Box sx={{ position: "absolute", top: 10, right: 10 }}>
-              <LikeButton image={image} user={user} customLikeAction={customLikeAction} />
+              <LikeButton
+                image={image}
+                user={user}
+                customLikeAction={customLikeAction}
+              />
             </Box>
 
             {/* Locked preview badge — bottom left */}
@@ -171,7 +198,7 @@ export default function ImageCard({ variant, image, index, handleCardClick, cust
                     fontSize: "10px",
                     fontWeight: 700,
                     letterSpacing: "0.08em",
-                    color: "#7d7d7d",
+                    color: "#d5d5d5",
                     textTransform: "uppercase",
                   }}
                 >
@@ -202,13 +229,23 @@ export default function ImageCard({ variant, image, index, handleCardClick, cust
               }}
             >
               {/* URL */}
-              <Box sx={{ display: "flex", alignItems: "center", gap: "7px", overflow: "hidden" }}>
-                <LinkIcon sx={{ fontSize: 15, color: "primary.main", flexShrink: 0 }} />
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "7px",
+                  overflow: "hidden",
+                  mt: 0.3,
+                }}
+              >
+                <LinkIcon
+                  sx={{ fontSize: 20, color: "primary.main", flexShrink: 0 }}
+                />
                 <Typography
                   sx={{
                     fontFamily: "Georgia, 'Times New Roman', serif",
                     fontStyle: "italic",
-                    fontSize: "17px",
+                    fontSize: "23px",
                     color: "primary.main",
                     whiteSpace: "nowrap",
                     overflow: "hidden",
@@ -226,7 +263,7 @@ export default function ImageCard({ variant, image, index, handleCardClick, cust
                   label={image.style_title.toUpperCase()}
                   size="small"
                   sx={{
-                    bgcolor: "#2a2a2a",
+                    bgcolor: "#4c4c4c",
                     color: "primary.light",
                     fontWeight: 700,
                     fontSize: "11px",
