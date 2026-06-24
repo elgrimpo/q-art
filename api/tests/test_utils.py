@@ -87,6 +87,15 @@ class TestPrepareImg2ImgRequest:
         assert self._req(0.0)["controlnet_units"][0].strength == 0.35
         assert self._req(1.0)["controlnet_units"][0].strength == 0.35
 
+    def test_loras_default_to_empty_list(self):
+        assert self._req(0.5)["loras"] == []
+
+    def test_loras_passed_through(self):
+        from novita_client import Img2V3ImgLoRA
+        loras = [Img2V3ImgLoRA(model_name="LAS_17554", strength=0.7)]
+        req = prepare_img2img_request(**self.BASE, qr_weight=0.5, loras=loras)
+        assert req["loras"] == loras
+
 
 # ---------------------------------------------------------------------------- #
 #                           PARSE STYLE LORAS                                  #

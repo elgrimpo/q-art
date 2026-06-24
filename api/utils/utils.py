@@ -97,6 +97,7 @@ def prepare_img2img_request(
     image_base64_str,
     qr_weight,
     style_prompt,
+    loras=None,
 ):
     full_prompt = prompt + style_prompt
 
@@ -123,6 +124,7 @@ def prepare_img2img_request(
         seed=int(seed),
         image_num=1,
         strength=1.0,
+        loras=loras or [],
         controlnet_units=[
             # Brightness ControlNet — blends the QR's light/dark structure into
             # the art. The QR is fed directly: NO preprocessor.
