@@ -38,6 +38,10 @@ def load_img(row):
 
 def main():
     rated = json.load(open(os.path.join(HERE, "rated_with_payload.json")))
+    # decoder ground truth (Apple Vision / WeChat / zxing battery), for spotting
+    # where v2 disagrees with what a real decoder actually reads.
+    decodes = {x["image_id"]: bool(x.get("decodable"))
+               for x in json.load(open(os.path.join(HERE, "decode_results.json")))}
     rows = []
     for i, r in enumerate(rated):
         img = load_img(r)
@@ -55,6 +59,7 @@ def main():
             "old": round(old, 1) if old is not None else None,
             "v2": round(v2, 1),
             "diff": round(v2 - (old if old is not None else 0), 1),
+            "decodes": decodes.get(r["image_id"]),
             "prompt": (r.get("prompt") or "").strip(),
         })
         if (i + 1) % 25 == 0:
@@ -64,9 +69,12 @@ def main():
     mean_abs = round(sum(abs(x["diff"]) for x in rows) / len(rows), 1) if rows else 0
     up = sum(1 for x in rows if x["diff"] > 0)
     down = sum(1 for x in rows if x["diff"] < 0)
+    # v2 "false zeros": scores very low yet a real decoder reads it (known limit
+    # on heavily-stylized codes — see memory qr-scannability-decoder-rebuild).
+    mismatch = sum(1 for x in rows if x["v2"] < 10 and x["decodes"])
 
     html = TEMPLATE.format(
-        total=len(rows), mean_abs=mean_abs, up=up, down=down,
+        total=len(rows), mean_abs=mean_abs, up=up, down=down, mismatch=mismatch,
         data_json=json.dumps(rows),
     )
     open(OUT, "w", encoding="utf-8").write(html)
@@ -101,6 +109,12 @@ TEMPLATE = """<!DOCTYPE html>
   .scores .val {{ font-size:17px; font-weight:600; font-variant-numeric:tabular-nums; }}
   .you .val {{ color:#2563eb; }}
   .prompt {{ font-size:11px; color:#71717a; line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }}
+  .card.disagree {{ border:2px solid #f59e0b; }}
+  .meta {{ display:flex; gap:8px; align-items:center; min-height:18px; }}
+  .scans {{ font-size:11px; padding:2px 8px; border-radius:999px; font-weight:600; }}
+  .scans.yes {{ background:#dcfce7; color:#166534; }}
+  .scans.no {{ background:#f1f5f9; color:#64748b; }}
+  .flag {{ font-size:10px; color:#b45309; font-weight:600; text-transform:uppercase; letter-spacing:.03em; }}
 </style></head><body>
 <header>
   <h1>Scannability — your rating vs old (v1) vs new (v2)</h1>
@@ -109,8 +123,10 @@ TEMPLATE = """<!DOCTYPE html>
     <span>mean |Δ old→v2|: <b>{mean_abs}</b></span>
     <span>v2 higher: <b>{up}</b></span>
     <span>v2 lower: <b>{down}</b></span>
+    <span title="v2 scores under 10 but a real decoder reads it — the known stylized-code limit">v2&lt;10 yet scans: <b>{mismatch}</b></span>
     <span class="sorts">
       <button data-sort="absdiff" class="active">|Δ| biggest</button>
+      <button data-sort="mismatch">v2 misses (scans but v2&lt;10)</button>
       <button data-sort="rating">your rating</button>
       <button data-sort="old">old score</button>
       <button data-sort="v2">v2 score</button>
@@ -131,8 +147,12 @@ TEMPLATE = """<!DOCTYPE html>
     grid.innerHTML = "";
     for (const r of rows) {{
       const card = document.createElement("div");
-      card.className = "card";
+      const disagree = r.v2 < 10 && r.decodes === true;   // v2 says "no" but it scans
+      card.className = "card" + (disagree ? " disagree" : "");
       const sign = r.diff > 0 ? "+" : "";
+      const scans = r.decodes === true
+        ? '<span class="scans yes">scans \\u2713</span>'
+        : (r.decodes === false ? '<span class="scans no">no scan</span>' : '');
       card.innerHTML =
         '<div class="img-wrap">' +
           '<img loading="lazy" src="' + r.image_url + '" alt="" ' +
@@ -145,16 +165,21 @@ TEMPLATE = """<!DOCTYPE html>
             '<div class="cell"><div class="lbl">old</div><div class="val">' + (r.old==null?"—":r.old) + '</div></div>' +
             '<div class="cell"><div class="lbl">v2</div><div class="val">' + r.v2 + '</div></div>' +
           '</div>' +
+          '<div class="meta">' + scans +
+            (disagree ? '<span class="flag">v2 misses this</span>' : '') +
+          '</div>' +
           '<div class="prompt">' + (r.prompt ? r.prompt.replace(/</g,"&lt;") : "(no prompt)") + '</div>' +
         '</div>';
       grid.appendChild(card);
     }}
   }}
+  const missScore = r => (r.v2 < 10 && r.decodes === true) ? 1 : 0;
   const sorters = {{
-    absdiff: (a,b) => Math.abs(b.diff)-Math.abs(a.diff),
-    rating:  (a,b) => a.my_rating-b.my_rating || Math.abs(b.diff)-Math.abs(a.diff),
-    old:     (a,b) => (a.old??0)-(b.old??0),
-    v2:      (a,b) => a.v2-b.v2,
+    absdiff:  (a,b) => Math.abs(b.diff)-Math.abs(a.diff),
+    mismatch: (a,b) => missScore(b)-missScore(a) || a.v2-b.v2,
+    rating:   (a,b) => a.my_rating-b.my_rating || Math.abs(b.diff)-Math.abs(a.diff),
+    old:      (a,b) => (a.old??0)-(b.old??0),
+    v2:       (a,b) => a.v2-b.v2,
   }};
   document.querySelectorAll("[data-sort]").forEach(btn => btn.addEventListener("click", () => {{
     document.querySelectorAll("[data-sort]").forEach(b => b.classList.remove("active"));
