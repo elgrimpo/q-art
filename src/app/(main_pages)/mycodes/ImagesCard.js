@@ -59,8 +59,8 @@ function ScannabilityWidget({ score }) {
         <Box
           sx={{
             position: "absolute",
-            width: 25,
-            height: 25,
+            width: 30,
+            height: 30,
             borderRadius: "50%",
             bgcolor: "#161616",
             display: "flex",
@@ -88,7 +88,16 @@ function ScannabilityWidget({ score }) {
         >
           {label}
         </Typography>
-        <Typography sx={{ display: "block", fontSize: "10px", color: "#7d7d7d", fontWeight: 500 }}>
+        <Typography
+          sx={{
+            display: "block",
+            fontSize: "11px",
+            fontWeight: 700,
+            fontFamily: "Roboto Serif, Georgia, serif",
+            fontStyle: "italic",
+            color,
+          }}
+        >
           scannability
         </Typography>
       </Box>
@@ -115,10 +124,11 @@ export default function ImageCard({ variant, image, index, handleCardClick, cust
             bgcolor: "#161616",
             borderRadius: "12px",
             overflow: "hidden",
-            border: "1px solid #252525",
+            border: "1px solid",
+            borderColor: "primary.main",
             cursor: "pointer",
             transition: "border-color 0.2s, transform 0.15s",
-            "&:hover": { borderColor: "#383838", transform: "translateY(-2px)" },
+            "&:hover": { borderColor: "primary.light", transform: "translateY(-2px)" },
           }}
         >
           {/* ── Image area ── */}
@@ -155,7 +165,7 @@ export default function ImageCard({ variant, image, index, handleCardClick, cust
                   backdropFilter: "blur(6px)",
                 }}
               >
-                <LockIcon sx={{ fontSize: 11, color: "#7d7d7d" }} />
+                <LockIcon sx={{ fontSize: 11, color: "primary.main" }} />
                 <Typography
                   sx={{
                     fontSize: "10px",
@@ -198,7 +208,7 @@ export default function ImageCard({ variant, image, index, handleCardClick, cust
                   sx={{
                     fontFamily: "Georgia, 'Times New Roman', serif",
                     fontStyle: "italic",
-                    fontSize: "15px",
+                    fontSize: "17px",
                     color: "primary.main",
                     whiteSpace: "nowrap",
                     overflow: "hidden",
