@@ -44,6 +44,17 @@ def _service_auth_headers() -> dict:
     return {"Authorization": f"Bearer {token}"}
 
 
+def _auth_headers(email: str = "user@example.com") -> dict:
+    """Return Authorization headers carrying a valid authenticated (non-guest) JWT."""
+    secret = os.environ["BACKEND_JWT_SECRET"]
+    token = jwt.encode(
+        {"sub": "507f1f77bcf86cd799439011", "email": email, "scope": "user", "is_guest": False},
+        secret,
+        algorithm="HS256",
+    )
+    return {"Authorization": f"Bearer {token}"}
+
+
 # ---------------------------------------------------------------------------- #
 #                              AUTH ENFORCEMENT TESTS                          #
 # ---------------------------------------------------------------------------- #
@@ -117,6 +128,26 @@ async def test_get_user_info_includes_is_admin(mock_get_user):
     assert "is_admin" in body
     # Guest JWT for test@example.com is not an admin email — must be False
     assert body["is_admin"] is False
+
+
+@patch("api.utils.auth.users.find_one", new_callable=AsyncMock)
+@patch("api.main.get_user_info", new_callable=AsyncMock)
+async def test_get_user_info_includes_is_admin_true_for_admin_email(mock_get_user, mock_find_one):
+    """GET /api/user/info must return is_admin=True for authenticated users with admin email."""
+    admin_email = "admin@example.com"
+    mock_get_user.return_value = {"email": admin_email, "credits": 10}
+    # Mock the MongoDB lookup in get_current_user
+    mock_find_one.return_value = {"_id": "507f1f77bcf86cd799439011", "email": admin_email}
+
+    with patch.dict(os.environ, {"ADMIN_EMAILS": "admin@example.com"}):
+        async with _client() as client:
+            response = await client.get("/api/user/info", headers=_auth_headers(email=admin_email))
+
+    assert response.status_code == 200
+    body = response.json()
+    assert "is_admin" in body
+    # Authenticated JWT with admin@example.com and admin email in env — must be True
+    assert body["is_admin"] is True
 
 
 @patch("api.main.authenticate_user", new_callable=AsyncMock)
