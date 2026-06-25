@@ -12,6 +12,7 @@ import {
   AccordionSummary,
   AccordionDetails,
   Stack,
+  Divider,
   IconButton,
 } from "@mui/material";
 import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
@@ -316,7 +317,10 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
               </Box>
             </Box>
 
-            <Stack spacing={2.5}>
+            <Stack
+              spacing={2.5}
+              divider={<Divider sx={{ borderColor: "#1e1e1e" }} />}
+            >
               {/* URL — top, disabled */}
               <TextField
                 label="URL"
@@ -406,7 +410,7 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
               </Accordion>
 
               {/* QR Weight slider */}
-              <Box>
+              <Box sx={{ px: 1 }}>
                 <Typography variant="body2" sx={{ mb: 1, color: "#b8b8b8" }}>
                   QR Code Weight
                 </Typography>
