@@ -371,7 +371,7 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
                   </Typography>
                 </AccordionSummary>
                 <AccordionDetails sx={{ p: 1 }}>
-                  <Box sx={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 1 }}>
+                  <Box sx={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 1 }}>
                     {styles.map((item) => {
                       const isSelected = item.title === formValues.styleTitle;
                       return (
