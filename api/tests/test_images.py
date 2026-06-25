@@ -266,3 +266,31 @@ async def test_get_image_not_found_raises_404(mock_db):
         await get_image(FAKE_IMAGE_ID)
 
     assert exc_info.value.status_code == 404
+
+
+# ---------------------------------------------------------------------------- #
+#                        DELETE IMAGE — ADMIN BYPASS                           #
+# ---------------------------------------------------------------------------- #
+
+@patch("api.controllers.images_controller.db")
+@patch("api.controllers.images_controller.images")
+@patch("api.controllers.images_controller.s3_session")
+async def test_delete_image_admin_can_delete_others_image(mock_s3_session, mock_images, mock_db):
+    mock_session, mock_s3_client = _mock_s3_session()
+    mock_s3_session.client = mock_session.client
+    mock_images.find_one = AsyncMock(return_value={"_id": ObjectId(FAKE_IMAGE_ID), "user_id": "someone_else"})
+    delete_result = MagicMock(deleted_count=1)
+    mock_db.__getitem__.return_value.delete_one = AsyncMock(return_value=delete_result)
+
+    result = await delete_image(FAKE_IMAGE_ID, FAKE_USER_ID, is_admin=True)
+
+    assert result == {"message": "Image and document deleted successfully"}
+    assert mock_s3_client.delete_object.call_count == 2
+
+
+@patch("api.controllers.images_controller.images")
+async def test_delete_image_non_admin_non_owner_still_403(mock_images):
+    mock_images.find_one = AsyncMock(return_value={"_id": ObjectId(FAKE_IMAGE_ID), "user_id": "someone_else"})
+    with pytest.raises(HTTPException) as exc:
+        await delete_image(FAKE_IMAGE_ID, FAKE_USER_ID, is_admin=False)
+    assert exc.value.status_code == 403

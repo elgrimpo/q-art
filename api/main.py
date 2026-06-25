@@ -154,7 +154,7 @@ async def toggle_like_endpoint(id: str, current_user: dict = Depends(get_current
 # DELETE IMAGE
 @app.delete("/api/images/delete/{id}")
 async def delete_image_endpoint(id: str, current_user: dict = Depends(get_current_user)):
-    return await delete_image(id, current_user["user_id"])
+    return await delete_image(id, current_user["user_id"], is_admin=current_user["is_admin"])
 
 # ------------------------------ PAYMENTS ROUTES ----------------------------- #
 
