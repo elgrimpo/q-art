@@ -179,7 +179,7 @@ export default function IteratePanel({ image, isOpen, onOpen, onClose }) {
               alignItems: "center",
               gap: 1.75,
               p: "16px 18px",
-              border: "1px dashed #2e2e2e",
+              border: "1px solid #2e2e2e",
               borderRadius: "16px",
               bgcolor: "#0e0e0e",
               cursor: "pointer",
@@ -190,7 +190,7 @@ export default function IteratePanel({ image, isOpen, onOpen, onClose }) {
               <ShuffleIcon sx={{ color: "primary.main", fontSize: 22 }} />
             </Box>
             <Box>
-              <Typography variant="h5" sx={{ fontSize: "18px", lineHeight: 1.1, color: "primary.main" }}>New Variation</Typography>
+              <Typography variant="h5" sx={{ fontSize: "22px", lineHeight: 1.1, color: "primary.main" }}>New Variation</Typography>
               <Typography variant="body2" sx={{ color: "#b8b8b8", mt: 0.5, lineHeight: 1.45 }}>Same style, new random seed.</Typography>
             </Box>
           </Box>
