@@ -20,6 +20,10 @@ export const useStore = create((set) => ({
     sd_model: "cyberrealistic_v40_151857.safetensors",
   },
   generatingImage: false,
+  iterateSession: null,
+
+  setIterateSession: (session) => set({ iterateSession: session }),
+  clearIterateSession: () => set({ iterateSession: null }),
 
   setGenerateFormValues: (values) =>
     set((state) => ({

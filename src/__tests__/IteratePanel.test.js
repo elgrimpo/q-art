@@ -1,5 +1,6 @@
 import React from 'react'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { useStore } from '../store'
 
 const mockPush = jest.fn()
 jest.mock('next/navigation', () => ({ useRouter: () => ({ push: mockPush }) }))
@@ -44,6 +45,7 @@ function renderPanel(isOpen = false) {
 beforeEach(() => {
   jest.clearAllMocks()
   mockGenerateImage.mockResolvedValue({ _id: 'newimg1' })
+  useStore.setState({ iterateSession: null })
 })
 
 // --- Default panel ---

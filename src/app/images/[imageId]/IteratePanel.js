@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { useStore } from "@/store";
 import {
   Box,
   Typography,
@@ -61,25 +62,25 @@ function initFormValues(image) {
   };
 }
 
-export default function IteratePanel({ image, isOpen, onOpen, onClose, onGeneratingChange }) {
+export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGeneratingChange }) {
   const router = useRouter();
   const originalStyleTitle = useRef(image.style_title ?? "");
-  const lastPayload = useRef(null);
-  const lastTrigger = useRef("iterate");
-  const isMountedRef = useRef(true);
 
-  useEffect(() => {
-    isMountedRef.current = true;
-    return () => { isMountedRef.current = false; };
-  }, []);
+  const iterateSession = useStore((s) => s.iterateSession);
+  const setIterateSession = useStore((s) => s.setIterateSession);
+  const clearIterateSession = useStore((s) => s.clearIterateSession);
+
+  // Generating state lives in the store so it survives modal close/reopen
+  const generating = iterateSession?.imageId === image._id && !!iterateSession?.generating;
+  const generatingError = iterateSession?.imageId === image._id && !!iterateSession?.error;
 
   const [formValues, setFormValues] = useState(() => initFormValues(image));
-  const [generating, setGenerating] = useState(false);
-  const [generatingError, setGeneratingError] = useState(false);
+
+  const isActive = generating || generatingError;
 
   useEffect(() => {
-    onGeneratingChange?.(generating || generatingError);
-  }, [generating, generatingError]); // eslint-disable-line react-hooks/exhaustive-deps
+    onGeneratingChange?.(isActive);
+  }, [isActive]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleStyleClick = (item) => {
     setFormValues((prev) => ({
@@ -142,41 +143,38 @@ export default function IteratePanel({ image, isOpen, onOpen, onClose, onGenerat
 
   const handleGenerate = async (trigger) => {
     const payload = buildPayload(trigger);
-    lastPayload.current = payload;
-    lastTrigger.current = trigger;
-    setGeneratingError(false);
-    setGenerating(true);
+    setIterateSession({ imageId: image._id, generating: true, error: false, payload, trigger });
     try {
       const newImage = await generateImage(payload);
-      if (isMountedRef.current) router.push(`/images/${newImage._id}`);
+      clearIterateSession();
+      router.push(`/images/${newImage._id}`);
     } catch (err) {
-      // Only surface known server-side failures; ignore network/abort/navigation errors
-      if (isMountedRef.current && isGenerationFailure(err)) setGeneratingError(true);
-    } finally {
-      if (isMountedRef.current) setGenerating(false);
+      if (isGenerationFailure(err)) {
+        setIterateSession({ imageId: image._id, generating: false, error: true, payload, trigger });
+      } else {
+        clearIterateSession();
+      }
     }
   };
 
   const handleRetry = async () => {
-    if (!lastPayload.current) return;
-    setGeneratingError(false);
-    setGenerating(true);
+    if (!iterateSession?.payload) return;
+    const { payload, trigger } = iterateSession;
+    setIterateSession({ imageId: image._id, generating: true, error: false, payload, trigger });
     try {
-      const newImage = await generateImage(lastPayload.current);
-      if (isMountedRef.current) router.push(`/images/${newImage._id}`);
+      const newImage = await generateImage(payload);
+      clearIterateSession();
+      router.push(`/images/${newImage._id}`);
     } catch (err) {
-      if (isMountedRef.current && isGenerationFailure(err)) setGeneratingError(true);
-    } finally {
-      if (isMountedRef.current) setGenerating(false);
+      if (isGenerationFailure(err)) {
+        setIterateSession({ imageId: image._id, generating: false, error: true, payload, trigger });
+      } else {
+        clearIterateSession();
+      }
     }
   };
 
-  const handleBackToImage = () => {
-    setGenerating(false);
-    setGeneratingError(false);
-  };
-
-  const isActive = generating || generatingError;
+  const handleBackToImage = () => clearIterateSession();
 
   return (
     <>
