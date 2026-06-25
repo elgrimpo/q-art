@@ -12,7 +12,6 @@ import {
   AccordionDetails,
   Stack,
   IconButton,
-  Grid,
 } from "@mui/material";
 import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
 import ShuffleIcon from "@mui/icons-material/Shuffle";
@@ -23,8 +22,25 @@ import { useRouter } from "next/navigation";
 import { styles, selectRandomStyle } from "@/_utils/ImageStyles";
 import { generateImage } from "@/_utils/ImagesUtils";
 import { qrWeightToSlider, QR_SLIDER_MIN, QR_SLIDER_MAX } from "@/_utils/qrWeight";
-import StylesCard from "@/app/(main_pages)/generate/(formComponents)/StylesCard";
 import GeneratingModal from "./GeneratingModal";
+
+const DARK_FIELD_SX = {
+  "& .MuiOutlinedInput-root": {
+    "& fieldset": { borderColor: "#2e2e2e" },
+    "&:hover fieldset": { borderColor: "#4e4e4e" },
+    "&.Mui-focused fieldset": { borderColor: "primary.main" },
+  },
+  "& .MuiInputBase-input": { color: "#e0e0e0" },
+  "& .MuiInputLabel-root": { color: "#7d7d7d" },
+  "& .MuiInputLabel-root.Mui-focused": { color: "primary.main" },
+};
+
+const DISABLED_FIELD_SX = {
+  ...DARK_FIELD_SX,
+  "& .MuiInputBase-input.Mui-disabled": { color: "#5d5d5d", WebkitTextFillColor: "#5d5d5d" },
+  "& .MuiOutlinedInput-root.Mui-disabled .MuiOutlinedInput-notchedOutline": { borderColor: "#2a2a2a" },
+  "& .MuiInputLabel-root.Mui-disabled": { color: "#4a4a4a" },
+};
 
 function initFormValues(image) {
   const sourceStyle = styles.find((s) => s.title === image.style_title) ?? styles[0];
@@ -153,10 +169,9 @@ export default function IteratePanel({ image, isOpen, onOpen, onClose }) {
         onBack={handleBackToImage}
       />
 
-      {/* DEFAULT PANEL — visible when isOpen=false */}
+      {/* DEFAULT PANEL */}
       {!isOpen && (
         <Stack spacing={2}>
-          {/* New Variation box */}
           <Box
             onClick={() => handleGenerate("newVariation")}
             sx={{
@@ -171,31 +186,15 @@ export default function IteratePanel({ image, isOpen, onOpen, onClose }) {
               "&:hover": { borderColor: "primary.main" },
             }}
           >
-            <Box
-              sx={{
-                flexShrink: 0,
-                width: 44,
-                height: 44,
-                borderRadius: "12px",
-                bgcolor: "rgba(112, 225, 149, 0.08)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
+            <Box sx={{ flexShrink: 0, width: 44, height: 44, borderRadius: "12px", bgcolor: "rgba(112, 225, 149, 0.08)", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <ShuffleIcon sx={{ color: "primary.main", fontSize: 22 }} />
             </Box>
             <Box>
-              <Typography variant="h5" sx={{ fontSize: "18px", lineHeight: 1.1, color: "primary.main" }}>
-                New Variation
-              </Typography>
-              <Typography variant="body2" sx={{ color: "#b8b8b8", mt: 0.5, lineHeight: 1.45 }}>
-                Same style, new random seed.
-              </Typography>
+              <Typography variant="h5" sx={{ fontSize: "18px", lineHeight: 1.1, color: "primary.main" }}>New Variation</Typography>
+              <Typography variant="body2" sx={{ color: "#b8b8b8", mt: 0.5, lineHeight: 1.45 }}>Same style, new random seed.</Typography>
             </Box>
           </Box>
 
-          {/* Iterate this image box */}
           <Box
             onClick={onOpen}
             sx={{
@@ -210,133 +209,174 @@ export default function IteratePanel({ image, isOpen, onOpen, onClose }) {
               "&:hover": { borderColor: "primary.main" },
             }}
           >
-            <Box
-              sx={{
-                flexShrink: 0,
-                width: 44,
-                height: 44,
-                borderRadius: "12px",
-                bgcolor: "rgba(112, 225, 149, 0.12)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
+            <Box sx={{ flexShrink: 0, width: 44, height: 44, borderRadius: "12px", bgcolor: "rgba(112, 225, 149, 0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <AutoFixHighIcon sx={{ color: "primary.main", fontSize: 22 }} />
             </Box>
             <Box>
-              <Typography variant="h5" sx={{ fontSize: "22px", lineHeight: 1.1, color: "primary.main" }}>
-                Iterate this image
-              </Typography>
-              <Typography variant="body2" sx={{ color: "#b8b8b8", mt: 0.5, lineHeight: 1.45 }}>
-                Edit prompt, style, or QR weight and generate a new version.
-              </Typography>
+              <Typography variant="h5" sx={{ fontSize: "22px", lineHeight: 1.1, color: "primary.main" }}>Iterate this image</Typography>
+              <Typography variant="body2" sx={{ color: "#b8b8b8", mt: 0.5, lineHeight: 1.45 }}>Edit prompt, style, or QR weight and generate a new version.</Typography>
             </Box>
           </Box>
         </Stack>
       )}
 
-      {/* ITERATE FORM — shown when isOpen=true */}
+      {/* ITERATE FORM */}
       {isOpen && (
-        <Box>
-          <IconButton
-            aria-label="back"
-            onClick={onClose}
-            sx={{ mb: 1, color: "primary.main" }}
+        <Box sx={{ display: "flex", flexDirection: "column" }}>
+          {/* Form card */}
+          <Box
+            sx={{
+              border: "1px solid #2e2e2e",
+              borderRadius: "16px",
+              bgcolor: "#0e0e0e",
+              p: "20px 22px",
+            }}
           >
-            <ArrowBackIcon />
-          </IconButton>
-
-          <Stack spacing={2.5}>
-            {/* Prompt */}
-            <TextField
-              label="Prompt"
-              name="prompt"
-              multiline
-              minRows={3}
-              fullWidth
-              value={formValues.prompt}
-              onChange={(e) =>
-                setFormValues((prev) => ({ ...prev, prompt: e.target.value }))
-              }
-              inputProps={{ "aria-label": "prompt" }}
-            />
-
-            {/* Style accordion */}
-            <Accordion
-              disableGutters
-              TransitionProps={{ unmountOnExit: true }}
-              sx={{
-                bgcolor: "#0e0e0e",
-                border: "1px solid #2e2e2e",
-                borderRadius: "12px !important",
-                "&:before": { display: "none" },
-              }}
-            >
-              <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: "primary.main" }} />}>
-                <Typography sx={{ color: "#b8b8b8" }}>
-                  Style: <strong style={{ color: "#fff" }}>{formValues.styleTitle}</strong>
+            {/* Header: back chevron + title/subtitle */}
+            <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.5, mb: 2.5 }}>
+              <IconButton
+                aria-label="back"
+                onClick={onClose}
+                sx={{ color: "primary.main", mt: "-2px", ml: "-8px", flexShrink: 0 }}
+              >
+                <ArrowBackIcon />
+              </IconButton>
+              <Box>
+                <Typography variant="h5" sx={{ fontSize: "22px", lineHeight: 1.1, color: "primary.main" }}>
+                  Iterate this image
                 </Typography>
-              </AccordionSummary>
-              <AccordionDetails sx={{ p: 1 }}>
-                <Grid container spacing={1}>
-                  {styles.map((item, index) => (
-                    <Grid item xs={6} sm={4} key={index}>
-                      <StylesCard
-                        item={item}
-                        index={index}
-                        handleClick={handleStyleClick}
-                        selectedTitle={formValues.styleTitle}
-                      />
-                    </Grid>
-                  ))}
-                </Grid>
-              </AccordionDetails>
-            </Accordion>
-
-            {/* QR Weight slider */}
-            <Box>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                QR Code Weight
-              </Typography>
-              <Slider
-                min={QR_SLIDER_MIN}
-                max={QR_SLIDER_MAX}
-                step={0.1}
-                value={formValues.qrWeight}
-                onChange={(_, val) =>
-                  setFormValues((prev) => ({ ...prev, qrWeight: val }))
-                }
-                marks={[
-                  { value: QR_SLIDER_MIN, label: "Artistic" },
-                  { value: QR_SLIDER_MAX, label: "Scannable" },
-                ]}
-              />
+                <Typography variant="body2" sx={{ color: "#b8b8b8", mt: 0.5, lineHeight: 1.45 }}>
+                  Edit prompt, style, or QR weight and generate a new version.
+                </Typography>
+              </Box>
             </Box>
 
-            {/* URL (secondary) */}
-            <TextField
-              label="URL"
-              name="url"
-              fullWidth
-              size="small"
-              value={formValues.url}
-              onChange={(e) =>
-                setFormValues((prev) => ({ ...prev, url: e.target.value }))
-              }
-              sx={{ "& .MuiInputLabel-root": { color: "#7d7d7d" } }}
-            />
+            <Stack spacing={2.5}>
+              {/* URL — top, disabled */}
+              <TextField
+                label="URL"
+                name="url"
+                fullWidth
+                size="small"
+                disabled
+                value={formValues.url}
+                sx={DISABLED_FIELD_SX}
+              />
 
+              {/* Prompt */}
+              <TextField
+                label="Prompt"
+                name="prompt"
+                multiline
+                minRows={3}
+                fullWidth
+                value={formValues.prompt}
+                onChange={(e) => setFormValues((prev) => ({ ...prev, prompt: e.target.value }))}
+                inputProps={{ "aria-label": "prompt" }}
+                sx={DARK_FIELD_SX}
+              />
+
+              {/* Style accordion */}
+              <Accordion
+                disableGutters
+                TransitionProps={{ unmountOnExit: true }}
+                sx={{
+                  bgcolor: "#161616",
+                  border: "1px solid #2e2e2e",
+                  borderRadius: "12px !important",
+                  "&:before": { display: "none" },
+                }}
+              >
+                <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: "primary.main" }} />}>
+                  <Typography sx={{ color: "#b8b8b8" }}>
+                    Style: <strong style={{ color: "#fff" }}>{formValues.styleTitle}</strong>
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails sx={{ p: 1 }}>
+                  <Box sx={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 1 }}>
+                    {styles.map((item) => {
+                      const isSelected = item.title === formValues.styleTitle;
+                      return (
+                        <Box
+                          key={item.id}
+                          data-testid={`style-${item.title}`}
+                          onClick={() => handleStyleClick(item)}
+                          sx={{
+                            cursor: "pointer",
+                            borderRadius: "8px",
+                            border: "2px solid",
+                            borderColor: isSelected ? "primary.main" : "transparent",
+                            bgcolor: isSelected ? "rgba(112, 225, 149, 0.08)" : "transparent",
+                            overflow: "hidden",
+                            "&:hover": { borderColor: "primary.main" },
+                          }}
+                        >
+                          <Box
+                            component="img"
+                            src={item.image_url}
+                            alt={item.title}
+                            sx={{ width: "100%", aspectRatio: "1/1", display: "block" }}
+                          />
+                          <Typography
+                            sx={{
+                              display: "block",
+                              textAlign: "center",
+                              color: isSelected ? "primary.main" : "#b8b8b8",
+                              fontSize: "11px",
+                              py: 0.5,
+                              px: 0.25,
+                              lineHeight: 1.2,
+                            }}
+                          >
+                            {item.title}
+                          </Typography>
+                        </Box>
+                      );
+                    })}
+                  </Box>
+                </AccordionDetails>
+              </Accordion>
+
+              {/* QR Weight slider */}
+              <Box>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                  QR Code Weight
+                </Typography>
+                <Slider
+                  min={QR_SLIDER_MIN}
+                  max={QR_SLIDER_MAX}
+                  step={0.1}
+                  value={formValues.qrWeight}
+                  onChange={(_, val) => setFormValues((prev) => ({ ...prev, qrWeight: val }))}
+                  marks={[
+                    { value: QR_SLIDER_MIN, label: "Artistic" },
+                    { value: QR_SLIDER_MAX, label: "Scannable" },
+                  ]}
+                />
+              </Box>
+            </Stack>
+          </Box>
+
+          {/* Generate button — sticky at bottom of scroll container */}
+          <Box
+            sx={{
+              position: "sticky",
+              bottom: 0,
+              pt: 1.5,
+              pb: 1,
+              bgcolor: "#161616",
+            }}
+          >
             <Button
               variant="contained"
-              color="secondary"
+              color="primary"
               size="large"
               fullWidth
               onClick={() => handleGenerate("iterate")}
             >
               Generate
             </Button>
-          </Stack>
+          </Box>
         </Box>
       )}
     </>

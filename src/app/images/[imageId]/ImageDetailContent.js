@@ -80,7 +80,15 @@ export default function ImageDetailContent({
       </Box>
 
       {/* SIDEBAR */}
-      <Box sx={{ width: { xs: "100%", md: "auto" }, flex: { md: 1 }, minWidth: 0 }}>
+      <Box
+        sx={{
+          width: { xs: "100%", md: "auto" },
+          flex: { md: 1 },
+          minWidth: 0,
+          overflowY: { md: fitHeight ? "auto" : "visible" },
+          maxHeight: { md: fitHeight ? "calc(100vh - 96px)" : "none" },
+        }}
+      >
         <ImageSidebar
           image={image}
           user={user}
