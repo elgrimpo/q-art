@@ -190,8 +190,11 @@ export default function Explore() {
                   component="img"
                   src={image.watermarked_image_url}
                   alt={image.prompt ?? ""}
+                  loading="lazy"
                   onContextMenu={(e) => e.preventDefault()}
                   sx={{
+                    position: "absolute",
+                    inset: 0,
                     width: "100%",
                     height: "100%",
                     objectFit: "cover",
