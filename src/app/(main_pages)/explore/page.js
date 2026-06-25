@@ -1,7 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Box, Chip, Skeleton, Typography } from "@mui/material";
+import { useEffect, useRef, useState } from "react";
+import {
+  Box,
+  Chip,
+  CircularProgress,
+  Skeleton,
+  Typography,
+} from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
 
 import ImageModal from "@/app/(main_pages)/mycodes/ImageModal";
@@ -9,6 +15,8 @@ import LikeButton from "@/_components/actions/LikeButton";
 import { getImages } from "@/_utils/ImagesUtils";
 import { useStore } from "@/store";
 import theme from "@/_styles/theme";
+
+const IMAGES_PER_PAGE = 12;
 
 function getImageAspect(image) {
   if (!image.width || !image.height) return "square";
@@ -18,16 +26,11 @@ function getImageAspect(image) {
   return "square";
 }
 
-// Every 7th item (0, 7, 14, …) that is square becomes a hero (2×2 cell).
-// Heroes are stable across renders since they're index-based.
+// Every 7th image (index 0, 7, 14, …) that is square becomes a 2×2 hero.
 function isHero(image, index) {
   return getImageAspect(image) === "square" && index % 7 === 0;
 }
 
-// Returns the CSS Grid placement props for an item.
-// Heroes: span 2 cols × 2 rows — height comes from row tracks, not aspect-ratio.
-// Landscape: span 2 cols, own aspect-ratio preserves natural width/height.
-// Portrait/square: span 1 col, own aspect-ratio.
 function itemLayout(image, index) {
   if (isHero(image, index)) {
     return { gridColumn: "span 2", gridRow: "span 2" };
@@ -60,18 +63,64 @@ const ITEM_BASE_SX = {
 export default function Explore() {
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const { user } = useStore();
   const isMdUp = useMediaQuery(theme.breakpoints.up("md"));
   const gridCols = isMdUp ? 3 : 2;
+  const sentinelRef = useRef(null);
+  const pageRef = useRef(1);
+  const fetchingRef = useRef(false);
 
+  // Initial load
   useEffect(() => {
-    getImages({ featured: true })
-      .then((imgs) => setImages(imgs ?? []))
+    getImages({ featured: true, page: 1, images_per_page: IMAGES_PER_PAGE })
+      .then((imgs) => {
+        const list = imgs ?? [];
+        setImages(list);
+        if (list.length < IMAGES_PER_PAGE) setHasMore(false);
+      })
       .catch(() => setImages([]))
       .finally(() => setLoading(false));
   }, []);
+
+  // Infinite scroll: observe sentinel div at bottom of grid
+  useEffect(() => {
+    if (loading || !hasMore) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0].isIntersecting || fetchingRef.current) return;
+        fetchingRef.current = true;
+        setLoadingMore(true);
+
+        const nextPage = pageRef.current + 1;
+        pageRef.current = nextPage;
+
+        getImages({ featured: true, page: nextPage, images_per_page: IMAGES_PER_PAGE })
+          .then((newImgs) => {
+            const list = newImgs ?? [];
+            if (list.length === 0) {
+              setHasMore(false);
+            } else {
+              setImages((prev) => [...prev, ...list]);
+              if (list.length < IMAGES_PER_PAGE) setHasMore(false);
+            }
+          })
+          .catch(() => setHasMore(false))
+          .finally(() => {
+            fetchingRef.current = false;
+            setLoadingMore(false);
+          });
+      },
+      { threshold: 0.1, rootMargin: "300px" }
+    );
+
+    if (sentinelRef.current) observer.observe(sentinelRef.current);
+    return () => observer.disconnect();
+  }, [loading, hasMore]);
 
   const handleModalOpen = (index) => {
     setSelectedImageIndex(index);
@@ -106,12 +155,7 @@ export default function Explore() {
   if (loading) {
     return (
       <Box sx={{ padding: { xs: "4.7rem 0.5rem", sm: "5rem 1rem" } }}>
-        <Box
-          sx={{
-            ...GRID_SX,
-            gridTemplateColumns: `repeat(${gridCols}, 1fr)`,
-          }}
-        >
+        <Box sx={{ ...GRID_SX, gridTemplateColumns: `repeat(${gridCols}, 1fr)` }}>
           {Array.from({ length: 8 }, (_, i) => {
             const skelHero = i === 0;
             return (
@@ -165,12 +209,7 @@ export default function Explore() {
 
   return (
     <Box sx={{ padding: { xs: "4.7rem 0.5rem", sm: "5rem 1rem" } }}>
-      <Box
-        sx={{
-          ...GRID_SX,
-          gridTemplateColumns: `repeat(${gridCols}, 1fr)`,
-        }}
-      >
+      <Box sx={{ ...GRID_SX, gridTemplateColumns: `repeat(${gridCols}, 1fr)` }}>
         {images.map((image, index) => {
           const { gridColumn, gridRow, aspectRatio } = itemLayout(image, index);
           return (
@@ -184,7 +223,6 @@ export default function Explore() {
               }}
               onClick={() => handleModalOpen(index)}
             >
-              {/* Inner wrapper clips image/overlays to rounded corners without clipping the hover scale */}
               <Box sx={{ position: "absolute", inset: 0, overflow: "hidden", borderRadius: "12px" }}>
                 <Box
                   component="img"
@@ -268,6 +306,14 @@ export default function Explore() {
             </Box>
           );
         })}
+      </Box>
+
+      {/* Sentinel div — triggers next page load when scrolled into view */}
+      <Box
+        ref={sentinelRef}
+        sx={{ height: 80, display: "flex", justifyContent: "center", alignItems: "center" }}
+      >
+        {loadingMore && <CircularProgress size={28} sx={{ color: "primary.light" }} />}
       </Box>
 
       {images.length > 0 && (
