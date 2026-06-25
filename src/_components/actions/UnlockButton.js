@@ -24,7 +24,9 @@ export default function UnlockButton({ image, isAdmin = false }) {
         const a = document.createElement("a");
         a.href = url;
         a.download = "QR-art.png";
+        document.body.appendChild(a);
         a.click();
+        document.body.removeChild(a);
         URL.revokeObjectURL(url);
       } catch {
         openAlert("error", "Could not download image.");
