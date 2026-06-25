@@ -205,12 +205,12 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
                 sx={{
                   position: "absolute",
                   inset: 0,
-                  background: "linear-gradient(to bottom, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.35) 45%, transparent 70%)",
+                  background: "linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.35) 45%, transparent 70%)",
                 }}
               />
-              <Box sx={{ position: "absolute", top: 0, left: 0, right: 0, p: "20px 22px" }}>
-                <Typography variant="h5" sx={{ fontSize: "26px", lineHeight: 1.15, color: "primary.main" }}>
-                  Generating your QR art…
+              <Box sx={{ position: "absolute", bottom: 0, left: 0, right: 0, p: "20px 22px" }}>
+                <Typography variant="h5" sx={{ fontSize: "30px", lineHeight: 1.15, color: "primary.main" }}>
+                  Generating another piece of art…
                 </Typography>
                 <Typography variant="body2" sx={{ color: "#d8d8d8", mt: 0.75, lineHeight: 1.45 }}>
                   Hang tight, this takes about a minute.
@@ -383,7 +383,7 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
                             cursor: "pointer",
                             borderRadius: "8px",
                             border: "2px solid",
-                            borderColor: isSelected ? "primary.main" : "transparent",
+                            borderColor: isSelected ? "primary.main" : "rgba(181, 181, 181, 0.35)",
                             bgcolor: isSelected ? "rgba(112, 225, 149, 0.08)" : "transparent",
                             overflow: "hidden",
                             "&:hover": { borderColor: "primary.main" },
@@ -400,7 +400,7 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
                               display: "block",
                               textAlign: "center",
                               color: isSelected ? "primary.main" : "#b8b8b8",
-                              fontSize: "11px",
+                              fontSize: "16px",
                               py: 0.5,
                               px: 0.25,
                               lineHeight: 1.2,
