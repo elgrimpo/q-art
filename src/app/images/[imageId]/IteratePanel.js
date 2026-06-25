@@ -76,6 +76,7 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
   const generatingError = iterateSession?.imageId === image._id && !!iterateSession?.error;
 
   const [formValues, setFormValues] = useState(() => initFormValues(image));
+  const [promptTouched, setPromptTouched] = useState(false);
 
   const isActive = generating || generatingError;
 
@@ -176,6 +177,8 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
   };
 
   const handleBackToImage = () => clearIterateSession();
+
+  const isFormValid = formValues.prompt.trim().length > 0;
 
   return (
     <>
@@ -341,6 +344,9 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
                 fullWidth
                 value={formValues.prompt}
                 onChange={(e) => setFormValues((prev) => ({ ...prev, prompt: e.target.value }))}
+                onBlur={() => setPromptTouched(true)}
+                error={promptTouched && formValues.prompt.trim().length === 0}
+                helperText={promptTouched && formValues.prompt.trim().length === 0 ? "Prompt is required" : ""}
                 inputProps={{ "aria-label": "prompt" }}
                 sx={DARK_FIELD_SX}
               />
@@ -445,6 +451,7 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
               color="primary"
               size="large"
               fullWidth
+              disabled={!isFormValid}
               onClick={() => handleGenerate("iterate")}
             >
               Generate
