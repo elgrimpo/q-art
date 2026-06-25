@@ -7,7 +7,7 @@
  * was sent unmapped. These tests pin the contract.
  */
 
-import { sliderToQrWeight } from '../_utils/qrWeight'
+import { sliderToQrWeight, qrWeightToSlider } from '../_utils/qrWeight'
 
 describe('sliderToQrWeight', () => {
   test('maps the slider endpoints and center to [0, 1]', () => {
@@ -34,5 +34,24 @@ describe('sliderToQrWeight', () => {
   test('accepts numeric strings (slider/store may stringify)', () => {
     expect(sliderToQrWeight('0')).toBe(0.5)
     expect(sliderToQrWeight('3')).toBe(1)
+  })
+})
+
+describe('qrWeightToSlider', () => {
+  test('maps backend endpoints and center back to slider range', () => {
+    expect(qrWeightToSlider(0)).toBe(-3)
+    expect(qrWeightToSlider(0.5)).toBe(0)
+    expect(qrWeightToSlider(1)).toBe(3)
+  })
+
+  test('round-trips with sliderToQrWeight', () => {
+    for (let v = -3; v <= 3.0001; v += 0.5) {
+      expect(qrWeightToSlider(sliderToQrWeight(v))).toBeCloseTo(v, 3)
+    }
+  })
+
+  test('clamps out-of-range backend values', () => {
+    expect(qrWeightToSlider(-1)).toBe(-3)
+    expect(qrWeightToSlider(2)).toBe(3)
   })
 })

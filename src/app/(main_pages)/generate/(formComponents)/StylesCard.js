@@ -20,7 +20,7 @@ import { useStore } from "@/store";
 /* -------------------------------------------------------------------------- */
 
 function StylesCard(props) {
-  const { item, index, handleClick } = props;
+  const { item, index, handleClick, selectedTitle } = props;
 
   /* ---------------------------- DECLARE VARIABLES --------------------------- */
 
@@ -29,7 +29,7 @@ function StylesCard(props) {
   const primaryColor = theme.palette.primary.main;
   const secondaryColor = theme.palette.secondary.main;
 
-  const selected = item.title === generateFormValues.style_title ? true : false;
+  const selected = item.title === (selectedTitle ?? generateFormValues.style_title);
 
     // Screen size
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));

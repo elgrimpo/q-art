@@ -18,7 +18,7 @@ import StylesModal from "./(formComponents)/StylesModal";
 import GeneratingLoader from "./(formComponents)/GeneratingLoader";
 import SettingsModal from "./(formComponents)/SettingsModal";
 import { generateImage } from "@/_utils/ImagesUtils";
-import { styles } from "@/_utils/ImageStyles";
+import { styles, selectRandomStyle } from "@/_utils/ImageStyles";
 
 /* -------------------------------------------------------------------------- */
 /*                            MODULE-SCOPE HELPERS                            */
@@ -158,25 +158,6 @@ function GenerateForm() {
     }
   };
 
-  // Function to select a random style and update the form values in the store
-  const selectRandomStyle = () => {
-    // Filter out the "Random" style
-    const availableStyles = styles.filter((style) => style.id !== 1);
-    // Select a random style
-    const randomStyle =
-      availableStyles[Math.floor(Math.random() * availableStyles.length)];
-
-    // Update the form values in the store
-    return {
-      ...generateFormValues,
-      style_id: randomStyle.id,
-      style_prompt: randomStyle.prompt,
-      style_title: randomStyle.title,
-      sd_model: randomStyle.sd_model,
-      loras: randomStyle.loras ?? [],
-    };
-  };
-
   const handleGenerate = async () => {
     setGeneratingImage(true);
 
@@ -195,8 +176,15 @@ function GenerateForm() {
       let generateForm = generateFormValues
 
       if (generateForm.style_id === 1) {
-        // Select a random style and update form values
-        generateForm = selectRandomStyle();
+        const randomStyle = selectRandomStyle();
+        generateForm = {
+          ...generateFormValues,
+          style_id: randomStyle.id,
+          style_prompt: randomStyle.prompt,
+          style_title: randomStyle.title,
+          sd_model: randomStyle.sd_model,
+          loras: randomStyle.loras ?? [],
+        };
       }
 
       const image = await generateImage(generateForm, user);

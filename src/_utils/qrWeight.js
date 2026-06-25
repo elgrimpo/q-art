@@ -25,3 +25,15 @@ export function sliderToQrWeight(sliderValue) {
   // Round to 4 decimals to keep the query param tidy; backend only needs [0, 1].
   return Math.round(normalized * 10000) / 10000;
 }
+
+/**
+ * Convert a backend qr_weight (0..1) back to slider value (-3..+3).
+ * Used to pre-fill the QR weight slider from a stored image document.
+ */
+export function qrWeightToSlider(backendValue) {
+  const v = Number(backendValue);
+  const safe = Number.isFinite(v) ? v : 0.5;
+  const clamped = Math.min(1, Math.max(0, safe));
+  const slider = clamped * (QR_SLIDER_MAX - QR_SLIDER_MIN) + QR_SLIDER_MIN;
+  return Math.round(slider * 10000) / 10000;
+}

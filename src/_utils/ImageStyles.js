@@ -150,3 +150,12 @@ export const styles = [
     sd_model: "colorful_v31_62333.safetensors",
   },
 ];
+
+/**
+ * Pick a random non-Random style. Used by GenerateForm and IteratePanel
+ * when the user has selected style_id === 1 ("Random").
+ */
+export function selectRandomStyle() {
+  const available = styles.filter((s) => s.id !== 1);
+  return available[Math.floor(Math.random() * available.length)];
+}

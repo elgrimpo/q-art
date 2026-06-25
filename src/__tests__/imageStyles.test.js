@@ -1,4 +1,4 @@
-import { styles } from '../_utils/ImageStyles'
+import { styles, selectRandomStyle } from '../_utils/ImageStyles'
 
 describe('ImageStyles LoRA structure', () => {
   test('no style embeds a <lora:> tag in its prompt', () => {
@@ -30,5 +30,27 @@ describe('ImageStyles LoRA structure', () => {
       { model_name: 'wuxia2_62008', strength: 0.8 },
       { model_name: 'MoXinV1_12781', strength: 0.4 },
     ])
+  })
+})
+
+describe('selectRandomStyle', () => {
+  test('returns a style object that is not Random', () => {
+    const result = selectRandomStyle()
+    expect(result.id).not.toBe(1)
+    expect(result.title).not.toBe('Random')
+  })
+
+  test('returned style has all required generate fields', () => {
+    const result = selectRandomStyle()
+    expect(typeof result.id).toBe('number')
+    expect(typeof result.title).toBe('string')
+    expect(typeof result.prompt).toBe('string')
+    expect(Array.isArray(result.loras)).toBe(true)
+    expect(typeof result.sd_model).toBe('string')
+  })
+
+  test('always picks from the styles array', () => {
+    const result = selectRandomStyle()
+    expect(styles).toContainEqual(result)
   })
 })
