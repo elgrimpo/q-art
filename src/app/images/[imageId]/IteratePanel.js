@@ -44,6 +44,9 @@ const DISABLED_FIELD_SX = {
   "& .MuiInputLabel-root.Mui-disabled": { color: "#4a4a4a" },
 };
 
+const GENERATION_ERRORS = new Set(["GenerationFailed", "InsufficientCredits"]);
+const isGenerationFailure = (err) => GENERATION_ERRORS.has(err?.message);
+
 function initFormValues(image) {
   const sourceStyle = styles.find((s) => s.title === image.style_title) ?? styles[0];
   return {
@@ -147,7 +150,8 @@ export default function IteratePanel({ image, isOpen, onOpen, onClose, onGenerat
       const newImage = await generateImage(payload);
       if (isMountedRef.current) router.push(`/images/${newImage._id}`);
     } catch (err) {
-      if (isMountedRef.current && err?.name !== "AbortError") setGeneratingError(true);
+      // Only surface known server-side failures; ignore network/abort/navigation errors
+      if (isMountedRef.current && isGenerationFailure(err)) setGeneratingError(true);
     } finally {
       if (isMountedRef.current) setGenerating(false);
     }
@@ -161,7 +165,7 @@ export default function IteratePanel({ image, isOpen, onOpen, onClose, onGenerat
       const newImage = await generateImage(lastPayload.current);
       if (isMountedRef.current) router.push(`/images/${newImage._id}`);
     } catch (err) {
-      if (isMountedRef.current && err?.name !== "AbortError") setGeneratingError(true);
+      if (isMountedRef.current && isGenerationFailure(err)) setGeneratingError(true);
     } finally {
       if (isMountedRef.current) setGenerating(false);
     }

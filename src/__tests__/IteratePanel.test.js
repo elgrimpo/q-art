@@ -132,7 +132,7 @@ test('on success navigates to new image', async () => {
 })
 
 test('on failure shows inline error state', async () => {
-  mockGenerateImage.mockRejectedValueOnce(new Error('fail'))
+  mockGenerateImage.mockRejectedValueOnce(new Error('GenerationFailed'))
   renderPanel()
   fireEvent.click(screen.getByText('New Variation'))
   await waitFor(() =>
@@ -141,7 +141,7 @@ test('on failure shows inline error state', async () => {
 })
 
 test('Back to image after New Variation failure dismisses error state', async () => {
-  mockGenerateImage.mockRejectedValueOnce(new Error('fail'))
+  mockGenerateImage.mockRejectedValueOnce(new Error('GenerationFailed'))
   renderPanel()
   fireEvent.click(screen.getByText('New Variation'))
   await waitFor(() => screen.getByText('Back to image'))
@@ -150,7 +150,7 @@ test('Back to image after New Variation failure dismisses error state', async ()
 })
 
 test('Back to image after iterate failure dismisses error and does not call onClose', async () => {
-  mockGenerateImage.mockRejectedValueOnce(new Error('fail'))
+  mockGenerateImage.mockRejectedValueOnce(new Error('GenerationFailed'))
   renderPanel(true)
   fireEvent.click(screen.getByRole('button', { name: /generate/i }))
   await waitFor(() => screen.getByText('Back to image'))
@@ -161,7 +161,7 @@ test('Back to image after iterate failure dismisses error and does not call onCl
 
 test('Retry re-fires the same generateImage call', async () => {
   mockGenerateImage
-    .mockRejectedValueOnce(new Error('fail'))
+    .mockRejectedValueOnce(new Error('GenerationFailed'))
     .mockResolvedValueOnce({ _id: 'newimg2' })
   renderPanel()
   fireEvent.click(screen.getByText('New Variation'))
