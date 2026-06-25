@@ -64,9 +64,11 @@ export default function ImageSidebar({
   const [currentImage, setCurrentImage] = useState(image);
   const [promptCopied, setPromptCopied] = useState(false);
   const [iterateOpen, setIterateOpen] = useState(false);
+  const [iterateActive, setIterateActive] = useState(false);
 
   useEffect(() => {
     setIterateOpen(false);
+    setIterateActive(false);
   }, [image?._id]);
 
   useEffect(() => {
@@ -275,7 +277,7 @@ export default function ImageSidebar({
   /* -------------------------------------------------------------------------- */
   return (
     <Box sx={{ width: "100%", display: "flex", flexDirection: "column" }}>
-      {!iterateOpen && (
+      {!iterateOpen && !iterateActive && (
         <>
           {/* LINKS TO */}
           <Box>
@@ -486,6 +488,7 @@ export default function ImageSidebar({
           isOpen={iterateOpen}
           onOpen={() => setIterateOpen(true)}
           onClose={() => setIterateOpen(false)}
+          onGeneratingChange={(active) => setIterateActive(active)}
         />
       </Box>
     </Box>

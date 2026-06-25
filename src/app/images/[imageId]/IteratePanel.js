@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -58,15 +58,25 @@ function initFormValues(image) {
   };
 }
 
-export default function IteratePanel({ image, isOpen, onOpen, onClose }) {
+export default function IteratePanel({ image, isOpen, onOpen, onClose, onGeneratingChange }) {
   const router = useRouter();
   const originalStyleTitle = useRef(image.style_title ?? "");
   const lastPayload = useRef(null);
   const lastTrigger = useRef("iterate");
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => { isMountedRef.current = false; };
+  }, []);
 
   const [formValues, setFormValues] = useState(() => initFormValues(image));
   const [generating, setGenerating] = useState(false);
   const [generatingError, setGeneratingError] = useState(false);
+
+  useEffect(() => {
+    onGeneratingChange?.(generating || generatingError);
+  }, [generating, generatingError]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleStyleClick = (item) => {
     setFormValues((prev) => ({
@@ -135,11 +145,11 @@ export default function IteratePanel({ image, isOpen, onOpen, onClose }) {
     setGenerating(true);
     try {
       const newImage = await generateImage(payload);
-      router.push(`/images/${newImage._id}`);
-    } catch {
-      setGeneratingError(true);
+      if (isMountedRef.current) router.push(`/images/${newImage._id}`);
+    } catch (err) {
+      if (isMountedRef.current && err?.name !== "AbortError") setGeneratingError(true);
     } finally {
-      setGenerating(false);
+      if (isMountedRef.current) setGenerating(false);
     }
   };
 
@@ -149,11 +159,11 @@ export default function IteratePanel({ image, isOpen, onOpen, onClose }) {
     setGenerating(true);
     try {
       const newImage = await generateImage(lastPayload.current);
-      router.push(`/images/${newImage._id}`);
-    } catch {
-      setGeneratingError(true);
+      if (isMountedRef.current) router.push(`/images/${newImage._id}`);
+    } catch (err) {
+      if (isMountedRef.current && err?.name !== "AbortError") setGeneratingError(true);
     } finally {
-      setGenerating(false);
+      if (isMountedRef.current) setGenerating(false);
     }
   };
 
