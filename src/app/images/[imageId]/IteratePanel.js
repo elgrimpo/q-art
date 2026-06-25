@@ -84,6 +84,10 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
     onGeneratingChange?.(isActive);
   }, [isActive]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    setFormValues(initFormValues(image, isOwner));
+  }, [image?._id]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleStyleClick = (item) => {
     setFormValues((prev) => ({
       ...prev,

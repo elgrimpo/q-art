@@ -137,8 +137,6 @@ export default function Explore() {
               rows={rows}
               sx={{
                 position: "relative",
-                overflow: "hidden",
-                borderRadius: "12px",
                 border: "0.5px solid",
                 borderColor: "primary.main",
                 cursor: "pointer",
@@ -150,85 +148,88 @@ export default function Explore() {
               }}
               onClick={() => handleModalOpen(index)}
             >
-              {/* Image */}
-              <Box
-                component="img"
-                src={image.watermarked_image_url}
-                alt={image.prompt ?? ""}
-                onContextMenu={(e) => e.preventDefault()}
-                sx={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  display: "block",
-                }}
-              />
-
-              {/* Gradient overlay */}
-              <Box
-                sx={{
-                  position: "absolute",
-                  inset: 0,
-                  background:
-                    "linear-gradient(to top, rgba(0,0,0,0.82) 0%, transparent 55%)",
-                  pointerEvents: "none",
-                }}
-              />
-
-              {/* Like button — top right */}
-              <Box
-                sx={{ position: "absolute", top: 8, right: 8 }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <LikeButton
-                  image={image}
-                  user={user}
-                  customLikeAction={customLikeAction}
+              {/* Inner wrapper clips image/overlays to rounded corners without clipping the scale */}
+              <Box sx={{ position: "absolute", inset: 0, overflow: "hidden", borderRadius: "12px" }}>
+                {/* Image */}
+                <Box
+                  component="img"
+                  src={image.watermarked_image_url}
+                  alt={image.prompt ?? ""}
+                  onContextMenu={(e) => e.preventDefault()}
+                  sx={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    display: "block",
+                  }}
                 />
-              </Box>
 
-              {/* Bottom overlay: style chip + prompt */}
-              <Box
-                sx={{
-                  position: "absolute",
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  p: "10px 12px",
-                  pointerEvents: "none",
-                }}
-              >
-                {image.style_title && (
-                  <Chip
-                    label={image.style_title.toUpperCase()}
-                    size="small"
-                    sx={{
-                      bgcolor: "#2a2a2a",
-                      color: "primary.light",
-                      fontWeight: 700,
-                      fontSize: "10px",
-                      letterSpacing: "0.08em",
-                      height: "22px",
-                      borderRadius: "999px",
-                      mb: 0.6,
-                    }}
+                {/* Gradient overlay */}
+                <Box
+                  sx={{
+                    position: "absolute",
+                    inset: 0,
+                    background:
+                      "linear-gradient(to top, rgba(0,0,0,0.82) 0%, transparent 55%)",
+                    pointerEvents: "none",
+                  }}
+                />
+
+                {/* Like button — top right */}
+                <Box
+                  sx={{ position: "absolute", top: 8, right: 8 }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <LikeButton
+                    image={image}
+                    user={user}
+                    customLikeAction={customLikeAction}
                   />
-                )}
-                {image.prompt && (
-                  <Typography
-                    sx={{
-                      fontSize: "12px",
-                      color: "#e0e0e0",
-                      lineHeight: 1.4,
-                      display: "-webkit-box",
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: "vertical",
-                      overflow: "hidden",
-                    }}
-                  >
-                    {image.prompt}
-                  </Typography>
-                )}
+                </Box>
+
+                {/* Bottom overlay: style chip + prompt */}
+                <Box
+                  sx={{
+                    position: "absolute",
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    p: "10px 12px",
+                    pointerEvents: "none",
+                  }}
+                >
+                  {image.style_title && (
+                    <Chip
+                      label={image.style_title.toUpperCase()}
+                      size="small"
+                      sx={{
+                        bgcolor: "#2a2a2a",
+                        color: "primary.light",
+                        fontWeight: 700,
+                        fontSize: "10px",
+                        letterSpacing: "0.08em",
+                        height: "22px",
+                        borderRadius: "999px",
+                        mb: 0.6,
+                      }}
+                    />
+                  )}
+                  {image.prompt && (
+                    <Typography
+                      sx={{
+                        fontSize: "12px",
+                        color: "#e0e0e0",
+                        lineHeight: 1.4,
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                      }}
+                    >
+                      {image.prompt}
+                    </Typography>
+                  )}
+                </Box>
               </Box>
             </ImageListItem>
           );
