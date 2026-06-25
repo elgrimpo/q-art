@@ -1,14 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  Box,
-  Chip,
-  ImageList,
-  ImageListItem,
-  Skeleton,
-  Typography,
-} from "@mui/material";
+import { Box, Chip, Skeleton, Typography } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
 
 import ImageModal from "@/app/(main_pages)/mycodes/ImageModal";
@@ -17,26 +10,52 @@ import { getImages } from "@/_utils/ImagesUtils";
 import { useStore } from "@/store";
 import theme from "@/_styles/theme";
 
-// Repeating pattern of item sizes — cycles through images in order.
-// cols / rows are relative to the ImageList's total column count.
-const SIZE_PATTERN = [
-  { cols: 2, rows: 2 },
-  { cols: 1, rows: 1 },
-  { cols: 1, rows: 1 },
-  { cols: 1, rows: 2 },
-  { cols: 1, rows: 1 },
-  { cols: 2, rows: 1 },
-  { cols: 1, rows: 1 },
-  { cols: 1, rows: 1 },
-];
-
-function getItemSize(index, totalCols) {
-  const p = SIZE_PATTERN[index % SIZE_PATTERN.length];
-  return {
-    cols: Math.min(p.cols, totalCols),
-    rows: p.rows,
-  };
+function getImageAspect(image) {
+  if (!image.width || !image.height) return "square";
+  const r = image.width / image.height;
+  if (r > 1.2) return "landscape";
+  if (r < 0.8) return "portrait";
+  return "square";
 }
+
+// Every 7th item (0, 7, 14, …) that is square becomes a hero (2×2 cell).
+// Heroes are stable across renders since they're index-based.
+function isHero(image, index) {
+  return getImageAspect(image) === "square" && index % 7 === 0;
+}
+
+// Returns the CSS Grid placement props for an item.
+// Heroes: span 2 cols × 2 rows — height comes from row tracks, not aspect-ratio.
+// Landscape: span 2 cols, own aspect-ratio preserves natural width/height.
+// Portrait/square: span 1 col, own aspect-ratio.
+function itemLayout(image, index) {
+  if (isHero(image, index)) {
+    return { gridColumn: "span 2", gridRow: "span 2" };
+  }
+  const aspect = getImageAspect(image);
+  if (aspect === "landscape") return { gridColumn: "span 2", aspectRatio: "3/2" };
+  if (aspect === "portrait")  return { gridColumn: "span 1", aspectRatio: "2/3" };
+  return { gridColumn: "span 1", aspectRatio: "1/1" };
+}
+
+const GRID_SX = {
+  display: "grid",
+  gridAutoFlow: "row dense",
+  gap: "8px",
+};
+
+const ITEM_BASE_SX = {
+  position: "relative",
+  border: "0.5px solid",
+  borderColor: "primary.main",
+  borderRadius: "12px",
+  cursor: "pointer",
+  transition: "transform 0.15s, border-color 0.2s",
+  "&:hover": {
+    transform: "scale(1.015)",
+    borderColor: "primary.light",
+  },
+};
 
 export default function Explore() {
   const [images, setImages] = useState([]);
@@ -45,8 +64,7 @@ export default function Explore() {
   const [modalOpen, setModalOpen] = useState(false);
   const { user } = useStore();
   const isMdUp = useMediaQuery(theme.breakpoints.up("md"));
-  const gridCols = isMdUp ? 4 : 2;
-  const rowHeight = isMdUp ? 200 : 160;
+  const gridCols = isMdUp ? 3 : 2;
 
   useEffect(() => {
     getImages({ featured: true })
@@ -88,21 +106,41 @@ export default function Explore() {
   if (loading) {
     return (
       <Box sx={{ padding: { xs: "4.7rem 0.5rem", sm: "5rem 1rem" } }}>
-        <ImageList variant="quilted" cols={gridCols} rowHeight={rowHeight} gap={8}>
+        <Box
+          sx={{
+            ...GRID_SX,
+            gridTemplateColumns: `repeat(${gridCols}, 1fr)`,
+          }}
+        >
           {Array.from({ length: 8 }, (_, i) => {
-            const { cols, rows } = getItemSize(i, gridCols);
+            const skelHero = i === 0;
             return (
-              <ImageListItem key={i} cols={cols} rows={rows}>
+              <Box
+                key={i}
+                sx={{
+                  gridColumn: skelHero ? "span 2" : "span 1",
+                  gridRow: skelHero ? "span 2" : undefined,
+                  aspectRatio: skelHero ? undefined : "1/1",
+                  position: "relative",
+                  borderRadius: "12px",
+                  overflow: "hidden",
+                }}
+              >
                 <Skeleton
                   variant="rectangular"
-                  width="100%"
-                  height={rowHeight * rows}
-                  sx={{ bgcolor: "#2a2a2a", borderRadius: "12px" }}
+                  sx={{
+                    position: "absolute",
+                    inset: 0,
+                    width: "100%",
+                    height: "100%",
+                    bgcolor: "#2a2a2a",
+                    borderRadius: "12px",
+                  }}
                 />
-              </ImageListItem>
+              </Box>
             );
           })}
-        </ImageList>
+        </Box>
       </Box>
     );
   }
@@ -127,30 +165,27 @@ export default function Explore() {
 
   return (
     <Box sx={{ padding: { xs: "4.7rem 0.5rem", sm: "5rem 1rem" } }}>
-      <ImageList variant="quilted" cols={gridCols} rowHeight={rowHeight} gap={8}>
+      <Box
+        sx={{
+          ...GRID_SX,
+          gridTemplateColumns: `repeat(${gridCols}, 1fr)`,
+        }}
+      >
         {images.map((image, index) => {
-          const { cols, rows } = getItemSize(index, gridCols);
+          const { gridColumn, gridRow, aspectRatio } = itemLayout(image, index);
           return (
-            <ImageListItem
+            <Box
               key={image._id}
-              cols={cols}
-              rows={rows}
               sx={{
-                position: "relative",
-                border: "0.5px solid",
-                borderColor: "primary.main",
-                cursor: "pointer",
-                transition: "transform 0.15s, border-color 0.2s",
-                "&:hover": {
-                  transform: "scale(1.015)",
-                  borderColor: "primary.light",
-                },
+                ...ITEM_BASE_SX,
+                gridColumn,
+                ...(gridRow && { gridRow }),
+                ...(aspectRatio && { aspectRatio }),
               }}
               onClick={() => handleModalOpen(index)}
             >
-              {/* Inner wrapper clips image/overlays to rounded corners without clipping the scale */}
+              {/* Inner wrapper clips image/overlays to rounded corners without clipping the hover scale */}
               <Box sx={{ position: "absolute", inset: 0, overflow: "hidden", borderRadius: "12px" }}>
-                {/* Image */}
                 <Box
                   component="img"
                   src={image.watermarked_image_url}
@@ -164,18 +199,15 @@ export default function Explore() {
                   }}
                 />
 
-                {/* Gradient overlay */}
                 <Box
                   sx={{
                     position: "absolute",
                     inset: 0,
-                    background:
-                      "linear-gradient(to top, rgba(0,0,0,0.82) 0%, transparent 55%)",
+                    background: "linear-gradient(to top, rgba(0,0,0,0.82) 0%, transparent 55%)",
                     pointerEvents: "none",
                   }}
                 />
 
-                {/* Like button — top right */}
                 <Box
                   sx={{ position: "absolute", top: 8, right: 8 }}
                   onClick={(e) => e.stopPropagation()}
@@ -187,7 +219,6 @@ export default function Explore() {
                   />
                 </Box>
 
-                {/* Bottom overlay: style chip + prompt */}
                 <Box
                   sx={{
                     position: "absolute",
@@ -231,10 +262,10 @@ export default function Explore() {
                   )}
                 </Box>
               </Box>
-            </ImageListItem>
+            </Box>
           );
         })}
-      </ImageList>
+      </Box>
 
       {images.length > 0 && (
         <ImageModal
