@@ -7,15 +7,6 @@ jest.mock('next/navigation', () => ({ useRouter: () => ({ push: mockPush }) }))
 const mockGenerateImage = jest.fn()
 jest.mock('@/_utils/ImagesUtils', () => ({ generateImage: (...a) => mockGenerateImage(...a) }))
 
-jest.mock('../app/images/[imageId]/GeneratingModal', () => ({
-  __esModule: true,
-  default: ({ open, error, onRetry, onBack }) => (
-    <div data-testid="generating-modal" data-open={String(open)} data-error={String(!!error)}>
-      {error && <button onClick={onBack}>Back to image</button>}
-      {error && <button onClick={onRetry}>Retry</button>}
-    </div>
-  ),
-}))
 
 // Stub StylesCard: render a plain button so we can click a style tile
 jest.mock('@/app/(main_pages)/generate/(formComponents)/StylesCard', () => ({
@@ -88,11 +79,11 @@ test('back button calls onClose', () => {
   expect(onClose).toHaveBeenCalledTimes(1)
 })
 
-// --- GeneratingModal ---
+// --- Generating state ---
 
-test('GeneratingModal is not open in default state', () => {
+test('generating inline state is not shown in default state', () => {
   renderPanel()
-  expect(screen.getByTestId('generating-modal')).toHaveAttribute('data-open', 'false')
+  expect(screen.queryByTestId('generating-inline')).not.toBeInTheDocument()
 })
 
 // --- New Variation ---
@@ -140,31 +131,31 @@ test('on success navigates to new image', async () => {
   await waitFor(() => expect(mockPush).toHaveBeenCalledWith('/images/newimg1'))
 })
 
-test('on failure GeneratingModal shows error state', async () => {
+test('on failure shows inline error state', async () => {
   mockGenerateImage.mockRejectedValueOnce(new Error('fail'))
   renderPanel()
   fireEvent.click(screen.getByText('New Variation'))
   await waitFor(() =>
-    expect(screen.getByTestId('generating-modal')).toHaveAttribute('data-error', 'true')
+    expect(screen.getByText('Something went wrong')).toBeInTheDocument()
   )
 })
 
-test('Back to image after New Variation failure closes modal', async () => {
+test('Back to image after New Variation failure dismisses error state', async () => {
   mockGenerateImage.mockRejectedValueOnce(new Error('fail'))
   renderPanel()
   fireEvent.click(screen.getByText('New Variation'))
   await waitFor(() => screen.getByText('Back to image'))
   fireEvent.click(screen.getByText('Back to image'))
-  expect(screen.getByTestId('generating-modal')).toHaveAttribute('data-open', 'false')
+  expect(screen.queryByText('Something went wrong')).not.toBeInTheDocument()
 })
 
-test('Back to image after iterate failure keeps modal closed and does not call onClose', async () => {
+test('Back to image after iterate failure dismisses error and does not call onClose', async () => {
   mockGenerateImage.mockRejectedValueOnce(new Error('fail'))
   renderPanel(true)
   fireEvent.click(screen.getByRole('button', { name: /generate/i }))
   await waitFor(() => screen.getByText('Back to image'))
   fireEvent.click(screen.getByText('Back to image'))
-  expect(screen.getByTestId('generating-modal')).toHaveAttribute('data-open', 'false')
+  expect(screen.queryByText('Something went wrong')).not.toBeInTheDocument()
   expect(onClose).not.toHaveBeenCalled()
 })
 

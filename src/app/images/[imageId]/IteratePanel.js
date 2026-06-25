@@ -22,7 +22,9 @@ import { useRouter } from "next/navigation";
 import { styles, selectRandomStyle } from "@/_utils/ImageStyles";
 import { generateImage } from "@/_utils/ImagesUtils";
 import { qrWeightToSlider, QR_SLIDER_MIN, QR_SLIDER_MAX } from "@/_utils/qrWeight";
-import GeneratingModal from "./GeneratingModal";
+
+const GIF_URL =
+  "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExNXd0ZmY4N3VweW54ejIwN29yaGQxcmdtOWh5aGZuMG1wZW5mdHprYyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/R8dDMt8IgVvhK/giphy.gif";
 
 const DARK_FIELD_SX = {
   "& .MuiOutlinedInput-root": {
@@ -160,17 +162,61 @@ export default function IteratePanel({ image, isOpen, onOpen, onClose }) {
     setGeneratingError(false);
   };
 
+  const isActive = generating || generatingError;
+
   return (
     <>
-      <GeneratingModal
-        open={generating || generatingError}
-        error={generatingError}
-        onRetry={handleRetry}
-        onBack={handleBackToImage}
-      />
+      {/* Inline generating / error state */}
+      {isActive && (
+        <Box
+          data-testid="generating-inline"
+          sx={{
+            border: "1px solid #2e2e2e",
+            borderRadius: "16px",
+            bgcolor: "#0e0e0e",
+            overflow: "hidden",
+          }}
+        >
+          {!generatingError ? (
+            <>
+              <Box
+                component="img"
+                src={GIF_URL}
+                alt="Generating…"
+                sx={{ width: "100%", display: "block", aspectRatio: "16/9", objectFit: "cover", objectPosition: "center 25%" }}
+              />
+              <Box sx={{ p: "16px 20px" }}>
+                <Typography variant="h5" sx={{ fontSize: "20px", lineHeight: 1.1, color: "primary.main" }}>
+                  Generating your QR art…
+                </Typography>
+                <Typography variant="body2" sx={{ color: "#b8b8b8", mt: 0.75, lineHeight: 1.45 }}>
+                  This takes about a minute — hang tight!
+                </Typography>
+              </Box>
+            </>
+          ) : (
+            <Box sx={{ p: "20px 22px" }}>
+              <Typography variant="h5" sx={{ fontSize: "20px", lineHeight: 1.1, color: "#e0e0e0", mb: 1 }}>
+                Something went wrong
+              </Typography>
+              <Typography variant="body2" sx={{ color: "#b8b8b8", mb: 3, lineHeight: 1.45 }}>
+                Generation failed. You can retry or go back to the image.
+              </Typography>
+              <Stack direction="row" spacing={2}>
+                <Button variant="contained" color="primary" onClick={handleRetry}>
+                  Retry
+                </Button>
+                <Button variant="outlined" color="primary" onClick={handleBackToImage}>
+                  Back to image
+                </Button>
+              </Stack>
+            </Box>
+          )}
+        </Box>
+      )}
 
       {/* DEFAULT PANEL */}
-      {!isOpen && (
+      {!isOpen && !isActive && (
         <Stack spacing={2}>
           <Box
             onClick={() => handleGenerate("newVariation")}
@@ -221,7 +267,7 @@ export default function IteratePanel({ image, isOpen, onOpen, onClose }) {
       )}
 
       {/* ITERATE FORM */}
-      {isOpen && (
+      {isOpen && !isActive && (
         <Box sx={{ display: "flex", flexDirection: "column" }}>
           {/* Form card */}
           <Box
