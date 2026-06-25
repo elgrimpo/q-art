@@ -49,7 +49,7 @@ const DISABLED_FIELD_SX = {
 const GENERATION_ERRORS = new Set(["GenerationFailed", "InsufficientCredits"]);
 const isGenerationFailure = (err) => GENERATION_ERRORS.has(err?.message);
 
-function initFormValues(image) {
+function initFormValues(image, isOwner = true) {
   const sourceStyle = styles.find((s) => s.title === image.style_title) ?? styles[0];
   return {
     prompt: image.prompt ?? "",
@@ -59,11 +59,11 @@ function initFormValues(image) {
     styleLoras: sourceStyle.loras ?? [],
     sdModel: image.sd_model ?? "cyberrealistic_v40_151857.safetensors",
     qrWeight: qrWeightToSlider(image.qr_weight ?? 0.5),
-    url: image.content ?? "",
+    url: isOwner ? (image.content ?? "") : "",
   };
 }
 
-export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGeneratingChange }) {
+export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGeneratingChange, isOwner = true }) {
   const router = useRouter();
   const originalStyleTitle = useRef(image.style_title ?? "");
 
@@ -75,7 +75,7 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
   const generating = iterateSession?.imageId === image._id && !!iterateSession?.generating;
   const generatingError = iterateSession?.imageId === image._id && !!iterateSession?.error;
 
-  const [formValues, setFormValues] = useState(() => initFormValues(image));
+  const [formValues, setFormValues] = useState(() => initFormValues(image, isOwner));
   const [promptTouched, setPromptTouched] = useState(false);
 
   const isActive = generating || generatingError;
@@ -178,7 +178,9 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
 
   const handleBackToImage = () => clearIterateSession();
 
-  const isFormValid = formValues.prompt.trim().length > 0;
+  const isFormValid =
+    formValues.prompt.trim().length > 0 &&
+    (isOwner || formValues.url.trim().length > 0);
 
   return (
     <>
@@ -241,28 +243,30 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
       {/* DEFAULT PANEL */}
       {!isOpen && !isActive && (
         <Stack spacing={2}>
-          <Box
-            onClick={() => handleGenerate("newVariation")}
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1.75,
-              p: "16px 18px",
-              border: "1px solid #2e2e2e",
-              borderRadius: "16px",
-              bgcolor: "#0e0e0e",
-              cursor: "pointer",
-              "&:hover": { borderColor: "primary.main" },
-            }}
-          >
-            <Box sx={{ flexShrink: 0, width: 44, height: 44, borderRadius: "12px", bgcolor: "rgba(112, 225, 149, 0.08)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <ShuffleIcon sx={{ color: "primary.main", fontSize: 22 }} />
+          {isOwner && (
+            <Box
+              onClick={() => handleGenerate("newVariation")}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.75,
+                p: "16px 18px",
+                border: "1px solid #2e2e2e",
+                borderRadius: "16px",
+                bgcolor: "#0e0e0e",
+                cursor: "pointer",
+                "&:hover": { borderColor: "primary.main" },
+              }}
+            >
+              <Box sx={{ flexShrink: 0, width: 44, height: 44, borderRadius: "12px", bgcolor: "rgba(112, 225, 149, 0.08)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <ShuffleIcon sx={{ color: "primary.main", fontSize: 22 }} />
+              </Box>
+              <Box>
+                <Typography variant="h5" sx={{ fontSize: "22px", lineHeight: 1.1, color: "primary.main" }}>New Variation</Typography>
+                <Typography variant="body2" sx={{ color: "#b8b8b8", mt: 0.5, lineHeight: 1.45 }}>Same style, new random seed.</Typography>
+              </Box>
             </Box>
-            <Box>
-              <Typography variant="h5" sx={{ fontSize: "22px", lineHeight: 1.1, color: "primary.main" }}>New Variation</Typography>
-              <Typography variant="body2" sx={{ color: "#b8b8b8", mt: 0.5, lineHeight: 1.45 }}>Same style, new random seed.</Typography>
-            </Box>
-          </Box>
+          )}
 
           <Box
             onClick={onOpen}
@@ -282,8 +286,14 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
               <AutoFixHighIcon sx={{ color: "primary.main", fontSize: 22 }} />
             </Box>
             <Box>
-              <Typography variant="h5" sx={{ fontSize: "22px", lineHeight: 1.1, color: "primary.main" }}>Iterate this image</Typography>
-              <Typography variant="body2" sx={{ color: "#b8b8b8", mt: 0.5, lineHeight: 1.45 }}>Edit prompt, style, or QR weight and generate a new version.</Typography>
+              <Typography variant="h5" sx={{ fontSize: "22px", lineHeight: 1.1, color: "primary.main" }}>
+                {isOwner ? "Iterate this image" : "Make it your own"}
+              </Typography>
+              <Typography variant="body2" sx={{ color: "#b8b8b8", mt: 0.5, lineHeight: 1.45 }}>
+                {isOwner
+                  ? "Edit prompt, style, or QR weight and generate a new version."
+                  : "Enter a URL and customise the prompt and style to generate your version."}
+              </Typography>
             </Box>
           </Box>
         </Stack>
@@ -312,10 +322,12 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
               </IconButton>
               <Box>
                 <Typography variant="h5" sx={{ fontSize: "22px", lineHeight: 1.1, color: "primary.main" }}>
-                  Iterate this image
+                  {isOwner ? "Iterate this image" : "Make it your own"}
                 </Typography>
                 <Typography variant="body2" sx={{ color: "#b8b8b8", mt: 0.5, lineHeight: 1.45 }}>
-                  Edit prompt, style, or QR weight and generate a new version.
+                  {isOwner
+                    ? "Edit prompt, style, or QR weight and generate a new version."
+                    : "Enter a URL and customise the prompt and style to generate your version."}
                 </Typography>
               </Box>
             </Box>
@@ -324,15 +336,20 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
               spacing={2.5}
               divider={<Divider sx={{ borderColor: "#1e1e1e" }} />}
             >
-              {/* URL — top, disabled */}
+              {/* URL */}
               <TextField
                 label="URL"
                 name="url"
                 fullWidth
                 size="small"
-                disabled
+                disabled={isOwner}
                 value={formValues.url}
-                sx={DISABLED_FIELD_SX}
+                onChange={
+                  !isOwner
+                    ? (e) => setFormValues((prev) => ({ ...prev, url: e.target.value }))
+                    : undefined
+                }
+                sx={isOwner ? DISABLED_FIELD_SX : DARK_FIELD_SX}
               />
 
               {/* Prompt */}

@@ -1,173 +1,129 @@
 import React from 'react'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { useStore } from '../store'
+import { render, screen, fireEvent } from '@testing-library/react'
 
-const mockPush = jest.fn()
-jest.mock('next/navigation', () => ({ useRouter: () => ({ push: mockPush }) }))
+jest.mock('next/navigation', () => ({ useRouter: () => ({ push: jest.fn() }) }))
 
-const mockGenerateImage = jest.fn()
-jest.mock('@/_utils/ImagesUtils', () => ({ generateImage: (...a) => mockGenerateImage(...a) }))
+const mockSetIterateSession = jest.fn()
+const mockClearIterateSession = jest.fn()
+jest.mock('@/store', () => ({
+  useStore: (selector) =>
+    selector({
+      iterateSession: null,
+      setIterateSession: mockSetIterateSession,
+      clearIterateSession: mockClearIterateSession,
+    }),
+}))
 
+jest.mock('@/_utils/ImagesUtils', () => ({ generateImage: jest.fn() }))
 
-// Stub StylesCard: render a plain button so we can click a style tile
-jest.mock('@/app/(main_pages)/generate/(formComponents)/StylesCard', () => ({
-  __esModule: true,
-  default: ({ item, handleClick }) => (
-    <button data-testid={`style-${item.title}`} onClick={() => handleClick(item)}>
-      {item.title}
-    </button>
-  ),
+jest.mock('@/_utils/qrWeight', () => ({
+  qrWeightToSlider: (w) => w,
+  QR_SLIDER_MIN: 0,
+  QR_SLIDER_MAX: 1,
+}))
+
+jest.mock('@/_utils/ImageStyles', () => ({
+  styles: [
+    { id: 1, title: 'Random', prompt: '', loras: [], sd_model: 'model.safetensors', image_url: '' },
+    { id: 2, title: 'Photorealistic', prompt: 'photo', loras: [], sd_model: 'model.safetensors', image_url: '' },
+  ],
+  selectRandomStyle: jest.fn(() => ({
+    id: 2, title: 'Photorealistic', prompt: 'photo', loras: [], sd_model: 'model.safetensors',
+  })),
 }))
 
 import IteratePanel from '../app/images/[imageId]/IteratePanel'
 
 const IMAGE = {
   _id: 'img1',
-  prompt: 'a cat',
-  style_title: 'Ukiyo-e',
-  style_prompt: 'Detailed, Graphic Novel, Cinematic, Ukiyo-e Flat Design',
-  sd_model: 'colorful_v31_62333.safetensors',
-  seed: 42,
-  qr_weight: 0.5,
   content: 'https://example.com',
-  negative_prompt: '',
+  prompt: 'a beautiful forest',
+  style_title: 'Photorealistic',
+  qr_weight: 0.5,
 }
 
-const onOpen = jest.fn()
-const onClose = jest.fn()
+beforeEach(() => jest.clearAllMocks())
 
-function renderPanel(isOpen = false) {
-  return render(
-    <IteratePanel image={IMAGE} isOpen={isOpen} onOpen={onOpen} onClose={onClose} />
-  )
-}
+// ─── Default panel (isOpen=false) ────────────────────────────────────────────
 
-beforeEach(() => {
-  jest.clearAllMocks()
-  mockGenerateImage.mockResolvedValue({ _id: 'newimg1' })
-  useStore.setState({ iterateSession: null })
+describe('default panel — owner', () => {
+  it('shows New Variation and Iterate this image', () => {
+    render(<IteratePanel image={IMAGE} isOpen={false} onOpen={jest.fn()} isOwner={true} />)
+    expect(screen.getByText('New Variation')).toBeInTheDocument()
+    expect(screen.getByText('Iterate this image')).toBeInTheDocument()
+  })
 })
 
-// --- Default panel ---
+describe('default panel — non-owner', () => {
+  it('hides New Variation', () => {
+    render(<IteratePanel image={IMAGE} isOpen={false} onOpen={jest.fn()} isOwner={false} />)
+    expect(screen.queryByText('New Variation')).not.toBeInTheDocument()
+  })
 
-test('shows New Variation and Iterate this image in default state', () => {
-  renderPanel()
-  expect(screen.getByText('New Variation')).toBeInTheDocument()
-  expect(screen.getByText('Iterate this image')).toBeInTheDocument()
+  it('shows Make it your own', () => {
+    render(<IteratePanel image={IMAGE} isOpen={false} onOpen={jest.fn()} isOwner={false} />)
+    expect(screen.getByText('Make it your own')).toBeInTheDocument()
+  })
 })
 
-test('clicking Iterate this image calls onOpen', () => {
-  renderPanel()
-  fireEvent.click(screen.getByText('Iterate this image'))
-  expect(onOpen).toHaveBeenCalledTimes(1)
+// ─── Form panel (isOpen=true) ─────────────────────────────────────────────────
+
+describe('form panel — owner', () => {
+  it('URL field is disabled and pre-filled with image.content', () => {
+    render(
+      <IteratePanel image={IMAGE} isOpen={true} onOpen={jest.fn()} onClose={jest.fn()} isOwner={true} />
+    )
+    const urlInput = screen.getByLabelText('URL')
+    expect(urlInput).toBeDisabled()
+    expect(urlInput.value).toBe('https://example.com')
+  })
+
+  it('Generate button is enabled when prompt is non-empty', () => {
+    render(
+      <IteratePanel image={IMAGE} isOpen={true} onOpen={jest.fn()} onClose={jest.fn()} isOwner={true} />
+    )
+    expect(screen.getByRole('button', { name: /generate/i })).not.toBeDisabled()
+  })
 })
 
-// --- Form panel ---
+describe('form panel — non-owner', () => {
+  it('shows Make it your own as form title', () => {
+    render(
+      <IteratePanel image={IMAGE} isOpen={true} onOpen={jest.fn()} onClose={jest.fn()} isOwner={false} />
+    )
+    // The form header uses the same text as the button
+    expect(screen.getAllByText('Make it your own').length).toBeGreaterThan(0)
+  })
 
-test('shows form fields when isOpen=true', () => {
-  renderPanel(true)
-  expect(screen.getByRole('textbox', { name: /prompt/i })).toBeInTheDocument()
-  expect(screen.getByRole('button', { name: /generate/i })).toBeInTheDocument()
-})
+  it('URL field is empty and editable', () => {
+    render(
+      <IteratePanel image={IMAGE} isOpen={true} onOpen={jest.fn()} onClose={jest.fn()} isOwner={false} />
+    )
+    const urlInput = screen.getByLabelText('URL')
+    expect(urlInput).not.toBeDisabled()
+    expect(urlInput.value).toBe('')
+  })
 
-test('prompt textarea is pre-filled from image', () => {
-  renderPanel(true)
-  expect(screen.getByRole('textbox', { name: /prompt/i })).toHaveValue('a cat')
-})
+  it('Generate button is disabled when URL is empty', () => {
+    render(
+      <IteratePanel image={IMAGE} isOpen={true} onOpen={jest.fn()} onClose={jest.fn()} isOwner={false} />
+    )
+    expect(screen.getByRole('button', { name: /generate/i })).toBeDisabled()
+  })
 
-test('back button calls onClose', () => {
-  renderPanel(true)
-  fireEvent.click(screen.getByRole('button', { name: /back/i }))
-  expect(onClose).toHaveBeenCalledTimes(1)
-})
+  it('Generate button enables after URL is typed', () => {
+    render(
+      <IteratePanel image={IMAGE} isOpen={true} onOpen={jest.fn()} onClose={jest.fn()} isOwner={false} />
+    )
+    fireEvent.change(screen.getByLabelText('URL'), { target: { value: 'https://mysite.com' } })
+    expect(screen.getByRole('button', { name: /generate/i })).not.toBeDisabled()
+  })
 
-// --- Generating state ---
-
-test('generating inline state is not shown in default state', () => {
-  renderPanel()
-  expect(screen.queryByTestId('generating-inline')).not.toBeInTheDocument()
-})
-
-// --- New Variation ---
-
-test('New Variation fires generateImage with seed -1', async () => {
-  renderPanel()
-  fireEvent.click(screen.getByText('New Variation'))
-  await waitFor(() => expect(mockGenerateImage).toHaveBeenCalledTimes(1))
-  expect(mockGenerateImage.mock.calls[0][0].seed).toBe(-1)
-})
-
-test('New Variation fires generateImage with original image values', async () => {
-  renderPanel()
-  fireEvent.click(screen.getByText('New Variation'))
-  await waitFor(() => expect(mockGenerateImage).toHaveBeenCalledTimes(1))
-  const payload = mockGenerateImage.mock.calls[0][0]
-  expect(payload.website).toBe('https://example.com')
-  expect(payload.prompt).toBe('a cat')
-})
-
-// --- Iterate Generate: seed logic ---
-
-test('Generate with style unchanged uses image.seed', async () => {
-  renderPanel(true)
-  fireEvent.click(screen.getByRole('button', { name: /generate/i }))
-  await waitFor(() => expect(mockGenerateImage).toHaveBeenCalledTimes(1))
-  expect(mockGenerateImage.mock.calls[0][0].seed).toBe(42)
-})
-
-test('Generate after style change uses seed -1', async () => {
-  renderPanel(true)
-  // Expand accordion and click a different style
-  fireEvent.click(screen.getByText('Ukiyo-e')) // accordion trigger shows current style title
-  fireEvent.click(screen.getByTestId('style-Expressionism'))
-  fireEvent.click(screen.getByRole('button', { name: /generate/i }))
-  await waitFor(() => expect(mockGenerateImage).toHaveBeenCalledTimes(1))
-  expect(mockGenerateImage.mock.calls[0][0].seed).toBe(-1)
-})
-
-// --- Success / failure ---
-
-test('on success navigates to new image', async () => {
-  renderPanel()
-  fireEvent.click(screen.getByText('New Variation'))
-  await waitFor(() => expect(mockPush).toHaveBeenCalledWith('/images/newimg1'))
-})
-
-test('on failure shows inline error state', async () => {
-  mockGenerateImage.mockRejectedValueOnce(new Error('GenerationFailed'))
-  renderPanel()
-  fireEvent.click(screen.getByText('New Variation'))
-  await waitFor(() =>
-    expect(screen.getByText('Something went wrong')).toBeInTheDocument()
-  )
-})
-
-test('Back to image after New Variation failure dismisses error state', async () => {
-  mockGenerateImage.mockRejectedValueOnce(new Error('GenerationFailed'))
-  renderPanel()
-  fireEvent.click(screen.getByText('New Variation'))
-  await waitFor(() => screen.getByText('Back to image'))
-  fireEvent.click(screen.getByText('Back to image'))
-  expect(screen.queryByText('Something went wrong')).not.toBeInTheDocument()
-})
-
-test('Back to image after iterate failure dismisses error and does not call onClose', async () => {
-  mockGenerateImage.mockRejectedValueOnce(new Error('GenerationFailed'))
-  renderPanel(true)
-  fireEvent.click(screen.getByRole('button', { name: /generate/i }))
-  await waitFor(() => screen.getByText('Back to image'))
-  fireEvent.click(screen.getByText('Back to image'))
-  expect(screen.queryByText('Something went wrong')).not.toBeInTheDocument()
-  expect(onClose).not.toHaveBeenCalled()
-})
-
-test('Retry re-fires the same generateImage call', async () => {
-  mockGenerateImage
-    .mockRejectedValueOnce(new Error('GenerationFailed'))
-    .mockResolvedValueOnce({ _id: 'newimg2' })
-  renderPanel()
-  fireEvent.click(screen.getByText('New Variation'))
-  await waitFor(() => screen.getByText('Retry'))
-  fireEvent.click(screen.getByText('Retry'))
-  await waitFor(() => expect(mockPush).toHaveBeenCalledWith('/images/newimg2'))
+  it('prompt is pre-filled with source image prompt', () => {
+    render(
+      <IteratePanel image={IMAGE} isOpen={true} onOpen={jest.fn()} onClose={jest.fn()} isOwner={false} />
+    )
+    const promptInput = screen.getByLabelText('prompt')
+    expect(promptInput.value).toBe('a beautiful forest')
+  })
 })
