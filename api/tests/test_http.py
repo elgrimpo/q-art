@@ -104,6 +104,21 @@ async def test_get_user_info_returns_200(mock_get_user):
     mock_get_user.assert_called_once_with("test@example.com")
 
 
+@patch("api.main.get_user_info", new_callable=AsyncMock)
+async def test_get_user_info_includes_is_admin(mock_get_user):
+    """GET /api/user/info must include is_admin merged from the JWT token claims."""
+    mock_get_user.return_value = {"email": "test@example.com", "credits": 10}
+
+    async with _client() as client:
+        response = await client.get("/api/user/info", headers=_guest_auth_headers())
+
+    assert response.status_code == 200
+    body = response.json()
+    assert "is_admin" in body
+    # Guest JWT for test@example.com is not an admin email — must be False
+    assert body["is_admin"] is False
+
+
 @patch("api.main.authenticate_user", new_callable=AsyncMock)
 async def test_post_user_auth_returns_200_with_valid_body(mock_auth):
     mock_auth.return_value = {"message": "User authenticated successfully"}

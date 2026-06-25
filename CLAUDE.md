@@ -39,6 +39,7 @@ Required keys (see `.env` for values):
 - `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET`
 - `NEXTAUTH_SECRET` / `NEXTAUTH_URL`
 - `BACKEND_JWT_SECRET` — shared HS256 secret used to sign (Next.js) and verify (FastAPI) backend auth tokens. **Must be identical on both apps.** Next.js mints a short-lived JWT carrying the verified identity; FastAPI derives `user_id` from it instead of trusting query params (see `api/utils/auth.py`, `src/_utils/backendAuth.js`).
+- `ADMIN_EMAILS` — comma-separated list of email addresses granted admin privileges (QRAI-129). Read by FastAPI only; `get_current_user` sets `is_admin: true` for any verified email in this list. Not stored in MongoDB — derived at request time.
 - `RESEND_API_KEY` / `EMAIL_FROM` — passwordless email-code login (QRAI-82); FastAPI sends 6-digit login codes via Resend.
 
 ## Auth model (QRAI-32)

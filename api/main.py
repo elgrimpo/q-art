@@ -76,7 +76,10 @@ app.add_middleware(
 # GET USER INFO
 @app.get("/api/user/info")
 async def get_user_info_endpoint(current_user: dict = Depends(get_current_user)):
-    return await get_user_info(current_user["email"])
+    user = await get_user_info(current_user["email"])
+    user_dict = user.dict() if hasattr(user, "dict") else user
+    user_dict["is_admin"] = current_user["is_admin"]
+    return user_dict
 
 # AUTHENTICATE USER (sign-in bootstrap; service-token protected)
 @app.post("/api/user/auth")
