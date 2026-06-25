@@ -600,6 +600,7 @@ export default function ImageSidebar({
           onOpen={() => setIterateOpen(true)}
           onClose={() => setIterateOpen(false)}
           onGeneratingChange={(active) => setIterateActive(active)}
+          isOwner={isOwner}
         />
       </Box>
     </Box>

@@ -30,9 +30,9 @@ jest.mock('@/_components/ScannabilityBadge', () => ({
 }))
 jest.mock('../app/images/[imageId]/IteratePanel', () => ({
   __esModule: true,
-  default: ({ isOpen, onOpen }) => (
-    <div data-testid="iterate-panel" data-open={String(isOpen)}>
-      <button onClick={onOpen}>Iterate this image</button>
+  default: ({ isOpen, onOpen, isOwner }) => (
+    <div data-testid="iterate-panel" data-open={String(isOpen)} data-is-owner={String(!!isOwner)}>
+      <button onClick={onOpen}>{isOwner !== false ? 'Iterate this image' : 'Make it your own'}</button>
     </div>
   ),
 }))
@@ -157,6 +157,36 @@ describe('showActions=false sidebar', () => {
     fireEvent.click(screen.getByText('Iterate this image'))
     expect(screen.getByTestId('iterate-panel')).toHaveAttribute('data-open', 'true')
     expect(screen.queryByText('Links to')).not.toBeInTheDocument()
+  })
+
+  test('passes isOwner=true to IteratePanel when user owns the image', async () => {
+    setSearch('')
+    await act(async () => {
+      render(
+        <ImageSidebar
+          image={IMAGE}          // IMAGE.user_id = 'u1' === USER._id
+          user={USER}
+          customDeleteAction={jest.fn()}
+          showActions={false}
+        />
+      )
+    })
+    expect(screen.getByTestId('iterate-panel')).toHaveAttribute('data-is-owner', 'true')
+  })
+
+  test('passes isOwner=false to IteratePanel when user does not own the image', async () => {
+    setSearch('')
+    await act(async () => {
+      render(
+        <ImageSidebar
+          image={{ ...IMAGE, user_id: 'other-user' }}
+          user={USER}
+          customDeleteAction={jest.fn()}
+          showActions={false}
+        />
+      )
+    })
+    expect(screen.getByTestId('iterate-panel')).toHaveAttribute('data-is-owner', 'false')
   })
 })
 
