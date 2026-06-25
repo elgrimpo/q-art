@@ -1,6 +1,6 @@
 // src/__tests__/ImageSidebar.test.js
 import React from 'react'
-import { render, screen, waitFor, act } from '@testing-library/react'
+import { render, screen, waitFor, act, fireEvent } from '@testing-library/react'
 
 jest.mock('next/navigation', () => ({ useRouter: () => ({ refresh: jest.fn() }) }))
 jest.mock('@amplitude/analytics-browser', () => ({ track: jest.fn() }))
@@ -25,6 +25,14 @@ jest.mock('../app/images/[imageId]/GuestSignupPrompt', () => ({ __esModule: true
 jest.mock('@/_components/ScannabilityBadge', () => ({
   __esModule: true,
   default: ({ score }) => score != null ? <div data-testid="scannability-badge">{score}</div> : null,
+}))
+jest.mock('../app/images/[imageId]/IteratePanel', () => ({
+  __esModule: true,
+  default: ({ isOpen, onOpen }) => (
+    <div data-testid="iterate-panel" data-open={String(isOpen)}>
+      <button onClick={onOpen}>Iterate this image</button>
+    </div>
+  ),
 }))
 
 import * as amplitude from '@amplitude/analytics-browser'
@@ -116,5 +124,36 @@ describe('ScannabilityBadge integration', () => {
     })
     expect(screen.queryByText('Scannability')).not.toBeInTheDocument()
     expect(screen.queryByTestId('scannability-badge')).not.toBeInTheDocument()
+  })
+})
+
+// showActions=false branch (new standalone-page sidebar with IteratePanel)
+async function renderNewSidebar(imageOverride = {}) {
+  await act(async () => {
+    render(
+      <ImageSidebar
+        image={{ ...IMAGE, ...imageOverride }}
+        user={USER}
+        customDeleteAction={jest.fn()}
+        showActions={false}
+      />
+    )
+  })
+}
+
+describe('showActions=false sidebar', () => {
+  test('renders IteratePanel in default state', async () => {
+    setSearch('')
+    await renderNewSidebar()
+    expect(screen.getByTestId('iterate-panel')).toBeInTheDocument()
+    expect(screen.getByTestId('iterate-panel')).toHaveAttribute('data-open', 'false')
+  })
+
+  test('opening iterate form hides other sidebar sections', async () => {
+    setSearch('')
+    await renderNewSidebar({ content: 'https://example.com' })
+    fireEvent.click(screen.getByText('Iterate this image'))
+    expect(screen.getByTestId('iterate-panel')).toHaveAttribute('data-open', 'true')
+    expect(screen.queryByText('Links to')).not.toBeInTheDocument()
   })
 })

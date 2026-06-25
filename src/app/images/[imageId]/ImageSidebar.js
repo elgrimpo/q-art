@@ -27,7 +27,7 @@ import LikeButton from "@/_components/actions/LikeButton";
 import UnlockButton from "@/_components/actions/UnlockButton";
 import ShareButton from "@/_components/actions/ShareButton";
 import GuestSignupPrompt from "./GuestSignupPrompt";
-import RemixCard from "./RemixCard";
+import IteratePanel from "./IteratePanel";
 import { useStore } from "@/store";
 import { unlockImage } from "@/_utils/ImagesUtils";
 import * as amplitude from "@amplitude/analytics-browser";
@@ -63,6 +63,11 @@ export default function ImageSidebar({
   const [unlocking, setUnlocking] = useState(false);
   const [currentImage, setCurrentImage] = useState(image);
   const [promptCopied, setPromptCopied] = useState(false);
+  const [iterateOpen, setIterateOpen] = useState(false);
+
+  useEffect(() => {
+    setIterateOpen(false);
+  }, [image?._id]);
 
   useEffect(() => {
     setCurrentImage(image);
@@ -269,216 +274,219 @@ export default function ImageSidebar({
   /*  STANDALONE PAGE MODE (showActions=false) — new design                      */
   /* -------------------------------------------------------------------------- */
   return (
-    <Box
-      sx={{
-        width: "100%",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
-      {/* LINKS TO */}
-      <Box>
-        <Typography
-          variant="overline"
-          sx={{ fontSize: "11px", color: "#7d7d7d", letterSpacing: "0.08em", display: "block", mb: 1 }}
-        >
-          Links to
-        </Typography>
-        {currentImage?.content && (
-          <Box
-            component="a"
-            href={
-              currentImage.content.startsWith("http")
-                ? currentImage.content
-                : `https://${currentImage.content}`
-            }
-            target="_blank"
-            rel="noopener noreferrer"
-            sx={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 1.125,
-              textDecoration: "none",
-              color: "primary.main",
-              maxWidth: "100%",
-            }}
-          >
-            <LinkIcon sx={{ flexShrink: 0, fontSize: 20 }} />
-            <Typography
-              variant="h3"
-              sx={{ fontSize: "30px", lineHeight: 1.05, wordBreak: "break-all" }}
-            >
-              {currentImage.content}
-            </Typography>
-          </Box>
-        )}
-      </Box>
-
-      {/* STYLE + SCANNABILITY */}
-      <Box
-        sx={{
-          display: "flex",
-          gap: 4,
-          alignItems: "flex-start",
-          mt: 3.25,
-          pt: 3,
-          borderTop: "1px solid #2e2e2e",
-        }}
-      >
-        {currentImage?.style_title && (
-          <Box sx={{ flex: 1, minWidth: 0 }}>
+    <Box sx={{ width: "100%", display: "flex", flexDirection: "column" }}>
+      {!iterateOpen && (
+        <>
+          {/* LINKS TO */}
+          <Box>
             <Typography
               variant="overline"
-              sx={{ fontSize: "11px", color: "#7d7d7d", letterSpacing: "0.08em", display: "block", mb: 1.25 }}
+              sx={{ fontSize: "11px", color: "#7d7d7d", letterSpacing: "0.08em", display: "block", mb: 1 }}
             >
-              Style
+              Links to
             </Typography>
-            <Chip
-              label={currentImage.style_title.toUpperCase()}
-              size="small"
-              sx={{
-                bgcolor: "#2a2a2a",
-                color: "primary.light",
-                fontWeight: 700,
-                fontSize: "12px",
-                letterSpacing: "0.08em",
-                height: "36px",
-                borderRadius: "999px",
-              }}
-            />
-          </Box>
-        )}
-
-        {hasScore && (
-          <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "baseline",
-                justifyContent: "space-between",
-                mb: 1.375,
-              }}
-            >
-              <Typography
-                variant="overline"
-                sx={{ fontSize: "11px", color: "#7d7d7d", letterSpacing: "0.08em" }}
+            {currentImage?.content && (
+              <Box
+                component="a"
+                href={
+                  currentImage.content.startsWith("http")
+                    ? currentImage.content
+                    : `https://${currentImage.content}`
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 1.125,
+                  textDecoration: "none",
+                  color: "primary.main",
+                  maxWidth: "100%",
+                }}
               >
-                Scannability
-              </Typography>
-              <Typography variant="h5" sx={{ fontSize: "16px", color: scannability.color }}>
-                {scannability.label}
-              </Typography>
-            </Box>
-            <Stack direction="row" spacing={0.75}>
-              {Array.from({ length: 5 }, (_, i) => (
-                <Box
-                  key={i}
-                  sx={{
-                    flex: 1,
-                    height: "16px",
-                    borderRadius: "4px",
-                    bgcolor: i < filledSegments ? scannability.color : "#2e2e2e",
-                  }}
-                />
-              ))}
-            </Stack>
+                <LinkIcon sx={{ flexShrink: 0, fontSize: 20 }} />
+                <Typography
+                  variant="h3"
+                  sx={{ fontSize: "30px", lineHeight: 1.05, wordBreak: "break-all" }}
+                >
+                  {currentImage.content}
+                </Typography>
+              </Box>
+            )}
           </Box>
-        )}
-      </Box>
 
-      {/* PROMPT */}
-      {currentImage?.prompt && (
-        <Box sx={{ mt: 3.25, pt: 3, borderTop: "1px solid #2e2e2e" }}>
-          <Typography
-            variant="overline"
-            sx={{ fontSize: "11px", color: "#7d7d7d", letterSpacing: "0.08em", display: "block", mb: 1.25 }}
-          >
-            Prompt
-          </Typography>
+          {/* STYLE + SCANNABILITY */}
           <Box
             sx={{
-              bgcolor: "#0e0e0e",
-              border: "1px solid #2e2e2e",
-              borderRadius: "12px",
-              p: "16px 18px",
-              pr: "52px",
-              color: "#b8b8b8",
-              fontSize: "14px",
-              lineHeight: 1.55,
-              position: "relative",
+              display: "flex",
+              gap: 4,
+              alignItems: "flex-start",
+              mt: 3.25,
+              pt: 3,
+              borderTop: "1px solid #2e2e2e",
             }}
           >
-            {currentImage.prompt}
-            <IconButton
-              size="small"
-              onClick={handleCopyPrompt}
-              sx={{
-                position: "absolute",
-                top: 10,
-                right: 10,
-                width: 30,
-                height: 30,
-                borderRadius: "8px",
-                bgcolor: "#2a2a2a",
-                color: promptCopied ? "primary.main" : "#b8b8b8",
-                "&:hover": { bgcolor: "#3a3a3a" },
-              }}
-            >
-              <ContentCopyIcon sx={{ fontSize: 15 }} />
-            </IconButton>
+            {currentImage?.style_title && (
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Typography
+                  variant="overline"
+                  sx={{ fontSize: "11px", color: "#7d7d7d", letterSpacing: "0.08em", display: "block", mb: 1.25 }}
+                >
+                  Style
+                </Typography>
+                <Chip
+                  label={currentImage.style_title.toUpperCase()}
+                  size="small"
+                  sx={{
+                    bgcolor: "#2a2a2a",
+                    color: "primary.light",
+                    fontWeight: 700,
+                    fontSize: "12px",
+                    letterSpacing: "0.08em",
+                    height: "36px",
+                    borderRadius: "999px",
+                  }}
+                />
+              </Box>
+            )}
+
+            {hasScore && (
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "baseline",
+                    justifyContent: "space-between",
+                    mb: 1.375,
+                  }}
+                >
+                  <Typography
+                    variant="overline"
+                    sx={{ fontSize: "11px", color: "#7d7d7d", letterSpacing: "0.08em" }}
+                  >
+                    Scannability
+                  </Typography>
+                  <Typography variant="h5" sx={{ fontSize: "16px", color: scannability.color }}>
+                    {scannability.label}
+                  </Typography>
+                </Box>
+                <Stack direction="row" spacing={0.75}>
+                  {Array.from({ length: 5 }, (_, i) => (
+                    <Box
+                      key={i}
+                      sx={{
+                        flex: 1,
+                        height: "16px",
+                        borderRadius: "4px",
+                        bgcolor: i < filledSegments ? scannability.color : "#2e2e2e",
+                      }}
+                    />
+                  ))}
+                </Stack>
+              </Box>
+            )}
           </Box>
-        </Box>
-      )}
 
-      {/* UNLOCK CARD */}
-      {showUnlockCard && (
-        <Box sx={{ mt: 4, bgcolor: "primary.light", borderRadius: "16px", p: 3 }}>
-          {!currentImage?.unlocked && !unlocking && (
-            <>
-              <Typography variant="h3" sx={{ fontSize: "24px", color: "#161616", lineHeight: 1.12, mb: 0.75 }}>
-                Unlock the full-resolution QR code
-              </Typography>
-              <Typography sx={{ fontSize: "14px", color: "#2f7d4f", lineHeight: 1.45 }}>
-                Watermark removed · print-ready PNG · scans on every reader.
-              </Typography>
-              <Box sx={{ mt: 2.25 }}>
-                <UnlockButton image={currentImage} />
-              </Box>
-            </>
-          )}
-          {unlocking && (
-            <>
-              <Typography variant="h3" sx={{ fontSize: "24px", color: "#161616", lineHeight: 1.12, mb: 0.75 }}>
-                HD Image Unlocked!
-              </Typography>
-              <Button
-                variant="contained"
-                color="secondary"
-                disabled
-                fullWidth
-                startIcon={<CircularProgress size={16} color="inherit" />}
-                sx={{ mt: 1 }}
+          {/* PROMPT */}
+          {currentImage?.prompt && (
+            <Box sx={{ mt: 3.25, pt: 3, borderTop: "1px solid #2e2e2e" }}>
+              <Typography
+                variant="overline"
+                sx={{ fontSize: "11px", color: "#7d7d7d", letterSpacing: "0.08em", display: "block", mb: 1.25 }}
               >
-                Generating HD Image…
-              </Button>
-            </>
-          )}
-          {currentImage?.unlocked && !unlocking && (
-            <>
-              <Typography variant="h3" sx={{ fontSize: "24px", color: "#161616", lineHeight: 1.12, mb: 0.75 }}>
-                HD Image Unlocked!
+                Prompt
               </Typography>
-              <Box sx={{ mt: 2.25 }}>
-                <UnlockButton image={currentImage} />
+              <Box
+                sx={{
+                  bgcolor: "#0e0e0e",
+                  border: "1px solid #2e2e2e",
+                  borderRadius: "12px",
+                  p: "16px 18px",
+                  pr: "52px",
+                  color: "#b8b8b8",
+                  fontSize: "14px",
+                  lineHeight: 1.55,
+                  position: "relative",
+                }}
+              >
+                {currentImage.prompt}
+                <IconButton
+                  size="small"
+                  onClick={handleCopyPrompt}
+                  sx={{
+                    position: "absolute",
+                    top: 10,
+                    right: 10,
+                    width: 30,
+                    height: 30,
+                    borderRadius: "8px",
+                    bgcolor: "#2a2a2a",
+                    color: promptCopied ? "primary.main" : "#b8b8b8",
+                    "&:hover": { bgcolor: "#3a3a3a" },
+                  }}
+                >
+                  <ContentCopyIcon sx={{ fontSize: 15 }} />
+                </IconButton>
               </Box>
-            </>
+            </Box>
           )}
-        </Box>
+
+          {/* UNLOCK CARD */}
+          {showUnlockCard && (
+            <Box sx={{ mt: 4, bgcolor: "primary.light", borderRadius: "16px", p: 3 }}>
+              {!currentImage?.unlocked && !unlocking && (
+                <>
+                  <Typography variant="h3" sx={{ fontSize: "24px", color: "#161616", lineHeight: 1.12, mb: 0.75 }}>
+                    Unlock the full-resolution QR code
+                  </Typography>
+                  <Typography sx={{ fontSize: "14px", color: "#2f7d4f", lineHeight: 1.45 }}>
+                    Watermark removed · print-ready PNG · scans on every reader.
+                  </Typography>
+                  <Box sx={{ mt: 2.25 }}>
+                    <UnlockButton image={currentImage} />
+                  </Box>
+                </>
+              )}
+              {unlocking && (
+                <>
+                  <Typography variant="h3" sx={{ fontSize: "24px", color: "#161616", lineHeight: 1.12, mb: 0.75 }}>
+                    HD Image Unlocked!
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    disabled
+                    fullWidth
+                    startIcon={<CircularProgress size={16} color="inherit" />}
+                    sx={{ mt: 1 }}
+                  >
+                    Generating HD Image…
+                  </Button>
+                </>
+              )}
+              {currentImage?.unlocked && !unlocking && (
+                <>
+                  <Typography variant="h3" sx={{ fontSize: "24px", color: "#161616", lineHeight: 1.12, mb: 0.75 }}>
+                    HD Image Unlocked!
+                  </Typography>
+                  <Box sx={{ mt: 2.25 }}>
+                    <UnlockButton image={currentImage} />
+                  </Box>
+                </>
+              )}
+            </Box>
+          )}
+        </>
       )}
 
-      {/* REMIX CARD */}
-      <Box sx={{ mt: 4 }}>
-        <RemixCard image={currentImage} />
+      {/* ITERATE PANEL */}
+      <Box sx={{ mt: iterateOpen ? 0 : 4 }}>
+        <IteratePanel
+          image={currentImage}
+          isOpen={iterateOpen}
+          onOpen={() => setIterateOpen(true)}
+          onClose={() => setIterateOpen(false)}
+        />
       </Box>
     </Box>
   );
