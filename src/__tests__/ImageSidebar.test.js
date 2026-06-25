@@ -6,7 +6,11 @@ jest.mock('next/navigation', () => ({ useRouter: () => ({ refresh: jest.fn() }) 
 jest.mock('@amplitude/analytics-browser', () => ({ track: jest.fn() }))
 
 const mockUnlockImage = jest.fn()
-jest.mock('@/_utils/ImagesUtils', () => ({ unlockImage: (...a) => mockUnlockImage(...a) }))
+const mockBookmarkImage = jest.fn()
+jest.mock('@/_utils/ImagesUtils', () => ({
+  unlockImage: (...a) => mockUnlockImage(...a),
+  bookmarkImage: (...a) => mockBookmarkImage(...a),
+}))
 
 const mockTrackUnlockRevenue = jest.fn()
 jest.mock('@/_utils/analytics', () => {
@@ -155,5 +159,65 @@ describe('showActions=false sidebar', () => {
     fireEvent.click(screen.getByText('Iterate this image'))
     expect(screen.getByTestId('iterate-panel')).toHaveAttribute('data-open', 'true')
     expect(screen.queryByText('Links to')).not.toBeInTheDocument()
+  })
+})
+
+// --------------------------------------------------------------------------
+// Admin controls — showActions=true (modal) mode
+// --------------------------------------------------------------------------
+
+const ADMIN_USER = { _id: 'admin1', is_guest: false, is_admin: true }
+const OTHER_IMAGE = { _id: 'img2', unlocked: false, user_id: 'other_user' }
+
+async function renderSidebarAs(user, image = IMAGE) {
+  await act(async () => {
+    render(<ImageSidebar image={image} user={user} customDeleteAction={jest.fn()} />)
+  })
+}
+
+describe('admin controls', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+    setSearch('')
+  })
+
+  test('shows bookmark button for admin user', async () => {
+    await renderSidebarAs(ADMIN_USER)
+    expect(
+      screen.getByRole('button', { name: /add to featured|remove from featured/i })
+    ).toBeInTheDocument()
+  })
+
+  test('does not show bookmark button for non-admin user', async () => {
+    await renderSidebarAs(USER)
+    expect(
+      screen.queryByRole('button', { name: /add to featured|remove from featured/i })
+    ).not.toBeInTheDocument()
+  })
+
+  test('calls bookmarkImage when bookmark button is clicked', async () => {
+    mockBookmarkImage.mockResolvedValueOnce({ featured: true })
+    await renderSidebarAs(ADMIN_USER)
+
+    await act(async () => {
+      fireEvent.click(
+        screen.getByRole('button', { name: /add to featured|remove from featured/i })
+      )
+    })
+
+    expect(mockBookmarkImage).toHaveBeenCalledWith(IMAGE._id)
+  })
+
+  test('optimistically toggles featured state and reverts on error', async () => {
+    mockBookmarkImage.mockRejectedValueOnce(new Error('server error'))
+    await renderSidebarAs(ADMIN_USER, { ...IMAGE, featured: false })
+
+    const btn = screen.getByRole('button', { name: /add to featured/i })
+    await act(async () => { fireEvent.click(btn) })
+
+    // After error the button should revert back to "add to featured"
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: /add to featured/i })).toBeInTheDocument()
+    )
   })
 })

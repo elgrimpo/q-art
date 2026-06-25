@@ -1,4 +1,4 @@
-import { generateImage, deleteImage, likeImage, unlockImage, getImages, getImageById } from '../_utils/ImagesUtils'
+import { generateImage, deleteImage, likeImage, unlockImage, getImages, getImageById, bookmarkImage, adminDownloadImage } from '../_utils/ImagesUtils'
 import axios from 'axios'
 
 // Mock Next.js server-only APIs used by ImagesUtils
@@ -225,6 +225,71 @@ describe('getImages', () => {
   test('rejects when response is not ok', async () => {
     fetch.mockResolvedValueOnce({ ok: false, status: 500 })
     await expect(getImages({})).rejects.toThrow()
+  })
+})
+
+// --------------------------------------------------------------------------
+// bookmarkImage
+// --------------------------------------------------------------------------
+
+describe('bookmarkImage', () => {
+  test('PUTs to /api/images/bookmark/:id with auth header', async () => {
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ featured: true }),
+    })
+    await bookmarkImage('img_bm1')
+    const [url, opts] = fetch.mock.calls[0]
+    expect(url).toContain('/api/images/bookmark/img_bm1')
+    expect(opts.method).toBe('PUT')
+    expect(opts.headers.Authorization).toBe('Bearer test-token')
+  })
+
+  test('resolves with response JSON on success', async () => {
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ featured: true }),
+    })
+    const result = await bookmarkImage('img_bm1')
+    expect(result).toEqual({ featured: true })
+  })
+
+  test('throws when response is not ok', async () => {
+    fetch.mockResolvedValueOnce({ ok: false, status: 403 })
+    await expect(bookmarkImage('img_bm1')).rejects.toThrow('Failed to toggle bookmark')
+  })
+})
+
+// --------------------------------------------------------------------------
+// adminDownloadImage
+// --------------------------------------------------------------------------
+
+describe('adminDownloadImage', () => {
+  test('GETs /api/admin/download/:id with auth header', async () => {
+    const fakeBlob = new Blob(['data'], { type: 'image/png' })
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      blob: () => Promise.resolve(fakeBlob),
+    })
+    await adminDownloadImage('img_dl1')
+    const [url, opts] = fetch.mock.calls[0]
+    expect(url).toContain('/api/admin/download/img_dl1')
+    expect(opts.headers.Authorization).toBe('Bearer test-token')
+  })
+
+  test('resolves with a Blob on success', async () => {
+    const fakeBlob = new Blob(['data'], { type: 'image/png' })
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      blob: () => Promise.resolve(fakeBlob),
+    })
+    const result = await adminDownloadImage('img_dl1')
+    expect(result).toBeInstanceOf(Blob)
+  })
+
+  test('throws when response is not ok', async () => {
+    fetch.mockResolvedValueOnce({ ok: false, status: 403 })
+    await expect(adminDownloadImage('img_dl1')).rejects.toThrow('Failed to download image')
   })
 })
 

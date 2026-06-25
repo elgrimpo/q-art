@@ -162,6 +162,39 @@ export const likeImage = async (imageId, userId) => {
 };
 
 /* -------------------------------------------------------------------------- */
+/*                              BOOKMARK IMAGE (admin)                        */
+/* -------------------------------------------------------------------------- */
+
+export const bookmarkImage = async (id) => {
+  const token = await getBackendToken();
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/images/bookmark/${id}`,
+    {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+  if (!res.ok) throw new Error("Failed to toggle bookmark");
+  return res.json();
+};
+
+/* -------------------------------------------------------------------------- */
+/*                           ADMIN DOWNLOAD IMAGE                             */
+/* -------------------------------------------------------------------------- */
+
+export const adminDownloadImage = async (id) => {
+  const token = await getBackendToken();
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/download/${id}`,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+  if (!res.ok) throw new Error("Failed to download image");
+  return res.blob();
+};
+
+/* -------------------------------------------------------------------------- */
 /*                               UNLOCK IMAGE                                 */
 /* -------------------------------------------------------------------------- */
 

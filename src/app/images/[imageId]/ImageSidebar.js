@@ -21,6 +21,8 @@ import DoneIcon from "@mui/icons-material/Done";
 import LinkIcon from "@mui/icons-material/Link";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 
+import BookmarkIcon from "@mui/icons-material/Bookmark";
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import DeleteButton from "@/_components/actions/DeleteButton";
 import CopyButton from "@/_components/actions/CopyButton";
 import LikeButton from "@/_components/actions/LikeButton";
@@ -29,7 +31,7 @@ import ShareButton from "@/_components/actions/ShareButton";
 import GuestSignupPrompt from "./GuestSignupPrompt";
 import IteratePanel from "./IteratePanel";
 import { useStore } from "@/store";
-import { unlockImage } from "@/_utils/ImagesUtils";
+import { unlockImage, bookmarkImage } from "@/_utils/ImagesUtils";
 import * as amplitude from "@amplitude/analytics-browser";
 import { EVENTS, trackUnlockRevenue } from "@/_utils/analytics";
 
@@ -56,6 +58,7 @@ export default function ImageSidebar({
   const { openAlert } = useStore();
   const router = useRouter();
   const isOwner = user?._id === image?.user_id;
+  const isAdmin = !!user?.is_admin;
   const isGuestUser = !user?._id || user?.is_guest;
 
   const [stripeSessionId, setStripeSessionId] = useState(null);
@@ -65,6 +68,7 @@ export default function ImageSidebar({
   const [promptCopied, setPromptCopied] = useState(false);
   const [iterateOpen, setIterateOpen] = useState(false);
   const [iterateActive, setIterateActive] = useState(false);
+  const [featured, setFeatured] = useState(!!image?.featured);
 
   useEffect(() => {
     setIterateOpen(false);
@@ -121,6 +125,17 @@ export default function ImageSidebar({
   const filledSegments = Math.min(5, Math.max(1, Math.round(score / 20)));
   const showUnlockCard = justGenerated || isOwner;
 
+  const handleBookmark = async () => {
+    const prev = featured;
+    setFeatured(!prev); // optimistic
+    try {
+      await bookmarkImage(image._id);
+    } catch {
+      setFeatured(prev); // revert on error
+      openAlert("error", "Could not update bookmark.");
+    }
+  };
+
   const handleCopyPrompt = () => {
     if (currentImage?.prompt) {
       navigator.clipboard.writeText(currentImage.prompt);
@@ -166,8 +181,17 @@ export default function ImageSidebar({
               <LikeButton image={currentImage} user={user} customLikeAction={customLikeAction} />
             )}
             <ShareButton image={currentImage} index={1} />
-            {isOwner && (
+            {(isOwner || isAdmin) && (
               <DeleteButton image={currentImage} customDeleteAction={customDeleteAction} />
+            )}
+            {isAdmin && (
+              <IconButton
+                aria-label={featured ? "Remove from featured" : "Add to featured"}
+                onClick={handleBookmark}
+                sx={{ color: featured ? "warning.main" : "primary.main" }}
+              >
+                {featured ? <BookmarkIcon /> : <BookmarkBorderIcon />}
+              </IconButton>
             )}
             <CopyButton image={currentImage} />
           </Stack>
@@ -198,7 +222,7 @@ export default function ImageSidebar({
                       <DoneIcon /><Typography>Unlock once, download forever</Typography>
                     </Stack>
                   </Stack>
-                  <UnlockButton image={currentImage} />
+                  <UnlockButton image={currentImage} isAdmin={isAdmin} />
                 </>
               )}
               {unlocking && (
@@ -217,7 +241,7 @@ export default function ImageSidebar({
                   <Typography variant="h5" color="text.secondary" sx={{ mb: 1.5 }}>
                     HD Image Unlocked!
                   </Typography>
-                  <UnlockButton image={currentImage} />
+                  <UnlockButton image={currentImage} isAdmin={isAdmin} />
                 </>
               )}
             </Card>
@@ -445,7 +469,7 @@ export default function ImageSidebar({
                     Watermark removed · print-ready PNG · scans on every reader.
                   </Typography>
                   <Box sx={{ mt: 2.25 }}>
-                    <UnlockButton image={currentImage} />
+                    <UnlockButton image={currentImage} isAdmin={isAdmin} />
                   </Box>
                 </>
               )}
@@ -472,7 +496,7 @@ export default function ImageSidebar({
                     HD Image Unlocked!
                   </Typography>
                   <Box sx={{ mt: 2.25 }}>
-                    <UnlockButton image={currentImage} />
+                    <UnlockButton image={currentImage} isAdmin={isAdmin} />
                   </Box>
                 </>
               )}
