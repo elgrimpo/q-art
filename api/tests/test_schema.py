@@ -5,9 +5,11 @@ def test_image_doc_has_unlocked_not_downloaded():
     fields = ImageDoc.model_fields
     assert "unlocked" in fields
     assert "unlock_pending" in fields
+    assert "featured" in fields
     assert "downloaded" not in fields
     assert fields["unlocked"].default is False
     assert fields["unlock_pending"].default is False
+    assert fields["featured"].default is False
 
 
 def test_user_has_no_credits_or_payment_history():

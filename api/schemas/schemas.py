@@ -76,7 +76,7 @@ class Like(BaseModel):
 
 class ImageDoc(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
-    user_id: str 
+    user_id: str
     created_at: datetime
     prompt: str
     negative_prompt: Optional[str] = None
@@ -99,4 +99,5 @@ class ImageDoc(BaseModel):
     likes: Optional[List[Like]] = []
     unlocked: Optional[bool] = False
     unlock_pending: Optional[bool] = False
+    featured: Optional[bool] = False
     scannability_score: Optional[float] = None
