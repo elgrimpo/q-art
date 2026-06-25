@@ -482,7 +482,7 @@ export default function ImageSidebar({
       )}
 
       {/* ITERATE PANEL */}
-      <Box sx={{ mt: iterateOpen ? 0 : 4 }}>
+      <Box sx={{ mt: iterateOpen || iterateActive ? 0 : 4 }}>
         <IteratePanel
           image={currentImage}
           isOpen={iterateOpen}
