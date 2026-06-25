@@ -19,14 +19,14 @@ logging.basicConfig(
 )
 
 # App imports
-from api.controllers.images_controller import get_images, get_image, toggle_like, delete_image
+from api.controllers.images_controller import get_images, get_image, toggle_like, delete_image, toggle_featured
 from api.controllers.generate_controller import predict
 from api.controllers.users_controller import get_user_info, authenticate_user
 from api.controllers.login_code_controller import request_login_code, verify_login_code
 from api.controllers.payment_controller import create_unlock_checkout_session, stripe_webhook
 from api.controllers.unlock_controller import unlock_image
 from api.schemas.schemas import User, UserAuth, LoginCodeRequest, LoginCodeVerify
-from api.utils.auth import get_current_user, require_service_token
+from api.utils.auth import get_current_user, require_service_token, require_admin
 
 
 def _get_real_ip(request: Request) -> str:
@@ -136,9 +136,11 @@ async def images_endpoint(
     image_style: Optional[str] = None,
     images_per_page: int = 12,
     sort_by: str = "Newest",
+    featured: Optional[bool] = None,
 ):
     return await get_images(
-        page, user_id, exclude_user_id, likes, time_period, image_style, images_per_page, sort_by
+        page, user_id, exclude_user_id, likes, time_period, image_style, images_per_page, sort_by,
+        featured=featured,
     )
 
 # GET IMAGE BY ID
@@ -150,6 +152,11 @@ async def image_endpoint(id: str):
 @app.put("/api/images/like/{id}")
 async def toggle_like_endpoint(id: str, current_user: dict = Depends(get_current_user)):
     return await toggle_like(id, current_user["user_id"])
+
+# BOOKMARK / FEATURE IMAGE (admin only)
+@app.put("/api/images/bookmark/{id}")
+async def toggle_featured_endpoint(id: str, _: dict = Depends(require_admin)):
+    return await toggle_featured(id)
 
 # DELETE IMAGE
 @app.delete("/api/images/delete/{id}")

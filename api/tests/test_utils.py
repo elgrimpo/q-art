@@ -213,6 +213,14 @@ class TestCreateImagesFilterQuery:
         assert query["style_title"] == "Anime"
         assert "created_at" in query
 
+    def test_filter_query_featured_true(self):
+        query = createImagesFilterQuery(None, None, None, None, None, featured=True)
+        assert query["featured"] is True
+
+    def test_filter_query_featured_none_omits_key(self):
+        query = createImagesFilterQuery(None, None, None, None, None, featured=None)
+        assert "featured" not in query
+
 
 # ---------------------------------------------------------------------------- #
 #                             CREATE WATERMARK                                 #

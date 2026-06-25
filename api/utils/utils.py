@@ -296,6 +296,7 @@ def createImagesFilterQuery(
     image_style: Optional[str] = None,
     user_id: Optional[str] = None,
     exclude_user_id: Optional[str] = None,
+    featured: Optional[bool] = None,
 ):
     query = {}
 
@@ -331,5 +332,9 @@ def createImagesFilterQuery(
     if likes == "Liked by me":
         if user_id:
             query["likes.userId"] = user_id
+
+    # Featured
+    if featured is not None:
+        query["featured"] = featured
 
     return query

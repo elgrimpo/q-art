@@ -159,12 +159,13 @@ async def get_images(
     image_style: Optional[str] = None,
     images_per_page: int = 12,
     sort_by: str = "Newest",
+    featured: Optional[bool] = None,
 ):
     # -------------------------- CREATE QUERY PARAMETERS ------------------------- #
     try:
         # Create query
         query = createImagesFilterQuery(
-            likes, time_period, image_style, user_id, exclude_user_id
+            likes, time_period, image_style, user_id, exclude_user_id, featured=featured
         )
 
         # Calculate the offset based on the current page
@@ -292,4 +293,27 @@ async def toggle_like(id, user_id):
         raise
     except Exception:
         logger.error("Unexpected error in toggle_like", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+# ---------------------------------------------------------------------------- #
+#                              TOGGLE FEATURED                                  #
+# ---------------------------------------------------------------------------- #
+
+
+async def toggle_featured(id):
+    try:
+        image = await images.find_one({"_id": ObjectId(id)})
+        if not image:
+            raise HTTPException(status_code=404, detail="Image not found")
+
+        new_value = not image.get("featured", False)
+        await images.update_one({"_id": ObjectId(id)}, {"$set": {"featured": new_value}})
+
+        return {"message": "Featured toggled successfully", "featured": new_value}
+
+    except HTTPException:
+        raise
+    except Exception:
+        logger.error("Unexpected error in toggle_featured", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal Server Error")

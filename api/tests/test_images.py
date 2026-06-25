@@ -294,3 +294,44 @@ async def test_delete_image_non_admin_non_owner_still_403(mock_images):
     with pytest.raises(HTTPException) as exc:
         await delete_image(FAKE_IMAGE_ID, FAKE_USER_ID, is_admin=False)
     assert exc.value.status_code == 403
+
+
+# ---------------------------------------------------------------------------- #
+#                              TOGGLE FEATURED                                  #
+# ---------------------------------------------------------------------------- #
+
+from api.controllers.images_controller import toggle_featured
+
+
+@patch("api.controllers.images_controller.images")
+async def test_toggle_featured_sets_true_when_false(mock_images):
+    mock_images.find_one = AsyncMock(return_value={"_id": ObjectId(FAKE_IMAGE_ID), "featured": False})
+    mock_images.update_one = AsyncMock()
+
+    result = await toggle_featured(FAKE_IMAGE_ID)
+
+    mock_images.update_one.assert_called_once_with(
+        {"_id": ObjectId(FAKE_IMAGE_ID)}, {"$set": {"featured": True}}
+    )
+    assert result == {"message": "Featured toggled successfully", "featured": True}
+
+
+@patch("api.controllers.images_controller.images")
+async def test_toggle_featured_sets_false_when_true(mock_images):
+    mock_images.find_one = AsyncMock(return_value={"_id": ObjectId(FAKE_IMAGE_ID), "featured": True})
+    mock_images.update_one = AsyncMock()
+
+    result = await toggle_featured(FAKE_IMAGE_ID)
+
+    mock_images.update_one.assert_called_once_with(
+        {"_id": ObjectId(FAKE_IMAGE_ID)}, {"$set": {"featured": False}}
+    )
+    assert result == {"message": "Featured toggled successfully", "featured": False}
+
+
+@patch("api.controllers.images_controller.images")
+async def test_toggle_featured_not_found_404(mock_images):
+    mock_images.find_one = AsyncMock(return_value=None)
+    with pytest.raises(HTTPException) as exc:
+        await toggle_featured(FAKE_IMAGE_ID)
+    assert exc.value.status_code == 404
