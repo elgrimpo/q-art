@@ -33,7 +33,7 @@ const DARK_FIELD_SX = {
     "&:hover fieldset": { borderColor: "#4e4e4e" },
     "&.Mui-focused fieldset": { borderColor: "primary.main" },
   },
-  "& .MuiInputBase-input": { color: "#e0e0e0" },
+  "& .MuiInputBase-input": { color: "#f0f0f0" },
   "& .MuiInputLabel-root": { color: "#7d7d7d" },
   "& .MuiInputLabel-root.Mui-focused": { color: "primary.main" },
 };
@@ -354,7 +354,10 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
               >
                 <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: "primary.main" }} />}>
                   <Typography sx={{ color: "#b8b8b8" }}>
-                    Style: <strong style={{ color: "#fff" }}>{formValues.styleTitle}</strong>
+                    Style:{" "}
+                    <Box component="span" sx={{ color: "primary.main", fontWeight: 700 }}>
+                      {formValues.styleTitle}
+                    </Box>
                   </Typography>
                 </AccordionSummary>
                 <AccordionDetails sx={{ p: 1 }}>
@@ -404,7 +407,7 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
 
               {/* QR Weight slider */}
               <Box>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                <Typography variant="body2" sx={{ mb: 1, color: "#b8b8b8" }}>
                   QR Code Weight
                 </Typography>
                 <Slider
@@ -417,6 +420,7 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
                     { value: QR_SLIDER_MIN, label: "Artistic" },
                     { value: QR_SLIDER_MAX, label: "Scannable" },
                   ]}
+                  sx={{ "& .MuiSlider-markLabel": { color: "#7d7d7d" } }}
                 />
               </Box>
             </Stack>
