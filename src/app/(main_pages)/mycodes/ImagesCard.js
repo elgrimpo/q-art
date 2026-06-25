@@ -1,12 +1,22 @@
 "use client";
-import React from "react";
-import { Box, Chip, Grid, Typography } from "@mui/material";
+import React, { useState } from "react";
+import {
+  Box, Chip, Grid, Typography,
+  Menu, MenuItem, ListItemIcon, Divider, IconButton,
+} from "@mui/material";
 import LinkIcon from "@mui/icons-material/Link";
 import LockIcon from "@mui/icons-material/Lock";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import BookmarkIcon from "@mui/icons-material/Bookmark";
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import DownloadIcon from "@mui/icons-material/Download";
+import * as amplitude from "@amplitude/analytics-browser";
 
 import LikeButton from "@/_components/actions/LikeButton.js";
 import SkeletonCard from "./SkeletonCard.js";
 import { useStore } from "@/store.js";
+import { bookmarkImage, deleteImage } from "@/_utils/ImagesUtils";
 
 /* -------------------------------------------------------------------------- */
 /*  Scannability thresholds — kept in sync with ImageSidebar.js               */
@@ -116,8 +126,58 @@ export default function ImageCard({
   index,
   handleCardClick,
   customLikeAction,
+  customDeleteAction,
 }) {
-  const { user } = useStore();
+  const { user, openAlert } = useStore();
+  const isAdmin = !!user?.is_admin;
+
+  const [menuAnchor, setMenuAnchor] = useState(null);
+  const [featured, setFeatured] = useState(!!image?.featured);
+
+  const handleMenuOpen = (e) => setMenuAnchor(e.currentTarget);
+  const handleMenuClose = () => setMenuAnchor(null);
+
+  const triggerRouteDownload = (href) => {
+    const a = document.createElement("a");
+    a.href = href;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  const handleBookmark = async () => {
+    handleMenuClose();
+    const prev = featured;
+    setFeatured(!prev);
+    try {
+      await bookmarkImage(image._id);
+    } catch {
+      setFeatured(prev);
+      openAlert("error", "Could not update bookmark.");
+    }
+  };
+
+  const handleDownloadWatermarked = () => {
+    handleMenuClose();
+    triggerRouteDownload(`/api/admin/watermarked/${image._id}`);
+  };
+
+  const handleDownloadOriginal = () => {
+    handleMenuClose();
+    triggerRouteDownload(`/api/admin/original/${image._id}`);
+  };
+
+  const handleAdminDelete = async () => {
+    handleMenuClose();
+    try {
+      amplitude.track("Delete Image");
+      await deleteImage(image._id);
+      openAlert("success", "Image deleted");
+      if (customDeleteAction) customDeleteAction(image._id);
+    } catch {
+      openAlert("error", "Error deleting image");
+    }
+  };
 
   const preventRightClick = (e) => e.preventDefault();
 
@@ -164,8 +224,70 @@ export default function ImageCard({
               }}
             />
 
+            {/* Admin menu — top left */}
+            {isAdmin && (
+              <Box
+                sx={{ position: "absolute", top: 6, left: 6 }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <IconButton
+                  onClick={handleMenuOpen}
+                  aria-label="Admin actions"
+                  size="small"
+                  sx={{
+                    bgcolor: "rgba(22,22,22,0.75)",
+                    color: "primary.main",
+                    backdropFilter: "blur(6px)",
+                    width: 28,
+                    height: 28,
+                    "&:hover": { bgcolor: "rgba(40,40,40,0.9)" },
+                  }}
+                >
+                  <MoreVertIcon sx={{ fontSize: 18 }} />
+                </IconButton>
+                <Menu
+                  anchorEl={menuAnchor}
+                  open={Boolean(menuAnchor)}
+                  onClose={handleMenuClose}
+                  anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                  transformOrigin={{ vertical: "top", horizontal: "left" }}
+                  PaperProps={{ sx: { bgcolor: "#222222", color: "#ededed", minWidth: 220 } }}
+                >
+                  <MenuItem onClick={handleBookmark}>
+                    <ListItemIcon sx={{ color: featured ? "warning.main" : "primary.main" }}>
+                      {featured ? <BookmarkIcon fontSize="small" /> : <BookmarkBorderIcon fontSize="small" />}
+                    </ListItemIcon>
+                    <Typography variant="body2">{featured ? "Remove from Explore" : "Add to Explore"}</Typography>
+                  </MenuItem>
+                  <Divider sx={{ borderColor: "#333" }} />
+                  <MenuItem onClick={handleDownloadWatermarked}>
+                    <ListItemIcon sx={{ color: "primary.main" }}>
+                      <DownloadIcon fontSize="small" />
+                    </ListItemIcon>
+                    <Typography variant="body2">Download Watermarked</Typography>
+                  </MenuItem>
+                  <MenuItem onClick={handleDownloadOriginal}>
+                    <ListItemIcon sx={{ color: "primary.main" }}>
+                      <DownloadIcon fontSize="small" />
+                    </ListItemIcon>
+                    <Typography variant="body2">Download Original</Typography>
+                  </MenuItem>
+                  <Divider sx={{ borderColor: "#333" }} />
+                  <MenuItem onClick={handleAdminDelete} sx={{ color: "error.main" }}>
+                    <ListItemIcon sx={{ color: "error.main" }}>
+                      <DeleteOutlineIcon fontSize="small" />
+                    </ListItemIcon>
+                    <Typography variant="body2">Delete</Typography>
+                  </MenuItem>
+                </Menu>
+              </Box>
+            )}
+
             {/* Like button — top right */}
-            <Box sx={{ position: "absolute", top: 10, right: 10 }}>
+            <Box
+              sx={{ position: "absolute", top: 10, right: 10 }}
+              onClick={(e) => e.stopPropagation()}
+            >
               <LikeButton
                 image={image}
                 user={user}

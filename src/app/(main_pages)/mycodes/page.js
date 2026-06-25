@@ -165,6 +165,11 @@ export default function MyCodes() {
     );
   };
 
+  // remove deleted image from grid
+  const customDeleteAction = (imageId) => {
+    setImages((prev) => prev.filter((img) => img._id !== imageId));
+  };
+
   // update Likes
   const customLikeAction = (imageId, updatedLikes) => {
     const index = images.findIndex((img) => img._id === imageId);
@@ -235,6 +240,7 @@ export default function MyCodes() {
               handleCardClick={() => handleModalOpen(index)}
               upscaling={upscaling}
               customLikeAction={customLikeAction}
+              customDeleteAction={customDeleteAction}
             />
           ))}
       </Grid>

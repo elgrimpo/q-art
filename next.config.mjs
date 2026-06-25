@@ -57,10 +57,6 @@ const nextConfig = {
     async rewrites() {
         return [
           {
-            source: '/explore',
-            destination: '/mycodes',
-          },
-          {
             source: "/api/stripe-webhook",
             destination: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/stripe-webhook`
           },

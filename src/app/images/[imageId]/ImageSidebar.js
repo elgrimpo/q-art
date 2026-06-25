@@ -12,6 +12,10 @@ import {
   Button,
   Chip,
   IconButton,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  Divider,
 } from "@mui/material";
 import dayjs from "dayjs";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -20,9 +24,12 @@ import theme from "@/_styles/theme";
 import DoneIcon from "@mui/icons-material/Done";
 import LinkIcon from "@mui/icons-material/Link";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import DownloadIcon from "@mui/icons-material/Download";
+
 import DeleteButton from "@/_components/actions/DeleteButton";
 import CopyButton from "@/_components/actions/CopyButton";
 import LikeButton from "@/_components/actions/LikeButton";
@@ -31,7 +38,7 @@ import ShareButton from "@/_components/actions/ShareButton";
 import GuestSignupPrompt from "./GuestSignupPrompt";
 import IteratePanel from "./IteratePanel";
 import { useStore } from "@/store";
-import { unlockImage, bookmarkImage } from "@/_utils/ImagesUtils";
+import { unlockImage, bookmarkImage, deleteImage } from "@/_utils/ImagesUtils";
 import * as amplitude from "@amplitude/analytics-browser";
 import { EVENTS, trackUnlockRevenue } from "@/_utils/analytics";
 
@@ -68,8 +75,6 @@ export default function ImageSidebar({
   const [promptCopied, setPromptCopied] = useState(false);
   const [iterateOpen, setIterateOpen] = useState(false);
   const [iterateActive, setIterateActive] = useState(false);
-  const [featured, setFeatured] = useState(!!image?.featured);
-
   useEffect(() => {
     setIterateOpen(false);
     setIterateActive(false);
@@ -125,22 +130,62 @@ export default function ImageSidebar({
   const filledSegments = Math.min(5, Math.max(1, Math.round(score / 20)));
   const showUnlockCard = justGenerated || isOwner;
 
-  const handleBookmark = async () => {
-    const prev = featured;
-    setFeatured(!prev); // optimistic
-    try {
-      await bookmarkImage(image._id);
-    } catch {
-      setFeatured(prev); // revert on error
-      openAlert("error", "Could not update bookmark.");
-    }
-  };
-
   const handleCopyPrompt = () => {
     if (currentImage?.prompt) {
       navigator.clipboard.writeText(currentImage.prompt);
       setPromptCopied(true);
       setTimeout(() => setPromptCopied(false), 2000);
+    }
+  };
+
+  // Admin 3-dot menu
+  const [menuAnchor, setMenuAnchor] = useState(null);
+  const [featured, setFeatured] = useState(!!image?.featured);
+
+  const handleMenuOpen = (e) => setMenuAnchor(e.currentTarget);
+  const handleMenuClose = () => setMenuAnchor(null);
+
+  const handleBookmark = async () => {
+    handleMenuClose();
+    const prev = featured;
+    setFeatured(!prev);
+    try {
+      await bookmarkImage(image._id);
+    } catch {
+      setFeatured(prev);
+      openAlert("error", "Could not update bookmark.");
+    }
+  };
+
+  const triggerRouteDownload = (href) => {
+    const a = document.createElement("a");
+    a.href = href;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  const handleDownloadWatermarked = () => {
+    handleMenuClose();
+    if (!currentImage?._id) return;
+    triggerRouteDownload(`/api/admin/watermarked/${currentImage._id}`);
+  };
+
+  const handleDownloadOriginal = () => {
+    handleMenuClose();
+    if (!currentImage?._id) return;
+    triggerRouteDownload(`/api/admin/original/${currentImage._id}`);
+  };
+
+  const handleAdminDelete = async () => {
+    handleMenuClose();
+    try {
+      amplitude.track("Delete Image");
+      await deleteImage(currentImage._id);
+      openAlert("success", "Image deleted successfully");
+      if (customDeleteAction) customDeleteAction();
+    } catch {
+      openAlert("error", "Error deleting image");
     }
   };
 
@@ -181,17 +226,8 @@ export default function ImageSidebar({
               <LikeButton image={currentImage} user={user} customLikeAction={customLikeAction} />
             )}
             <ShareButton image={currentImage} index={1} />
-            {(isOwner || isAdmin) && (
+            {isOwner && (
               <DeleteButton image={currentImage} customDeleteAction={customDeleteAction} />
-            )}
-            {isAdmin && (
-              <IconButton
-                aria-label={featured ? "Remove from featured" : "Add to featured"}
-                onClick={handleBookmark}
-                sx={{ color: featured ? "warning.main" : "primary.main" }}
-              >
-                {featured ? <BookmarkIcon /> : <BookmarkBorderIcon />}
-              </IconButton>
             )}
             <CopyButton image={currentImage} />
           </Stack>
@@ -301,6 +337,57 @@ export default function ImageSidebar({
   /* -------------------------------------------------------------------------- */
   return (
     <Box sx={{ width: "100%", display: "flex", flexDirection: "column" }}>
+      {isAdmin && (
+        <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 1 }}>
+          <IconButton
+            onClick={handleMenuOpen}
+            aria-label="Admin actions"
+            sx={{
+              width: "36px",
+              height: "36px",
+              color: "primary.main",
+              "&:hover": { bgcolor: "#2a2a2a" },
+            }}
+          >
+            <MoreVertIcon />
+          </IconButton>
+          <Menu
+            anchorEl={menuAnchor}
+            open={Boolean(menuAnchor)}
+            onClose={handleMenuClose}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            transformOrigin={{ vertical: "top", horizontal: "right" }}
+            PaperProps={{ sx: { bgcolor: "#222222", color: "#ededed", minWidth: 220 } }}
+          >
+            <MenuItem onClick={handleBookmark}>
+              <ListItemIcon sx={{ color: featured ? "warning.main" : "primary.main" }}>
+                {featured ? <BookmarkIcon fontSize="small" /> : <BookmarkBorderIcon fontSize="small" />}
+              </ListItemIcon>
+              <Typography variant="body2">{featured ? "Remove from Explore" : "Add to Explore"}</Typography>
+            </MenuItem>
+            <Divider sx={{ borderColor: "#333" }} />
+            <MenuItem onClick={handleDownloadWatermarked}>
+              <ListItemIcon sx={{ color: "primary.main" }}>
+                <DownloadIcon fontSize="small" />
+              </ListItemIcon>
+              <Typography variant="body2">Download Watermarked</Typography>
+            </MenuItem>
+            <MenuItem onClick={handleDownloadOriginal}>
+              <ListItemIcon sx={{ color: "primary.main" }}>
+                <DownloadIcon fontSize="small" />
+              </ListItemIcon>
+              <Typography variant="body2">Download Original</Typography>
+            </MenuItem>
+            <Divider sx={{ borderColor: "#333" }} />
+            <MenuItem onClick={handleAdminDelete} sx={{ color: "error.main" }}>
+              <ListItemIcon sx={{ color: "error.main" }}>
+                <DeleteOutlineIcon fontSize="small" />
+              </ListItemIcon>
+              <Typography variant="body2">Delete</Typography>
+            </MenuItem>
+          </Menu>
+        </Box>
+      )}
       {!iterateOpen && !iterateActive && (
         <>
           {/* LINKS TO */}

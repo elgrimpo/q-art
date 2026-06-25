@@ -45,7 +45,10 @@ export const getImageById = async (imageId) => {
 /* -------------------------------------------------------------------------- */
 export const getImages = async (params) => {
   "use server";
-  const queryParams = new URLSearchParams(params).toString();
+  const cleaned = Object.fromEntries(
+    Object.entries(params).filter(([, v]) => v !== undefined && v !== null)
+  );
+  const queryParams = new URLSearchParams(cleaned).toString();
 
   /* -------------------------------- API Call -------------------------------- */
   try {

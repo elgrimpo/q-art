@@ -13,7 +13,6 @@ import DeleteButton from "@/_components/actions/DeleteButton";
 export default function ImageTopBar({ image, user, customDeleteAction, customLikeAction, onBack, sx, backVariant = "text" }) {
   const router = useRouter();
   const isOwner = user?._id === image?.user_id;
-  const isAdmin = !!user?.is_admin;
   const isGuestUser = !user?._id || user?.is_guest;
 
   const handleBack = onBack ?? (() => router.back());
@@ -61,7 +60,7 @@ export default function ImageTopBar({ image, user, customDeleteAction, customLik
       <Box sx={{ display: "flex", gap: 1.25 }}>
         {!isGuestUser && <LikeButton image={image} user={user} customLikeAction={customLikeAction} />}
         <ShareButton image={image} index={1} />
-        {(isOwner || isAdmin) && (
+        {isOwner && (
           <DeleteButton image={image} customDeleteAction={customDeleteAction} />
         )}
       </Box>

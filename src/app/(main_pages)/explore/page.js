@@ -47,6 +47,10 @@ export default function Explore() {
     });
   };
 
+  const customDeleteAction = (imageId) => {
+    setImages((prev) => prev.filter((img) => img._id !== imageId));
+  };
+
   if (loading) {
     return (
       <Box sx={{ padding: { xs: "4.7rem 0.5rem", sm: "5rem 1rem" } }}>
@@ -103,6 +107,7 @@ export default function Explore() {
             variant="image"
             handleCardClick={() => handleModalOpen(index)}
             customLikeAction={customLikeAction}
+            customDeleteAction={customDeleteAction}
           />
         ))}
       </Grid>

@@ -77,7 +77,7 @@ app.add_middleware(
 @app.get("/api/user/info")
 async def get_user_info_endpoint(current_user: dict = Depends(get_current_user)):
     user = await get_user_info(current_user["email"])
-    user_dict = user.dict() if hasattr(user, "dict") else user
+    user_dict = user.dict(by_alias=True) if hasattr(user, "dict") else user
     user_dict["is_admin"] = current_user["is_admin"]
     return user_dict
 
