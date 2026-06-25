@@ -190,22 +190,29 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
           }}
         >
           {!generatingError ? (
-            <>
+            <Box sx={{ position: "relative", aspectRatio: "1/1" }}>
               <Box
                 component="img"
                 src={GIF_URL}
                 alt="Generating…"
-                sx={{ width: "100%", display: "block", aspectRatio: "16/9", objectFit: "cover", objectPosition: "center 25%" }}
+                sx={{ width: "100%", height: "100%", display: "block", objectFit: "cover", objectPosition: "center" }}
               />
-              <Box sx={{ p: "16px 20px" }}>
-                <Typography variant="h5" sx={{ fontSize: "20px", lineHeight: 1.1, color: "primary.main" }}>
+              <Box
+                sx={{
+                  position: "absolute",
+                  inset: 0,
+                  background: "linear-gradient(to bottom, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.35) 45%, transparent 70%)",
+                }}
+              />
+              <Box sx={{ position: "absolute", top: 0, left: 0, right: 0, p: "20px 22px" }}>
+                <Typography variant="h5" sx={{ fontSize: "26px", lineHeight: 1.15, color: "primary.main" }}>
                   Generating your QR art…
                 </Typography>
-                <Typography variant="body2" sx={{ color: "#b8b8b8", mt: 0.75, lineHeight: 1.45 }}>
-                  This takes about a minute — hang tight!
+                <Typography variant="body2" sx={{ color: "#d8d8d8", mt: 0.75, lineHeight: 1.45 }}>
+                  Hang tight, this takes about a minute.
                 </Typography>
               </Box>
-            </>
+            </Box>
           ) : (
             <Box sx={{ p: "20px 22px" }}>
               <Typography variant="h5" sx={{ fontSize: "20px", lineHeight: 1.1, color: "#e0e0e0", mb: 1 }}>
