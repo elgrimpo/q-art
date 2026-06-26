@@ -7,51 +7,53 @@ import {
   Tooltip,
   IconButton,
 } from "@mui/material";
+import LinkIcon from "@mui/icons-material/Link";
+import EditIcon from "@mui/icons-material/Edit";
 import { useStore } from "@/store";
 import CasinoTwoToneIcon from "@mui/icons-material/CasinoTwoTone";
 import promptRandomizer from "@/_utils/PromptGenerator";
 
-const UrlPrompt = (props) => {
+const SectionLabel = ({ icon: Icon, label }) => (
+  <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, mb: 0.5 }}>
+    <Icon sx={{ fontSize: "1rem" }} color="primary" />
+    <Typography variant="h6">{label}</Typography>
+  </Box>
+);
+
+const UrlPrompt = ({ handleInputChange }) => {
   const { generateFormValues } = useStore();
-  const { handleInputChange } = props;
 
   return (
-    <Stack useFlexGap spacing={1}>
+    <Stack useFlexGap spacing={2}>
 
-      {/* ----------------------------------- URL ---------------------------------- */}
+      {/* URL */}
       <Box className="form-section" sx={{ marginTop: "0rem" }}>
-        <Typography className="form-title" variant="h5" align="left">
-          Website URL
-        </Typography>
+        <SectionLabel icon={LinkIcon} label="Website URL" />
         <TextField
           className="form-field"
           required
           id="website"
           aria-label="Website"
-          placeholder="e.g. google.com"
+          placeholder="https://example.com"
           name="website"
           value={generateFormValues.website}
           onChange={handleInputChange}
           variant="outlined"
         />
         <Typography className="helpertext" color="text.secondary">
-          e.g. 'google.com'. The generated image will contain a QR code that
-          links to this URL.
+          The generated image will contain a QR code that links to this URL.
         </Typography>
       </Box>
 
-      {/* --------------------------------- PROMPT --------------------------------- */}
+      {/* Prompt */}
       <Box className="form-section">
-        <Typography className="form-title" variant="h5" align="left">
-          Image Description
-        </Typography>
-
+        <SectionLabel icon={EditIcon} label="Image Description" />
         <TextField
           className="form-field"
           required
           id="prompt"
           aria-label="Prompt"
-          placeholder="Describe the image you'd like to generate"
+          placeholder="Describe the image you want to generate..."
           name="prompt"
           value={generateFormValues.prompt}
           onChange={handleInputChange}
@@ -69,17 +71,12 @@ const UrlPrompt = (props) => {
                 }}
               >
                 <Box sx={{ display: "flex", flexDirection: "column" }}>
-                  
-                  {/* --- RANDOM PROMPT ---- */}
                   <Tooltip title="Generate random prompt">
                     <IconButton
                       name="prompt_random"
                       onClick={() =>
                         handleInputChange({
-                          target: {
-                            name: "prompt",
-                            value: promptRandomizer(),
-                          },
+                          target: { name: "prompt", value: promptRandomizer() },
                         })
                       }
                     >
@@ -92,7 +89,7 @@ const UrlPrompt = (props) => {
           }}
         />
         <Typography className="helpertext" color="text.secondary">
-          Describe the image that you would like to be created. Use the Dice icon to generate a random description.
+          Be as detailed as you can. Use the dice icon for a random idea.
         </Typography>
       </Box>
 
