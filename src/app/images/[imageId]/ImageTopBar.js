@@ -33,9 +33,9 @@ export default function ImageTopBar({ image, user, customDeleteAction, customLik
           sx={{
             width: "40px",
             height: "40px",
-            backgroundColor: "#333333",
+            backgroundColor: "secondary.main",
             color: "primary.main",
-            "&:hover": { backgroundColor: "#333333" },
+            "&:hover": { backgroundColor: "secondary.main" },
           }}
         >
           <CloseIcon />
@@ -45,12 +45,12 @@ export default function ImageTopBar({ image, user, customDeleteAction, customLik
           onClick={handleBack}
           startIcon={<ArrowBackIcon sx={{ color: "primary.main" }} />}
           sx={{
-            color: "#b8b8b8",
+            color: "text.secondary",
             textTransform: "uppercase",
             letterSpacing: "0.08em",
             fontSize: "12px",
             fontWeight: 700,
-            "&:hover": { color: "#ededed", bgcolor: "transparent" },
+            "&:hover": { color: "text.primary", bgcolor: "transparent" },
           }}
         >
           Back

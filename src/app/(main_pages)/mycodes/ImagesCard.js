@@ -13,6 +13,7 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import DownloadIcon from "@mui/icons-material/Download";
 import * as amplitude from "@amplitude/analytics-browser";
 
+import { palette } from "@/_styles/palette";
 import LikeButton from "@/_components/actions/LikeButton.js";
 import SkeletonCard from "./SkeletonCard.js";
 import { useStore } from "@/store.js";
@@ -62,7 +63,7 @@ function ScannabilityWidget({ score }) {
           width: 36,
           height: 36,
           borderRadius: "50%",
-          background: `conic-gradient(${color} 0% ${pct}%, #2a2a2a ${pct}% 100%)`,
+          background: `conic-gradient(${color} 0% ${pct}%, ${palette.background.elevated} ${pct}% 100%)`,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -74,7 +75,7 @@ function ScannabilityWidget({ score }) {
             width: 30,
             height: 30,
             borderRadius: "50%",
-            bgcolor: "#161616",
+            bgcolor: "background.default",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -189,7 +190,7 @@ export default function ImageCard({
         <Box
           onClick={handleCardClick}
           sx={{
-            bgcolor: "#232323",
+            bgcolor: "background.paper",
             borderRadius: "12px",
             overflow: "hidden",
             border: "0.5px solid",
@@ -251,7 +252,7 @@ export default function ImageCard({
                   onClose={handleMenuClose}
                   anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
                   transformOrigin={{ vertical: "top", horizontal: "left" }}
-                  PaperProps={{ sx: { bgcolor: "#222222", color: "#ededed", minWidth: 220 } }}
+                  PaperProps={{ sx: { bgcolor: "background.paper", color: "text.primary", minWidth: 220 } }}
                 >
                   <MenuItem onClick={handleBookmark}>
                     <ListItemIcon sx={{ color: featured ? "warning.main" : "primary.main" }}>
@@ -259,7 +260,7 @@ export default function ImageCard({
                     </ListItemIcon>
                     <Typography variant="body2">{featured ? "Remove from Explore" : "Add to Explore"}</Typography>
                   </MenuItem>
-                  <Divider sx={{ borderColor: "#333" }} />
+                  <Divider />
                   <MenuItem onClick={handleDownloadWatermarked}>
                     <ListItemIcon sx={{ color: "primary.main" }}>
                       <DownloadIcon fontSize="small" />
@@ -272,7 +273,7 @@ export default function ImageCard({
                     </ListItemIcon>
                     <Typography variant="body2">Download Original</Typography>
                   </MenuItem>
-                  <Divider sx={{ borderColor: "#333" }} />
+                  <Divider />
                   <MenuItem onClick={handleAdminDelete} sx={{ color: "error.main" }}>
                     <ListItemIcon sx={{ color: "error.main" }}>
                       <DeleteOutlineIcon fontSize="small" />
@@ -306,7 +307,8 @@ export default function ImageCard({
                   alignItems: "center",
                   gap: "5px",
                   bgcolor: "rgba(22,22,22,0.75)",
-                  border: "1px solid #2e2e2e",
+                  border: "1px solid",
+                  borderColor: "divider",
                   borderRadius: "999px",
                   pl: "8px",
                   pr: "10px",
@@ -320,7 +322,7 @@ export default function ImageCard({
                     fontSize: "10px",
                     fontWeight: 700,
                     letterSpacing: "0.08em",
-                    color: "#d5d5d5",
+                    color: "text.secondary",
                     textTransform: "uppercase",
                   }}
                 >
@@ -385,7 +387,7 @@ export default function ImageCard({
                   label={image.style_title.toUpperCase()}
                   size="small"
                   sx={{
-                    bgcolor: "#4c4c4c",
+                    bgcolor: "background.elevated",
                     color: "primary.light",
                     fontWeight: 700,
                     fontSize: "11px",

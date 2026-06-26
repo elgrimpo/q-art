@@ -33,7 +33,7 @@ const UrlPrompt = (props) => {
           onChange={handleInputChange}
           variant="outlined"
         />
-        <Typography className="helpertext">
+        <Typography className="helpertext" color="text.secondary">
           e.g. 'google.com'. The generated image will contain a QR code that
           links to this URL.
         </Typography>
@@ -89,7 +89,7 @@ const UrlPrompt = (props) => {
             ),
           }}
         />
-        <Typography className="helpertext">
+        <Typography className="helpertext" color="text.secondary">
           Describe the image that you would like to be created. Use the Dice icon to generate a random description.
         </Typography>
       </Box>

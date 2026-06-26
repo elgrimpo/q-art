@@ -61,10 +61,11 @@ body {
   padding: 5rem 1rem 0rem 1rem;
 }
 
+/* Color comes from theme.palette.text.* (set via the `color` prop on the
+   Typography component) — these classes are layout-only now. */
 .helpertext {
   font-size: 0.8rem;
   padding: 0.3rem;
-  color: black
 }
 
 .form-section {
@@ -76,12 +77,11 @@ body {
 
 .form-title {
   padding-bottom: 0.5rem;
-  color: black
 }
 
+/* Background/radius now come from the MuiOutlinedInput theme override
+   in theme.js. */
 .form-field {
-  background: white;
-  border-radius: 5px
 }
 
 

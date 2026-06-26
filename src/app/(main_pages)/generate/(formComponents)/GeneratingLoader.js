@@ -2,11 +2,9 @@ import {
     Box,
     Typography,
   } from "@mui/material";
-  import theme from "@/_styles/theme";
 
-  
   const GeneratingLoader = () => {
-  
+
     return (
         <Box
         sx={{
@@ -16,11 +14,11 @@ import {
           maxWidth: "800px",
           margin: "auto",
           borderRadius: "8px",
-          backgroundColor: theme.palette.primary.light,
+          backgroundColor: "background.paper",
           textAlign: { xs: 'center', md: 'left' }
         }}
       >
-        <Typography variant="h5" color="secondary" className="form-title">
+        <Typography variant="h5" color="text.primary" className="form-title">
           Our superhuman AI is working on your QR Code!
         </Typography>
 

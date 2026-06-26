@@ -40,7 +40,7 @@ export default function GuestGallery() {
           display: "flex",
           justifyContent: "center",
           width: "100%",
-          backgroundColor: "#A5FFC3",
+          backgroundColor: "primary.light",
         }}
       >
         <Grid

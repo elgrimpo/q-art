@@ -74,7 +74,7 @@ function SettingsModal(props) {
       }}
     >
         <Box
-        sx={{ padding: "1rem", backgroundColor: theme.palette.primary.light, height: "100%" }}
+        sx={{ padding: "1rem", backgroundColor: "background.paper", height: "100%" }}
       >
          <Box
         sx={{
@@ -95,6 +95,7 @@ function SettingsModal(props) {
         <Typography
           className="form-title"
           variant="h3"
+          color="primary"
           align="center"
           sx={{ margin: "0.5rem" }}
         >
@@ -163,6 +164,7 @@ function SettingsModal(props) {
 
         <Typography
           className="helpertext"
+          color="text.secondary"
           variant="caption"
           align="left"
           sx={{ pl: 2, pt: 1 }}
@@ -187,10 +189,6 @@ function SettingsModal(props) {
           onChange={handleInputChange}
           variant="outlined"
           fullWidth
-          sx={{
-            backgroundColor: "transparent",
-            "& .MuiInputBase-root": { backgroundColor: "white" },
-          }}
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
@@ -214,7 +212,7 @@ function SettingsModal(props) {
             ),
           }}
         />
-        <Typography className="helpertext">
+        <Typography className="helpertext" color="text.secondary">
           You can use a seed from an existing image to generate similar images.
           Otherwise, leave it as -1
         </Typography>

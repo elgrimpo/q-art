@@ -54,7 +54,7 @@ const StylesModal = (props) => {
       }}
     >
       <Box
-        sx={{ padding: "1rem", backgroundColor: theme.palette.primary.light }}
+        sx={{ padding: "1rem", backgroundColor: "background.paper" }}
       >
         <Box
         sx={{
@@ -75,6 +75,7 @@ const StylesModal = (props) => {
         <Typography
           className="form-title"
           variant="h3"
+          color="primary"
           align="center"
           sx={{ margin: "0.5rem" }}
         >

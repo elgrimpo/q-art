@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Box, Typography } from "@mui/material";
 
+import { palette } from "@/_styles/palette";
 import GenerateForm from "./GenerateForm";
 import GuestGallery from "./GuestGallery";
 
@@ -44,7 +45,7 @@ export default function GeneratePage() {
         width: "100%",
         maxWidth: "1600px",
         padding: { xs: "0rem 0rem 5rem 0rem", lg: "5rem 1rem" },
-        backgroundColor: "#161616",
+        backgroundColor: palette.background.default,
       }}
     >
       <script
@@ -64,8 +65,8 @@ export default function GeneratePage() {
             pt: { xs: "100px", lg: "0px" },
             ml: { xs: "0px", lg: "24px" },
             background: {
-              xs: "linear-gradient(0deg, rgba(22,22,22,1) 30%, rgba(22,22,22,0) 90%)",
-              lg: "linear-gradient(90deg, rgba(22,22,22,1) 55%, rgba(22,22,22,0) 90%)",
+              xs: `linear-gradient(0deg, ${palette.background.default} 30%, rgba(22,22,22,0) 90%)`,
+              lg: `linear-gradient(90deg, ${palette.background.default} 55%, rgba(22,22,22,0) 90%)`,
             },
           }}
         />
@@ -75,7 +76,7 @@ export default function GeneratePage() {
           className="BannerImage"
           sx={{
             position: "relative",
-            backgroundColor: "#A5FFC3",
+            backgroundColor: palette.primary.light,
             padding: { xs: "0.5rem", sm: "1rem" },
             paddingTop: { xs: "4.7rem", sm: "4.7rem", lg: "1rem" },
             width: { xs: "100vw", lg: "70%" },
@@ -144,7 +145,7 @@ export default function GeneratePage() {
         </Typography>
         <Typography
           component="p"
-          sx={{ mb: 3, color: "#ccc", lineHeight: 1.8 }}
+          sx={{ mb: 3, color: palette.text.secondary, lineHeight: 1.8 }}
         >
           QR AI uses advanced Stable Diffusion and ControlNet AI models to
           transform plain QR codes into stunning works of art. Whether you&apos;re
@@ -162,7 +163,7 @@ export default function GeneratePage() {
         </Typography>
         <Box
           component="ul"
-          sx={{ pl: 3, color: "#ccc", "& li": { mb: 1, lineHeight: 1.8 } }}
+          sx={{ pl: 3, color: palette.text.secondary, "& li": { mb: 1, lineHeight: 1.8 } }}
         >
           <li>
             Enter any URL — website, social profile, payment link, or WiFi
@@ -180,7 +181,7 @@ export default function GeneratePage() {
         </Box>
         <Typography
           component="p"
-          sx={{ mt: 2, color: "#ccc", lineHeight: 1.8 }}
+          sx={{ mt: 2, color: palette.text.secondary, lineHeight: 1.8 }}
         >
           Perfect for restaurant menus, retail packaging, business cards, event
           posters, social media profiles, wedding invitations, and more. Free

@@ -6,8 +6,6 @@ import * as amplitude from "@amplitude/analytics-browser";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
-import theme from "@/_styles/theme";
-
 // App imports
 import "../../globals.css";
 import promptRandomizer from "@/_utils/PromptGenerator";
@@ -233,10 +231,12 @@ function GenerateForm() {
     >
       <Box
         sx={{
-          backgroundColor: theme.palette.primary.light,
-          borderRadius: "8px",
+          backgroundColor: "background.paper",
+          border: "1px solid",
+          borderColor: "divider",
+          borderRadius: "16px",
           width: "100%",
-          padding: 2,
+          padding: { xs: 2, sm: 3 },
         }}
       >
         {generatingImage ? (
@@ -249,11 +249,11 @@ function GenerateForm() {
               direction={{ xs: "column", sm: "row" }}
               spacing={2}
               alignItems="stretch"
-              sx={{ width: "100%", mb: 2, mt: 1 }}
+              sx={{ width: "100%", mb: 2, mt: 2 }}
             >
               <Button
                 color="primary"
-                variant="contained"
+                variant="outlined"
                 sx={{ width: { xs: "100%", sm: "50%" } }}
                 onClick={handleStyleModalOpen}
               >
@@ -262,7 +262,7 @@ function GenerateForm() {
 
               <Button
                 color="primary"
-                variant="contained"
+                variant="outlined"
                 sx={{ width: { xs: "100%", sm: "50%" } }}
                 onClick={handleSettingsModalOpen}
               >
@@ -273,12 +273,13 @@ function GenerateForm() {
 
             <Button
               variant="contained"
-              color="secondary"
+              color="primary"
               size="large"
+              fullWidth
               aria-label="generate"
-              sx={{ width: "100%", mt: "1rem" }}
               disabled={submitDisabled}
               onClick={() => handleGenerate()}
+              sx={{ mt: "1rem" }}
             >
               Generate
             </Button>

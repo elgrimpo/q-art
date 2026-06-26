@@ -26,8 +26,6 @@ function StylesCard(props) {
 
   const { generateFormValues } = useStore();
   const theme = useTheme();
-  const primaryColor = theme.palette.primary.main;
-  const secondaryColor = theme.palette.secondary.main;
 
   const selected = item.title === (selectedTitle ?? generateFormValues.style_title);
 
@@ -42,15 +40,15 @@ function StylesCard(props) {
     <Grid item md={2} key={index}>
       {" "}
       <Card
-        elevation={selected ? 0 : 1}
+        elevation={0}
         key={index}
         sx={{
           padding: { xs: "0rem", md: "1rem" },
-          backgroundColor: selected ? secondaryColor : "white",
-          border: selected ? `2px solid ${secondaryColor}` : "none",
-          borderRadius: "5px",
+          bgcolor: selected ? "rgba(112, 225, 149, 0.08)" : "background.well",
+          border: "2px solid",
+          borderColor: selected ? "primary.main" : "divider",
+          borderRadius: "8px",
         }}
-        color={selected ? "secondary" : "primary"}
       >
         {/* ----------------------------- IMAGE --------------------------- */}
 
@@ -71,7 +69,7 @@ function StylesCard(props) {
             sx={{
               wordWrap: "break-word",
               margin: {xs: "0.3rem 0rem", md: "1rem 0rem"},
-              color: selected ? primaryColor : secondaryColor,
+              color: selected ? "primary.main" : "text.secondary",
             }}
           >
             {item?.title}

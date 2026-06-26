@@ -346,7 +346,7 @@ export default function ImageSidebar({
               width: "36px",
               height: "36px",
               color: "primary.main",
-              "&:hover": { bgcolor: "#2a2a2a" },
+              "&:hover": { bgcolor: "background.elevated" },
             }}
           >
             <MoreVertIcon />
@@ -357,7 +357,7 @@ export default function ImageSidebar({
             onClose={handleMenuClose}
             anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
             transformOrigin={{ vertical: "top", horizontal: "right" }}
-            PaperProps={{ sx: { bgcolor: "#222222", color: "#ededed", minWidth: 220 } }}
+            PaperProps={{ sx: { bgcolor: "background.paper", color: "text.primary", minWidth: 220 } }}
           >
             <MenuItem onClick={handleBookmark}>
               <ListItemIcon sx={{ color: featured ? "warning.main" : "primary.main" }}>
@@ -365,7 +365,7 @@ export default function ImageSidebar({
               </ListItemIcon>
               <Typography variant="body2">{featured ? "Remove from Explore" : "Add to Explore"}</Typography>
             </MenuItem>
-            <Divider sx={{ borderColor: "#333" }} />
+            <Divider />
             <MenuItem onClick={handleDownloadWatermarked}>
               <ListItemIcon sx={{ color: "primary.main" }}>
                 <DownloadIcon fontSize="small" />
@@ -378,7 +378,7 @@ export default function ImageSidebar({
               </ListItemIcon>
               <Typography variant="body2">Download Original</Typography>
             </MenuItem>
-            <Divider sx={{ borderColor: "#333" }} />
+            <Divider />
             <MenuItem onClick={handleAdminDelete} sx={{ color: "error.main" }}>
               <ListItemIcon sx={{ color: "error.main" }}>
                 <DeleteOutlineIcon fontSize="small" />
@@ -392,10 +392,7 @@ export default function ImageSidebar({
         <>
           {/* LINKS TO */}
           <Box>
-            <Typography
-              variant="overline"
-              sx={{ fontSize: "11px", color: "#7d7d7d", letterSpacing: "0.08em", display: "block", mb: 1 }}
-            >
+            <Typography variant="overline" sx={{ display: "block", mb: 1 }}>
               Links to
             </Typography>
             {currentImage?.content && (
@@ -436,22 +433,20 @@ export default function ImageSidebar({
               alignItems: "flex-start",
               mt: 3.25,
               pt: 3,
-              borderTop: "1px solid #2e2e2e",
+              borderTop: "1px solid",
+              borderTopColor: "divider",
             }}
           >
             {currentImage?.style_title && (
               <Box sx={{ flex: 1, minWidth: 0 }}>
-                <Typography
-                  variant="overline"
-                  sx={{ fontSize: "11px", color: "#7d7d7d", letterSpacing: "0.08em", display: "block", mb: 1.25 }}
-                >
+                <Typography variant="overline" sx={{ display: "block", mb: 1.25 }}>
                   Style
                 </Typography>
                 <Chip
                   label={currentImage.style_title.toUpperCase()}
                   size="small"
                   sx={{
-                    bgcolor: "#2a2a2a",
+                    bgcolor: "background.elevated",
                     color: "primary.light",
                     fontWeight: 700,
                     fontSize: "12px",
@@ -473,12 +468,7 @@ export default function ImageSidebar({
                     mb: 1.375,
                   }}
                 >
-                  <Typography
-                    variant="overline"
-                    sx={{ fontSize: "11px", color: "#7d7d7d", letterSpacing: "0.08em" }}
-                  >
-                    Scannability
-                  </Typography>
+                  <Typography variant="overline">Scannability</Typography>
                   <Typography variant="h5" sx={{ fontSize: "16px", color: scannability.color }}>
                     {scannability.label}
                   </Typography>
@@ -491,7 +481,7 @@ export default function ImageSidebar({
                         flex: 1,
                         height: "16px",
                         borderRadius: "4px",
-                        bgcolor: i < filledSegments ? scannability.color : "#2e2e2e",
+                        bgcolor: i < filledSegments ? scannability.color : "divider",
                       }}
                     />
                   ))}
@@ -502,21 +492,19 @@ export default function ImageSidebar({
 
           {/* PROMPT */}
           {currentImage?.prompt && (
-            <Box sx={{ mt: 3.25, pt: 3, borderTop: "1px solid #2e2e2e" }}>
-              <Typography
-                variant="overline"
-                sx={{ fontSize: "11px", color: "#7d7d7d", letterSpacing: "0.08em", display: "block", mb: 1.25 }}
-              >
+            <Box sx={{ mt: 3.25, pt: 3, borderTop: "1px solid", borderTopColor: "divider" }}>
+              <Typography variant="overline" sx={{ display: "block", mb: 1.25 }}>
                 Prompt
               </Typography>
               <Box
                 sx={{
-                  bgcolor: "#0e0e0e",
-                  border: "1px solid #2e2e2e",
+                  bgcolor: "background.well",
+                  border: "1px solid",
+                  borderColor: "divider",
                   borderRadius: "12px",
                   p: "16px 18px",
                   pr: "52px",
-                  color: "#b8b8b8",
+                  color: "text.secondary",
                   fontSize: "14px",
                   lineHeight: 1.55,
                   position: "relative",
@@ -533,8 +521,8 @@ export default function ImageSidebar({
                     width: 30,
                     height: 30,
                     borderRadius: "8px",
-                    bgcolor: "#2a2a2a",
-                    color: promptCopied ? "primary.main" : "#b8b8b8",
+                    bgcolor: "background.elevated",
+                    color: promptCopied ? "primary.main" : "text.secondary",
                     "&:hover": { bgcolor: "#3a3a3a" },
                   }}
                 >
@@ -549,7 +537,7 @@ export default function ImageSidebar({
             <Box sx={{ mt: 4, bgcolor: "primary.light", borderRadius: "16px", p: 3 }}>
               {!currentImage?.unlocked && !unlocking && (
                 <>
-                  <Typography variant="h3" sx={{ fontSize: "24px", color: "#161616", lineHeight: 1.12, mb: 0.75 }}>
+                  <Typography variant="h3" sx={{ fontSize: "24px", color: "background.default", lineHeight: 1.12, mb: 0.75 }}>
                     Unlock the full-resolution QR code
                   </Typography>
                   <Typography sx={{ fontSize: "14px", color: "#2f7d4f", lineHeight: 1.45 }}>
@@ -562,12 +550,12 @@ export default function ImageSidebar({
               )}
               {unlocking && (
                 <>
-                  <Typography variant="h3" sx={{ fontSize: "24px", color: "#161616", lineHeight: 1.12, mb: 0.75 }}>
+                  <Typography variant="h3" sx={{ fontSize: "24px", color: "background.default", lineHeight: 1.12, mb: 0.75 }}>
                     HD Image Unlocked!
                   </Typography>
                   <Button
                     variant="contained"
-                    color="secondary"
+                    color="primary"
                     disabled
                     fullWidth
                     startIcon={<CircularProgress size={16} color="inherit" />}
@@ -579,7 +567,7 @@ export default function ImageSidebar({
               )}
               {currentImage?.unlocked && !unlocking && (
                 <>
-                  <Typography variant="h3" sx={{ fontSize: "24px", color: "#161616", lineHeight: 1.12, mb: 0.75 }}>
+                  <Typography variant="h3" sx={{ fontSize: "24px", color: "background.default", lineHeight: 1.12, mb: 0.75 }}>
                     HD Image Unlocked!
                   </Typography>
                   <Box sx={{ mt: 2.25 }}>

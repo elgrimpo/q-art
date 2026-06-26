@@ -10,7 +10,7 @@ export default function GeneratingModal({ open, error, onRetry, onBack }) {
       open={open}
       PaperProps={{
         sx: {
-          bgcolor: "#161616",
+          bgcolor: "background.default",
           backgroundImage: "none",
           borderRadius: "16px",
           width: "min(90vw, 600px)",
@@ -23,11 +23,11 @@ export default function GeneratingModal({ open, error, onRetry, onBack }) {
             <Typography variant="h5" sx={{ mb: 1 }}>
               Something went wrong
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+            <Typography variant="body2" sx={{ mb: 3 }}>
               Generation failed. You can retry or go back to the image.
             </Typography>
             <Stack direction="row" spacing={2} justifyContent="center">
-              <Button variant="contained" color="secondary" onClick={onRetry}>
+              <Button variant="contained" color="primary" onClick={onRetry}>
                 Retry
               </Button>
               <Button variant="outlined" color="primary" onClick={onBack}>
