@@ -4,6 +4,7 @@ import { Box, Typography } from "@mui/material";
 import { palette } from "@/_styles/palette";
 import GenerateForm from "./GenerateForm";
 import GuestGallery from "./GuestGallery";
+import UseCasesCarousel from "./UseCasesCarousel";
 
 const softwareApplicationSchema = {
   "@context": "https://schema.org",
@@ -54,7 +55,7 @@ export default function GeneratePage() {
       />
 
       {/* Banner Section */}
-      <Box className="BannerSection">
+      <Box id="generate-form-anchor" className="BannerSection">
         {/* Gradient overlay */}
         <Box
           className="Gradient"
@@ -111,17 +112,17 @@ export default function GeneratePage() {
             variant="h1"
             sx={{ fontSize: { xs: "3rem", sm: "3rem", md: "5rem" } }}
           >
-            <Box
-              component="span"
-              sx={{
-                color: "primary.main",
-                fontFamily: "var(--font-inter), Inter, sans-serif",
-                fontWeight: 900,
-              }}
-            >
-              AI QR Code Art
-            </Box>{" "}
-            Generator
+            Scannable{" "}
+            <Box component="span" sx={{ color: "primary.main" }}>
+              Art
+            </Box>
+          </Typography>
+
+          <Typography
+            variant="h2"
+            sx={{ fontSize: { xs: "1.25rem", sm: "1.5rem", md: "1.75rem" }, mt: 1, mb: 0 }}
+          >
+            Create beautiful QR codes people actually want to scan.
           </Typography>
 
           <Box
@@ -135,6 +136,9 @@ export default function GeneratePage() {
           </Box>
         </Box>
       </Box>
+
+      {/* Use cases carousel — marketing section showing product placement examples */}
+      <UseCasesCarousel />
 
       {/* Guest gallery — client component, only visible when user is a guest */}
       <GuestGallery />
