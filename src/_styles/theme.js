@@ -32,50 +32,88 @@ const theme = createTheme({
     divider: palette.divider,
   },
   typography: {
+    // "Everything else" per design/fontstyling.md — all UI, buttons, labels,
+    // cards, metadata, navigation. Loaded via next/font/google in layout.js
+    // and exposed as --font-inter; falls back to the generic family if the
+    // variable isn't available (e.g. components rendered outside <body>).
+    fontFamily: "var(--font-inter), Inter, sans-serif",
     fontWeightMedium: 700,
     fontWeightBold: 900,
+    // Display serif, used sparingly for marketing headlines only (H1/H2).
+    // Loaded via next/font/google in layout.js as --font-instrument-serif.
     h1: {
-      fontFamily: "Roboto Serif",
-      fontWeight: 900,
-      fontStyle: "italic",
+      fontFamily: "var(--font-instrument-serif), serif",
+      fontWeight: 400,
+      fontSize: "4.5rem",
+      lineHeight: 1.05,
+      letterSpacing: "-0.04em",
     },
     h2: {
-      fontFamily: "Roboto Serif",
-      fontWeight: 500,
-      fontStyle: "italic",
+      fontFamily: "var(--font-instrument-serif), serif",
+      fontWeight: 400,
+      fontSize: "3.5rem",
+      lineHeight: 1.1,
+      letterSpacing: "-0.03em",
     },
+    // h3-h6 stay in Inter (the base fontFamily already covers this) — only
+    // weight/size/line-height change per the spec's scale.
     h3: {
-      fontFamily: "Roboto Serif",
-      fontWeight: 900,
-      fontStyle: "italic",
+      fontWeight: 700,
+      fontSize: "2.25rem",
+      lineHeight: 1.2,
+      letterSpacing: "-0.5px",
+      // h4 below has the same gap: no explicit color at its only call site,
+      // and no previous theme default, so it was rendering browser-default
+      // black exactly like the h5 bug fixed earlier.
+      color: palette.text.primary,
+    },
+    h4: {
+      fontWeight: 700,
+      fontSize: "1.75rem",
+      lineHeight: 1.25,
+      color: palette.text.primary,
     },
     h5: {
-      fontFamily: "Roboto Serif",
-      fontWeight: 900,
-      fontStyle: "italic",
-      // Unlike h1-h3 (always given an explicit color="primary" prop at the
-      // call site), h5 is used for plain section titles throughout the app
-      // (form titles, "Scannability", "Filters", etc.) without an explicit
-      // color — defaulting it here keeps it from falling back to browser
-      // black instead of the theme's light text.
+      fontWeight: 600,
+      fontSize: "1.375rem",
+      lineHeight: 1.3,
+      // Plain section titles throughout the app (form titles, "Scannability",
+      // "Filters", etc.) are rendered without an explicit color — defaulting
+      // it here keeps them from falling back to browser black.
       color: palette.text.primary,
     },
     h6: {
-      // fontFamily: "Roboto Serif",
-      fontWeight: 300,
-      // fontStyle: "italic",
+      fontWeight: 600,
+      fontSize: "1.125rem",
+      lineHeight: 1.35,
       color: palette.text.secondary,
+    },
+    body1: {
+      fontWeight: 400,
+      fontSize: "1rem",
+      lineHeight: 1.65,
     },
     // Supporting/secondary copy. Matches the body2 color repeated inline
     // throughout IteratePanel.js/ImageSidebar.js — defaulting it here means
     // new body2 text doesn't need its own color override.
     body2: {
+      fontWeight: 400,
+      fontSize: "0.875rem",
+      lineHeight: 1.6,
       color: palette.text.secondary,
     },
+    button: {
+      fontSize: "0.95rem",
+      fontWeight: 600,
+      textTransform: "none",
+    },
     // Small uppercase section labels (e.g. "Links to", "Style",
-    // "Scannability" on the image detail page).
+    // "Scannability" on the image detail page) — matches the spec's
+    // "Caption" tag-label style. Distinct from MUI's `caption` variant,
+    // which the app already uses for normal-case small print
+    // (ScannabilityBadge, helper text) and shouldn't get uppercase/tracking.
     overline: {
-      fontSize: "0.6875rem",
+      fontSize: "0.75rem",
       letterSpacing: "0.08em",
       color: palette.text.muted,
     },

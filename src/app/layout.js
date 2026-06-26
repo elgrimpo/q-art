@@ -1,4 +1,4 @@
-import { Inter } from "next/font/google";
+import { Inter, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "@/_styles/theme";
@@ -9,7 +9,17 @@ import { StoreInitializer } from "@/_components/StoreInitializer";
 import { getUserInfo } from "@/_utils/userUtils";
 import { Toaster } from "@/_components/Toaster";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+
+// Display serif used sparingly for marketing headlines (H1/H2) — see
+// design/fontstyling.md. Instrument Serif only ships a 400 weight on Google
+// Fonts, which matches the spec exactly.
+const instrumentSerif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+  variable: "--font-instrument-serif",
+});
 
 export const metadata = {
   // Without metadataBase, Next.js builds absolute URLs for metadata images
@@ -49,7 +59,7 @@ export default async function RootLayout({ children }) {
 
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={`${inter.variable} ${instrumentSerif.variable} ${inter.className}`}>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
