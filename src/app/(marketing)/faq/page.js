@@ -75,7 +75,7 @@ const faqSchema = {
 
 export default function FAQPage() {
   return (
-    <Box sx={{ maxWidth: "860px", mx: "auto", color: "#ccc" }}>
+    <Box sx={{ maxWidth: "860px", mx: "auto" }}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
@@ -86,7 +86,7 @@ export default function FAQPage() {
       >
         Frequently Asked Questions
       </Typography>
-      <Typography component="p" sx={{ mb: 6, color: "#aaa", fontSize: "1.1rem", lineHeight: 1.8 }}>
+      <Typography component="p" sx={{ mb: 6, color: "text.secondary", fontSize: "1.1rem", lineHeight: 1.8 }}>
         Everything you need to know about AI QR codes — how they work, whether they scan, how to
         get the best results, and how QR AI&rsquo;s credit system works.
       </Typography>
@@ -96,9 +96,10 @@ export default function FAQPage() {
           <Box
             key={idx}
             sx={{
-              borderTop: "1px solid #2a2a2a",
+              borderTop: "1px solid",
+              borderColor: "divider",
               py: 4,
-              "&:last-child": { borderBottom: "1px solid #2a2a2a" },
+              "&:last-child": { borderBottom: "1px solid", borderBottomColor: "divider" },
             }}
           >
             <Typography
@@ -106,13 +107,13 @@ export default function FAQPage() {
               sx={{
                 fontSize: "1.1rem",
                 fontWeight: 600,
-                color: "#fff",
+                color: "text.primary",
                 mb: 2,
               }}
             >
               {faq.q}
             </Typography>
-            <Typography component="p" sx={{ lineHeight: 1.8, color: "#bbb" }}>
+            <Typography component="p" sx={{ lineHeight: 1.8, color: "text.secondary" }}>
               {faq.a}
             </Typography>
           </Box>
@@ -120,9 +121,9 @@ export default function FAQPage() {
       </Box>
 
       <Box sx={{ textAlign: "center", py: 6 }}>
-        <Typography component="p" sx={{ color: "#888", mb: 3 }}>
+        <Typography component="p" sx={{ color: "text.muted", mb: 3 }}>
           Still have questions?{" "}
-          <a href="mailto:support@qr-ai.co" style={{ color: "#A5FFC3" }}>
+          <a href="mailto:support@qr-ai.co" style={{ color: "#70E195" }}>
             Contact us
           </a>
         </Typography>

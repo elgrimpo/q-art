@@ -1,6 +1,11 @@
+"use client";
+
 import Link from "next/link";
-import { Box, Container } from "@mui/material";
+import { usePathname } from "next/navigation";
+import { Box, Container, Typography } from "@mui/material";
 import Image from "next/image";
+
+import Footer from "../(main_pages)/Footer";
 
 const navLinks = [
   { href: "/generate", label: "Generate" },
@@ -10,6 +15,30 @@ const navLinks = [
   { href: "/faq", label: "FAQ" },
 ];
 
+// Matches the uppercase nav-label treatment used in NavBarDesktop/Mobile
+// (design/fontstyling.md "Navbar" spec): Inter 15px/600, letter-spaced
+// uppercase, dim inactive / primary-green active.
+function NavLink({ href, label }) {
+  const pathname = usePathname();
+  const active = pathname === href;
+
+  return (
+    <Link
+      href={href}
+      style={{
+        textDecoration: "none",
+        color: active ? "#70E195" : "rgba(255, 255, 255, 0.55)",
+        fontWeight: 600,
+        fontSize: "0.9375rem",
+        letterSpacing: "0.03em",
+        textTransform: "uppercase",
+      }}
+    >
+      {label}
+    </Link>
+  );
+}
+
 function MarketingNav() {
   return (
     <Box
@@ -18,8 +47,9 @@ function MarketingNav() {
         position: "sticky",
         top: 0,
         zIndex: 500,
-        backgroundColor: "#2a2a2a",
-        borderBottom: "1px solid #333",
+        backgroundColor: "background.paper",
+        borderBottom: "1px solid",
+        borderColor: "divider",
         px: { xs: 2, md: 4 },
         py: 1.5,
       }}
@@ -27,18 +57,21 @@ function MarketingNav() {
       <Container maxWidth="xl" sx={{ display: "flex", alignItems: "center", gap: 3, p: "0 !important" }}>
         <Link href="/generate" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
           <Image src="/logo_light.png" alt="QR AI logo" width={32} height={32} />
-          <span style={{ color: "#A5FFC3", fontWeight: 700, fontSize: "1.1rem" }}>QR AI</span>
+          <Typography
+            sx={{
+              fontFamily: "var(--font-instrument-serif), serif",
+              fontStyle: "italic",
+              fontSize: "1.3rem",
+              color: "primary.light",
+            }}
+          >
+            QR AI
+          </Typography>
         </Link>
 
-        <Box component="nav" sx={{ display: "flex", gap: 2, ml: "auto", flexWrap: "wrap" }}>
-          {navLinks.map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              style={{ color: "#ccc", textDecoration: "none", fontSize: "0.9rem" }}
-            >
-              {label}
-            </Link>
+        <Box component="nav" sx={{ display: "flex", gap: 3, ml: "auto", flexWrap: "wrap" }}>
+          {navLinks.map((link) => (
+            <NavLink key={link.href} {...link} />
           ))}
         </Box>
       </Container>
@@ -46,48 +79,14 @@ function MarketingNav() {
   );
 }
 
-function MarketingFooter() {
-  return (
-    <Box
-      component="footer"
-      sx={{
-        borderTop: "1px solid #2a2a2a",
-        mt: 8,
-        py: 4,
-        px: { xs: 2, md: 4 },
-        display: "flex",
-        flexDirection: { xs: "column", sm: "row" },
-        justifyContent: "space-between",
-        alignItems: { xs: "center", sm: "center" },
-        gap: 2,
-        backgroundColor: "#161616",
-        color: "#888",
-        fontSize: "0.875rem",
-      }}
-    >
-      <span>&copy; {new Date().getFullYear()} QR AI. All rights reserved.</span>
-      <Box
-        component="nav"
-        aria-label="footer navigation"
-        sx={{ display: "flex", gap: 3, flexWrap: "wrap", justifyContent: "center" }}
-      >
-        <Link href="/generate" style={{ color: "#888", textDecoration: "none" }}>Generate</Link>
-        <Link href="/privacy" style={{ color: "#888", textDecoration: "none" }}>Privacy Policy</Link>
-        <Link href="/terms" style={{ color: "#888", textDecoration: "none" }}>Terms of Service</Link>
-        <a href="mailto:support@qr-ai.co" style={{ color: "#888", textDecoration: "none" }}>Contact</a>
-      </Box>
-    </Box>
-  );
-}
-
 export default function MarketingLayout({ children }) {
   return (
-    <div>
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", backgroundColor: "background.default" }}>
       <MarketingNav />
-      <Container maxWidth="xl" sx={{ px: { xs: 2, md: 4 }, py: 4 }}>
+      <Container maxWidth="xl" sx={{ px: { xs: 2, md: 4 }, py: 4, flex: 1 }}>
         {children}
       </Container>
-      <MarketingFooter />
-    </div>
+      <Footer />
+    </Box>
   );
 }

@@ -69,7 +69,7 @@ const jsonLd = {
 
 export default function GalleryPage() {
   return (
-    <Box sx={{ color: "#ccc" }}>
+    <Box>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -83,7 +83,7 @@ export default function GalleryPage() {
         </Box>{" "}
         Gallery
       </Typography>
-      <Typography component="p" sx={{ mb: 6, color: "#aaa", fontSize: "1.1rem", lineHeight: 1.8, maxWidth: "760px" }}>
+      <Typography component="p" sx={{ mb: 6, color: "text.secondary", fontSize: "1.1rem", lineHeight: 1.8, maxWidth: "760px" }}>
         Every image below is a real, scannable QR code transformed into a piece of artwork by QR AI.
         Each was generated using Stable Diffusion 1.5 with ControlNet — a fully functional QR code
         hidden inside the art. Browse examples across a range of styles for inspiration.
@@ -97,7 +97,7 @@ export default function GalleryPage() {
               sx={{
                 borderRadius: 2,
                 overflow: "hidden",
-                backgroundColor: "#A5FFC3",
+                backgroundColor: "primary.light",
                 aspectRatio: "1/1",
                 position: "relative",
               }}
@@ -111,7 +111,7 @@ export default function GalleryPage() {
               />
             </Box>
             <Typography
-              sx={{ mt: 1, color: "#888", fontSize: "0.85rem", textAlign: "center" }}
+              sx={{ mt: 1, color: "text.muted", fontSize: "0.85rem", textAlign: "center" }}
             >
               Style: {image.style}
             </Typography>
@@ -145,13 +145,14 @@ export default function GalleryPage() {
             <Box
               key={style}
               sx={{
-                backgroundColor: "#2a2a2a",
-                border: "1px solid #333",
+                backgroundColor: "background.elevated",
+                border: "1px solid",
+                borderColor: "divider",
                 borderRadius: 1,
                 px: 2,
                 py: 1,
                 fontSize: "0.875rem",
-                color: "#ccc",
+                color: "text.secondary",
                 textAlign: "center",
               }}
             >
@@ -159,7 +160,7 @@ export default function GalleryPage() {
             </Box>
           ))}
         </Box>
-        <Typography component="p" sx={{ lineHeight: 1.8, color: "#aaa" }}>
+        <Typography component="p" sx={{ lineHeight: 1.8, color: "text.secondary" }}>
           New styles are added regularly. All styles produce fully scannable QR codes with
           Error Correction Level H, meaning up to 30% of the code pattern can be artistic while
           remaining readable by standard QR scanners.
@@ -184,7 +185,7 @@ export default function GalleryPage() {
         </Box>
       </Box>
 
-      <Box sx={{ textAlign: "center", py: 4, borderTop: "1px solid #333" }}>
+      <Box sx={{ textAlign: "center", py: 4, borderTop: "1px solid", borderColor: "divider" }}>
         <Typography variant="h3" color="primary" sx={{ mb: 2, fontSize: "1.4rem" }}>
           Create your own AI QR code artwork
         </Typography>

@@ -49,6 +49,11 @@ const theme = createTheme({
       fontSize: "4.5rem",
       lineHeight: 1.05,
       letterSpacing: "-0.04em",
+      // Same gap as h3/h4/h5 below: with no explicit color, this rendered
+      // browser-default black on dark pages unless a parent happened to set
+      // an inherited color (which is exactly why some pages were patched
+      // with a manual color:"#ccc" wrapper instead of relying on the theme).
+      color: palette.text.primary,
     },
     h2: {
       fontFamily: "var(--font-instrument-serif), serif",
@@ -56,6 +61,7 @@ const theme = createTheme({
       fontSize: "3.5rem",
       lineHeight: 1.1,
       letterSpacing: "-0.03em",
+      color: palette.text.primary,
     },
     // h3-h6 stay in Inter (the base fontFamily already covers this) — only
     // weight/size/line-height change per the spec's scale.

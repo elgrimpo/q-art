@@ -12,36 +12,37 @@ export const metadata = {
 
 export default function BlogPage() {
   return (
-    <Box sx={{ maxWidth: "860px", mx: "auto", color: "#ccc" }}>
+    <Box sx={{ maxWidth: "860px", mx: "auto" }}>
       <Typography
         variant="h1"
         sx={{ fontSize: { xs: "2rem", md: "2.8rem" }, mb: 2 }}
       >
         QR AI Blog
       </Typography>
-      <Typography component="p" sx={{ mb: 6, color: "#aaa", fontSize: "1.1rem", lineHeight: 1.8 }}>
+      <Typography component="p" sx={{ mb: 6, color: "text.secondary", fontSize: "1.1rem", lineHeight: 1.8 }}>
         Tips, guides, and inspiration for creating beautiful AI QR code artwork. Posts coming soon.
       </Typography>
 
       {/* Placeholder: upcoming posts */}
       <Box
         sx={{
-          border: "1px solid #333",
+          border: "1px solid",
+          borderColor: "divider",
           borderRadius: 2,
           p: 4,
-          backgroundColor: "#1a1a1a",
+          backgroundColor: "background.paper",
           mb: 6,
         }}
       >
         <Typography variant="h2" color="primary" sx={{ fontSize: "1.3rem", mb: 2 }}>
           Coming soon
         </Typography>
-        <Typography component="p" sx={{ lineHeight: 1.8, color: "#aaa", mb: 3 }}>
+        <Typography component="p" sx={{ lineHeight: 1.8, color: "text.secondary", mb: 3 }}>
           We&rsquo;re working on a series of guides to help you get the most out of QR AI:
         </Typography>
         <Box
           component="ul"
-          sx={{ pl: 3, color: "#888", "& li": { mb: 1, lineHeight: 1.8 } }}
+          sx={{ pl: 3, color: "text.muted", "& li": { mb: 1, lineHeight: 1.8 } }}
         >
           <li>How to make an AI QR code — a complete beginner&rsquo;s guide</li>
           <li>The best AI QR code styles for restaurants and cafés</li>

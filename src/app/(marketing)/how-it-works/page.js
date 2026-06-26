@@ -40,7 +40,7 @@ const steps = [
 
 export default function HowItWorksPage() {
   return (
-    <Box sx={{ maxWidth: "860px", mx: "auto", color: "#ccc" }}>
+    <Box sx={{ maxWidth: "860px", mx: "auto" }}>
       <Typography
         variant="h1"
         sx={{ fontSize: { xs: "2rem", md: "2.8rem" }, mb: 2 }}
@@ -51,7 +51,7 @@ export default function HowItWorksPage() {
         </Box>{" "}
         Generation Works
       </Typography>
-      <Typography component="p" sx={{ mb: 6, color: "#aaa", fontSize: "1.1rem", lineHeight: 1.8 }}>
+      <Typography component="p" sx={{ mb: 6, color: "text.secondary", fontSize: "1.1rem", lineHeight: 1.8 }}>
         QR AI uses a two-stage AI pipeline — Stable Diffusion 1.5 with dual ControlNet units — to
         blend your chosen art style with the invisible structure of a QR code. The result is a fully
         scannable image that looks like a piece of artwork. Here&rsquo;s exactly how it works.
@@ -65,7 +65,7 @@ export default function HowItWorksPage() {
               sx={{
                 fontSize: "2rem",
                 fontWeight: 800,
-                color: "#A5FFC3",
+                color: "primary.light",
                 minWidth: "48px",
                 lineHeight: 1,
                 mt: 0.5,
@@ -77,7 +77,7 @@ export default function HowItWorksPage() {
               <Typography variant="h2" color="primary" sx={{ fontSize: "1.3rem", mb: 1 }}>
                 {step.title}
               </Typography>
-              <Typography component="p" sx={{ lineHeight: 1.8, color: "#bbb" }}>
+              <Typography component="p" sx={{ lineHeight: 1.8, color: "text.secondary" }}>
                 {step.body}
               </Typography>
             </Box>
@@ -111,7 +111,7 @@ export default function HowItWorksPage() {
       </Box>
       <Typography component="p" sx={{ mb: 3, lineHeight: 1.8 }}>
         The QR code is generated first using the Python{" "}
-        <code style={{ backgroundColor: "#222", padding: "2px 6px", borderRadius: "4px" }}>qrcode</code>{" "}
+        <code style={{ backgroundColor: "#2A2A2A", padding: "2px 6px", borderRadius: "4px" }}>qrcode</code>{" "}
         library with error correction level H — the highest level, which means up to 30% of the QR
         pattern can be obscured or altered while the code still scans correctly. This headroom is what
         allows the AI to blend artistic elements into the code naturally.
@@ -148,7 +148,7 @@ export default function HowItWorksPage() {
         </li>
       </Box>
 
-      <Box sx={{ textAlign: "center", py: 4, borderTop: "1px solid #333" }}>
+      <Box sx={{ textAlign: "center", py: 4, borderTop: "1px solid", borderColor: "divider" }}>
         <Typography variant="h3" color="primary" sx={{ mb: 2, fontSize: "1.4rem" }}>
           Ready to create your first AI QR code?
         </Typography>
