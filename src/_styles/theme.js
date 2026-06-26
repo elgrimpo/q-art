@@ -292,6 +292,14 @@ const theme = createTheme({
             color: palette.text.disabled,
             WebkitTextFillColor: palette.text.disabled,
           },
+          // Suppress browser autofill's native blue/yellow background override.
+          // The inset box-shadow paints over it with the input's blended surface
+          // color (#232323 paper + rgba(255,255,255,0.08) wash ≈ #2b2b2b).
+          "&:-webkit-autofill, &:-webkit-autofill:hover, &:-webkit-autofill:focus": {
+            WebkitBoxShadow: "0 0 0 1000px #2b2b2b inset",
+            WebkitTextFillColor: palette.text.primary,
+            caretColor: palette.text.primary,
+          },
         },
       },
     },
