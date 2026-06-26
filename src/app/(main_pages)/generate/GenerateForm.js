@@ -1,12 +1,11 @@
 "use client";
-// Libraries imports
 import React, { useEffect, useState } from "react";
-import { Button, Box, Stack, Divider } from "@mui/material";
+import { Box, Button, Chip, Typography } from "@mui/material";
+import StyleIcon from "@mui/icons-material/Style";
 import * as amplitude from "@amplitude/analytics-browser";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
-// App imports
 import "../../globals.css";
 import promptRandomizer from "@/_utils/PromptGenerator";
 import { useStore } from "@/store";
@@ -14,17 +13,12 @@ import SimpleDialog from "@/_components/SimpleDialog";
 import UrlPrompt from "./(formComponents)/UrlPrompt";
 import StylesModal from "./(formComponents)/StylesModal";
 import GeneratingLoader from "./(formComponents)/GeneratingLoader";
-import SettingsModal from "./(formComponents)/SettingsModal";
 import { generateImage } from "@/_utils/ImagesUtils";
 import { styles, selectRandomStyle } from "@/_utils/ImageStyles";
 
-/* -------------------------------------------------------------------------- */
-/*                            MODULE-SCOPE HELPERS                            */
-/* -------------------------------------------------------------------------- */
+// First 6 styles in file order: Random + first 5 named. Reorder ImageStyles.js to curate.
+const FEATURED_STYLES = styles.slice(0, 6);
 
-// Per-tab-session generation counter. sessionStorage (not a module variable)
-// because the app navigates to /images/{id} after each generate and back to
-// /generate — a module variable would reset on that full navigation.
 function nextGenerationNumber() {
   if (typeof window === "undefined") return 1;
   try {
@@ -40,14 +34,7 @@ function nextGenerationNumber() {
   }
 }
 
-/* -------------------------------------------------------------------------- */
-/*                               COMPONENT START                              */
-/* -------------------------------------------------------------------------- */
-
 function GenerateForm() {
-  /* ---------------------------- DECLARE VARIABLES --------------------------- */
-
-  // Context variables
   const {
     user,
     generateFormValues,
@@ -60,42 +47,19 @@ function GenerateForm() {
   const router = useRouter();
   const { data: session, update: updateSession } = useSession();
 
-  // Modules Modal (Prompt keywords, Negative Prompt, SD Models)
   const [styleModalOpen, setStyleModalOpen] = useState(false);
-  const [settingsModalOpen, setSettingsModalOpen] = useState(false);
-
-  // Open Modal
-  const handleStyleModalOpen = () => {
-    setStyleModalOpen(true);
-  };
-
-  // Open Modal
-  const handleSettingsModalOpen = () => {
-    setSettingsModalOpen(true);
-  };
-
-  // Open Modules Modal
-  const handleModalClose = () => {
-    setStyleModalOpen(false);
-    setSettingsModalOpen(false);
-  };
-
-  // Dialog Content
   const [dialogContent, setDialogContent] = useState({});
   const [dialogOpen, setDialogOpen] = useState(false);
-
-  // Submit Button state
   const [submitDisabled, setSubmitDisabled] = useState(true);
 
-  /* -------------------------------- FUNCTIONS ------------------------------- */
+  const handleStyleModalOpen = () => setStyleModalOpen(true);
+  const handleModalClose = () => setStyleModalOpen(false);
 
-  // Handle input change
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setGenerateFormValues({ ...generateFormValues, [name]: value });
   };
 
-  //Track Form Values
   useEffect(() => {
     if (generateFormValues.website && generateFormValues.prompt) {
       setSubmitDisabled(false);
@@ -111,9 +75,18 @@ function GenerateForm() {
     }
   }, [generateFormValues]);
 
-  const handleDialogClose = () => {
-    setDialogOpen(false);
+  const handleStyleChipClick = (item) => {
+    setGenerateFormValues({
+      ...generateFormValues,
+      style_id: item.id,
+      style_prompt: item.prompt,
+      style_title: item.title,
+      sd_model: item.sd_model,
+      loras: item.loras ?? [],
+    });
   };
+
+  const handleDialogClose = () => setDialogOpen(false);
 
   const handleInsufficientCredits = () => {
     setDialogContent({
@@ -131,25 +104,12 @@ function GenerateForm() {
     try {
       const result = await updateSession({
         ...session,
-        user: {
-          ...session.user,
-          credits: newCredits,
-        },
+        user: { ...session.user, credits: newCredits },
       });
-
-      useStore.setState({
-        user: {
-          ...user,
-          credits: newCredits,
-        },
-      });
-
-      if (result?.user?.credits === newCredits) {
-        return true;
-      } else {
-        console.error("updateGuestCredits: Credits update verification failed");
-        return false;
-      }
+      useStore.setState({ user: { ...user, credits: newCredits } });
+      if (result?.user?.credits === newCredits) return true;
+      console.error("updateGuestCredits: Credits update verification failed");
+      return false;
     } catch (error) {
       console.error("updateGuestCredits: Error updating credits:", error);
       return false;
@@ -158,7 +118,6 @@ function GenerateForm() {
 
   const handleGenerate = async () => {
     setGeneratingImage(true);
-
     try {
       const generationNumber = nextGenerationNumber();
       amplitude.track("Generate Image", {
@@ -171,8 +130,7 @@ function GenerateForm() {
         is_first_generation: generationNumber === 1,
       });
 
-      let generateForm = generateFormValues
-
+      let generateForm = generateFormValues;
       if (generateForm.style_id === 1) {
         const randomStyle = selectRandomStyle();
         generateForm = {
@@ -186,22 +144,17 @@ function GenerateForm() {
       }
 
       const image = await generateImage(generateForm, user);
-
       setGeneratingImage(false);
       openAlert("success", "Image generated successfully!");
 
       if (user?.is_guest) {
         const newCredits = user.credits - 1;
         const updated = await updateGuestCredits(newCredits);
-
         if (updated) {
           router.push(`/images/${image._id}?justGenerated=true`);
         } else {
           console.error("handleGenerate: Failed to update credits");
-          openAlert(
-            "error",
-            "Failed to update credits. Please refresh the page."
-          );
+          openAlert("error", "Failed to update credits. Please refresh the page.");
         }
       } else {
         router.push(`/images/${image._id}?justGenerated=true`);
@@ -217,18 +170,14 @@ function GenerateForm() {
     }
   };
 
-  /* -------------------------------------------------------------------------- */
-  /*                              COMPONENT RENDER                              */
-  /* -------------------------------------------------------------------------- */
+  // Overflow: if the selected style is not in the featured 6, show it as an extra chip
+  const featuredIds = new Set(FEATURED_STYLES.map((s) => s.id));
+  const overflowStyle = !featuredIds.has(generateFormValues.style_id)
+    ? styles.find((s) => s.id === generateFormValues.style_id)
+    : null;
 
   return (
-    <Box
-      sx={{
-        mt: 4,
-        width: "100%",
-        maxWidth: "720px",
-      }}
-    >
+    <Box sx={{ mt: 4, width: "100%", maxWidth: "720px" }}>
       <Box
         sx={{
           backgroundColor: "background.paper",
@@ -245,33 +194,38 @@ function GenerateForm() {
           <Box sx={{ width: "100%" }}>
             <UrlPrompt handleInputChange={handleInputChange} />
 
-            <Stack
-              direction={{ xs: "column", sm: "row" }}
-              spacing={2}
-              alignItems="stretch"
-              sx={{ width: "100%", mb: 2, mt: 2 }}
-            >
-              <Button
-                color="primary"
-                variant="outlined"
-                size="large"
-                sx={{ width: { xs: "100%", sm: "50%" } }}
-                onClick={handleStyleModalOpen}
-              >
-                Style: {generateFormValues.style_title}
-              </Button>
-
-              <Button
-                color="primary"
-                variant="outlined"
-                size="large"
-                sx={{ width: { xs: "100%", sm: "50%" } }}
-                onClick={handleSettingsModalOpen}
-              >
-                Advanced Settings
-              </Button>
-            </Stack>
-            <Divider />
+            {/* Style section */}
+            <Box sx={{ mt: 2 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, mb: 1 }}>
+                <StyleIcon sx={{ fontSize: "1rem" }} color="primary" />
+                <Typography variant="h6">Style</Typography>
+              </Box>
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                {FEATURED_STYLES.map((style) => (
+                  <Chip
+                    key={style.id + style.title}
+                    label={style.title}
+                    variant={generateFormValues.style_id === style.id ? "filled" : "outlined"}
+                    color="primary"
+                    onClick={() => handleStyleChipClick(style)}
+                  />
+                ))}
+                {overflowStyle && (
+                  <Chip
+                    key={overflowStyle.id + overflowStyle.title}
+                    label={overflowStyle.title}
+                    variant="filled"
+                    color="primary"
+                  />
+                )}
+                <Chip
+                  label="+"
+                  variant="outlined"
+                  color="primary"
+                  onClick={handleStyleModalOpen}
+                />
+              </Box>
+            </Box>
 
             <Button
               variant="contained"
@@ -281,7 +235,7 @@ function GenerateForm() {
               aria-label="generate"
               disabled={submitDisabled}
               onClick={() => handleGenerate()}
-              sx={{ mt: "1rem" }}
+              sx={{ mt: 3 }}
             >
               Generate
             </Button>
@@ -289,9 +243,6 @@ function GenerateForm() {
         )}
       </Box>
 
-      {/* --------------------------------- Dialog --------------------------------- */}
-
-      {/* Dialog Modal */}
       <SimpleDialog
         open={dialogOpen}
         onClose={handleDialogClose}
@@ -304,12 +255,6 @@ function GenerateForm() {
       />
 
       <StylesModal open={styleModalOpen} handleClose={handleModalClose} />
-
-      <SettingsModal
-        open={settingsModalOpen}
-        handleClose={handleModalClose}
-        handleInputChange={handleInputChange}
-      />
     </Box>
   );
 }
