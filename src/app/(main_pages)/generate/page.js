@@ -110,11 +110,16 @@ export default function GeneratePage() {
         >
           <Typography
             variant="h1"
-            sx={{ fontSize: { xs: "3rem", sm: "3rem", md: "5rem" } }}
+            sx={{
+              fontSize: { xs: "3rem", sm: "3rem", md: "5rem" },
+              fontFamily: "var(--font-inter), Inter, sans-serif",
+              fontWeight: 900,
+              letterSpacing: "-0.03em",
+            }}
           >
             Scannable{" "}
             <Box component="span" sx={{ color: "primary.main" }}>
-              Art
+              Art.
             </Box>
           </Typography>
 
@@ -143,64 +148,6 @@ export default function GeneratePage() {
       {/* Guest gallery — client component, only visible when user is a guest */}
       <GuestGallery />
 
-      {/* SSR feature section — server-rendered, visible to crawlers */}
-      <Box
-        component="section"
-        aria-label="features"
-        sx={{
-          mt: 8,
-          px: { xs: 2, lg: 0 },
-          maxWidth: "900px",
-        }}
-      >
-        <Typography variant="h2" color="primary" sx={{ mb: 2 }}>
-          Turn any URL into AI-generated artwork
-        </Typography>
-        <Typography
-          component="p"
-          sx={{ mb: 3, color: palette.text.secondary, lineHeight: 1.8 }}
-        >
-          QR AI uses advanced Stable Diffusion and ControlNet AI models to
-          transform plain QR codes into stunning works of art. Whether you&apos;re
-          a business looking for eye-catching marketing materials, a restaurant
-          wanting a unique menu QR code, or a creator who wants to share links
-          in style — QR AI generates beautiful, fully scannable QR code artwork
-          in seconds. No design skills required. Choose from dozens of artistic
-          styles, from watercolor paintings to cyberpunk aesthetics, oil
-          paintings to minimalist designs. Every QR code is optimized for all
-          standard QR readers.
-        </Typography>
-
-        <Typography variant="h3" color="primary" sx={{ mb: 1 }}>
-          How it works
-        </Typography>
-        <Box
-          component="ul"
-          sx={{ pl: 3, color: palette.text.secondary, "& li": { mb: 1, lineHeight: 1.8 } }}
-        >
-          <li>
-            Enter any URL — website, social profile, payment link, or WiFi
-            credentials
-          </li>
-          <li>
-            Pick an art style from dozens of curated presets, or let the AI
-            surprise you
-          </li>
-          <li>
-            Our AI generates a beautiful, fully scannable QR code artwork in
-            seconds
-          </li>
-          <li>Download and share — or save to your personal gallery</li>
-        </Box>
-        <Typography
-          component="p"
-          sx={{ mt: 2, color: palette.text.secondary, lineHeight: 1.8 }}
-        >
-          Perfect for restaurant menus, retail packaging, business cards, event
-          posters, social media profiles, wedding invitations, and more. Free
-          credits included to get started.
-        </Typography>
-      </Box>
     </Box>
   );
 }
