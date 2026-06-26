@@ -3,7 +3,6 @@ import { Box, Typography } from "@mui/material";
 
 import { palette } from "@/_styles/palette";
 import GenerateForm from "./GenerateForm";
-import GuestGallery from "./GuestGallery";
 import UseCasesCarousel from "./UseCasesCarousel";
 
 const softwareApplicationSchema = {
@@ -145,9 +144,7 @@ export default function GeneratePage() {
       {/* Use cases carousel — marketing section showing product placement examples */}
       <UseCasesCarousel />
 
-      {/* Guest gallery — client component, only visible when user is a guest */}
-      <GuestGallery />
 
-    </Box>
+</Box>
   );
 }
