@@ -247,12 +247,16 @@ const theme = createTheme({
         root: {
           borderRadius: "8px",
           color: palette.text.primary,
-          backgroundColor: palette.background.elevated,
+          // A flat surface color (elevated) read as almost indistinguishable
+          // from the form panel behind it. A white-wash overlay plus a
+          // visibly lighter border gives the field actual definition
+          // regardless of what's underneath.
+          backgroundColor: "rgba(255, 255, 255, 0.08)",
           "& .MuiOutlinedInput-notchedOutline": {
-            borderColor: palette.divider,
+            borderColor: "rgba(255, 255, 255, 0.18)",
           },
           "&:hover .MuiOutlinedInput-notchedOutline": {
-            borderColor: "#4E4E4E",
+            borderColor: "rgba(255, 255, 255, 0.32)",
           },
           "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
             borderColor: palette.primary.main,
