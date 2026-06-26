@@ -111,7 +111,14 @@ export default function GeneratePage() {
             variant="h1"
             sx={{ fontSize: { xs: "3rem", sm: "3rem", md: "5rem" } }}
           >
-            <Box component="span" sx={{ color: "primary.main", fontWeight: 600 }}>
+            <Box
+              component="span"
+              sx={{
+                color: "primary.main",
+                fontFamily: "var(--font-inter), Inter, sans-serif",
+                fontWeight: 900,
+              }}
+            >
               AI QR Code Art
             </Box>{" "}
             Generator

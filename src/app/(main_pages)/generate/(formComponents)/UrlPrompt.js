@@ -27,7 +27,8 @@ const UrlPrompt = (props) => {
           className="form-field"
           required
           id="website"
-          label="Website"
+          aria-label="Website"
+          placeholder="e.g. google.com"
           name="website"
           value={generateFormValues.website}
           onChange={handleInputChange}
@@ -49,7 +50,8 @@ const UrlPrompt = (props) => {
           className="form-field"
           required
           id="prompt"
-          label="Prompt"
+          aria-label="Prompt"
+          placeholder="Describe the image you'd like to generate"
           name="prompt"
           value={generateFormValues.prompt}
           onChange={handleInputChange}

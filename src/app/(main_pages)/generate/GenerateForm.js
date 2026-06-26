@@ -254,6 +254,7 @@ function GenerateForm() {
               <Button
                 color="primary"
                 variant="outlined"
+                size="large"
                 sx={{ width: { xs: "100%", sm: "50%" } }}
                 onClick={handleStyleModalOpen}
               >
@@ -263,6 +264,7 @@ function GenerateForm() {
               <Button
                 color="primary"
                 variant="outlined"
+                size="large"
                 sx={{ width: { xs: "100%", sm: "50%" } }}
                 onClick={handleSettingsModalOpen}
               >

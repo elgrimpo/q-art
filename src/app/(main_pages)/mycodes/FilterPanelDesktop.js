@@ -106,7 +106,8 @@ function FilterPanelDesktop({
               <Button
                 id={`filter-button-${index}`}
                 size="large"
-                variant="contained"
+                variant="outlined"
+                color="primary"
                 // sx={{ margin: "0.5rem" }}
                 onClick={(event) => handleFilterClick(event, index)}
                 endIcon={<ExpandMoreTwoToneIcon />}

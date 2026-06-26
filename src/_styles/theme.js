@@ -137,18 +137,27 @@ const theme = createTheme({
         root: {
           borderRadius: "24px",
         },
-        // "Secondary" per design/fontstyling.md Buttons spec (15px/500).
-        // Not applying the spec's "Primary" 56px height globally — variant
-        //="contained" is also used for small icon-only actions (close,
-        // delete, like) throughout the app, and forcing that height there
-        // would break those, not just the marketing CTA buttons it's meant
-        // for. Flagging rather than guessing which contained buttons are
-        // hero CTAs.
+        // "Secondary" per design/fontstyling.md Buttons spec (15px/500→600
+        // for the heavier look in the reference screenshot): outlined green
+        // pill, green text.
         outlined: {
           color: palette.primary.main,
           borderColor: palette.primary.main,
           fontSize: "0.9375rem",
-          fontWeight: 500,
+          fontWeight: 600,
+        },
+        // "Primary": solid green fill, bold near-black text — matches the
+        // reference screenshot's Generate button.
+        containedPrimary: {
+          color: "#111111",
+          fontWeight: 700,
+        },
+        // Scoped to size="large" (the marketing/form CTAs) rather than the
+        // root, so small icon-only contained buttons elsewhere (close,
+        // delete, like) aren't forced to this height.
+        sizeLarge: {
+          minHeight: "56px",
+          borderRadius: "28px",
         },
       },
     },
@@ -238,6 +247,7 @@ const theme = createTheme({
         root: {
           borderRadius: "8px",
           color: palette.text.primary,
+          backgroundColor: palette.background.elevated,
           "& .MuiOutlinedInput-notchedOutline": {
             borderColor: palette.divider,
           },
