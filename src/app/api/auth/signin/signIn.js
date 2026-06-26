@@ -28,10 +28,10 @@ function Wordmark({ color }) {
       <Box component="img" src="/favicon.ico" alt="QR AI" sx={{ width: 32, height: 32 }} />
       <Typography
         sx={{
-          fontFamily: "Roboto Serif",
+          fontFamily: "var(--font-instrument-serif), serif",
           fontStyle: "italic",
-          fontWeight: 900,
-          fontSize: "1.25rem",
+          fontWeight: 400,
+          fontSize: "1.4rem",
           color,
         }}
       >
@@ -113,9 +113,6 @@ export default function SignIn() {
       setLoading(false);
     }
   };
-
-  // Primary CTA on the green (primary.main) card — darkened so it doesn't blend in.
-  const ctaSx = { bgcolor: "primary.dark", color: "common.white", "&:hover": { bgcolor: "primary.dark" } };
 
   return (
     <Box sx={{ display: "flex", minHeight: "100vh", bgcolor: "#161616" }}>
@@ -207,7 +204,16 @@ export default function SignIn() {
             Welcome back. Pick up where your art left off.
           </Typography>
 
-          <Paper elevation={0} sx={{ bgcolor: "primary.light", p: 2, borderRadius: "8px" }}>
+          <Paper
+            elevation={0}
+            sx={{
+              bgcolor: "background.paper",
+              border: "1px solid",
+              borderColor: "divider",
+              p: 3,
+              borderRadius: "16px",
+            }}
+          >
             {step === "email" && (
               <Box
                 component="form"
@@ -230,7 +236,6 @@ export default function SignIn() {
                   color="primary"
                   disabled={loading || !email.trim()}
                   fullWidth
-                  sx={ctaSx}
                 >
                   {loading ? "Sending…" : "Continue with email"}
                 </Button>
@@ -252,7 +257,7 @@ export default function SignIn() {
 
             {step === "code" && (
               <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                <Typography variant="body2" sx={{ color: "secondary.main" }}>
+                <Typography variant="body2" sx={{ color: "text.secondary" }}>
                   We sent a 6-digit code to <strong>{email}</strong>.
                 </Typography>
                 <TextField
@@ -272,7 +277,6 @@ export default function SignIn() {
                   disabled={loading || code.length < 6}
                   onClick={verifyCode}
                   fullWidth
-                  sx={ctaSx}
                 >
                   {loading ? "Verifying…" : "Verify & sign in"}
                 </Button>
@@ -281,7 +285,7 @@ export default function SignIn() {
                     type="button"
                     variant="text"
                     size="small"
-                    color="secondary"
+                    color="primary"
                     disabled={cooldown > 0 || loading}
                     onClick={sendCode}
                   >
@@ -292,7 +296,7 @@ export default function SignIn() {
                     type="button"
                     variant="body2"
                     onClick={() => { setStep("email"); setCode(""); setError(""); }}
-                    sx={{ color: "secondary.main" }}
+                    sx={{ color: "primary.light" }}
                   >
                     Use a different email
                   </Link>
