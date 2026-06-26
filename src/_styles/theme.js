@@ -138,6 +138,22 @@ const theme = createTheme({
     },
   },
   components: {
+    // MUI's dark-mode Paper applies a built-in elevation overlay (a
+    // semi-transparent white gradient layered on top of backgroundColor,
+    // stronger at higher elevation) to fake a "lit from above" effect. That
+    // overlay is what made the navbar pill (Paper elevation=3) keep reading
+    // as a lighter grey than the page even after its backgroundColor was set
+    // to match background.default — the overlay was tinting it regardless of
+    // the explicit color. Since this app uses fully custom surface colors
+    // rather than MUI's default dark palette, disable the overlay globally
+    // so any Paper's backgroundColor renders exactly as specified.
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          backgroundImage: "none",
+        },
+      },
+    },
     MuiButton: {
       styleOverrides: {
         root: {
