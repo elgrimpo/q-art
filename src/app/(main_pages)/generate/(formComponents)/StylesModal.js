@@ -15,27 +15,33 @@ import StyledIconButton from "@/_components/StyledIconButton";
 
 const StylesModal = (props) => {
   // Props
-  const { open, handleClose } = props;
+  const { open, handleClose, onStyleSelect } = props;
 
   const { generateFormValues, setGenerateFormValues } = useStore();
 
   // Screen size
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  // Select Style
+  // Select Style — if onStyleSelect is provided (shared form context), call it;
+  // otherwise fall back to writing directly to the store (GenerateForm legacy path).
   const handleStyleClick = (item) => {
-    setGenerateFormValues({
-      ...generateFormValues,
-      style_id: item.id,
-      style_prompt: item.prompt,
-      style_title: item.title,
-      sd_model: item.sd_model,
-      loras: item.loras ?? [],
-    });
+    if (onStyleSelect) {
+      onStyleSelect(item);
+    } else {
+      setGenerateFormValues({
+        ...generateFormValues,
+        style_id: item.id,
+        style_prompt: item.prompt,
+        style_title: item.title,
+        sd_model: item.sd_model,
+        loras: item.loras ?? [],
+      });
+    }
 
     setTimeout(() => {
       handleClose();
-    }, 300);  };
+    }, 300);
+  };
 
   return (
     <Dialog

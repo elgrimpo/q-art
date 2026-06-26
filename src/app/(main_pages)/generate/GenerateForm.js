@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Box, Button, Chip, Typography } from "@mui/material";
-import StyleIcon from "@mui/icons-material/Style";
+import { Box, Button } from "@mui/material";
 import * as amplitude from "@amplitude/analytics-browser";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -10,14 +9,10 @@ import "../../globals.css";
 import promptRandomizer from "@/_utils/PromptGenerator";
 import { useStore } from "@/store";
 import SimpleDialog from "@/_components/SimpleDialog";
-import UrlPrompt from "./(formComponents)/UrlPrompt";
-import StylesModal from "./(formComponents)/StylesModal";
+import GenerationFormFields from "./(formComponents)/GenerationFormFields";
 import GeneratingLoader from "./(formComponents)/GeneratingLoader";
 import { generateImage } from "@/_utils/ImagesUtils";
-import { styles, selectRandomStyle } from "@/_utils/ImageStyles";
-
-// First 6 styles in file order: Random + first 5 named. Reorder ImageStyles.js to curate.
-const FEATURED_STYLES = styles.slice(0, 6);
+import { selectRandomStyle } from "@/_utils/ImageStyles";
 
 function nextGenerationNumber() {
   if (typeof window === "undefined") return 1;
@@ -47,13 +42,9 @@ function GenerateForm() {
   const router = useRouter();
   const { data: session, update: updateSession } = useSession();
 
-  const [styleModalOpen, setStyleModalOpen] = useState(false);
   const [dialogContent, setDialogContent] = useState({});
   const [dialogOpen, setDialogOpen] = useState(false);
   const [submitDisabled, setSubmitDisabled] = useState(true);
-
-  const handleStyleModalOpen = () => setStyleModalOpen(true);
-  const handleModalClose = () => setStyleModalOpen(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -170,12 +161,6 @@ function GenerateForm() {
     }
   };
 
-  // Overflow: if the selected style is not in the featured 6, show it as an extra chip
-  const featuredIds = new Set(FEATURED_STYLES.map((s) => s.id));
-  const overflowStyle = !featuredIds.has(generateFormValues.style_id)
-    ? styles.find((s) => s.id === generateFormValues.style_id && s.title === generateFormValues.style_title)
-    : null;
-
   return (
     <Box sx={{ mt: 4, width: "100%", maxWidth: "720px" }}>
       <Box
@@ -192,40 +177,16 @@ function GenerateForm() {
           <GeneratingLoader />
         ) : (
           <Box sx={{ width: "100%" }}>
-            <UrlPrompt handleInputChange={handleInputChange} />
-
-            {/* Style section */}
-            <Box sx={{ mt: 2 }}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, mb: 1 }}>
-                <StyleIcon sx={{ fontSize: "1rem" }} color="primary" />
-                <Typography variant="h6">Style</Typography>
-              </Box>
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                {FEATURED_STYLES.map((style) => (
-                  <Chip
-                    key={style.id + style.title}
-                    label={style.title}
-                    variant={generateFormValues.style_id === style.id ? "filled" : "outlined"}
-                    color="primary"
-                    onClick={() => handleStyleChipClick(style)}
-                  />
-                ))}
-                {overflowStyle && (
-                  <Chip
-                    key={overflowStyle.id + overflowStyle.title}
-                    label={overflowStyle.title}
-                    variant="filled"
-                    color="primary"
-                  />
-                )}
-                <Chip
-                  label="+"
-                  variant="outlined"
-                  color="primary"
-                  onClick={handleStyleModalOpen}
-                />
-              </Box>
-            </Box>
+            <GenerationFormFields
+              values={generateFormValues}
+              onFieldChange={handleInputChange}
+              onStyleChange={handleStyleChipClick}
+              onQrWeightChange={(val) =>
+                setGenerateFormValues({ ...generateFormValues, qr_weight: val })
+              }
+              showQrWeight={false}
+              urlDisabled={false}
+            />
 
             <Button
               variant="contained"
@@ -253,8 +214,6 @@ function GenerateForm() {
         secondaryActionText={dialogContent.secondaryActionText}
         secondaryAction={dialogContent.secondaryAction}
       />
-
-      <StylesModal open={styleModalOpen} handleClose={handleModalClose} />
     </Box>
   );
 }

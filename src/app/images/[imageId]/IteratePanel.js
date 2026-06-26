@@ -6,24 +6,18 @@ import {
   Box,
   Typography,
   Button,
-  TextField,
-  Slider,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   Stack,
-  Divider,
   IconButton,
 } from "@mui/material";
 import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
 import ShuffleIcon from "@mui/icons-material/Shuffle";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useRouter } from "next/navigation";
+import GenerationFormFields from "@/app/(main_pages)/generate/(formComponents)/GenerationFormFields";
 
 import { styles, selectRandomStyle } from "@/_utils/ImageStyles";
 import { generateImage } from "@/_utils/ImagesUtils";
-import { qrWeightToSlider, QR_SLIDER_MIN, QR_SLIDER_MAX } from "@/_utils/qrWeight";
+import { qrWeightToSlider } from "@/_utils/qrWeight";
 
 const GIF_URL =
   "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExNXd0ZmY4N3VweW54ejIwN29yaGQxcmdtOWh5aGZuMG1wZW5mdHprYyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/R8dDMt8IgVvhK/giphy.gif";
@@ -38,14 +32,14 @@ function initFormValues(image, isOwner = true) {
   const img = image ?? {};
   const sourceStyle = styles.find((s) => s.title === img.style_title) ?? styles[0];
   return {
+    website: isOwner ? (img.content ?? "") : "",
     prompt: img.prompt ?? "",
-    styleId: sourceStyle.id,
-    styleTitle: sourceStyle.title,
-    stylePrompt: sourceStyle.prompt,
-    styleLoras: sourceStyle.loras ?? [],
-    sdModel: img.sd_model ?? "cyberrealistic_v40_151857.safetensors",
-    qrWeight: qrWeightToSlider(img.qr_weight ?? 0.5),
-    url: isOwner ? (img.content ?? "") : "",
+    style_id: sourceStyle.id,
+    style_title: sourceStyle.title,
+    style_prompt: sourceStyle.prompt,
+    loras: sourceStyle.loras ?? [],
+    sd_model: img.sd_model ?? "cyberrealistic_v40_151857.safetensors",
+    qr_weight: qrWeightToSlider(img.qr_weight ?? 0.5),
   };
 }
 
@@ -62,7 +56,6 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
   const generatingError = iterateSession?.imageId === image?._id && !!iterateSession?.error;
 
   const [formValues, setFormValues] = useState(() => initFormValues(image, isOwner));
-  const [promptTouched, setPromptTouched] = useState(false);
 
   const isActive = generating || generatingError;
 
@@ -73,17 +66,6 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
   useEffect(() => {
     setFormValues(initFormValues(image, isOwner));
   }, [image?._id]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const handleStyleClick = (item) => {
-    setFormValues((prev) => ({
-      ...prev,
-      styleId: item.id,
-      styleTitle: item.title,
-      stylePrompt: item.prompt,
-      styleLoras: item.loras ?? [],
-      sdModel: item.sd_model,
-    }));
-  };
 
   const buildPayload = (trigger) => {
     if (trigger === "newVariation") {
@@ -102,32 +84,32 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
       };
     }
 
-    let styleId = formValues.styleId;
-    let styleTitle = formValues.styleTitle;
-    let stylePrompt = formValues.stylePrompt;
-    let styleLoras = formValues.styleLoras;
-    let sdModel = formValues.sdModel;
+    let style_id = formValues.style_id;
+    let style_title = formValues.style_title;
+    let style_prompt = formValues.style_prompt;
+    let loras = formValues.loras;
+    let sd_model = formValues.sd_model;
 
-    if (styleId === 1) {
+    if (style_id === 1) {
       const resolved = selectRandomStyle();
-      styleId = resolved.id;
-      styleTitle = resolved.title;
-      stylePrompt = resolved.prompt;
-      styleLoras = resolved.loras ?? [];
-      sdModel = resolved.sd_model;
+      style_id = resolved.id;
+      style_title = resolved.title;
+      style_prompt = resolved.prompt;
+      loras = resolved.loras ?? [];
+      sd_model = resolved.sd_model;
     }
 
-    const seed = styleTitle !== originalStyleTitle.current ? -1 : image.seed;
+    const seed = style_title !== originalStyleTitle.current ? -1 : image.seed;
 
     return {
-      website: formValues.url,
+      website: formValues.website,
       prompt: formValues.prompt,
-      style_id: styleId,
-      style_title: styleTitle,
-      style_prompt: stylePrompt,
-      loras: styleLoras,
-      sd_model: sdModel,
-      qr_weight: formValues.qrWeight,
+      style_id,
+      style_title,
+      style_prompt,
+      loras,
+      sd_model,
+      qr_weight: formValues.qr_weight,
       negative_prompt: image.negative_prompt ?? "",
       seed,
     };
@@ -170,7 +152,7 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
 
   const isFormValid =
     formValues.prompt.trim().length > 0 &&
-    (isOwner || formValues.url.trim().length > 0);
+    (isOwner || formValues.website.trim().length > 0);
 
   return (
     <>
@@ -326,121 +308,27 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
               </Box>
             </Box>
 
-            <Stack spacing={2.5} divider={<Divider />}>
-              {/* URL */}
-              <TextField
-                label="URL"
-                name="url"
-                fullWidth
-                size="small"
-                disabled={isOwner}
-                value={formValues.url}
-                onChange={
-                  !isOwner
-                    ? (e) => setFormValues((prev) => ({ ...prev, url: e.target.value }))
-                    : undefined
-                }
-              />
-
-              {/* Prompt */}
-              <TextField
-                label="Prompt"
-                name="prompt"
-                multiline
-                minRows={3}
-                fullWidth
-                value={formValues.prompt}
-                onChange={(e) => setFormValues((prev) => ({ ...prev, prompt: e.target.value }))}
-                onBlur={() => setPromptTouched(true)}
-                error={promptTouched && formValues.prompt.trim().length === 0}
-                helperText={promptTouched && formValues.prompt.trim().length === 0 ? "Prompt is required" : ""}
-                inputProps={{ "aria-label": "prompt" }}
-              />
-
-              {/* Style accordion */}
-              <Accordion
-                disableGutters
-                TransitionProps={{ unmountOnExit: true }}
-                sx={{
-                  bgcolor: "background.default",
-                  border: "1px solid",
-                  borderColor: "divider",
-                  borderRadius: "12px !important",
-                  "&:before": { display: "none" },
-                }}
-              >
-                <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: "primary.main" }} />}>
-                  <Typography sx={{ color: "text.secondary" }}>
-                    Style:{" "}
-                    <Box component="span" sx={{ color: "primary.main", fontWeight: 700 }}>
-                      {formValues.styleTitle}
-                    </Box>
-                  </Typography>
-                </AccordionSummary>
-                <AccordionDetails sx={{ p: 1 }}>
-                  <Box sx={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 1 }}>
-                    {styles.map((item) => {
-                      const isSelected = item.title === formValues.styleTitle;
-                      return (
-                        <Box
-                          key={item.id}
-                          data-testid={`style-${item.title}`}
-                          onClick={() => handleStyleClick(item)}
-                          sx={{
-                            cursor: "pointer",
-                            borderRadius: "8px",
-                            border: "2px solid",
-                            borderColor: isSelected ? "primary.main" : "rgba(181, 181, 181, 0.35)",
-                            bgcolor: isSelected ? "rgba(112, 225, 149, 0.08)" : "transparent",
-                            overflow: "hidden",
-                            "&:hover": { borderColor: "primary.main" },
-                          }}
-                        >
-                          <Box
-                            component="img"
-                            src={item.image_url}
-                            alt={item.title}
-                            sx={{ width: "100%", aspectRatio: "1/1", display: "block" }}
-                          />
-                          <Typography
-                            sx={{
-                              display: "block",
-                              textAlign: "center",
-                              color: isSelected ? "primary.main" : "text.secondary",
-                              fontSize: "16px",
-                              py: 0.5,
-                              px: 0.25,
-                              lineHeight: 1.2,
-                            }}
-                          >
-                            {item.title}
-                          </Typography>
-                        </Box>
-                      );
-                    })}
-                  </Box>
-                </AccordionDetails>
-              </Accordion>
-
-              {/* QR Weight slider */}
-              <Box sx={{ px: 1 }}>
-                <Typography variant="body2" sx={{ mb: 1 }}>
-                  QR Code Weight
-                </Typography>
-                <Slider
-                  min={QR_SLIDER_MIN}
-                  max={QR_SLIDER_MAX}
-                  step={0.1}
-                  value={formValues.qrWeight}
-                  onChange={(_, val) => setFormValues((prev) => ({ ...prev, qrWeight: val }))}
-                  marks={[
-                    { value: QR_SLIDER_MIN, label: "Artistic" },
-                    { value: QR_SLIDER_MAX, label: "Scannable" },
-                  ]}
-                  sx={{ "& .MuiSlider-markLabel": { color: "text.muted" } }}
-                />
-              </Box>
-            </Stack>
+            <GenerationFormFields
+              values={formValues}
+              onFieldChange={(e) =>
+                setFormValues((prev) => ({ ...prev, [e.target.name]: e.target.value }))
+              }
+              onStyleChange={(style) =>
+                setFormValues((prev) => ({
+                  ...prev,
+                  style_id: style.id,
+                  style_title: style.title,
+                  style_prompt: style.prompt,
+                  loras: style.loras ?? [],
+                  sd_model: style.sd_model,
+                }))
+              }
+              onQrWeightChange={(val) =>
+                setFormValues((prev) => ({ ...prev, qr_weight: val }))
+              }
+              showQrWeight={true}
+              urlDisabled={isOwner}
+            />
           </Box>
 
           {/* Generate button — sticky at bottom of scroll container */}
