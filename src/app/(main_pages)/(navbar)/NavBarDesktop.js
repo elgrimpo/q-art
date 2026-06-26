@@ -60,7 +60,7 @@ export default function NavBarDesktop() {
           >
             <Paper elevation={3}
               sx={{
-                backgroundColor: "background.default",
+                backgroundColor: "background.elevated",
                 height: "60px",
                 borderRadius: "8px",
                 display: "flex",
