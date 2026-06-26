@@ -22,19 +22,6 @@ export default function GuestGallery() {
 
   return (
     <Box sx={{ mt: 6 }}>
-      <Typography
-        variant="h3"
-        color="primary"
-        align="center"
-        sx={{
-          mb: 4,
-          p: 2,
-          fontSize: { xs: "2rem", sm: "3rem", md: "4rem" },
-        }}
-      >
-        Create Unique Images to represent your brand
-      </Typography>
-
       <Box
         sx={{
           display: "flex",
