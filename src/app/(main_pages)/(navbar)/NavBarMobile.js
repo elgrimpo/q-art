@@ -50,6 +50,16 @@ export default function NavBarMobile() {
       return theme.palette.secondary.light;
     }
   };
+
+  // design/fontstyling.md "Navbar" spec: Inter 15px/600, letter-spaced
+  // uppercase. Applied via sx here rather than the body2 variant, since
+  // body2 is the app's general supporting-copy style used everywhere else.
+  const navLabelSx = {
+    fontWeight: 600,
+    fontSize: "0.9375rem",
+    letterSpacing: "0.03em",
+    textTransform: "uppercase",
+  };
   // Screen size
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -123,7 +133,7 @@ export default function NavBarMobile() {
                   >
                     <AutoFixHighTwoToneIcon />
                   </IconButton>
-                  <Typography variant="body2" sx={{ mt: 0 }}>
+                  <Typography variant="body2" sx={{ ...navLabelSx, mt: 0 }}>
                     Generate
                   </Typography>
                 </ButtonBase>
@@ -152,7 +162,7 @@ export default function NavBarMobile() {
                     >
                       <ImageTwoToneIcon />
                     </IconButton>
-                    <Typography variant="body2" sx={{ mt: 0 }}>
+                    <Typography variant="body2" sx={{ ...navLabelSx, mt: 0 }}>
                       My Codes
                     </Typography>
                   </ButtonBase>
@@ -182,7 +192,7 @@ export default function NavBarMobile() {
                     <Diversity1TwoToneIcon />
                   </IconButton>
                   {/* MY CODES PAGE */}
-                  <Typography variant="body2" sx={{ mt: 0 }}>
+                  <Typography variant="body2" sx={{ ...navLabelSx, mt: 0 }}>
                     Explore
                   </Typography>
                 </ButtonBase>
@@ -212,7 +222,7 @@ export default function NavBarMobile() {
                     <MenuTwoToneIcon />
                   </IconButton>
 
-                  <Typography variant="body2" sx={{ mt: 0 }}>
+                  <Typography variant="body2" sx={{ ...navLabelSx, mt: 0 }}>
                     More
                   </Typography>
                 </ButtonBase>
@@ -241,7 +251,7 @@ export default function NavBarMobile() {
                     >
                       <LoginTwoToneIcon />
                     </IconButton>
-                    <Typography variant="body2" sx={{ mt: 0 }}>
+                    <Typography variant="body2" sx={{ ...navLabelSx, mt: 0 }}>
                       Login
                     </Typography>
                   </ButtonBase>

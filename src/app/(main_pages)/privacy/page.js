@@ -20,7 +20,7 @@ export default function PrivacyPage() {
         color: "#ccc",
       }}
     >
-      <Typography variant="h1" color="primary" sx={{ fontSize: { xs: "2rem", md: "2.5rem" }, mb: 1 }}>
+      <Typography variant="h1" sx={{ fontSize: { xs: "2rem", md: "2.5rem" }, mb: 1 }}>
         Privacy Policy
       </Typography>
       <Typography sx={{ mb: 4, color: "#888", fontSize: "0.9rem" }}>

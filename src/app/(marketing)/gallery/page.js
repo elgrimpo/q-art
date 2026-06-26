@@ -76,10 +76,12 @@ export default function GalleryPage() {
       />
       <Typography
         variant="h1"
-        color="primary"
         sx={{ fontSize: { xs: "2rem", md: "2.8rem" }, mb: 2 }}
       >
-        AI QR Code Art Gallery
+        <Box component="span" sx={{ color: "primary.main", fontWeight: 600 }}>
+          AI QR Code Art
+        </Box>{" "}
+        Gallery
       </Typography>
       <Typography component="p" sx={{ mb: 6, color: "#aaa", fontSize: "1.1rem", lineHeight: 1.8, maxWidth: "760px" }}>
         Every image below is a real, scannable QR code transformed into a piece of artwork by QR AI.

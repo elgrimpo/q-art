@@ -15,7 +15,6 @@ export default function BlogPage() {
     <Box sx={{ maxWidth: "860px", mx: "auto", color: "#ccc" }}>
       <Typography
         variant="h1"
-        color="primary"
         sx={{ fontSize: { xs: "2rem", md: "2.8rem" }, mb: 2 }}
       >
         QR AI Blog

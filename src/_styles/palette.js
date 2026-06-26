@@ -33,12 +33,21 @@ export const palette = {
     well: "#0E0E0E",
   },
   text: {
-    primary: "#F0F0F0",
-    // Body copy / supporting text.
-    secondary: "#B8B8B8",
-    // Small overline labels and input labels (dimmer than secondary).
-    muted: "#7D7D7D",
-    disabled: "#6B6B6B",
+    // Headings/labels — design/fontstyling.md specifies pure white for H1.
+    primary: "#FFFFFF",
+    // Body copy / supporting text. design/fontstyling.md "Body" (used
+    // almost everywhere): rgba(255,255,255,.75).
+    secondary: "rgba(255, 255, 255, 0.75)",
+    // Small overline labels, input labels, and metadata (scan scores, dates,
+    // model names) — design/fontstyling.md "Metadata"/"Caption": ~rgba(.45-.5).
+    muted: "rgba(255, 255, 255, 0.5)",
+    disabled: "rgba(255, 255, 255, 0.35)",
+    // "Body Large" tier — design/fontstyling.md: rgba(255,255,255,.82), used
+    // for hero descriptions (theme.typography.subtitle1).
+    heroBody: "rgba(255, 255, 255, 0.82)",
+    // "Body Small" tier — design/fontstyling.md: rgba(255,255,255,.6), used
+    // for card descriptions.
+    cardDescription: "rgba(255, 255, 255, 0.6)",
   },
   divider: "#2E2E2E",
 };

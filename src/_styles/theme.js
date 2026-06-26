@@ -28,6 +28,8 @@ const theme = createTheme({
       secondary: palette.text.secondary,
       muted: palette.text.muted,
       disabled: palette.text.disabled,
+      heroBody: palette.text.heroBody,
+      cardDescription: palette.text.cardDescription,
     },
     divider: palette.divider,
   },
@@ -102,9 +104,19 @@ const theme = createTheme({
       lineHeight: 1.6,
       color: palette.text.secondary,
     },
+    // "Body Large" per design/fontstyling.md — hero descriptions only.
+    // Mapped onto subtitle1 since MUI's default typography scale doesn't
+    // have a third body tier.
+    subtitle1: {
+      fontWeight: 400,
+      fontSize: "1.125rem",
+      lineHeight: "30px",
+      color: palette.text.heroBody,
+    },
     button: {
-      fontSize: "0.95rem",
+      fontSize: "1rem",
       fontWeight: 600,
+      letterSpacing: 0,
       textTransform: "none",
     },
     // Small uppercase section labels (e.g. "Links to", "Style",
@@ -114,6 +126,7 @@ const theme = createTheme({
     // (ScannabilityBadge, helper text) and shouldn't get uppercase/tracking.
     overline: {
       fontSize: "0.75rem",
+      fontWeight: 500,
       letterSpacing: "0.08em",
       color: palette.text.muted,
     },
@@ -124,18 +137,41 @@ const theme = createTheme({
         root: {
           borderRadius: "24px",
         },
+        // "Secondary" per design/fontstyling.md Buttons spec (15px/500).
+        // Not applying the spec's "Primary" 56px height globally — variant
+        //="contained" is also used for small icon-only actions (close,
+        // delete, like) throughout the app, and forcing that height there
+        // would break those, not just the marketing CTA buttons it's meant
+        // for. Flagging rather than guessing which contained buttons are
+        // hero CTAs.
         outlined: {
           color: palette.primary.main,
           borderColor: palette.primary.main,
+          fontSize: "0.9375rem",
+          fontWeight: 500,
         },
       },
     },
+    // Filter chips (FilterPanelMobile) — design/fontstyling.md "Filter Chips"
+    // spec: Inter 14px/500, selected = solid green/dark text, unselected =
+    // a faint white wash rather than an outlined green pill.
     MuiChip: {
       styleOverrides: {
+        root: {
+          fontSize: "0.875rem",
+          fontWeight: 500,
+        },
+        filledPrimary: {
+          "&.MuiChip-colorPrimary": {
+            backgroundColor: palette.primary.main,
+            color: "#111111",
+          },
+        },
         outlinedPrimary: {
           "&.MuiChip-colorPrimary": {
-            color: palette.primary.main,
-            borderColor: palette.primary.main,
+            backgroundColor: "rgba(255, 255, 255, 0.06)",
+            borderColor: "transparent",
+            color: palette.text.secondary,
           },
         },
       },
@@ -160,21 +196,21 @@ const theme = createTheme({
         },
       },
     },
+    // Top nav tabs — per design/fontstyling.md "Navbar" spec: Inter 15px/600,
+    // letter-spaced uppercase, dim inactive / primary-green active.
     MuiTab: {
       styleOverrides: {
         root: {
-          fontFamily: "Roboto Serif",
-          fontWeight: 500,
-          fontStyle: "italic",
-          fontSize: "1.2rem",
+          fontWeight: 600,
+          fontSize: "0.9375rem",
+          letterSpacing: "0.03em",
+          textTransform: "uppercase",
           margin: "0.5rem 1rem",
           padding: "0px",
-          color: palette.text.primary,
+          color: "rgba(255, 255, 255, 0.55)",
           "&.Mui-selected": {
-            fontFamily: "Roboto Serif",
-            fontWeight: 900,
-            fontStyle: "italic",
-            color: palette.primary.light,
+            fontWeight: 600,
+            color: palette.primary.main,
           },
         },
       },

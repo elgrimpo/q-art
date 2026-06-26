@@ -82,7 +82,6 @@ export default function FAQPage() {
       />
       <Typography
         variant="h1"
-        color="primary"
         sx={{ fontSize: { xs: "2rem", md: "2.8rem" }, mb: 2 }}
       >
         Frequently Asked Questions

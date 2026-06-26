@@ -43,10 +43,13 @@ export default function HowItWorksPage() {
     <Box sx={{ maxWidth: "860px", mx: "auto", color: "#ccc" }}>
       <Typography
         variant="h1"
-        color="primary"
         sx={{ fontSize: { xs: "2rem", md: "2.8rem" }, mb: 2 }}
       >
-        How AI QR Code Art Generation Works
+        How{" "}
+        <Box component="span" sx={{ color: "primary.main", fontWeight: 600 }}>
+          AI QR Code Art
+        </Box>{" "}
+        Generation Works
       </Typography>
       <Typography component="p" sx={{ mb: 6, color: "#aaa", fontSize: "1.1rem", lineHeight: 1.8 }}>
         QR AI uses a two-stage AI pipeline — Stable Diffusion 1.5 with dual ControlNet units — to

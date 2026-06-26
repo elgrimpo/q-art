@@ -30,7 +30,6 @@ export default function PricingPage() {
     <Box sx={{ maxWidth: "860px", mx: "auto", color: "#ccc" }}>
       <Typography
         variant="h1"
-        color="primary"
         sx={{ fontSize: { xs: "2rem", md: "2.8rem" }, mb: 2 }}
       >
         Pricing

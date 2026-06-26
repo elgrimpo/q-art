@@ -109,10 +109,12 @@ export default function GeneratePage() {
         >
           <Typography
             variant="h1"
-            color="primary"
             sx={{ fontSize: { xs: "3rem", sm: "3rem", md: "5rem" } }}
           >
-            AI QR Code Art Generator
+            <Box component="span" sx={{ color: "primary.main", fontWeight: 600 }}>
+              AI QR Code Art
+            </Box>{" "}
+            Generator
           </Typography>
 
           <Box
