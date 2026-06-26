@@ -40,9 +40,6 @@ const UrlPrompt = ({ handleInputChange }) => {
           variant="outlined"
           inputProps={{ 'aria-label': 'Website' }}
         />
-        <Typography className="helpertext" color="text.secondary">
-          The generated image will contain a QR code that links to this URL.
-        </Typography>
       </Box>
 
       {/* Prompt */}
@@ -88,9 +85,6 @@ const UrlPrompt = ({ handleInputChange }) => {
             ),
           }}
         />
-        <Typography className="helpertext" color="text.secondary">
-          Be as detailed as you can. Use the dice icon for a random idea.
-        </Typography>
       </Box>
 
     </Stack>
