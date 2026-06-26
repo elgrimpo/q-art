@@ -173,7 +173,7 @@ function GenerateForm() {
   // Overflow: if the selected style is not in the featured 6, show it as an extra chip
   const featuredIds = new Set(FEATURED_STYLES.map((s) => s.id));
   const overflowStyle = !featuredIds.has(generateFormValues.style_id)
-    ? styles.find((s) => s.id === generateFormValues.style_id)
+    ? styles.find((s) => s.id === generateFormValues.style_id && s.title === generateFormValues.style_title)
     : null;
 
   return (

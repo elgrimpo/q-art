@@ -33,12 +33,12 @@ const UrlPrompt = ({ handleInputChange }) => {
           className="form-field"
           required
           id="website"
-          aria-label="Website"
           placeholder="https://example.com"
           name="website"
           value={generateFormValues.website}
           onChange={handleInputChange}
           variant="outlined"
+          inputProps={{ 'aria-label': 'Website' }}
         />
         <Typography className="helpertext" color="text.secondary">
           The generated image will contain a QR code that links to this URL.
@@ -52,7 +52,6 @@ const UrlPrompt = ({ handleInputChange }) => {
           className="form-field"
           required
           id="prompt"
-          aria-label="Prompt"
           placeholder="Describe the image you want to generate..."
           name="prompt"
           value={generateFormValues.prompt}
@@ -60,6 +59,7 @@ const UrlPrompt = ({ handleInputChange }) => {
           variant="outlined"
           multiline
           rows={3}
+          inputProps={{ 'aria-label': 'Prompt' }}
           InputProps={{
             endAdornment: (
               <InputAdornment

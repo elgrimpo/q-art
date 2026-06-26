@@ -51,10 +51,6 @@ jest.mock('../app/(main_pages)/generate/(formComponents)/StylesModal', () => ({
   __esModule: true,
   default: () => <div data-testid="styles-modal-stub" />,
 }))
-jest.mock('../app/(main_pages)/generate/(formComponents)/SettingsModal', () => ({
-  __esModule: true,
-  default: () => <div data-testid="settings-modal-stub" />,
-}))
 jest.mock('../app/(main_pages)/generate/(formComponents)/GeneratingLoader', () => ({
   __esModule: true,
   default: () => <div data-testid="generating-loader" />,
