@@ -76,12 +76,24 @@ export default function Explore() {
   const pageRef = useRef(1);
   const fetchingRef = useRef(false);
   const imagesRef = useRef([]);
-  const pendingCallbackRef = useRef(null);
+  const pendingAdvanceIndexRef = useRef(null);
 
-  // Keep ref in sync so fetchNextPage always sees the latest images
+  // Keep ref in sync so fetchNextPage always sees the latest images.
+  // Must be defined before the pageLoaded effect so it runs first.
   useEffect(() => {
     imagesRef.current = images;
   }, [images]);
+
+  // After every page load, advance the modal index if one is pending.
+  // imagesRef is guaranteed to be synced already (effect above runs first).
+  useEffect(() => {
+    const target = pendingAdvanceIndexRef.current;
+    if (target === null) return;
+    if (imagesRef.current.length > target) {
+      pendingAdvanceIndexRef.current = null;
+      setSelectedImageIndex(target);
+    }
+  }, [pageLoaded]);
 
   // Initial load
   useEffect(() => {
@@ -95,11 +107,8 @@ export default function Explore() {
       .finally(() => setLoading(false));
   }, []);
 
-  const fetchNextPage = useCallback((onLoaded) => {
-    if (!hasMore) return;
-    // Save callback so any in-progress fetch can pick it up too.
-    if (onLoaded) pendingCallbackRef.current = onLoaded;
-    if (fetchingRef.current) return;
+  const fetchNextPage = useCallback(() => {
+    if (!hasMore || fetchingRef.current) return;
 
     fetchingRef.current = true;
     setLoadingMore(true);
@@ -111,21 +120,14 @@ export default function Explore() {
       .then((newImgs) => {
         const list = newImgs ?? [];
         if (list.length === 0) {
-          pendingCallbackRef.current = null;
           setHasMore(false);
         } else {
           const updated = [...imagesRef.current, ...list];
           setImages(updated);
-          const cb = pendingCallbackRef.current;
-          pendingCallbackRef.current = null;
-          cb?.(updated);
           if (list.length < IMAGES_PER_PAGE) setHasMore(false);
         }
       })
-      .catch(() => {
-        pendingCallbackRef.current = null;
-        setHasMore(false);
-      })
+      .catch(() => setHasMore(false))
       .finally(() => {
         fetchingRef.current = false;
         setLoadingMore(false);
@@ -157,6 +159,7 @@ export default function Explore() {
   const handleModalClose = () => {
     setModalOpen(false);
     setSelectedImageIndex(null);
+    pendingAdvanceIndexRef.current = null;
   };
 
   const showPreviousImage = () => {
@@ -168,11 +171,10 @@ export default function Explore() {
     if (currentIndex < images.length - 1) {
       setSelectedImageIndex(currentIndex + 1);
     } else if (hasMore) {
-      fetchNextPage((updatedImages) => {
-        if (updatedImages.length > currentIndex + 1) {
-          setSelectedImageIndex(currentIndex + 1);
-        }
-      });
+      // Store the target index; the pageLoaded effect will apply it once
+      // the next batch arrives (whether triggered here or by the observer).
+      pendingAdvanceIndexRef.current = currentIndex + 1;
+      fetchNextPage();
     }
     // If !hasMore and at last image, do nothing
   };
