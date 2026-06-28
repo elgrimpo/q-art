@@ -76,6 +76,7 @@ export default function Explore() {
   const pageRef = useRef(1);
   const fetchingRef = useRef(false);
   const imagesRef = useRef([]);
+  const pendingCallbackRef = useRef(null);
 
   // Keep ref in sync so fetchNextPage always sees the latest images
   useEffect(() => {
@@ -95,7 +96,11 @@ export default function Explore() {
   }, []);
 
   const fetchNextPage = useCallback((onLoaded) => {
-    if (fetchingRef.current || !hasMore) return;
+    if (!hasMore) return;
+    // Save callback so any in-progress fetch can pick it up too.
+    if (onLoaded) pendingCallbackRef.current = onLoaded;
+    if (fetchingRef.current) return;
+
     fetchingRef.current = true;
     setLoadingMore(true);
 
@@ -106,15 +111,21 @@ export default function Explore() {
       .then((newImgs) => {
         const list = newImgs ?? [];
         if (list.length === 0) {
+          pendingCallbackRef.current = null;
           setHasMore(false);
         } else {
           const updated = [...imagesRef.current, ...list];
           setImages(updated);
-          onLoaded?.(updated);
+          const cb = pendingCallbackRef.current;
+          pendingCallbackRef.current = null;
+          cb?.(updated);
           if (list.length < IMAGES_PER_PAGE) setHasMore(false);
         }
       })
-      .catch(() => setHasMore(false))
+      .catch(() => {
+        pendingCallbackRef.current = null;
+        setHasMore(false);
+      })
       .finally(() => {
         fetchingRef.current = false;
         setLoadingMore(false);
