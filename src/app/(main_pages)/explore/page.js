@@ -75,6 +75,12 @@ export default function Explore() {
   const sentinelRef = useRef(null);
   const pageRef = useRef(1);
   const fetchingRef = useRef(false);
+  const imagesRef = useRef([]);
+
+  // Keep ref in sync so fetchNextPage always sees the latest images
+  useEffect(() => {
+    imagesRef.current = images;
+  }, [images]);
 
   // Initial load
   useEffect(() => {
@@ -102,11 +108,9 @@ export default function Explore() {
         if (list.length === 0) {
           setHasMore(false);
         } else {
-          setImages((prev) => {
-            const updated = [...prev, ...list];
-            onLoaded?.(updated);
-            return updated;
-          });
+          const updated = [...imagesRef.current, ...list];
+          setImages(updated);
+          onLoaded?.(updated);
           if (list.length < IMAGES_PER_PAGE) setHasMore(false);
         }
       })

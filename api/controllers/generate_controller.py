@@ -206,7 +206,7 @@ async def predict(
             # never block delivery.
             try:
                 score_result = await asyncio.to_thread(
-                    structural_score, generated_image, website
+                    structural_score, generated_image, normalize_qr_url(website)
                 )
                 scannability_score = score_result.score
             except Exception:
