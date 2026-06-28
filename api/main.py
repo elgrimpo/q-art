@@ -25,7 +25,7 @@ from api.controllers.users_controller import get_user_info, authenticate_user
 from api.controllers.login_code_controller import request_login_code, verify_login_code
 from api.controllers.payment_controller import create_unlock_checkout_session, stripe_webhook
 from api.controllers.unlock_controller import unlock_image
-from api.controllers.admin_controller import admin_download_image
+from api.controllers.admin_controller import admin_download_image, admin_get_image_info
 from api.schemas.schemas import User, UserAuth, LoginCodeRequest, LoginCodeVerify
 from api.utils.auth import get_current_user, require_service_token, require_admin
 
@@ -192,3 +192,8 @@ async def stripe_webhook_endpoint(request: Request, stripe_signature: str = Head
 @app.get("/api/admin/download/{image_id}")
 async def admin_download_endpoint(image_id: str, _: dict = Depends(require_admin)):
     return await admin_download_image(image_id)
+
+# ADMIN IMAGE INFO (full MongoDB doc, admin only)
+@app.get("/api/admin/image/{image_id}/info")
+async def admin_image_info_endpoint(image_id: str, _: dict = Depends(require_admin)):
+    return await admin_get_image_info(image_id)

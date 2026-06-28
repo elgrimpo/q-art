@@ -63,3 +63,23 @@ async def admin_download_image(image_id: str) -> StreamingResponse:
         media_type="image/png",
         headers={"Content-Disposition": f'attachment; filename="QR-art-{image_id}.png"'},
     )
+
+
+async def admin_get_image_info(image_id: str) -> dict:
+    try:
+        object_id = ObjectId(image_id)
+    except (InvalidId, TypeError):
+        raise HTTPException(status_code=404, detail="Image not found")
+
+    doc = await images.find_one({"_id": object_id})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Image not found")
+
+    doc["_id"] = str(doc["_id"])
+    # Serialize datetime values to ISO strings
+    for key in list(doc.keys()):
+        val = doc[key]
+        if hasattr(val, "isoformat"):
+            doc[key] = val.isoformat()
+
+    return {"doc": doc}

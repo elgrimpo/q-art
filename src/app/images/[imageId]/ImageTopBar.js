@@ -17,6 +17,8 @@ import ShareButton from "@/_components/actions/ShareButton";
 import DeleteButton from "@/_components/actions/DeleteButton";
 import { bookmarkImage, deleteImage } from "@/_utils/ImagesUtils";
 import { useStore } from "@/store";
+import AdminImageInfoDialog from "./AdminImageInfoDialog";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
 export default function ImageTopBar({ image, user, customDeleteAction, customLikeAction, onBack, sx, backVariant = "text" }) {
   const router = useRouter();
@@ -29,6 +31,7 @@ export default function ImageTopBar({ image, user, customDeleteAction, customLik
 
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [featured, setFeatured] = useState(!!image?.featured);
+  const [infoDialogOpen, setInfoDialogOpen] = useState(false);
 
   const handleMenuOpen = (e) => setMenuAnchor(e.currentTarget);
   const handleMenuClose = () => setMenuAnchor(null);
@@ -164,6 +167,13 @@ export default function ImageTopBar({ image, user, customDeleteAction, customLik
                 <Typography variant="body2">Download Original</Typography>
               </MenuItem>
               <Divider />
+              <MenuItem onClick={() => { handleMenuClose(); setInfoDialogOpen(true); }}>
+                <ListItemIcon sx={{ color: "primary.main" }}>
+                  <InfoOutlinedIcon fontSize="small" />
+                </ListItemIcon>
+                <Typography variant="body2">View Info</Typography>
+              </MenuItem>
+              <Divider />
               <MenuItem onClick={handleAdminDelete} sx={{ color: "error.main" }}>
                 <ListItemIcon sx={{ color: "error.main" }}>
                   <DeleteOutlineIcon fontSize="small" />
@@ -171,6 +181,11 @@ export default function ImageTopBar({ image, user, customDeleteAction, customLik
                 <Typography variant="body2">Delete</Typography>
               </MenuItem>
             </Menu>
+            <AdminImageInfoDialog
+              open={infoDialogOpen}
+              onClose={() => setInfoDialogOpen(false)}
+              imageId={image?._id}
+            />
           </>
         )}
       </Box>

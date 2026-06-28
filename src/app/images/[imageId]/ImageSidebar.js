@@ -37,6 +37,8 @@ import UnlockButton from "@/_components/actions/UnlockButton";
 import ShareButton from "@/_components/actions/ShareButton";
 import GuestSignupPrompt from "./GuestSignupPrompt";
 import IteratePanel from "./IteratePanel";
+import AdminImageInfoDialog from "./AdminImageInfoDialog";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { useStore } from "@/store";
 import { unlockImage, bookmarkImage, deleteImage } from "@/_utils/ImagesUtils";
 import * as amplitude from "@amplitude/analytics-browser";
@@ -141,6 +143,7 @@ export default function ImageSidebar({
   // Admin 3-dot menu
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [featured, setFeatured] = useState(!!image?.featured);
+  const [infoDialogOpen, setInfoDialogOpen] = useState(false);
 
   const handleMenuOpen = (e) => setMenuAnchor(e.currentTarget);
   const handleMenuClose = () => setMenuAnchor(null);
@@ -272,6 +275,13 @@ export default function ImageSidebar({
                     <Typography variant="body2">Download Original</Typography>
                   </MenuItem>
                   <Divider />
+                  <MenuItem onClick={() => { handleMenuClose(); setInfoDialogOpen(true); }}>
+                    <ListItemIcon sx={{ color: "primary.main" }}>
+                      <InfoOutlinedIcon fontSize="small" />
+                    </ListItemIcon>
+                    <Typography variant="body2">View Info</Typography>
+                  </MenuItem>
+                  <Divider />
                   <MenuItem onClick={handleAdminDelete} sx={{ color: "error.main" }}>
                     <ListItemIcon sx={{ color: "error.main" }}>
                       <DeleteOutlineIcon fontSize="small" />
@@ -279,6 +289,11 @@ export default function ImageSidebar({
                     <Typography variant="body2">Delete</Typography>
                   </MenuItem>
                 </Menu>
+                <AdminImageInfoDialog
+                  open={infoDialogOpen}
+                  onClose={() => setInfoDialogOpen(false)}
+                  imageId={currentImage?._id}
+                />
               </>
             )}
           </Stack>
