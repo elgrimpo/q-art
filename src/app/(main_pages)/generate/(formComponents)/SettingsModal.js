@@ -37,7 +37,7 @@ function SettingsModal(props) {
   // Context variables
   const { generateFormValues } = useStore();
 
-  // Slider for (QR Code Weight). Presented on a -3..+3 scale (Weak -> Strong).
+  // Slider for (QR Code Weight). Presented on a -2..+2 scale (Weak -> Strong).
   // The backend only accepts qr_weight in [0, 1], so this value is translated
   // via sliderToQrWeight() before the request is sent (see _utils/qrWeight.js).
   const qrWeight = [{ value: QR_SLIDER_MIN }, { value: QR_SLIDER_MAX }];
@@ -133,7 +133,7 @@ function SettingsModal(props) {
             aria-label="QR Code Weight"
             value={generateFormValues.qr_weight}
             getAriaValueText={sliderText}
-            step={0.1}
+            step={1}
             valueLabelDisplay="auto"
             marks={qrWeight}
             min={QR_SLIDER_MIN}

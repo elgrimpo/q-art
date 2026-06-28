@@ -78,7 +78,7 @@ export const getImages = async (params) => {
 export const generateImage = async (generateFormValues, user) => {
   const token = await getBackendToken();
   return new Promise((resolve, reject) => {
-    // The slider lives on a -3..+3 UI scale; the backend only accepts qr_weight
+    // The slider lives on a -2..+2 UI scale; the backend only accepts qr_weight
     // in [0, 1]. Translate before sending so the request passes validation.
     // loras is an array of objects, which URLSearchParams can't serialize — send
     // it as a single JSON string param (style_loras) the backend decodes.
