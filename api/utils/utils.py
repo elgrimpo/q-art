@@ -103,7 +103,7 @@ def prepare_img2img_request(
 
     # qr_weight slider (0..1) -> QR ControlNet strength + guidance start.
     # Higher weight = more scannable, lower = more artistic.
-    weight = round(0.65 + float(qr_weight) * 0.2, 2)           # 0.85 .. 1.05
+    weight = round(0.85 + float(qr_weight) * 0.2, 2)           # 0.85 .. 1.05
     guidance_start = round(0.40 - float(qr_weight) * 0.03, 2)  # 0.40 .. 0.37
     side = 768
     gray = Image.new("RGB", (side, side), (128, 128, 128))
@@ -136,11 +136,11 @@ def prepare_img2img_request(
                 guidance_start=0.3,
                 guidance_end=0.7,
             ),
-            # QR Code Monster v2 — enforces the scannable QR pattern. 
+            # QR Code Monster v2 — enforces the scannable QR pattern.
             Img2ImgV3ControlNetUnit(
                 image_base64=image_base64_str,
                 model_name="control_v1p_sd15_qrcode_monster_v2",
-                strength=1.0,
+                strength=weight,
                 preprocessor=None, # this needs to be None, otherwise API breaks
                 guidance_start=guidance_start,
                 guidance_end=0.9,

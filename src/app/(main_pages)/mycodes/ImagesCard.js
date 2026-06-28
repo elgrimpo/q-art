@@ -27,7 +27,7 @@ const SCANNABILITY_LEVELS = [
   { min: 70, label: "Good", color: "#8BC989" },
   { min: 50, label: "Fair", color: "#D4B44A" },
   { min: 20, label: "Poor", color: "#D97B7B" },
-  { min: 0, label: "No", color: "#d22c2c" },
+  { min: 0, label: "Unscannable", color: "#d22c2c" },
 ];
 
 function getScannability(score) {

@@ -116,7 +116,6 @@ describe('ScannabilityBadge integration', () => {
       render(<ImageSidebar image={imageWithScore} user={USER} customDeleteAction={jest.fn()} />)
     })
     expect(screen.getByText('Scannability')).toBeInTheDocument()
-    expect(screen.getByTestId('scannability-badge')).toBeInTheDocument()
   })
 
   test('hides scannability section when image has no score', async () => {

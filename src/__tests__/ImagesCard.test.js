@@ -1,8 +1,14 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 
+jest.mock('@/_utils/ImagesUtils', () => ({
+  bookmarkImage: jest.fn(),
+  deleteImage: jest.fn(),
+}))
+jest.mock('@amplitude/analytics-browser', () => ({ track: jest.fn() }))
+
 jest.mock('@/store.js', () => ({
-  useStore: () => ({ user: { _id: 'u1', is_guest: false } }),
+  useStore: () => ({ user: { _id: 'u1', is_guest: false }, openAlert: jest.fn() }),
 }))
 jest.mock('@/_components/actions/LikeButton.js', () => ({
   __esModule: true,

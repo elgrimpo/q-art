@@ -33,11 +33,12 @@ function isHero(image, index) {
 
 function itemLayout(image, index) {
   if (isHero(image, index)) {
-    return { gridColumn: "span 2", gridRow: "span 2" };
+    return { gridColumn: "span 2", gridRow: "span 2", aspectRatio: "1/1" };
   }
   const aspect = getImageAspect(image);
-  if (aspect === "landscape") return { gridColumn: "span 2", aspectRatio: "3/2" };
-  if (aspect === "portrait")  return { gridColumn: "span 1", aspectRatio: "2/3" };
+  // Landscape spans 2 columns but keeps square height so rows stay consistent.
+  if (aspect === "landscape") return { gridColumn: "span 2", aspectRatio: "1/1" };
+  // Portrait and square both render as 1×1 — objectFit cover handles cropping.
   return { gridColumn: "span 1", aspectRatio: "1/1" };
 }
 

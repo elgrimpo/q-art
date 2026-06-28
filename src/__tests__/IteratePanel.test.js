@@ -27,6 +27,11 @@ jest.mock('@/store', () => ({
 
 jest.mock('@/_utils/ImagesUtils', () => ({ generateImage: jest.fn() }))
 
+jest.mock('../app/(main_pages)/generate/(formComponents)/StylesModal', () => ({
+  __esModule: true,
+  default: () => <div data-testid="styles-modal-stub" />,
+}))
+
 const mockGenerateImage = require('@/_utils/ImagesUtils').generateImage
 
 jest.mock('@/_utils/qrWeight', () => ({
@@ -101,14 +106,14 @@ describe('form panel — owner', () => {
       <IteratePanel image={IMAGE} isOpen={true} onOpen={onOpen} onClose={onClose} isOwner={true} />
     )
     expect(screen.getByRole('textbox', { name: /prompt/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /generate/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Generate' })).toBeInTheDocument()
   })
 
   it('URL field is disabled and pre-filled with image.content', () => {
     render(
       <IteratePanel image={IMAGE} isOpen={true} onOpen={onOpen} onClose={onClose} isOwner={true} />
     )
-    const urlInput = screen.getByLabelText('URL')
+    const urlInput = screen.getByRole('textbox', { name: /website/i })
     expect(urlInput).toBeDisabled()
     expect(urlInput.value).toBe('https://example.com')
   })
@@ -117,7 +122,7 @@ describe('form panel — owner', () => {
     render(
       <IteratePanel image={IMAGE} isOpen={true} onOpen={onOpen} onClose={onClose} isOwner={true} />
     )
-    expect(screen.getByRole('button', { name: /generate/i })).not.toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Generate' })).not.toBeDisabled()
   })
 
   it('back button calls onClose', () => {
@@ -142,7 +147,7 @@ describe('form panel — non-owner', () => {
     render(
       <IteratePanel image={IMAGE} isOpen={true} onOpen={onOpen} onClose={onClose} isOwner={false} />
     )
-    const urlInput = screen.getByLabelText('URL')
+    const urlInput = screen.getByRole('textbox', { name: /website/i })
     expect(urlInput).not.toBeDisabled()
     expect(urlInput.value).toBe('')
   })
@@ -151,22 +156,22 @@ describe('form panel — non-owner', () => {
     render(
       <IteratePanel image={IMAGE} isOpen={true} onOpen={onOpen} onClose={onClose} isOwner={false} />
     )
-    expect(screen.getByRole('button', { name: /generate/i })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Generate' })).toBeDisabled()
   })
 
   it('Generate button enables after URL is typed', () => {
     render(
       <IteratePanel image={IMAGE} isOpen={true} onOpen={onOpen} onClose={onClose} isOwner={false} />
     )
-    fireEvent.change(screen.getByLabelText('URL'), { target: { value: 'https://mysite.com' } })
-    expect(screen.getByRole('button', { name: /generate/i })).not.toBeDisabled()
+    fireEvent.change(screen.getByRole('textbox', { name: /website/i }), { target: { value: 'https://mysite.com' } })
+    expect(screen.getByRole('button', { name: 'Generate' })).not.toBeDisabled()
   })
 
   it('prompt is pre-filled with source image prompt', () => {
     render(
       <IteratePanel image={IMAGE} isOpen={true} onOpen={onOpen} onClose={onClose} isOwner={false} />
     )
-    const promptInput = screen.getByLabelText('prompt')
+    const promptInput = screen.getByRole('textbox', { name: /prompt/i })
     expect(promptInput.value).toBe('a beautiful forest')
   })
 })
@@ -205,7 +210,7 @@ describe('New Variation', () => {
 describe('Iterate Generate seed logic', () => {
   it('Generate with style unchanged uses image.seed', async () => {
     render(<IteratePanel image={IMAGE} isOpen={true} onOpen={onOpen} onClose={onClose} isOwner={true} />)
-    fireEvent.click(screen.getByRole('button', { name: /generate/i }))
+    fireEvent.click(screen.getByRole('button', { name: 'Generate' }))
     await waitFor(() => expect(mockGenerateImage).toHaveBeenCalledTimes(1))
     expect(mockGenerateImage.mock.calls[0][0].seed).toBe(42)
   })
@@ -216,7 +221,7 @@ describe('Iterate Generate seed logic', () => {
     // Note: This test verifies seed logic when style changes.
     // The actual style change interaction requires proper mock setup of StylesCard component.
     // For now, we verify the seed derivation logic is present.
-    expect(screen.getByRole('button', { name: /generate/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Generate' })).toBeInTheDocument()
   })
 })
 
@@ -255,7 +260,7 @@ describe('Error state and recovery', () => {
   it('Back to image after iterate failure dismisses error and does not call onClose', async () => {
     mockGenerateImage.mockRejectedValueOnce(new Error('GenerationFailed'))
     render(<IteratePanel image={IMAGE} isOpen={true} onOpen={onOpen} onClose={onClose} isOwner={true} />)
-    fireEvent.click(screen.getByRole('button', { name: /generate/i }))
+    fireEvent.click(screen.getByRole('button', { name: 'Generate' }))
     await waitFor(() => expect(mockGenerateImage).toHaveBeenCalled())
     expect(onClose).not.toHaveBeenCalled()
   })

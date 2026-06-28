@@ -230,6 +230,57 @@ export default function ImageSidebar({
               <DeleteButton image={currentImage} customDeleteAction={customDeleteAction} />
             )}
             <CopyButton image={currentImage} />
+            {isAdmin && (
+              <>
+                <IconButton
+                  onClick={handleMenuOpen}
+                  aria-label="Admin actions"
+                  sx={{
+                    width: "36px",
+                    height: "36px",
+                    color: "primary.main",
+                    "&:hover": { bgcolor: "background.elevated" },
+                  }}
+                >
+                  <MoreVertIcon />
+                </IconButton>
+                <Menu
+                  anchorEl={menuAnchor}
+                  open={Boolean(menuAnchor)}
+                  onClose={handleMenuClose}
+                  anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                  transformOrigin={{ vertical: "top", horizontal: "right" }}
+                  PaperProps={{ sx: { bgcolor: "background.paper", color: "text.primary", minWidth: 220 } }}
+                >
+                  <MenuItem onClick={handleBookmark}>
+                    <ListItemIcon sx={{ color: featured ? "warning.main" : "primary.main" }}>
+                      {featured ? <BookmarkIcon fontSize="small" /> : <BookmarkBorderIcon fontSize="small" />}
+                    </ListItemIcon>
+                    <Typography variant="body2">{featured ? "Remove from Explore" : "Add to Explore"}</Typography>
+                  </MenuItem>
+                  <Divider />
+                  <MenuItem onClick={handleDownloadWatermarked}>
+                    <ListItemIcon sx={{ color: "primary.main" }}>
+                      <DownloadIcon fontSize="small" />
+                    </ListItemIcon>
+                    <Typography variant="body2">Download Watermarked</Typography>
+                  </MenuItem>
+                  <MenuItem onClick={handleDownloadOriginal}>
+                    <ListItemIcon sx={{ color: "primary.main" }}>
+                      <DownloadIcon fontSize="small" />
+                    </ListItemIcon>
+                    <Typography variant="body2">Download Original</Typography>
+                  </MenuItem>
+                  <Divider />
+                  <MenuItem onClick={handleAdminDelete} sx={{ color: "error.main" }}>
+                    <ListItemIcon sx={{ color: "error.main" }}>
+                      <DeleteOutlineIcon fontSize="small" />
+                    </ListItemIcon>
+                    <Typography variant="body2">Delete</Typography>
+                  </MenuItem>
+                </Menu>
+              </>
+            )}
           </Stack>
 
           {showUnlockCard && (
@@ -337,57 +388,6 @@ export default function ImageSidebar({
   /* -------------------------------------------------------------------------- */
   return (
     <Box sx={{ width: "100%", display: "flex", flexDirection: "column" }}>
-      {isAdmin && (
-        <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 1 }}>
-          <IconButton
-            onClick={handleMenuOpen}
-            aria-label="Admin actions"
-            sx={{
-              width: "36px",
-              height: "36px",
-              color: "primary.main",
-              "&:hover": { bgcolor: "background.elevated" },
-            }}
-          >
-            <MoreVertIcon />
-          </IconButton>
-          <Menu
-            anchorEl={menuAnchor}
-            open={Boolean(menuAnchor)}
-            onClose={handleMenuClose}
-            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-            transformOrigin={{ vertical: "top", horizontal: "right" }}
-            PaperProps={{ sx: { bgcolor: "background.paper", color: "text.primary", minWidth: 220 } }}
-          >
-            <MenuItem onClick={handleBookmark}>
-              <ListItemIcon sx={{ color: featured ? "warning.main" : "primary.main" }}>
-                {featured ? <BookmarkIcon fontSize="small" /> : <BookmarkBorderIcon fontSize="small" />}
-              </ListItemIcon>
-              <Typography variant="body2">{featured ? "Remove from Explore" : "Add to Explore"}</Typography>
-            </MenuItem>
-            <Divider />
-            <MenuItem onClick={handleDownloadWatermarked}>
-              <ListItemIcon sx={{ color: "primary.main" }}>
-                <DownloadIcon fontSize="small" />
-              </ListItemIcon>
-              <Typography variant="body2">Download Watermarked</Typography>
-            </MenuItem>
-            <MenuItem onClick={handleDownloadOriginal}>
-              <ListItemIcon sx={{ color: "primary.main" }}>
-                <DownloadIcon fontSize="small" />
-              </ListItemIcon>
-              <Typography variant="body2">Download Original</Typography>
-            </MenuItem>
-            <Divider />
-            <MenuItem onClick={handleAdminDelete} sx={{ color: "error.main" }}>
-              <ListItemIcon sx={{ color: "error.main" }}>
-                <DeleteOutlineIcon fontSize="small" />
-              </ListItemIcon>
-              <Typography variant="body2">Delete</Typography>
-            </MenuItem>
-          </Menu>
-        </Box>
-      )}
       {!iterateOpen && !iterateActive && (
         <>
           {/* LINKS TO */}

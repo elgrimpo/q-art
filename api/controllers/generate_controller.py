@@ -130,6 +130,17 @@ async def predict(
 
         loras = parse_style_loras(style_loras)
 
+        # Log what we're *asking* Novita to apply. This is the only
+        # ground-truth record of intent — Novita's response doesn't echo
+        # back a "loras applied" flag, so this is also what you'd compare
+        # against debug_info.request_info below to catch a silently
+        # dropped/unresolved LoRA name.
+        logger.info(
+            "Requesting loras for style '%s': %s",
+            style_title,
+            [{"model_name": l.model_name, "strength": l.strength} for l in loras],
+        )
+
         req = prepare_img2img_request(
                     prompt,
                     negative_prompt,
@@ -161,8 +172,25 @@ async def predict(
 
             res = await asyncio.to_thread(client.wait_for_task_v3, task_id)
 
+            # Novita's response has no explicit "loras applied" field, but
+            # debug_info.request_info is the request as Novita actually
+            # resolved/executed it — if a LoRA name didn't resolve, it will
+            # either be missing here or the task will fail with a reason
+            # below. Compare this against the "Requesting loras" line above.
+            debug_info = res.extra.debug_info if res.extra else None
+            logger.info(
+                "Novita task %s resolved request_info: %s",
+                task_id,
+                debug_info.request_info if debug_info else None,
+            )
+
             # After waiting for task completion
             if res.task.status != V3TaskResponseStatus.TASK_STATUS_SUCCEED:
+                logger.error(
+                    "Novita task %s failed; requested loras were: %s",
+                    task_id,
+                    [{"model_name": l.model_name, "strength": l.strength} for l in loras],
+                )
                 raise Exception(f"Failed to generate image with error: {res.task.reason}")
 
             # Extract seed and image
