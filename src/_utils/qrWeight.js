@@ -10,8 +10,8 @@
  * Linear map: -3 -> 0.0 (most artistic), 0 -> 0.5, +3 -> 1.0 (most scannable).
  */
 
-export const QR_SLIDER_MIN = -3;
-export const QR_SLIDER_MAX = 3;
+export const QR_SLIDER_MIN = -2;
+export const QR_SLIDER_MAX = 2;
 
 /**
  * Convert a slider value (-3..+3) to a backend qr_weight (0..1).
