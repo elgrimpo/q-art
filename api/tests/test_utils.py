@@ -9,6 +9,8 @@ from api.utils.utils import (
     createImagesFilterQuery,
     create_watermark,
     parse_style_loras,
+    SHORT_PROMPT_THRESHOLD,
+    QUALITY_SUFFIX,
 )
 from novita_client import Img2V3ImgLoRA
 
@@ -80,7 +82,12 @@ class TestPrepareImg2ImgRequest:
         assert self._req(0.5)["controlnet_units"][1].model_name == "control_v1p_sd15_qrcode_monster_v2"
 
     def test_prompt_is_concatenated(self):
-        assert self._req(0.5)["prompt"] == "a dragon, cinematic"
+        # Use a long prompt (>= 7 words) so suffix is NOT appended
+        long_prompt = "a beautiful dragon soaring over misty mountain peaks"
+        base = dict(self.BASE)
+        base["prompt"] = long_prompt
+        req = prepare_img2img_request(**base, qr_weight=0.5)
+        assert req["prompt"] == long_prompt + self.BASE["style_prompt"]
 
     def test_brightness_unit_strength_is_fixed(self):
         # Brightness unit strength must not change with qr_weight
@@ -95,6 +102,50 @@ class TestPrepareImg2ImgRequest:
         loras = [Img2V3ImgLoRA(model_name="LAS_17554", strength=0.7)]
         req = prepare_img2img_request(**self.BASE, qr_weight=0.5, loras=loras)
         assert req["loras"] == loras
+
+
+# ---------------------------------------------------------------------------- #
+#                        SHORT PROMPT QUALITY SUFFIX                           #
+# ---------------------------------------------------------------------------- #
+
+class TestShortPromptSuffix:
+    BASE = dict(
+        negative_prompt="ugly",
+        sd_model="sd-v1-5",
+        seed=42,
+        image_base64_str="base64string==",
+        style_prompt="",
+        qr_weight=0.5,
+    )
+
+    def test_short_prompt_gets_suffix(self):
+        req = prepare_img2img_request(prompt="a cat", **self.BASE)
+        assert QUALITY_SUFFIX in req["prompt"]
+
+    def test_long_prompt_unchanged(self):
+        long_prompt = "a beautiful dragon soaring over misty mountain peaks at golden hour"
+        req = prepare_img2img_request(prompt=long_prompt, **self.BASE)
+        assert req["prompt"] == long_prompt + self.BASE["style_prompt"]
+
+    def test_prompt_at_threshold_unchanged(self):
+        # A prompt with exactly SHORT_PROMPT_THRESHOLD words must NOT get the suffix
+        prompt = " ".join(["word"] * SHORT_PROMPT_THRESHOLD)
+        req = prepare_img2img_request(prompt=prompt, **self.BASE)
+        assert QUALITY_SUFFIX not in req["prompt"]
+
+    def test_suffix_combined_with_style_prompt(self):
+        req = prepare_img2img_request(prompt="a cat", style_prompt=", cinematic", **{
+            k: v for k, v in self.BASE.items() if k != "style_prompt"
+        })
+        assert QUALITY_SUFFIX in req["prompt"]
+        assert ", cinematic" in req["prompt"]
+
+    def test_threshold_is_int(self):
+        assert isinstance(SHORT_PROMPT_THRESHOLD, int)
+
+    def test_suffix_is_string(self):
+        assert isinstance(QUALITY_SUFFIX, str)
+        assert len(QUALITY_SUFFIX) > 0
 
 
 # ---------------------------------------------------------------------------- #

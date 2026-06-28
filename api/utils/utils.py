@@ -15,6 +15,13 @@ from novita_client import *
 from api.schemas.schemas import ImageDoc, ControlNet
 
 # ---------------------------------------------------------------------------- #
+#                        SHORT PROMPT QUALITY SUFFIX                           #
+# ---------------------------------------------------------------------------- #
+
+SHORT_PROMPT_THRESHOLD = 7
+QUALITY_SUFFIX = "highly detailed, dramatic lighting, rich atmosphere, intricate composition, vibrant colors"
+
+# ---------------------------------------------------------------------------- #
 #                                  PARSE SEED                                  #
 # ---------------------------------------------------------------------------- #
 
@@ -99,6 +106,8 @@ def prepare_img2img_request(
     style_prompt,
     loras=None,
 ):
+    if len(prompt.split()) < SHORT_PROMPT_THRESHOLD:
+        prompt = prompt + ", " + QUALITY_SUFFIX
     full_prompt = prompt + style_prompt
 
     # qr_weight slider (0..1) -> QR ControlNet strength + guidance start.
