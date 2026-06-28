@@ -30,11 +30,8 @@ export default function ImageModal({
     onSwipedDown: (eventData) => {
       const { deltaY } = eventData;
       const modalElement = modalRef.current;
-      if (modalElement) {
-        const modalTopPosition = modalElement.getBoundingClientRect().top;
-        if (Math.abs(deltaY) > 50 && modalTopPosition >= 0) {
-          handleClose();
-        }
+      if (modalElement && Math.abs(deltaY) > 50 && modalElement.scrollTop === 0) {
+        handleClose();
       }
     },
   });
