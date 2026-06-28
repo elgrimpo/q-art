@@ -66,7 +66,7 @@ export default function GeneratePage() {
             ml: { xs: "0px", lg: "24px" },
             background: {
               xs: `linear-gradient(0deg, ${palette.background.default} 30%, rgba(22,22,22,0) 90%)`,
-              lg: `linear-gradient(90deg, ${palette.background.default} 55%, rgba(22,22,22,0) 90%)`,
+              lg: `linear-gradient(90deg, ${palette.background.default} 45%, rgba(22,22,22,0) 90%)`,
             },
           }}
         />
@@ -79,7 +79,7 @@ export default function GeneratePage() {
             backgroundColor: palette.primary.light,
             padding: { xs: "0.5rem", sm: "1rem" },
             paddingTop: { xs: "4.7rem", sm: "4.7rem", lg: "1rem" },
-            width: { xs: "100vw", lg: "70%" },
+            width: { xs: "100vw", lg: "60%" },
             borderRadius: { xs: "0px", lg: "5px" },
             aspectRatio: "1/1",
             justifySelf: "end",
@@ -124,7 +124,7 @@ export default function GeneratePage() {
 
           <Typography
             variant="h2"
-            sx={{ fontSize: { xs: "1.25rem", sm: "1.5rem", md: "1.75rem" }, mt: 1, mb: 0 }}
+            sx={{ fontSize: { xs: "1.5rem", sm: "2rem", md: "2.5rem" }, mt: 1, mb: 0 }}
           >
             Create beautiful QR codes people actually want to scan.
           </Typography>

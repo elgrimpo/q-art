@@ -194,9 +194,16 @@ function GenerateForm() {
               size="large"
               fullWidth
               aria-label="generate"
+              
               disabled={submitDisabled}
               onClick={() => handleGenerate()}
-              sx={{ mt: 3 }}
+              sx={{
+    "&:not(.Mui-disabled)": {
+      background: "linear-gradient(90.29deg, #8DDF9C 39%, #73DBCC 99.75%)",
+      boxShadow: "none",
+    },
+   mt: 3
+  }}
             >
               Generate
             </Button>

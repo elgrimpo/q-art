@@ -56,7 +56,7 @@ export default function NavBarMobile() {
   // body2 is the app's general supporting-copy style used everywhere else.
   const navLabelSx = {
     fontWeight: 600,
-    fontSize: "0.9375rem",
+    fontSize: "0.7rem",
     letterSpacing: "0.03em",
     textTransform: "uppercase",
   };
@@ -133,7 +133,7 @@ export default function NavBarMobile() {
                   >
                     <AutoFixHighTwoToneIcon />
                   </IconButton>
-                  <Typography variant="body2" sx={{ ...navLabelSx, mt: 0 }}>
+                  <Typography variant="body4" sx={{ ...navLabelSx, mt: 0 }}>
                     Generate
                   </Typography>
                 </ButtonBase>

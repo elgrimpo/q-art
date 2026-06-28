@@ -10,6 +10,7 @@ import {
   InputAdornment,
   Tooltip,
   IconButton,
+  Divider
 } from "@mui/material";
 import LinkIcon from "@mui/icons-material/Link";
 import EditIcon from "@mui/icons-material/Edit";
@@ -74,6 +75,8 @@ export default function GenerationFormFields({
           inputProps={{ "aria-label": "Website" }}
         />
       </Box>
+      <Divider/>
+
 
       {/* Prompt */}
       <Box>
@@ -112,6 +115,8 @@ export default function GenerationFormFields({
           }}
         />
       </Box>
+            <Divider/>
+
 
       {/* Style chips */}
       <Box>
@@ -142,6 +147,8 @@ export default function GenerationFormFields({
           />
         </Box>
       </Box>
+            <Divider/>
+
 
       {/* QR Weight — only when showQrWeight */}
       {showQrWeight && (
@@ -152,7 +159,7 @@ export default function GenerationFormFields({
                 component="img"
                 src={SLIDER_IMAGES[String(Math.round(values.qr_weight))]}
                 alt={`Brightness weight ${values.qr_weight}`}
-                sx={{ width: 250, height: 250, borderRadius: 2, objectFit: 'cover', display: 'block' }}
+                sx={{ width: 350, height: 350, borderRadius: 2, objectFit: 'cover', display: 'block', boxShadow: 3}}
               />
             </Box>
           )}

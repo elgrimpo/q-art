@@ -430,7 +430,16 @@ export default function ImageSidebar({
                 <LinkIcon sx={{ flexShrink: 0, fontSize: 20 }} />
                 <Typography
                   variant="h3"
-                  sx={{ fontSize: "30px", lineHeight: 1.05, wordBreak: "break-all" }}
+                  sx={{
+                    fontFamily: "Georgia, 'Times New Roman', serif",
+                    fontStyle: "italic",
+                    fontSize: "23px",
+                    color: "primary.main",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    lineHeight: 1.2,
+                  }}
                 >
                   {currentImage.content}
                 </Typography>

@@ -44,7 +44,7 @@ const theme = createTheme({
     // Display serif, used sparingly for marketing headlines only (H1/H2).
     // Loaded via next/font/google in layout.js as --font-instrument-serif.
     h1: {
-      fontFamily: "var(--font-instrument-serif), serif",
+      fontFamily: "var(--font-bodoni-moda), Bodoni Moda, serif",
       fontWeight: 400,
       fontSize: "4.5rem",
       lineHeight: 1.05,
