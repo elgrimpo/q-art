@@ -145,9 +145,9 @@ export default function GenerationFormFields({
 
       {/* QR Weight — only when showQrWeight */}
       {showQrWeight && (
-        <Box sx={{ px: 1 }}>
+        <Box sx={{ px: 1, position: 'relative' }}>
           {showWeightPreview && (
-            <Box sx={{ mb: 1.5, display: 'flex', justifyContent: 'center' }}>
+            <Box sx={{ position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)', pb: 1, zIndex: 10 }}>
               <Box
                 component="img"
                 src={SLIDER_IMAGES[String(Math.round(values.qr_weight))]}

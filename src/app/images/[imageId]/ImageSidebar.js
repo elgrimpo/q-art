@@ -77,6 +77,9 @@ export default function ImageSidebar({
   const [promptCopied, setPromptCopied] = useState(false);
   const [iterateOpen, setIterateOpen] = useState(false);
   const [iterateActive, setIterateActive] = useState(false);
+  const [menuAnchor, setMenuAnchor] = useState(null);
+  const [featured, setFeatured] = useState(!!image?.featured);
+  const [infoDialogOpen, setInfoDialogOpen] = useState(false);
   useEffect(() => {
     setIterateOpen(false);
     setIterateActive(false);
@@ -139,11 +142,6 @@ export default function ImageSidebar({
       setTimeout(() => setPromptCopied(false), 2000);
     }
   };
-
-  // Admin 3-dot menu
-  const [menuAnchor, setMenuAnchor] = useState(null);
-  const [featured, setFeatured] = useState(!!image?.featured);
-  const [infoDialogOpen, setInfoDialogOpen] = useState(false);
 
   const handleMenuOpen = (e) => setMenuAnchor(e.currentTarget);
   const handleMenuClose = () => setMenuAnchor(null);
