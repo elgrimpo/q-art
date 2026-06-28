@@ -66,6 +66,7 @@ export default function Explore() {
   const [loading, setLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [pageLoaded, setPageLoaded] = useState(0);
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const { user } = useStore();
@@ -114,6 +115,7 @@ export default function Explore() {
           .finally(() => {
             fetchingRef.current = false;
             setLoadingMore(false);
+            setPageLoaded((n) => n + 1);
           });
       },
       { threshold: 0.1, rootMargin: "300px" }
@@ -121,7 +123,7 @@ export default function Explore() {
 
     if (sentinelRef.current) observer.observe(sentinelRef.current);
     return () => observer.disconnect();
-  }, [loading, hasMore]);
+  }, [loading, hasMore, pageLoaded]);
 
   const handleModalOpen = (index) => {
     setSelectedImageIndex(index);
