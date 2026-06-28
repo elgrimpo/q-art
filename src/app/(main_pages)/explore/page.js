@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Box,
   Chip,
@@ -88,42 +88,51 @@ export default function Explore() {
       .finally(() => setLoading(false));
   }, []);
 
+  const fetchNextPage = useCallback((onLoaded) => {
+    if (fetchingRef.current || !hasMore) return;
+    fetchingRef.current = true;
+    setLoadingMore(true);
+
+    const nextPage = pageRef.current + 1;
+    pageRef.current = nextPage;
+
+    getImages({ featured: true, page: nextPage, images_per_page: IMAGES_PER_PAGE })
+      .then((newImgs) => {
+        const list = newImgs ?? [];
+        if (list.length === 0) {
+          setHasMore(false);
+        } else {
+          setImages((prev) => {
+            const updated = [...prev, ...list];
+            onLoaded?.(updated);
+            return updated;
+          });
+          if (list.length < IMAGES_PER_PAGE) setHasMore(false);
+        }
+      })
+      .catch(() => setHasMore(false))
+      .finally(() => {
+        fetchingRef.current = false;
+        setLoadingMore(false);
+        setPageLoaded((n) => n + 1);
+      });
+  }, [hasMore]);
+
   // Infinite scroll: observe sentinel div at bottom of grid
   useEffect(() => {
     if (loading || !hasMore) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (!entries[0].isIntersecting || fetchingRef.current) return;
-        fetchingRef.current = true;
-        setLoadingMore(true);
-
-        const nextPage = pageRef.current + 1;
-        pageRef.current = nextPage;
-
-        getImages({ featured: true, page: nextPage, images_per_page: IMAGES_PER_PAGE })
-          .then((newImgs) => {
-            const list = newImgs ?? [];
-            if (list.length === 0) {
-              setHasMore(false);
-            } else {
-              setImages((prev) => [...prev, ...list]);
-              if (list.length < IMAGES_PER_PAGE) setHasMore(false);
-            }
-          })
-          .catch(() => setHasMore(false))
-          .finally(() => {
-            fetchingRef.current = false;
-            setLoadingMore(false);
-            setPageLoaded((n) => n + 1);
-          });
+        if (!entries[0].isIntersecting) return;
+        fetchNextPage();
       },
       { threshold: 0.1, rootMargin: "300px" }
     );
 
     if (sentinelRef.current) observer.observe(sentinelRef.current);
     return () => observer.disconnect();
-  }, [loading, hasMore, pageLoaded]);
+  }, [loading, hasMore, pageLoaded, fetchNextPage]);
 
   const handleModalOpen = (index) => {
     setSelectedImageIndex(index);
@@ -140,9 +149,17 @@ export default function Explore() {
   };
 
   const showNextImage = () => {
-    setSelectedImageIndex((prev) =>
-      prev < images.length - 1 ? prev + 1 : 0
-    );
+    const currentIndex = selectedImageIndex;
+    if (currentIndex < images.length - 1) {
+      setSelectedImageIndex(currentIndex + 1);
+    } else if (hasMore) {
+      fetchNextPage((updatedImages) => {
+        if (updatedImages.length > currentIndex + 1) {
+          setSelectedImageIndex(currentIndex + 1);
+        }
+      });
+    }
+    // If !hasMore and at last image, do nothing
   };
 
   const customLikeAction = (imageId, updatedLikes) => {
