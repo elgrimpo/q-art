@@ -49,18 +49,17 @@
 **Interfaces:**
 - Produces: Static PNG files at `/slider-images/<name>.png` (served by Next.js from `public/`)
 
-- [ ] **Step 1: Copy and rename images**
+- [ ] **Step 1: Resize and copy images**
+
+Run from `codebase/`. `sips` is macOS built-in — no extra tooling needed. Resizes each source from 2048×2048 to 500×500 (2x retina for 250px display size). The +2 source has a typo in its filename (`plua`) — corrected on output.
 
 ```bash
 mkdir -p public/slider-images
-cp "../design/slider images/Weight_minus_2.png" public/slider-images/Weight_minus_2.png
-cp "../design/slider images/Weight_minus_1.png" public/slider-images/Weight_minus_1.png
-cp "../design/slider images/Weight_0.png"       public/slider-images/Weight_0.png
-cp "../design/slider images/Weight_plus_1.png"  public/slider-images/Weight_plus_1.png
-cp "../design/slider images/Weight_plua_2.png"  public/slider-images/Weight_plus_2.png
+for src in "Weight_minus_2.png" "Weight_minus_1.png" "Weight_0.png" "Weight_plus_1.png"; do
+  sips -z 500 500 "../design/slider images/$src" --out "public/slider-images/$src"
+done
+sips -z 500 500 "../design/slider images/Weight_plua_2.png" --out "public/slider-images/Weight_plus_2.png"
 ```
-
-Run from `codebase/`. The design folder is one level up (`../design/`). The +2 source file has a typo (`plua`) — rename it `plus` on copy.
 
 - [ ] **Step 2: Verify files exist**
 
