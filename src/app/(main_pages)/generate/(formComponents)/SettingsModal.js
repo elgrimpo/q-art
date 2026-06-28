@@ -24,6 +24,7 @@ import theme from "@/_styles/theme";
 
 // App imports
 import "../../../globals.css";
+import { QR_SLIDER_MIN, QR_SLIDER_MAX } from '@/_utils/qrWeight';
 import { useStore } from "@/store";
 import StyledIconButton from "@/_components/StyledIconButton";
 /* -------------------------------------------------------------------------- */
@@ -39,7 +40,7 @@ function SettingsModal(props) {
   // Slider for (QR Code Weight). Presented on a -3..+3 scale (Weak -> Strong).
   // The backend only accepts qr_weight in [0, 1], so this value is translated
   // via sliderToQrWeight() before the request is sent (see _utils/qrWeight.js).
-  const qrWeight = [{ value: -3 }, { value: 3 }];
+  const qrWeight = [{ value: QR_SLIDER_MIN }, { value: QR_SLIDER_MAX }];
 
     // Screen size
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -135,8 +136,8 @@ function SettingsModal(props) {
             step={0.1}
             valueLabelDisplay="auto"
             marks={qrWeight}
-            min={-3.0}
-            max={3.0}
+            min={QR_SLIDER_MIN}
+            max={QR_SLIDER_MAX}
             track={false}
             color="secondary"
             name="qr_weight"

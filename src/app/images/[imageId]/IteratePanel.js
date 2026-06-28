@@ -17,7 +17,6 @@ import GenerationFormFields from "@/app/(main_pages)/generate/(formComponents)/G
 
 import { styles, selectRandomStyle } from "@/_utils/ImageStyles";
 import { generateImage } from "@/_utils/ImagesUtils";
-import { qrWeightToSlider } from "@/_utils/qrWeight";
 
 const GIF_URL =
   "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExNXd0ZmY4N3VweW54ejIwN29yaGQxcmdtOWh5aGZuMG1wZW5mdHprYyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/R8dDMt8IgVvhK/giphy.gif";
@@ -39,7 +38,7 @@ function initFormValues(image, isOwner = true) {
     style_prompt: sourceStyle.prompt,
     loras: sourceStyle.loras ?? [],
     sd_model: img.sd_model ?? "cyberrealistic_v40_151857.safetensors",
-    qr_weight: qrWeightToSlider(img.qr_weight ?? 0.5),
+    qr_weight: 0,
   };
 }
 
@@ -78,7 +77,7 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
         style_prompt: sourceStyle.prompt,
         loras: sourceStyle.loras ?? [],
         sd_model: image.sd_model,
-        qr_weight: qrWeightToSlider(image.qr_weight ?? 0.5),
+        qr_weight: 0,
         negative_prompt: image.negative_prompt ?? "",
         seed: -1,
       };
