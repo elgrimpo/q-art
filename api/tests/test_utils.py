@@ -324,3 +324,41 @@ class TestStructuralScore:
         img = qr.make_image(fill_color="black", back_color="white").convert("RGB")
         result = structural_score(img, "https://example.com")
         assert result.score >= 80.0, f"Expected ≥80 for clean QR, got {result.score}"
+
+
+# ---------------------------------------------------------------------------- #
+#                           NORMALIZE QR URL                                   #
+# ---------------------------------------------------------------------------- #
+
+from api.utils.utils import normalize_qr_url
+
+class TestNormalizeQrUrl:
+    def test_strips_https(self):
+        assert normalize_qr_url("https://example.com") == "example.com"
+
+    def test_strips_http(self):
+        assert normalize_qr_url("http://example.com") == "example.com"
+
+    def test_strips_www(self):
+        assert normalize_qr_url("www.example.com") == "example.com"
+
+    def test_strips_https_and_www(self):
+        assert normalize_qr_url("https://www.example.com") == "example.com"
+
+    def test_strips_trailing_slash(self):
+        assert normalize_qr_url("https://example.com/") == "example.com"
+
+    def test_preserves_path(self):
+        assert normalize_qr_url("https://example.com/menu") == "example.com/menu"
+
+    def test_preserves_path_with_trailing_slash(self):
+        assert normalize_qr_url("https://example.com/menu/") == "example.com/menu/"
+
+    def test_already_clean_url_unchanged(self):
+        assert normalize_qr_url("example.com") == "example.com"
+
+    def test_preserves_query_string(self):
+        assert normalize_qr_url("https://example.com/page?q=1") == "example.com/page?q=1"
+
+    def test_empty_string_unchanged(self):
+        assert normalize_qr_url("") == ""

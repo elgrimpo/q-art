@@ -28,6 +28,7 @@ from api.utils.utils import (
     prepare_img2img_request,
     create_watermark,
     parse_style_loras,
+    normalize_qr_url,
 )
 from api.controllers.users_controller import increment_user_count
 from api.utils.structural_score import structural_score
@@ -115,7 +116,7 @@ async def predict(
             box_size=10,
             border=4,
         )
-        qr.add_data(website)
+        qr.add_data(normalize_qr_url(website))
 
         qr_image = qr.make_image(fill_color="black", back_color="white")
 

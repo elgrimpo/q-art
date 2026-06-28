@@ -22,6 +22,21 @@ SHORT_PROMPT_THRESHOLD = 7
 QUALITY_SUFFIX = "highly detailed, dramatic lighting, rich atmosphere, intricate composition, vibrant colors"
 
 # ---------------------------------------------------------------------------- #
+#                            NORMALIZE QR URL                                  #
+# ---------------------------------------------------------------------------- #
+
+
+def normalize_qr_url(url: str) -> str:
+    """Strip protocol, www., and root trailing slash to reduce QR complexity."""
+    url = re.sub(r'^https?://', '', url)
+    url = re.sub(r'^www\.', '', url)
+    # Strip trailing slash only for root URLs (no path beyond /)
+    if url.endswith('/') and url.count('/') == 1:
+        url = url.rstrip('/')
+    return url
+
+
+# ---------------------------------------------------------------------------- #
 #                                  PARSE SEED                                  #
 # ---------------------------------------------------------------------------- #
 
