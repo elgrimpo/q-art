@@ -120,6 +120,7 @@ def prepare_img2img_request(
     qr_weight,
     style_prompt,
     loras=None,
+    brightness_weight: int = 0,
 ):
     if len(prompt.split()) < SHORT_PROMPT_THRESHOLD:
         prompt = prompt + ", " + QUALITY_SUFFIX
@@ -152,10 +153,11 @@ def prepare_img2img_request(
         controlnet_units=[
             # Brightness ControlNet — blends the QR's light/dark structure into
             # the art. The QR is fed directly: NO preprocessor.
+            # strength = 0.35 (default) + brightness_weight * 0.1; range 0.15..0.55
             Img2ImgV3ControlNetUnit(
                 image_base64=image_base64_str,
                 model_name="control_v1p_sd15_brightness",
-                strength=0.35,
+                strength=round(0.35 + brightness_weight * 0.1, 2),
                 preprocessor=None, # this needs to be None, otherwise API breaks
                 guidance_start=0.3,
                 guidance_end=0.7,

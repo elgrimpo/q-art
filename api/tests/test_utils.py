@@ -48,8 +48,8 @@ class TestPrepareImg2ImgRequest:
         style_prompt=", cinematic",
     )
 
-    def _req(self, qr_weight):
-        return prepare_img2img_request(**self.BASE, qr_weight=qr_weight)
+    def _req(self, qr_weight, brightness_weight=0):
+        return prepare_img2img_request(**self.BASE, qr_weight=qr_weight, brightness_weight=brightness_weight)
 
     def test_qr_weight_0_controlnet_strength(self):
         unit = self._req(0.0)["controlnet_units"][1]
@@ -89,10 +89,15 @@ class TestPrepareImg2ImgRequest:
         req = prepare_img2img_request(**base, qr_weight=0.5)
         assert req["prompt"] == long_prompt + self.BASE["style_prompt"]
 
-    def test_brightness_unit_strength_is_fixed(self):
-        # Brightness unit strength must not change with qr_weight
-        assert self._req(0.0)["controlnet_units"][0].strength == 0.35
-        assert self._req(1.0)["controlnet_units"][0].strength == 0.35
+    def test_brightness_unit_strength_default(self):
+        # brightness_weight=0 (default) → strength 0.35
+        assert self._req(0.5, brightness_weight=0)["controlnet_units"][0].strength == 0.35
+
+    def test_brightness_unit_strength_formula(self):
+        assert self._req(0.5, brightness_weight=-2)["controlnet_units"][0].strength == 0.15
+        assert self._req(0.5, brightness_weight=-1)["controlnet_units"][0].strength == 0.25
+        assert self._req(0.5, brightness_weight=1)["controlnet_units"][0].strength == 0.45
+        assert self._req(0.5, brightness_weight=2)["controlnet_units"][0].strength == 0.55
 
     def test_loras_default_to_empty_list(self):
         assert self._req(0.5)["loras"] == []
@@ -116,6 +121,7 @@ class TestShortPromptSuffix:
         image_base64_str="base64string==",
         style_prompt="",
         qr_weight=0.5,
+        brightness_weight=0,
     )
 
     def test_short_prompt_gets_suffix(self):

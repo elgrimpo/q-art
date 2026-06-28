@@ -93,6 +93,7 @@ async def predict(
     style_prompt: str,
     style_title: str,
     style_loras: str = "[]",
+    brightness_weight: int = 0,
 ):
     try:
         # --------------------------------- CHECK FUNDS ------------------------------- #
@@ -151,6 +152,7 @@ async def predict(
                     qr_weight,
                     style_prompt,
                     loras=loras,
+                    brightness_weight=brightness_weight,
                 )
 
         try:
