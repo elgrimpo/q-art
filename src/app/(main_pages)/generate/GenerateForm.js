@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Box, Button } from "@mui/material";
 import * as amplitude from "@amplitude/analytics-browser";
 import { useRouter } from "next/navigation";
@@ -45,6 +45,23 @@ function GenerateForm() {
   const [dialogContent, setDialogContent] = useState({});
   const [dialogOpen, setDialogOpen] = useState(false);
   const [submitDisabled, setSubmitDisabled] = useState(true);
+
+  // Measure the form box's natural height while it's showing the fields, so
+  // switching into the loading state can lock to that height instead of
+  // resizing to fit the loader's own dimensions.
+  const paperBoxRef = useRef(null);
+  const [formHeight, setFormHeight] = useState(null);
+
+  useEffect(() => {
+    if (generatingImage) return;
+    const el = paperBoxRef.current;
+    if (!el) return;
+    const measure = () => setFormHeight(el.getBoundingClientRect().height);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [generatingImage]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -166,17 +183,20 @@ function GenerateForm() {
   return (
     <Box sx={{ mt: 4, width: "100%", maxWidth: "720px" }}>
       <Box
+        ref={paperBoxRef}
         sx={{
           backgroundColor: "background.paper",
           border: "1px solid",
           borderColor: "divider",
           borderRadius: "16px",
           width: "100%",
-          padding: { xs: 2, sm: 3 },
+          boxSizing: "border-box",
+          padding: generatingImage && formHeight ? 0 : { xs: 2, sm: 3 },
+          ...(generatingImage && formHeight ? { height: `${formHeight}px` } : {}),
         }}
       >
         {generatingImage ? (
-          <GeneratingLoader />
+          <GeneratingLoader fill={Boolean(formHeight)} />
         ) : (
           <Box sx={{ width: "100%" }}>
             <GenerationFormFields
