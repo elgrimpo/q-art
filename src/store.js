@@ -15,6 +15,7 @@ export const useStore = create((set) => ({
     style_prompt: "",
     loras: [],
     qr_weight: 0.0,
+    style_modifier: 0,
     negative_prompt: "",
     seed: -1,
     sd_model: "cyberrealistic_v40_151857.safetensors",

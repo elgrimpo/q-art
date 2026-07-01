@@ -78,8 +78,8 @@ Email login (QRAI-82): `POST /api/user/request-code` + `POST /api/user/verify-co
 
 1. Generate QR code from URL (qrcode lib, ERROR_CORRECT_H)
 2. Build `img2img_v3` request via `prepare_img2img_request()`:
-   - Two ControlNet units: `control_v1p_sd15_brightness` (strength 0.35) + `control_v1p_sd15_qrcode_monster_v2` (strength scales with `qr_weight`)
-   - `qr_weight` slider: 0–1 → weight 0.85–1.05, guidance_start 0.40–0.37
+   - Two ControlNet units, both scaled by `qr_weight + style_modifier`: `control_v1p_sd15_brightness` and `control_v1p_sd15_qrcode_monster_v2`
+   - `qr_weight` (-2..2, from the frontend slider) + `style_modifier` (-2..2, per-style, not persisted) are summed and drive strength/guidance across both ControlNet units and the top-level img2img strength (see `api/utils/CLAUDE.md`)
 3. Submit to Novita via `ProcessPoolExecutor` (avoids blocking async loop)
 4. Poll with `wait_for_task_v3`
 5. Apply watermark, upload both versions to S3

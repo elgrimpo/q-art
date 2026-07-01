@@ -120,16 +120,12 @@ def prepare_img2img_request(
     qr_weight,
     style_prompt,
     loras=None,
-    brightness_weight: int = 0,
+    style_modifier: int = 0,
 ):
     if len(prompt.split()) < SHORT_PROMPT_THRESHOLD:
         prompt = prompt + ", " + QUALITY_SUFFIX
     full_prompt = prompt + style_prompt
 
-    # qr_weight slider (0..1) -> QR ControlNet strength + guidance start.
-    # Higher weight = more scannable, lower = more artistic.
-    weight = round(0.85 + float(qr_weight) * 0.2, 2)           # 0.85 .. 1.05
-    guidance_start = round(0.40 - float(qr_weight) * 0.03, 2)  # 0.40 .. 0.37
     side = 768
     gray = Image.new("RGB", (side, side), (128, 128, 128))
     _buf = BytesIO()
@@ -148,16 +144,16 @@ def prepare_img2img_request(
         guidance_scale=7,
         seed=int(seed),
         image_num=1,
-        strength=round(0.925 + brightness_weight * 0.0125,2),
+        strength=round(0.925 + (qr_weight + style_modifier) * 0.0125,2),
         loras=loras or [],
         controlnet_units=[
             # Brightness ControlNet — blends the QR's light/dark structure into
             # the art. The QR is fed directly: NO preprocessor.
-            # strength = 0.35 (default) + brightness_weight * 0.1; range 0.15..0.55
+            # strength = 0.4 (default) + (qr_weight + style_modifier) * 0.025; range 0.15..0.55 for combined -2..2
             Img2ImgV3ControlNetUnit(
                 image_base64=image_base64_str,
                 model_name="control_v1p_sd15_brightness",
-                strength=round(0.4 + brightness_weight * 0.025,2),
+                strength=round(0.4 + (qr_weight + style_modifier) * 0.025,2),
                 preprocessor=None, # this needs to be None, otherwise API breaks
                 guidance_start=0.15,
                 guidance_end=0.6,
@@ -166,10 +162,10 @@ def prepare_img2img_request(
             Img2ImgV3ControlNetUnit(
                 image_base64=image_base64_str,
                 model_name="control_v1p_sd15_qrcode_monster_v2",
-                strength=round(1.40 + brightness_weight * 0.05,2),
+                strength=round(1.40 + (qr_weight + style_modifier) * 0.05,2),
                 preprocessor=None, # this needs to be None, otherwise API breaks
-                guidance_start=round(0.4 - brightness_weight * 0.025,2),
-                guidance_end=round(0.925 + brightness_weight * 0.0125,2),
+                guidance_start=round(0.4 - (qr_weight + style_modifier) * 0.025,2),
+                guidance_end=round(0.925 + (qr_weight + style_modifier) * 0.0125,2),
             ),
         ],
     )

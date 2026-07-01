@@ -111,8 +111,8 @@ async def generate_endpoint(
     style_title: Annotated[str, Query(max_length=100)] = "",
     style_loras: Annotated[str, Query(max_length=2000)] = "[]",
     seed: Annotated[int, Query(ge=-1)] = -1,
-    qr_weight: Annotated[float, Query(ge=0.0, le=1.0)] = 0.5,
-    brightness_weight: Annotated[int, Query(ge=-2, le=2)] = 0,
+    qr_weight: Annotated[int, Query(ge=-2, le=2)] = 0,
+    style_modifier: Annotated[int, Query(ge=-2, le=2)] = 0,
     current_user: dict = Depends(get_current_user),
 ):
     return await predict(
@@ -120,13 +120,13 @@ async def generate_endpoint(
         website,
         negative_prompt,
         seed,
-        qr_weight,
         sd_model,
         current_user["user_id"],
         style_prompt,
         style_title,
         style_loras,
-        brightness_weight,
+        qr_weight,
+        style_modifier,
     )
 
 # ------------------------------- IMAGE ROUTES ------------------------------- #

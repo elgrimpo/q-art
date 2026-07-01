@@ -40,7 +40,6 @@ PREDICT_KWARGS = dict(
     website="https://example.com",
     negative_prompt="ugly blurry",
     seed=42,
-    qr_weight=0.5,
     sd_model="sd-v1-5",
     user_id=FAKE_IMAGE_ID,
     style_prompt=", cinematic",

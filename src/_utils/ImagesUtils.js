@@ -5,7 +5,6 @@ import axios from "axios";
 import { notFound } from "next/navigation";
 import { revalidateTag } from 'next/cache'
 import { getBackendToken } from "./backendAuth";
-import { sliderToQrWeight } from "./qrWeight";
 
 
 // App imports
@@ -78,15 +77,13 @@ export const getImages = async (params) => {
 export const generateImage = async (generateFormValues, user) => {
   const token = await getBackendToken();
   return new Promise((resolve, reject) => {
-    // The slider lives on a -2..+2 UI scale; the backend only accepts qr_weight
-    // in [0, 1]. Translate before sending so the request passes validation.
     // loras is an array of objects, which URLSearchParams can't serialize — send
     // it as a single JSON string param (style_loras) the backend decodes.
     const { loras, ...rest } = generateFormValues;
     const payload = {
       ...rest,
-      qr_weight: sliderToQrWeight(generateFormValues.qr_weight),
-      brightness_weight: Math.round(generateFormValues.qr_weight),
+      qr_weight: Math.round(Number(generateFormValues.qr_weight) || 0),
+      style_modifier: Math.round(Number(generateFormValues.style_modifier) || 0),
       style_loras: JSON.stringify(loras ?? []),
     };
     const queryParams = new URLSearchParams(payload);

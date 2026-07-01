@@ -38,7 +38,8 @@ function initFormValues(image, isOwner = true) {
     style_prompt: sourceStyle.prompt,
     loras: sourceStyle.loras ?? [],
     sd_model: img.sd_model ?? "cyberrealistic_v40_151857.safetensors",
-    qr_weight: 0,
+    qr_weight: img.qr_weight ?? 0,
+    style_modifier: sourceStyle.style_modifier ?? 0,
   };
 }
 
@@ -77,7 +78,8 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
         style_prompt: sourceStyle.prompt,
         loras: sourceStyle.loras ?? [],
         sd_model: image.sd_model,
-        qr_weight: 0,
+        qr_weight: image.qr_weight ?? 0,
+        style_modifier: sourceStyle.style_modifier ?? 0,
         negative_prompt: image.negative_prompt ?? "",
         seed: -1,
       };
@@ -88,6 +90,7 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
     let style_prompt = formValues.style_prompt;
     let loras = formValues.loras;
     let sd_model = formValues.sd_model;
+    let style_modifier = formValues.style_modifier;
 
     if (style_id === 1) {
       const resolved = selectRandomStyle();
@@ -96,6 +99,7 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
       style_prompt = resolved.prompt;
       loras = resolved.loras ?? [];
       sd_model = resolved.sd_model;
+      style_modifier = resolved.style_modifier ?? 0;
     }
 
     const seed = style_title !== originalStyleTitle.current ? -1 : image.seed;
@@ -109,6 +113,7 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
       loras,
       sd_model,
       qr_weight: formValues.qr_weight,
+      style_modifier,
       negative_prompt: image.negative_prompt ?? "",
       seed,
     };
@@ -320,6 +325,7 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
                   style_prompt: style.prompt,
                   loras: style.loras ?? [],
                   sd_model: style.sd_model,
+                  style_modifier: style.style_modifier ?? 0,
                 }))
               }
               onQrWeightChange={(val) =>

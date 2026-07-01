@@ -87,13 +87,13 @@ async def predict(
     website: str,
     negative_prompt: str,
     seed: int,
-    qr_weight: float,
     sd_model: str,
     user_id: str,
     style_prompt: str,
     style_title: str,
     style_loras: str = "[]",
-    brightness_weight: int = 0,
+    qr_weight: int = 0,
+    style_modifier: int = 0,
 ):
     try:
         # --------------------------------- CHECK FUNDS ------------------------------- #
@@ -152,7 +152,7 @@ async def predict(
                     qr_weight,
                     style_prompt,
                     loras=loras,
-                    brightness_weight=brightness_weight,
+                    style_modifier=style_modifier,
                 )
 
         try:

@@ -2,10 +2,8 @@
  * SettingsModal component tests
  *
  * The QR Code Weight slider is presented on a -2..+2 scale (QR_SLIDER_MIN/MAX
- * from _utils/qrWeight.js). That UI value is translated to the backend's [0, 1]
- * qr_weight range before sending (see sliderToQrWeight in _utils/qrWeight.js
- * and the qrWeight.test.js contract test). This test guards the slider's
- * user-facing range.
+ * from _utils/qrWeight.js) and sent to the backend as-is. This test guards
+ * the slider's user-facing range.
  */
 
 import React from 'react'

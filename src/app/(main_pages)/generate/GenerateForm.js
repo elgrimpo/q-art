@@ -74,6 +74,7 @@ function GenerateForm() {
       style_title: item.title,
       sd_model: item.sd_model,
       loras: item.loras ?? [],
+      style_modifier: item.style_modifier ?? 0,
     });
   };
 
@@ -131,6 +132,7 @@ function GenerateForm() {
           style_title: randomStyle.title,
           sd_model: randomStyle.sd_model,
           loras: randomStyle.loras ?? [],
+          style_modifier: randomStyle.style_modifier ?? 0,
         };
       }
 

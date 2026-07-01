@@ -35,7 +35,6 @@ jest.mock('../app/(main_pages)/generate/(formComponents)/StylesModal', () => ({
 const mockGenerateImage = require('@/_utils/ImagesUtils').generateImage
 
 jest.mock('@/_utils/qrWeight', () => ({
-  qrWeightToSlider: (w) => w,
   QR_SLIDER_MIN: 0,
   QR_SLIDER_MAX: 1,
 }))
@@ -132,6 +131,13 @@ describe('form panel — owner', () => {
     fireEvent.click(screen.getByRole('button', { name: /back/i }))
     expect(onClose).toHaveBeenCalledTimes(1)
   })
+
+  it('QR weight slider is pre-filled with the source image qr_weight', () => {
+    render(
+      <IteratePanel image={IMAGE} isOpen={true} onOpen={onOpen} onClose={onClose} isOwner={true} />
+    )
+    expect(screen.getByRole('slider')).toHaveAttribute('aria-valuenow', String(IMAGE.qr_weight))
+  })
 })
 
 describe('form panel — non-owner', () => {
@@ -202,6 +208,13 @@ describe('New Variation', () => {
     const payload = mockGenerateImage.mock.calls[0][0]
     expect(payload.website).toBe('https://example.com')
     expect(payload.prompt).toBe('a beautiful forest')
+  })
+
+  it('New Variation preserves the original image qr_weight', async () => {
+    render(<IteratePanel image={IMAGE} isOpen={false} onOpen={onOpen} isOwner={true} />)
+    fireEvent.click(screen.getByText('New Variation'))
+    await waitFor(() => expect(mockGenerateImage).toHaveBeenCalledTimes(1))
+    expect(mockGenerateImage.mock.calls[0][0].qr_weight).toBe(IMAGE.qr_weight)
   })
 })
 

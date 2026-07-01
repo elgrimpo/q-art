@@ -20,7 +20,7 @@ GENERATE_PARAMS = {
     "website": "https://qr-ai.co",
     "negative_prompt": "ugly blurry text",
     "seed": "42",
-    "qr_weight": "0.3",
+    "qr_weight": "1",
     "sd_model": "cyberrealistic_v40_151857.safetensors",
     "style_prompt": "",
     "style_title": "Custom",

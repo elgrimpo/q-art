@@ -196,7 +196,7 @@ async def test_get_generate_returns_200_with_all_params(mock_predict):
         "website": "https://example.com",
         "negative_prompt": "ugly",
         "seed": "42",
-        "qr_weight": "0.5",
+        "qr_weight": "1",
         "sd_model": "sd-v1-5",
         "style_prompt": ", cinematic",
         "style_title": "Cinematic",

@@ -48,64 +48,78 @@ class TestPrepareImg2ImgRequest:
         style_prompt=", cinematic",
     )
 
-    def _req(self, qr_weight, brightness_weight=0):
-        return prepare_img2img_request(**self.BASE, qr_weight=qr_weight, brightness_weight=brightness_weight)
+    def _req(self, qr_weight=0, style_modifier=0):
+        return prepare_img2img_request(**self.BASE, qr_weight=qr_weight, style_modifier=style_modifier)
 
-    def test_qr_weight_0_controlnet_strength(self):
-        unit = self._req(0.0)["controlnet_units"][1]
-        assert round(unit.strength, 2) == 0.85
+    def test_qrcode_monster_strength_default(self):
+        unit = self._req()["controlnet_units"][1]
+        assert unit.strength == round(1.40 + 0 * 0.05, 2)
 
-    def test_qr_weight_0_guidance_start(self):
-        unit = self._req(0.0)["controlnet_units"][1]
-        assert round(unit.guidance_start, 2) == 0.40
+    def test_qrcode_monster_guidance_start_default(self):
+        unit = self._req()["controlnet_units"][1]
+        assert unit.guidance_start == round(0.4 - 0 * 0.025, 2)
 
-    def test_qr_weight_1_controlnet_strength(self):
-        unit = self._req(1.0)["controlnet_units"][1]
-        assert round(unit.strength, 2) == 1.05
+    def test_qrcode_monster_strength_scales_with_qr_weight(self):
+        unit = self._req(qr_weight=2)["controlnet_units"][1]
+        assert unit.strength == round(1.40 + 2 * 0.05, 2)
 
-    def test_qr_weight_1_guidance_start(self):
-        unit = self._req(1.0)["controlnet_units"][1]
-        assert round(unit.guidance_start, 2) == 0.37
+    def test_qrcode_monster_guidance_start_scales_with_qr_weight(self):
+        unit = self._req(qr_weight=2)["controlnet_units"][1]
+        assert unit.guidance_start == round(0.4 - 2 * 0.025, 2)
 
-    def test_qr_weight_half(self):
-        unit = self._req(0.5)["controlnet_units"][1]
-        assert round(unit.strength, 2) == 0.95
-        assert round(unit.guidance_start, 2) == round(0.4 - 0.5 * 0.03, 2)
+    def test_qrcode_monster_guidance_end_scales_with_qr_weight(self):
+        unit = self._req(qr_weight=2)["controlnet_units"][1]
+        assert unit.guidance_end == round(0.925 + 2 * 0.0125, 2)
+
+    def test_style_modifier_combines_additively_with_qr_weight(self):
+        # qr_weight=1 + style_modifier=1 must produce the same request as qr_weight=2 alone.
+        combined = self._req(qr_weight=1, style_modifier=1)["controlnet_units"][1]
+        solo = self._req(qr_weight=2, style_modifier=0)["controlnet_units"][1]
+        assert combined.strength == solo.strength
+        assert combined.guidance_start == solo.guidance_start
+        assert combined.guidance_end == solo.guidance_end
+
+    def test_top_level_strength_scales_with_combined_weight(self):
+        req = self._req(qr_weight=2, style_modifier=-1)
+        assert req["strength"] == round(0.925 + 1 * 0.0125, 2)
 
     def test_always_two_controlnet_units(self):
-        assert len(self._req(0.5)["controlnet_units"]) == 2
+        assert len(self._req()["controlnet_units"]) == 2
 
     def test_first_unit_is_brightness(self):
-        assert self._req(0.5)["controlnet_units"][0].model_name == "control_v1p_sd15_brightness"
+        assert self._req()["controlnet_units"][0].model_name == "control_v1p_sd15_brightness"
 
     def test_second_unit_is_qrcode_monster(self):
-        assert self._req(0.5)["controlnet_units"][1].model_name == "control_v1p_sd15_qrcode_monster_v2"
+        assert self._req()["controlnet_units"][1].model_name == "control_v1p_sd15_qrcode_monster_v2"
 
     def test_prompt_is_concatenated(self):
         # Use a long prompt (>= 7 words) so suffix is NOT appended
         long_prompt = "a beautiful dragon soaring over misty mountain peaks"
         base = dict(self.BASE)
         base["prompt"] = long_prompt
-        req = prepare_img2img_request(**base, qr_weight=0.5)
+        req = prepare_img2img_request(**base, qr_weight=0)
         assert req["prompt"] == long_prompt + self.BASE["style_prompt"]
 
     def test_brightness_unit_strength_default(self):
-        # brightness_weight=0 (default) → strength 0.35
-        assert self._req(0.5, brightness_weight=0)["controlnet_units"][0].strength == 0.35
+        # qr_weight=0, style_modifier=0 (defaults) → strength 0.4
+        assert self._req()["controlnet_units"][0].strength == round(0.4 + 0 * 0.025, 2)
 
     def test_brightness_unit_strength_formula(self):
-        assert self._req(0.5, brightness_weight=-2)["controlnet_units"][0].strength == 0.15
-        assert self._req(0.5, brightness_weight=-1)["controlnet_units"][0].strength == 0.25
-        assert self._req(0.5, brightness_weight=1)["controlnet_units"][0].strength == 0.45
-        assert self._req(0.5, brightness_weight=2)["controlnet_units"][0].strength == 0.55
+        assert self._req(qr_weight=-2)["controlnet_units"][0].strength == round(0.4 + -2 * 0.025, 2)
+        assert self._req(qr_weight=-1)["controlnet_units"][0].strength == round(0.4 + -1 * 0.025, 2)
+        assert self._req(qr_weight=1)["controlnet_units"][0].strength == round(0.4 + 1 * 0.025, 2)
+        assert self._req(qr_weight=2)["controlnet_units"][0].strength == round(0.4 + 2 * 0.025, 2)
+
+    def test_brightness_unit_strength_includes_style_modifier(self):
+        assert self._req(qr_weight=1, style_modifier=1)["controlnet_units"][0].strength == round(0.4 + 2 * 0.025, 2)
 
     def test_loras_default_to_empty_list(self):
-        assert self._req(0.5)["loras"] == []
+        assert self._req()["loras"] == []
 
     def test_loras_passed_through(self):
         from novita_client import Img2V3ImgLoRA
         loras = [Img2V3ImgLoRA(model_name="LAS_17554", strength=0.7)]
-        req = prepare_img2img_request(**self.BASE, qr_weight=0.5, loras=loras)
+        req = prepare_img2img_request(**self.BASE, qr_weight=0, loras=loras)
         assert req["loras"] == loras
 
 
@@ -120,8 +134,7 @@ class TestShortPromptSuffix:
         seed=42,
         image_base64_str="base64string==",
         style_prompt="",
-        qr_weight=0.5,
-        brightness_weight=0,
+        qr_weight=0,
     )
 
     def test_short_prompt_gets_suffix(self):
