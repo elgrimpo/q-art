@@ -26,6 +26,7 @@ export default function ImageDetailContent({
   customDeleteAction,
   customLikeAction,
   fitHeight = false,
+  imageBoxProps = {},
 }) {
   return (
     <Box
@@ -39,6 +40,7 @@ export default function ImageDetailContent({
     >
       {/* IMAGE */}
       <Box
+        {...imageBoxProps}
         sx={{
           // full-bleed on phone: width grows by 2× the parent's xs padding (2 = 16px)
           // and the negative margins pull it edge-to-edge symmetrically.

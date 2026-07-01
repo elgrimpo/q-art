@@ -24,16 +24,28 @@ export default function ImageModal({
   const { user } = useStore();
   const modalRef = useRef(null);
 
-  const handlers = useSwipeable({
-    onSwipedLeft: () => handleNext(),
-    onSwipedRight: () => handlePrevious(),
+  // Swipe-down-to-close applies to the whole modal, so it's attached to the Dialog.
+  const closeHandlers = useSwipeable({
     onSwipedDown: (eventData) => {
       const { deltaY } = eventData;
       const modalElement = modalRef.current;
-      if (modalElement && Math.abs(deltaY) > 50 && modalElement.scrollTop === 0) {
+      // iOS Safari's elastic overscroll reports a negative (or fractional)
+      // scrollTop while the user is actively pulling down from the top of a
+      // scrollable container — the exact gesture this check needs to allow.
+      // A strict `=== 0` misses that, so anything at-or-past-the-top counts.
+      if (modalElement && Math.abs(deltaY) > 50 && modalElement.scrollTop <= 0) {
         handleClose();
       }
     },
+  });
+
+  // Left/right navigation only applies over the image itself, so it's attached
+  // to the image box (via ImageDetailContent's imageBoxProps) instead of the
+  // whole Dialog — otherwise swiping on the sidebar (e.g. the QR weight slider)
+  // would also navigate between images.
+  const navigationHandlers = useSwipeable({
+    onSwipedLeft: () => handleNext(),
+    onSwipedRight: () => handlePrevious(),
   });
 
   const customDeleteAction = () => {
@@ -76,7 +88,7 @@ export default function ImageModal({
               }),
         },
       }}
-      {...handlers}
+      {...closeHandlers}
     >
       <Box
         ref={modalRef}
@@ -98,6 +110,7 @@ export default function ImageModal({
           customDeleteAction={customDeleteAction}
           customLikeAction={customLikeAction}
           fitHeight
+          imageBoxProps={navigationHandlers}
         />
       </Box>
     </Dialog>
