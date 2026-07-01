@@ -148,7 +148,7 @@ def prepare_img2img_request(
         guidance_scale=7,
         seed=int(seed),
         image_num=1,
-        strength=1.0,
+        strength=round(0.925 + brightness_weight * 0.0125,2),
         loras=loras or [],
         controlnet_units=[
             # Brightness ControlNet — blends the QR's light/dark structure into
@@ -157,19 +157,19 @@ def prepare_img2img_request(
             Img2ImgV3ControlNetUnit(
                 image_base64=image_base64_str,
                 model_name="control_v1p_sd15_brightness",
-                strength=round(0.35 + brightness_weight * 0.1, 2),
+                strength=round(0.4 + brightness_weight * 0.025,2),
                 preprocessor=None, # this needs to be None, otherwise API breaks
-                guidance_start=0.3,
-                guidance_end=0.7,
+                guidance_start=0.15,
+                guidance_end=0.6,
             ),
             # QR Code Monster v2 — enforces the scannable QR pattern.
             Img2ImgV3ControlNetUnit(
                 image_base64=image_base64_str,
                 model_name="control_v1p_sd15_qrcode_monster_v2",
-                strength=weight,
+                strength=round(1.40 + brightness_weight * 0.05,2),
                 preprocessor=None, # this needs to be None, otherwise API breaks
-                guidance_start=guidance_start,
-                guidance_end=0.9,
+                guidance_start=round(0.4 - brightness_weight * 0.025,2),
+                guidance_end=round(0.925 + brightness_weight * 0.0125,2),
             ),
         ],
     )
