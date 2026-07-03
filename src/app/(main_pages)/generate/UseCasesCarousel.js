@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
+import { useSwipeable } from "react-swipeable";
 import { Box, Typography, IconButton } from "@mui/material";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
@@ -98,6 +99,11 @@ export default function UseCasesCarousel() {
     [total]
   );
 
+  const swipeHandlers = useSwipeable({
+    onSwipedLeft: () => navigate(1),
+    onSwipedRight: () => navigate(-1),
+  });
+
   return (
     <Box
       component="section"
@@ -137,6 +143,7 @@ export default function UseCasesCarousel() {
 
       {/* Carousel container */}
       <Box
+        {...swipeHandlers}
         sx={{
           position: "relative",
           height: { xs: "60vw", sm: "50vw", md: "43vw" },
