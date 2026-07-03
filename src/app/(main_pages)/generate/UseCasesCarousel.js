@@ -86,18 +86,27 @@ function getCardPosition(normalizedDelta) {
 export default function UseCasesCarousel() {
   const [current, setCurrent] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [hasInteracted, setHasInteracted] = useState(false);
   const total = USE_CASES.length;
 
   useEffect(() => {
-    if (paused) return;
+    if (paused || hasInteracted) return;
     const t = setInterval(() => setCurrent((i) => (i + 1) % total), 4500);
     return () => clearInterval(t);
-  }, [paused, total]);
+  }, [paused, hasInteracted, total]);
 
   const navigate = useCallback(
-    (dir) => setCurrent((i) => (i + dir + total) % total),
+    (dir) => {
+      setHasInteracted(true);
+      setCurrent((i) => (i + dir + total) % total);
+    },
     [total]
   );
+
+  const goTo = useCallback((index) => {
+    setHasInteracted(true);
+    setCurrent(index);
+  }, []);
 
   const swipeHandlers = useSwipeable({
     onSwipedLeft: () => navigate(1),
@@ -204,7 +213,7 @@ export default function UseCasesCarousel() {
           return (
             <Box
               key={useCase.id}
-              onClick={isAdjacent ? () => setCurrent(i) : undefined}
+              onClick={isAdjacent ? () => goTo(i) : undefined}
               sx={{
                 position: "absolute",
                 top: 0,
@@ -276,10 +285,12 @@ export default function UseCasesCarousel() {
 
       {/* Dot indicators */}
       <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 1, mt: 3 }}>
-        {USE_CASES.map((_, i) => (
+        {USE_CASES.map((useCase, i) => (
           <Box
             key={i}
-            onClick={() => setCurrent(i)}
+            role="button"
+            aria-label={`Go to ${useCase.category}`}
+            onClick={() => goTo(i)}
             sx={{
               width: i === current ? 24 : 8,
               height: 8,
