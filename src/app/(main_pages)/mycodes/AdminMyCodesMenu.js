@@ -5,6 +5,8 @@ import {
   Fab,
   Menu,
   MenuItem,
+  Switch,
+  FormControlLabel,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
@@ -51,15 +53,16 @@ function AdminMyCodesMenu({ myCodesOnly, onToggle, trigger }) {
 
       <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
         <MenuItem disableRipple>
-          <input
-            type="checkbox"
-            checked={myCodesOnly}
-            onChange={handleToggle}
-            role="switch"
-            aria-label="My codes"
-            style={{ marginRight: "8px" }}
+          <FormControlLabel
+            control={
+              <Switch
+                checked={myCodesOnly}
+                onChange={handleToggle}
+                inputProps={{ role: "switch", "aria-label": "My codes" }}
+              />
+            }
+            label="My codes"
           />
-          <span>My codes</span>
         </MenuItem>
       </Menu>
     </>
