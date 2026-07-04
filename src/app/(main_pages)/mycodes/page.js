@@ -1,6 +1,6 @@
 "use client";
 // Libraries imports
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useInView } from "react-intersection-observer";
 import Link from "next/link";
@@ -36,6 +36,10 @@ export default function MyCodes() {
 
   // Intersection Observer
   const { ref, inView } = useInView({});
+  // Guards against firing the same page-load twice — e.g. React Strict Mode's
+  // dev-only double-invocation of effects on mount (see explore/page.js's
+  // fetchingRef for the same pattern).
+  const fetchingRef = useRef(false);
   // Sort & Filter Options
   const filters = [
     {
@@ -133,7 +137,8 @@ export default function MyCodes() {
 
   // Infinite scrolling and load Image
   useEffect(() => {
-    if (inView) {
+    if (inView && !fetchingRef.current) {
+      fetchingRef.current = true;
       const params = {
         page: page + 1,
         user_id: myCodesOnly ? user._id : undefined,
@@ -143,7 +148,9 @@ export default function MyCodes() {
         image_style: selectedFilters.image_style,
         sort_by: selectedFilters.sort,
       };
-      loadMoreImages(params);
+      loadMoreImages(params).finally(() => {
+        fetchingRef.current = false;
+      });
     }
   }, [inView]);
 

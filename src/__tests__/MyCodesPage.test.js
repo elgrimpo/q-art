@@ -104,6 +104,20 @@ test('does not render the admin menu for a non-admin user', async () => {
   expect(screen.queryByLabelText('Admin menu')).not.toBeInTheDocument()
 })
 
+test('does not send duplicate page-1 requests under StrictMode double-invoked effects', async () => {
+  getImages.mockResolvedValue([])
+  render(
+    <React.StrictMode>
+      <MyCodes />
+    </React.StrictMode>
+  )
+
+  await waitFor(() => expect(getImages).toHaveBeenCalled())
+
+  const pageOneCalls = getImages.mock.calls.filter(([params]) => params.page === 1)
+  expect(pageOneCalls.length).toBe(1)
+})
+
 test('admin: defaults to "My codes" on, and toggling switches to other users\' codes', async () => {
   mockUser.is_admin = true
   getImages.mockResolvedValue([])
