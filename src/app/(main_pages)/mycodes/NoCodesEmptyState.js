@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Box, Typography, Button } from "@mui/material";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
+import AddIcon from "@mui/icons-material/Add";
 
 function NoCodesEmptyState() {
   return (
@@ -44,9 +45,10 @@ function NoCodesEmptyState() {
         variant="contained"
         color="primary"
         size="large"
+        startIcon={<AddIcon />}
         sx={{ mb: 3 }}
       >
-        + Generate Your First Code
+        Generate Your First Code
       </Button>
 
       <Button
