@@ -118,6 +118,19 @@ test('does not send duplicate page-1 requests under StrictMode double-invoked ef
   expect(pageOneCalls.length).toBe(1)
 })
 
+test('under StrictMode, eventually shows the empty-state message (fetch actually resolves and state updates)', async () => {
+  getImages.mockResolvedValue([])
+  render(
+    <React.StrictMode>
+      <MyCodes />
+    </React.StrictMode>
+  )
+
+  expect(
+    await screen.findByText(/you don't have any images yet/i, {}, { timeout: 3000 })
+  ).toBeInTheDocument()
+})
+
 test('admin: defaults to "My codes" on, and toggling switches to other users\' codes', async () => {
   mockUser.is_admin = true
   getImages.mockResolvedValue([])
