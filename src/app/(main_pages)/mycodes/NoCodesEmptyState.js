@@ -16,18 +16,26 @@ function NoCodesEmptyState() {
         maxWidth: "420px",
       }}
     >
-      <Box sx={{ width: { xs: "220px", sm: "280px" }, mb: 3 }}>
+      <Box
+        sx={{
+          position: "relative",
+          width: "100%",
+          maxWidth: "600px",
+          aspectRatio: "3 / 2",
+          overflow: "hidden",
+          mb: 1,
+        }}
+      >
         <Image
           src="/mycodes-empty-state.png"
           alt=""
-          width={1536}
-          height={1024}
-          style={{ width: "100%", height: "auto" }}
+          fill
+          style={{ objectFit: "cover", transform: "scale(1.54)" }}
           priority
         />
       </Box>
 
-      <Typography variant="h5" component="h2" sx={{ mb: 1 }}>
+      <Typography variant="h3" component="h2" sx={{ mb: 1 }}>
         No codes yet. Let&apos;s create your{" "}
         <Box component="span" sx={{ color: "primary.main" }}>
           first
