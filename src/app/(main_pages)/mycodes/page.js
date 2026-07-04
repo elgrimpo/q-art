@@ -2,7 +2,6 @@
 // Libraries imports
 import { useState, useEffect } from "react";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import { usePathname } from "next/navigation";
 import { useInView } from "react-intersection-observer";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -22,8 +21,6 @@ import { getImages } from "@/_utils/ImagesUtils";
 export default function MyCodes() {
   /* --------------------------- DECLARE VARIABLES ---------------------------- */
   const router = useRouter();
-
-  const pathname = usePathname();
 
   // User — reactive read so the page re-renders once StoreInitializer seeds the
   // store on the client (getState() returns the empty server snapshot and never updates).
@@ -64,7 +61,7 @@ export default function MyCodes() {
     likes: undefined,
     time_period: undefined,
     image_style: undefined,
-    sort: pathname === "/mycodes" ? "Newest" : "Most Liked",
+    sort: "Newest",
   });
 
   // Upscaling (loading)
@@ -75,10 +72,6 @@ export default function MyCodes() {
   const [modalOpen, setModalOpen] = useState(false);
 
   /* -------------------------------- FUNCTIONS ------------------------------- */
-  useEffect(() => {
-    setPage(0);
-    setImages([]);
-  }, [pathname]);
 
   // Redirect guests / signed-out users away from their personal gallery. Runs after
   // render (never during) so it can't touch window.location on the server. We key off
@@ -88,10 +81,10 @@ export default function MyCodes() {
   useEffect(() => {
     const userResolved = user && Object.keys(user).length > 0;
     const isGuestOrSignedOut = !user?.email || user?.is_guest;
-    if (userResolved && isGuestOrSignedOut && pathname === "/mycodes") {
+    if (userResolved && isGuestOrSignedOut) {
       router.push("/generate");
     }
-  }, [user, pathname, router]);
+  }, [user, router]);
 
   const loadMoreImages = async (params, replace = false) => {
     const newImages = await getImages(params);
@@ -115,8 +108,8 @@ export default function MyCodes() {
     loadMoreImages(
       {
         page: 1,
-        user_id: pathname === "/mycodes" ? user._id : undefined,
-        exclude_user_id: pathname === "/mycodes" ? undefined : user._id,
+        user_id: user._id,
+        exclude_user_id: undefined,
         likes: filtersToUse.likes,
         time_period: filtersToUse.time_period,
         image_style: filtersToUse.image_style,
@@ -131,8 +124,8 @@ export default function MyCodes() {
     if (inView) {
       const params = {
         page: page + 1,
-        user_id: pathname === "/mycodes" ? user._id : undefined,
-        exclude_user_id: pathname === "/mycodes" ? undefined : user._id,
+        user_id: user._id,
+        exclude_user_id: undefined,
         likes: selectedFilters.likes,
         time_period: selectedFilters.time_period,
         image_style: selectedFilters.image_style,
@@ -184,7 +177,7 @@ export default function MyCodes() {
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
   /* -------------------------------------------------------------------------- */
-  return images.length === 0 && page === -1 && pathname === "/mycodes" ? (
+  return images.length === 0 && page === -1 ? (
     /* --------------------------- NO USER IMAGES --------------------------- */
     <Box
       sx={{
@@ -271,7 +264,6 @@ export default function MyCodes() {
           handleClose={handleModalClose}
           handlePrevious={showPreviousImage}
           handleNext={showNextImage}
-          pathname={pathname}
           upscaling={upscaling}
           setUpscaling={setUpscaling}
           images={images}
