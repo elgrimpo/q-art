@@ -5,8 +5,8 @@ App Router routes for the signed-in app experience. `(main_pages)` is a **route 
 ## Routes
 
 - `generate/` — the core flow (URL → `/generate`). `page.js` + `GenerateForm.js` drive the form (state in the Zustand `generateFormValues`). Sub-pieces live in `(formComponents)/`: `UrlPrompt`, `PromptKeywords`, `StylesModal`/`StylesCard`/`CustomStyleModal`, `SettingsModal`, `GeneratingLoader`.
-- `mycodes/` — the user's gallery. `page.js` + `ImagesCard`, `ImageModal`, `SkeletonCard`, and `FilterPanelDesktop`/`FilterPanelMobile`.
-- `explore/` — public gallery. **Note:** `next.config.mjs` rewrites `/explore` → `/mycodes`, and the only file here is `786786page.js` (a non-wired-up/oddly-named file, not an active `page.js`). Treat explore as currently served by the mycodes route.
+- `mycodes/` — the user's gallery. `page.js` + `ImagesCard`, `ImageModal`, `SkeletonCard`, `FilterPanelDesktop`/`FilterPanelMobile`, and `AdminMyCodesMenu` (admin-only "My codes" toggle, QRAI-142). Since `page.js` only ever mounts at the literal `/mycodes` route, it has no `pathname`-branching logic.
+- `explore/` — public gallery, its own standalone `page.js`. There is no rewrite from `/explore` to `/mycodes` (`next.config.mjs` only rewrites `/api/stripe-webhook`) — that was true historically but no longer is.
 - `(navbar)/` — `NavBarDesktop`/`NavBarMobile` + `AccountMenuDesktop`/`AccountMenuMobile`. Desktop/mobile are separate components (responsive split, not one adaptive component).
 - `layout.js` — shared layout for this group.
 
