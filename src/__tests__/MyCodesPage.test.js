@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 
 const mockPush = jest.fn()
 jest.mock('next/navigation', () => ({
@@ -95,4 +95,42 @@ test('does not redirect a logged-in non-guest user', async () => {
   render(<MyCodes />)
   await waitFor(() => expect(getImages).toHaveBeenCalled())
   expect(mockPush).not.toHaveBeenCalled()
+})
+
+test('does not render the admin menu for a non-admin user', async () => {
+  getImages.mockResolvedValue([])
+  render(<MyCodes />)
+  await waitFor(() => expect(getImages).toHaveBeenCalled())
+  expect(screen.queryByLabelText('Admin menu')).not.toBeInTheDocument()
+})
+
+test('admin: defaults to "My codes" on, and toggling switches to other users\' codes', async () => {
+  mockUser.is_admin = true
+  getImages.mockResolvedValue([])
+  render(<MyCodes />)
+
+  await waitFor(() =>
+    expect(getImages).toHaveBeenCalledWith(
+      expect.objectContaining({ user_id: 'user1', exclude_user_id: undefined })
+    )
+  )
+  expect(
+    await screen.findByText(/you don't have any images yet/i)
+  ).toBeInTheDocument()
+
+  fireEvent.click(screen.getByLabelText('Admin menu'))
+  const toggle = await screen.findByRole('switch', { name: /my codes/i })
+  expect(toggle).toBeChecked()
+  fireEvent.click(toggle)
+
+  await waitFor(() =>
+    expect(getImages).toHaveBeenCalledWith(
+      expect.objectContaining({ user_id: undefined, exclude_user_id: 'user1' })
+    )
+  )
+  await waitFor(() =>
+    expect(
+      screen.queryByText(/you don't have any images yet/i)
+    ).not.toBeInTheDocument()
+  )
 })

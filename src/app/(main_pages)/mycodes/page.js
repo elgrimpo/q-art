@@ -13,6 +13,7 @@ import ImageCard from "./ImagesCard";
 import ImageModal from "./ImageModal";
 import FilterPanelDesktop from "./FilterPanelDesktop";
 import FilterPanelMobile from "./FilterPanelMobile";
+import AdminMyCodesMenu from "./AdminMyCodesMenu";
 import { styles } from "@/_utils/ImageStyles";
 import theme from "@/_styles/theme";
 import { useStore } from "@/store";
@@ -25,10 +26,13 @@ export default function MyCodes() {
   // User — reactive read so the page re-renders once StoreInitializer seeds the
   // store on the client (getState() returns the empty server snapshot and never updates).
   const user = useStore((state) => state.user);
+  const isAdmin = !!user?.is_admin;
   // Screen size
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [images, setImages] = useState([]);
   const [page, setPage] = useState(0);
+  // Admin-only: defaults to showing only the admin's own codes; never persisted.
+  const [myCodesOnly, setMyCodesOnly] = useState(true);
 
   // Intersection Observer
   const { ref, inView } = useInView({});
@@ -101,15 +105,17 @@ export default function MyCodes() {
   };
 
   // Apply Filter & Sort and load Images
-  const applyFilters = (newFilters) => {
+  const applyFilters = (newFilters, myCodesOnlyOverride) => {
     const filtersToUse = newFilters || selectedFilters;
+    const myCodesOnlyToUse =
+      myCodesOnlyOverride !== undefined ? myCodesOnlyOverride : myCodesOnly;
     setImages([]);
     setPage(0);
     loadMoreImages(
       {
         page: 1,
-        user_id: user._id,
-        exclude_user_id: undefined,
+        user_id: myCodesOnlyToUse ? user._id : undefined,
+        exclude_user_id: myCodesOnlyToUse ? undefined : user._id,
         likes: filtersToUse.likes,
         time_period: filtersToUse.time_period,
         image_style: filtersToUse.image_style,
@@ -119,13 +125,19 @@ export default function MyCodes() {
     );
   };
 
+  // Admin: flip between "my codes" and "everyone else's codes"
+  const handleToggleMyCodesOnly = (newValue) => {
+    setMyCodesOnly(newValue);
+    applyFilters(selectedFilters, newValue);
+  };
+
   // Infinite scrolling and load Image
   useEffect(() => {
     if (inView) {
       const params = {
         page: page + 1,
-        user_id: user._id,
-        exclude_user_id: undefined,
+        user_id: myCodesOnly ? user._id : undefined,
+        exclude_user_id: myCodesOnly ? undefined : user._id,
         likes: selectedFilters.likes,
         time_period: selectedFilters.time_period,
         image_style: selectedFilters.image_style,
@@ -177,10 +189,11 @@ export default function MyCodes() {
   /* -------------------------------------------------------------------------- */
   /*                              COMPONENT RENDER                              */
   /* -------------------------------------------------------------------------- */
-  return images.length === 0 && page === -1 ? (
+  return images.length === 0 && page === -1 && myCodesOnly ? (
     /* --------------------------- NO USER IMAGES --------------------------- */
     <Box
       sx={{
+        position: "relative",
         padding: { xs: "4.7rem 0.5rem", sm: "5rem 1rem" },
         display: "flex",
         justifyContent: "center",
@@ -190,6 +203,29 @@ export default function MyCodes() {
         width: "100%"
       }}
     >
+      {isAdmin && !isMobile && (
+        <Box
+          sx={{
+            position: "absolute",
+            top: { xs: "4.7rem", sm: "5rem" },
+            right: { xs: "0.5rem", sm: "1rem" },
+          }}
+        >
+          <AdminMyCodesMenu
+            trigger="icon"
+            myCodesOnly={myCodesOnly}
+            onToggle={handleToggleMyCodesOnly}
+          />
+        </Box>
+      )}
+
+      {isAdmin && isMobile && (
+        <AdminMyCodesMenu
+          trigger="fab"
+          myCodesOnly={myCodesOnly}
+          onToggle={handleToggleMyCodesOnly}
+        />
+      )}
       <Typography variant="h5" component="h2" sx={{ textAlign: "center" }}>
         You don't have any images yet!
       </Typography>
@@ -197,21 +233,48 @@ export default function MyCodes() {
   ) : (
     <Box sx={{ padding: { xs: "4.7rem 0.5rem", sm: "5rem 1rem" } }}>
       {/* ----------------------------- FILTERS ----------------------------- */}
-      {isMobile ? (
-        <FilterPanelMobile
-          filters={filters}
-          applyFilters={applyFilters}
-          selectedFilters={selectedFilters}
-          setSelectedFilters={setSelectedFilters}
-        />
-      ) : (
-        <FilterPanelDesktop
-          filters={filters}
-          applyFilters={applyFilters}
-          selectedFilters={selectedFilters}
-          setSelectedFilters={setSelectedFilters}
-        />
-      )}
+      <Box sx={{ position: "relative" }}>
+        {isMobile ? (
+          <FilterPanelMobile
+            filters={filters}
+            applyFilters={applyFilters}
+            selectedFilters={selectedFilters}
+            setSelectedFilters={setSelectedFilters}
+          />
+        ) : (
+          <FilterPanelDesktop
+            filters={filters}
+            applyFilters={applyFilters}
+            selectedFilters={selectedFilters}
+            setSelectedFilters={setSelectedFilters}
+          />
+        )}
+
+        {isAdmin && !isMobile && (
+          <Box
+            sx={{
+              position: "absolute",
+              top: "50%",
+              right: { xs: "0.5rem", sm: "1rem" },
+              transform: "translateY(-50%)",
+            }}
+          >
+            <AdminMyCodesMenu
+              trigger="icon"
+              myCodesOnly={myCodesOnly}
+              onToggle={handleToggleMyCodesOnly}
+            />
+          </Box>
+        )}
+
+        {isAdmin && isMobile && (
+          <AdminMyCodesMenu
+            trigger="fab"
+            myCodesOnly={myCodesOnly}
+            onToggle={handleToggleMyCodesOnly}
+          />
+        )}
+      </Box>
 
       {/* --------------------------- IMAGES LIST ------------------------- */}
       <Grid
