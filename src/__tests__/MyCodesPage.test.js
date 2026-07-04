@@ -77,7 +77,7 @@ test('shows the empty-state message when the user has no images', async () => {
   render(<MyCodes />)
 
   expect(
-    await screen.findByText(/you don't have any images yet/i)
+    await screen.findByText(/no codes yet/i)
   ).toBeInTheDocument()
 })
 
@@ -127,7 +127,7 @@ test('under StrictMode, eventually shows the empty-state message (fetch actually
   )
 
   expect(
-    await screen.findByText(/you don't have any images yet/i, {}, { timeout: 3000 })
+    await screen.findByText(/no codes yet/i, {}, { timeout: 3000 })
   ).toBeInTheDocument()
 })
 
@@ -142,7 +142,7 @@ test('admin: defaults to "My codes" on, and toggling switches to other users\' c
     )
   )
   expect(
-    await screen.findByText(/you don't have any images yet/i)
+    await screen.findByText(/no codes yet/i)
   ).toBeInTheDocument()
 
   fireEvent.click(screen.getByLabelText('Admin menu'))
@@ -157,7 +157,7 @@ test('admin: defaults to "My codes" on, and toggling switches to other users\' c
   )
   await waitFor(() =>
     expect(
-      screen.queryByText(/you don't have any images yet/i)
+      screen.queryByText(/no codes yet/i)
     ).not.toBeInTheDocument()
   )
 })

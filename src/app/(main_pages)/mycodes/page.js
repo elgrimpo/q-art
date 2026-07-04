@@ -6,7 +6,7 @@ import { useInView } from "react-intersection-observer";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import { Grid, Box, Typography, Button } from "@mui/material";
+import { Grid, Box } from "@mui/material";
 
 // App imports
 import ImageCard from "./ImagesCard";
@@ -14,6 +14,7 @@ import ImageModal from "./ImageModal";
 import FilterPanelDesktop from "./FilterPanelDesktop";
 import FilterPanelMobile from "./FilterPanelMobile";
 import AdminMyCodesMenu from "./AdminMyCodesMenu";
+import NoCodesEmptyState from "./NoCodesEmptyState";
 import { styles } from "@/_utils/ImageStyles";
 import theme from "@/_styles/theme";
 import { useStore } from "@/store";
@@ -233,9 +234,7 @@ export default function MyCodes() {
           onToggle={handleToggleMyCodesOnly}
         />
       )}
-      <Typography variant="h5" component="h2" sx={{ textAlign: "center" }}>
-        You don't have any images yet!
-      </Typography>
+      <NoCodesEmptyState />
     </Box>
   ) : (
     <Box sx={{ padding: { xs: "4.7rem 0.5rem", sm: "5rem 1rem" } }}>
