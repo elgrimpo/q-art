@@ -71,49 +71,83 @@ export const getImages = async (params) => {
 };
 
 /* -------------------------------------------------------------------------- */
-/*                               GENERATE IMAGE                               */
+/*                              START GENERATION                              */
 /* -------------------------------------------------------------------------- */
 
-export const generateImage = async (generateFormValues, user) => {
+export const startGeneration = async (generateFormValues, user) => {
   const token = await getBackendToken();
-  return new Promise((resolve, reject) => {
-    // loras is an array of objects, which URLSearchParams can't serialize — send
-    // it as a single JSON string param (style_loras) the backend decodes.
-    const { loras, ...rest } = generateFormValues;
-    const payload = {
-      ...rest,
-      qr_weight: Math.round(Number(generateFormValues.qr_weight) || 0),
-      style_modifier: Number(generateFormValues.style_modifier) || 0,
-      style_loras: JSON.stringify(loras ?? []),
-    };
-    const queryParams = new URLSearchParams(payload);
-    const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/generate/?${queryParams.toString()}`;
+  // loras is an array of objects, which URLSearchParams can't serialize — send
+  // it as a single JSON string param (style_loras) the backend decodes.
+  const { loras, ...rest } = generateFormValues;
+  const payload = {
+    ...rest,
+    qr_weight: Math.round(Number(generateFormValues.qr_weight) || 0),
+    style_modifier: Number(generateFormValues.style_modifier) || 0,
+    style_loras: JSON.stringify(loras ?? []),
+  };
+  const queryParams = new URLSearchParams(payload);
+  const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/generate/start?${queryParams.toString()}`;
 
-    fetch(url, {
+  const response = await fetch(url, {
+    method: "POST",
+    credentials: "include",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    const detail = data?.detail || "GenerationFailed";
+    throw new Error(
+      detail === "Insufficient credits" ? "InsufficientCredits" : "GenerationFailed"
+    );
+  }
+  return response.json(); // { job_id }
+};
+
+/* -------------------------------------------------------------------------- */
+/*                            GET GENERATION PROGRESS                         */
+/* -------------------------------------------------------------------------- */
+
+export const getGenerationProgress = async (jobId) => {
+  const token = await getBackendToken();
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/generate/progress/${jobId}`,
+    {
       method: "GET",
       credentials: "include",
       headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          return response.json().then((data) => {
-            const detail = data?.detail || "GenerationFailed";
-            throw new Error(
-              detail === "Insufficient credits" ? "InsufficientCredits" : "GenerationFailed"
-            );
-          });
-        }
-        return response.json();
-      })
-      .then((data) => {
-        revalidateTag('images')
-        revalidateTag('user')
-        resolve(data);
-      })
-      .catch((error) => {
-        reject(error);
-      });
-  });
+      cache: "no-store",
+    }
+  );
+  if (!response.ok) {
+    const err = new Error("Failed to fetch generation progress");
+    err.status = response.status;
+    throw err;
+  }
+  return response.json(); // { status, percent, stage, eta, result?, error? }
+};
+
+/* -------------------------------------------------------------------------- */
+/*                       GENERATE IMAGE (poll to completion)                  */
+/* -------------------------------------------------------------------------- */
+
+// Convenience wrapper for callers that just want the finished image and don't
+// need incremental progress (IteratePanel's New Variation / Retry).
+// GenerateForm.js polls startGeneration/getGenerationProgress directly instead,
+// so it can show live percent while waiting.
+export const generateImage = async (generateFormValues, user) => {
+  const { job_id } = await startGeneration(generateFormValues, user);
+  for (;;) {
+    const progress = await getGenerationProgress(job_id);
+    if (progress.status === "succeeded") {
+      revalidateTag('images');
+      revalidateTag('user');
+      return progress.result;
+    }
+    if (progress.status === "failed") {
+      throw new Error(progress.error || "GenerationFailed");
+    }
+    await new Promise((resolve) => setTimeout(resolve, 1200));
+  }
 };
 
 /* -------------------------------------------------------------------------- */
