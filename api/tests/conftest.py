@@ -1,4 +1,5 @@
 import os
+import pytest
 
 # Must be set before any module-level code in generate_controller / images_controller runs,
 # since those modules read env vars at import time.
@@ -19,3 +20,13 @@ os.environ.setdefault("BACKEND_JWT_SECRET", "test-backend-secret")
 os.environ.setdefault("STRIPE_UNLOCK_PRICE_ID", "price_test_unlock_placeholder")
 os.environ.setdefault("RESEND_API_KEY", "re_test_placeholder")
 os.environ.setdefault("EMAIL_FROM", "Q-Art <login@test.local>")
+
+
+@pytest.fixture(autouse=True)
+def _clear_generation_jobs():
+    """The job store is a module-level dict — clear it between tests so job
+    state from one test never leaks into another."""
+    from api.controllers.generate_controller import _jobs
+    _jobs.clear()
+    yield
+    _jobs.clear()

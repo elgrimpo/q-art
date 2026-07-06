@@ -18,6 +18,8 @@ import asyncio
 import functools
 import logging
 import time
+import contextlib
+from contextlib import asynccontextmanager
 
 # App imports
 from api.controllers.images_controller import (
@@ -63,6 +65,125 @@ client = NovitaClient(os.environ["NOVITA_KEY"])
 # Without a cap, one slow or hung upstream response blocks the async event loop
 # and can stall every concurrent request on the worker (QRAI-39).
 IMAGE_DOWNLOAD_TIMEOUT = httpx.Timeout(30.0, connect=10.0)
+
+# ---------------------------------------------------------------------------- #
+#                          GENERATION PROGRESS TRACKING                        #
+# ---------------------------------------------------------------------------- #
+
+# Module-level job store. A single Heroku dyno runs this process, so an
+# in-memory dict is enough — no Redis/Mongo needed, and job state has no
+# value once the client has read the final result.
+_jobs: dict[str, dict] = {}
+
+_JOB_RETENTION_SECONDS = 600  # 10 minutes past a terminal state
+
+# Weight given to each pipeline stage's share of overall progress, derived
+# from real timing logs (4-run range in seconds): Novita 5.97-15.0 (mid 10.5),
+# download 1.05-1.76 (mid 1.4), S3 uploads 3.16-7.98 (mid 5.6). First-pass
+# constants — easy to retune later against real logs, not meant to be exact.
+STAGE_ORDER = ["prep", "novita", "download", "processing", "upload", "finishing"]
+STAGE_WEIGHTS = {
+    "prep": 3,        # QR build, request build (credit-check removed)
+    "novita": 55,     # img2img_v3 submit + poll — real progress_percent signal
+    "download": 8,    # downloading the generated image
+    "processing": 2,  # scannability score, create_image_doc, create_watermark
+    "upload": 30,     # concurrent S3 uploads (original + watermarked)
+    "finishing": 2,   # update_image_doc, increment_user_count
+}
+
+# Expected duration (seconds) for stages that get a synthetic time-based ramp
+# instead of a real progress signal (see _progress_ramp below).
+STAGE_EXPECTED_SECONDS = {
+    "download": 1.4,
+    "upload": 5.6,
+}
+
+
+def _stage_bounds(stage_name: str) -> tuple[int, int]:
+    """Return (start_percent, end_percent) for a stage, based on cumulative
+    STAGE_WEIGHTS in STAGE_ORDER."""
+    start = 0
+    for name in STAGE_ORDER:
+        end = start + STAGE_WEIGHTS[name]
+        if name == stage_name:
+            return start, end
+        start = end
+    raise KeyError(f"Unknown stage: {stage_name}")
+
+
+def _update_job(job_id: str, **fields) -> None:
+    """Upsert fields into a job's state. Doesn't require seed_job() to have
+    run first, so predict() can be called directly (as the test suite does)
+    without KeyError-ing on a missing entry."""
+    job = _jobs.setdefault(job_id, {})
+    job.update(fields)
+    if "updated_at" not in fields:
+        job["updated_at"] = time.time()
+
+
+def seed_job(job_id: str, user_id: str) -> None:
+    """Called by the /api/generate/start route before firing the background
+    generation task, so a poll arriving before predict() writes anything
+    still sees a valid (queued) job."""
+    _jobs[job_id] = {
+        "user_id": user_id,
+        "status": "queued",
+        "percent": 0,
+        "stage": "prep",
+        "eta": None,
+        "result": None,
+        "error": None,
+        "updated_at": time.time(),
+    }
+
+
+def get_job(job_id: str) -> dict | None:
+    return _jobs.get(job_id)
+
+
+def sweep_old_jobs() -> None:
+    """Drop terminal jobs older than _JOB_RETENTION_SECONDS. Called once per
+    new job start — no TTL infra needed for a dict this small."""
+    now = time.time()
+    stale_ids = [
+        jid for jid, job in _jobs.items()
+        if job.get("status") in ("succeeded", "failed")
+        and now - job.get("updated_at", now) > _JOB_RETENTION_SECONDS
+    ]
+    for jid in stale_ids:
+        del _jobs[jid]
+
+
+@asynccontextmanager
+async def _progress_ramp(job_id: str, stage_name: str):
+    """Advance a job's progress with a time-based ramp while an operation
+    with no fine-grained real signal (image download, S3 upload) is in
+    flight. Ticks every 0.3s, capped at 95% of the stage's budget until the
+    operation actually finishes, then jumps to the stage's end percent."""
+    start, end = _stage_bounds(stage_name)
+    expected = STAGE_EXPECTED_SECONDS[stage_name]
+    began = time.perf_counter()
+
+    async def _tick():
+        while True:
+            elapsed = time.perf_counter() - began
+            fraction = min(elapsed / expected, 0.95)
+            _update_job(
+                job_id,
+                status="processing",
+                stage=stage_name,
+                percent=round(start + fraction * (end - start)),
+            )
+            await asyncio.sleep(0.3)
+
+    ticker = asyncio.create_task(_tick())
+    try:
+        yield
+    finally:
+        ticker.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            await ticker
+        _update_job(job_id, stage=stage_name, percent=end)
 
 
 async def download_image_bytes(image_url):
