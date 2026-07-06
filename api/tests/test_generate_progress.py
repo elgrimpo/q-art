@@ -67,3 +67,41 @@ def test_sweep_old_jobs_removes_only_stale_terminal_jobs():
     assert get_job("job-old-done") is None
     assert get_job("job-recent-done") is not None
     assert get_job("job-in-progress") is not None
+
+
+from unittest.mock import AsyncMock, patch
+from fastapi import HTTPException
+import asyncio
+
+from api.controllers.generate_controller import start_generation
+
+
+@patch("api.controllers.generate_controller.predict", new_callable=AsyncMock)
+async def test_start_generation_marks_job_succeeded(mock_predict):
+    mock_predict.return_value = {"_id": "abc123", "image_url": "https://example.com/img.png"}
+    seed_job("job-ok", "user-1")
+
+    await start_generation(
+        "job-ok", "a dragon", "https://example.com", "", 42, "sd-v1-5",
+        "user-1", "", "", "[]", 0, 0,
+    )
+
+    job = get_job("job-ok")
+    assert job["status"] == "succeeded"
+    assert job["percent"] == 100
+    assert job["result"]["_id"] == "abc123"
+
+
+@patch("api.controllers.generate_controller.predict", new_callable=AsyncMock)
+async def test_start_generation_marks_job_failed_on_exception(mock_predict):
+    mock_predict.side_effect = HTTPException(status_code=500, detail="Image generation failed")
+    seed_job("job-fail", "user-1")
+
+    await start_generation(
+        "job-fail", "a dragon", "https://example.com", "", 42, "sd-v1-5",
+        "user-1", "", "", "[]", 0, 0,
+    )
+
+    job = get_job("job-fail")
+    assert job["status"] == "failed"
+    assert job["error"] == "GenerationFailed"

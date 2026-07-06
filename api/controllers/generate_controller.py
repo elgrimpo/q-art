@@ -448,3 +448,33 @@ async def predict(
     except Exception:
         logger.error("Unexpected error in predict", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+async def start_generation(
+    job_id,
+    prompt,
+    website,
+    negative_prompt,
+    seed,
+    sd_model,
+    user_id,
+    style_prompt,
+    style_title,
+    style_loras="[]",
+    qr_weight=0,
+    style_modifier=0,
+):
+    """Fire-and-forget wrapper around predict(), run via asyncio.create_task
+    from the /api/generate/start route. Always leaves _jobs[job_id] in a
+    terminal state, even if predict() raises — otherwise an exception here
+    would just be an unretrieved asyncio task error, logged but invisible to
+    the client, which would then poll forever."""
+    try:
+        result = await predict(
+            job_id, prompt, website, negative_prompt, seed, sd_model,
+            user_id, style_prompt, style_title, style_loras, qr_weight, style_modifier,
+        )
+        _update_job(job_id, status="succeeded", percent=100, stage="finishing", result=result)
+    except Exception:
+        logger.error("Generation job %s failed", job_id, exc_info=True)
+        _update_job(job_id, status="failed", error="GenerationFailed")
