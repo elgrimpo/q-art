@@ -54,15 +54,15 @@ def _white_png_bytes():
 
 
 def _build_novita_mocks():
-    img2img_result = MagicMock()
-    img2img_result.task.task_id = "novita-task-123"
-
-    task_result = MagicMock()
-    task_result.task.status = V3TaskResponseStatus.TASK_STATUS_SUCCEED
-    task_result.extra.seed = 99
-    task_result.get_image_urls.return_value = ["http://novita.example/img.png"]
-
-    return img2img_result, task_result
+    """A single V3TaskResponse-shaped mock — client.img2img_v3() already waits
+    for task completion internally and returns the finished response, so
+    there's no separate wait_for_task_v3() result to mock."""
+    result = MagicMock()
+    result.task.task_id = "novita-task-123"
+    result.task.status = V3TaskResponseStatus.TASK_STATUS_SUCCEED
+    result.extra.seed = 99
+    result.get_image_urls.return_value = ["http://novita.example/img.png"]
+    return result
 
 
 async def _run_predict(
@@ -75,9 +75,7 @@ async def _run_predict(
     mock_increment,
 ):
     """Wire up all mocks and call predict(). Returns (result, mocks)."""
-    img2img_result, task_result = _build_novita_mocks()
-    mock_novita_client.img2img_v3.return_value = img2img_result
-    mock_novita_client.wait_for_task_v3.return_value = task_result
+    mock_novita_client.img2img_v3.return_value = _build_novita_mocks()
 
     mock_download.return_value = _white_png_bytes()
     mock_create_watermark.return_value = Image.new("RGB", (512, 512), "grey")
@@ -135,7 +133,7 @@ async def test_generate_returns_image_urls(
 @patch("api.controllers.generate_controller.create_watermark")
 @patch("api.controllers.generate_controller.download_image_bytes", new_callable=AsyncMock)
 @patch("api.controllers.generate_controller.client")
-async def test_generate_calls_novita_twice(
+async def test_generate_calls_novita_once_without_redundant_wait(
     mock_novita_client,
     mock_download,
     mock_create_watermark,
@@ -144,14 +142,19 @@ async def test_generate_calls_novita_twice(
     mock_update,
     mock_increment,
 ):
-    """client.img2img_v3 and client.wait_for_task_v3 are each called once."""
+    """client.img2img_v3 already waits for task completion internally and
+    returns the finished response, so predict() must call it exactly once and
+    must NOT call wait_for_task_v3 again itself (that was a redundant round
+    trip — img2img_v3's own call to wait_for_task_v3 is what actually
+    resolves the task)."""
     _, mocks = await _run_predict(
         mock_novita_client, mock_download, mock_create_watermark,
         mock_create_doc, mock_upload, mock_update, mock_increment,
     )
 
     mocks["client"].img2img_v3.assert_called_once()
-    mocks["client"].wait_for_task_v3.assert_called_once()
+    assert mocks["client"].img2img_v3.call_args.kwargs["download_images"] is False
+    mocks["client"].wait_for_task_v3.assert_not_called()
 
 
 @patch("api.controllers.generate_controller.increment_user_count", new_callable=AsyncMock)
@@ -197,9 +200,7 @@ async def test_generate_guest_skips_db_credit_check(
     mock_increment,
 ):
     """Guest users must use the guest_credits quota, not the users collection."""
-    img2img_result, task_result = _build_novita_mocks()
-    mock_novita_client.img2img_v3.return_value = img2img_result
-    mock_novita_client.wait_for_task_v3.return_value = task_result
+    mock_novita_client.img2img_v3.return_value = _build_novita_mocks()
     mock_guest_credits.find_one_and_update = AsyncMock(return_value={"_id": "guest_abc123", "used": 1})
     mock_download.return_value = _white_png_bytes()
     mock_create_watermark.return_value = Image.new("RGB", (512, 512), "grey")
@@ -336,15 +337,12 @@ async def test_predict_novita_failure_raises_500(
     mock_download.return_value = _white_png_bytes()
     mock_create_watermark.return_value = Image.new("RGB", (512, 512), "grey")
 
-    img2img_result = MagicMock()
-    img2img_result.task.task_id = "novita-task-fail"
-
     failed_task = MagicMock()
+    failed_task.task.task_id = "novita-task-fail"
     failed_task.task.status = V3TaskResponseStatus.TASK_STATUS_FAILED
     failed_task.task.reason = "out of memory"
 
-    mock_novita_client.img2img_v3.return_value = img2img_result
-    mock_novita_client.wait_for_task_v3.return_value = failed_task
+    mock_novita_client.img2img_v3.return_value = failed_task
 
     with pytest.raises(HTTPException) as exc_info:
         await predict(**PREDICT_KWARGS)
@@ -451,9 +449,7 @@ async def test_predict_passes_parsed_loras_to_request_builder(
     from novita_client import Img2V3ImgLoRA
 
     mock_prepare.return_value = {"model_name": "sd-v1-5"}  # trivial valid req dict
-    img2img_result, task_result = _build_novita_mocks()
-    mock_novita_client.img2img_v3.return_value = img2img_result
-    mock_novita_client.wait_for_task_v3.return_value = task_result
+    mock_novita_client.img2img_v3.return_value = _build_novita_mocks()
     mock_download.return_value = _white_png_bytes()
     mock_create_watermark.return_value = Image.new("RGB", (512, 512), "grey")
     mock_create_doc.return_value = FAKE_IMAGE_ID

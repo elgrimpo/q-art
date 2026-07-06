@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import requests as requests
 import os
 import logging
+import asyncio
 from bson import ObjectId
 import aioboto3
 from pymongo import DESCENDING, ASCENDING
@@ -37,6 +38,13 @@ images = db.get_collection("images")
 s3_bucket_name = "qrartimages"
 s3_bucket_watermarked_name = "qrartimageswatermarked"
 s3_session = aioboto3.Session()
+
+# Tried caching a single long-lived client here to skip the per-call
+# TCP+TLS handshake, but reverted: aiobotocore's connector defaults to a
+# 12s keepalive, and real generate requests land minutes apart, so the
+# pooled connection is always already dead by the next call — the client
+# then pays a failed-reuse-and-retry penalty on top of a fresh handshake,
+# which measured *slower* than just opening a new client every time.
 
 
 # ---------------------------------------------------------------------------- #
@@ -83,7 +91,7 @@ async def upload_image_to_s3(image, object_name, s3_bucket_name):
 
             # Create image_url for image doc
             image_url = f"https://{s3_bucket_name}.s3.us-west-1.amazonaws.com/{object_name}"
-        
+
         return image_url
 
     except Exception:
@@ -233,9 +241,10 @@ async def delete_image(id: str, user_id: str, is_admin: bool = False):
                 aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
                 aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
             ) as s3_client:
-                # Upload file to S3 asynchronously
-                await s3_client.delete_object(Bucket=s3_bucket_name, Key=object_name)
-                await s3_client.delete_object(Bucket=s3_bucket_watermarked_name, Key=object_name)
+                await asyncio.gather(
+                    s3_client.delete_object(Bucket=s3_bucket_name, Key=object_name),
+                    s3_client.delete_object(Bucket=s3_bucket_watermarked_name, Key=object_name),
+                )
         except Exception:
             # Handle S3 deletion error
             raise HTTPException(status_code=500, detail="S3 deletion failed")

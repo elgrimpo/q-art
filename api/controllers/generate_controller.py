@@ -17,6 +17,7 @@ from PIL import Image
 import asyncio
 import functools
 import logging
+import time
 
 # App imports
 from api.controllers.images_controller import (
@@ -95,7 +96,16 @@ async def predict(
     qr_weight: int = 0,
     style_modifier: float = 0,
 ):
+    timings = {}
+    request_start = time.perf_counter()
+
+    def mark(step_name, since):
+        timings[step_name] = round(time.perf_counter() - since, 3)
+        return time.perf_counter()
+
     try:
+        t = time.perf_counter()
+
         # --------------------------------- CHECK FUNDS ------------------------------- #
         # Handle guest users: enforce server-side quota via atomic MongoDB counter.
         if str(user_id).startswith("guest_"):
@@ -109,6 +119,8 @@ async def predict(
                 # Undo the increment so the counter stays stable at the limit.
                 await guest_credits_col.update_one({"_id": user_id}, {"$inc": {"used": -1}})
                 raise HTTPException(status_code=403, detail="Insufficient credits")
+
+        t = mark("credit_check", t)
 
         # ------------------------------ CREATE QR CODE ------------------------------ #
         qr = qrcode.QRCode(
@@ -127,6 +139,8 @@ async def predict(
         qr_image.save(buffer, format="PNG")
         buffer.seek(0)
         image_base64_str = base64.b64encode(buffer.getvalue()).decode("ascii")
+
+        t = mark("qr_code_build", t)
 
         # -------------------------- GENERATE IMAGE AND SAVE ------------------------- #
 
@@ -155,25 +169,35 @@ async def predict(
                     style_modifier=style_modifier,
                 )
 
+        t = mark("build_img2img_request", t)
+
         try:
             # Novita calls are network I/O — run in a thread pool so the event
             # loop stays free. ProcessPoolExecutor (the old approach) spawns new
             # OS processes for each request, which is expensive and unnecessary
             # for I/O-bound work (QRAI-40).
-            txt2img_result = await asyncio.to_thread(
-                functools.partial(client.img2img_v3, **req)
+            #
+            # img2img_v3() already submits, polls wait_for_task_v3() internally,
+            # and returns the finished response — calling wait_for_task_v3()
+            # again ourselves was a redundant extra round trip. download_images
+            # is set False because the client's default behavior
+            # downloads+base64-encodes every result image before returning,
+            # which we then discarded anyway since we re-download the bytes
+            # ourselves below via download_image_bytes().
+            res = await asyncio.to_thread(
+                functools.partial(client.img2img_v3, download_images=False, **req)
             )
 
-            if txt2img_result is None:
+            if res is None:
                 raise NovitaResponseError(
-                    f"Text to Image generation failed with response {txt2img_result}, code: Unknown"
+                    f"Text to Image generation failed with response {res}, code: Unknown"
                 )
 
-            task_id = txt2img_result.task.task_id
+            task_id = res.task.task_id
 
             logger.debug("Novita task id: %s", task_id)
 
-            res = await asyncio.to_thread(client.wait_for_task_v3, task_id)
+            t = mark("novita_generate", t)
 
             # Novita's response has no explicit "loras applied" field, but
             # debug_info.request_info is the request as Novita actually
@@ -204,6 +228,8 @@ async def predict(
             image_bytes = await download_image_bytes(image_url)
             generated_image = Image.open(BytesIO(image_bytes))
 
+            t = mark("image_download", t)
+
             # Score the styled image structurally. Non-fatal — a failure must
             # never block delivery.
             try:
@@ -214,6 +240,8 @@ async def predict(
             except Exception:
                 logger.warning("Scannability scoring failed", exc_info=True)
                 scannability_score = None
+
+            t = mark("structural_score", t)
 
         except Exception as generation_error:
             logger.error("Image generation failed", exc_info=True)
@@ -231,23 +259,30 @@ async def predict(
                 style_prompt,
                 style_title,
             )
+
+            t = mark("create_image_doc", t)
+
             # ---------------------------- UPLOAD IMAGES TO S3 --------------------------- #
 
             # Apply watermark to the original image
             watermarked_image = create_watermark(generated_image)
 
+            t = mark("create_watermark", t)
+
             # Create name for image files
             object_name = f"{inserted_image_id}.png"
 
-            # Upload original image to S3
-            original_image_url = await upload_image_to_s3(
-                generated_image, object_name, s3_bucket_name
+            # Upload original + watermarked images to S3 concurrently — they're
+            # independent uploads to different buckets, so there's no reason
+            # to wait on one before starting the other.
+            original_image_url, watermarked_image_url = await asyncio.gather(
+                upload_image_to_s3(generated_image, object_name, s3_bucket_name),
+                upload_image_to_s3(
+                    watermarked_image, object_name, s3_bucket_watermarked_name
+                ),
             )
 
-            # Upload watermarked image to S3
-            watermarked_image_url = await upload_image_to_s3(
-                watermarked_image, object_name, s3_bucket_watermarked_name
-            )
+            t = mark("s3_uploads", t)
 
             # Update the image document with image URLs
             updated_data = {
@@ -257,6 +292,8 @@ async def predict(
             }
 
             updated_image = await update_image(inserted_image_id, updated_data)
+
+            t = mark("update_image_doc", t)
 
         except Exception as db_error:
             logger.error("Database insertion failed", exc_info=True)
@@ -269,6 +306,11 @@ async def predict(
         except Exception:
             # Handle user count update error
             raise HTTPException(status_code=500, detail="User count update failed")
+
+        t = mark("increment_user_count", t)
+
+        timings["total"] = round(time.perf_counter() - request_start, 3)
+        logger.info("predict() step timings (seconds): %s", timings)
 
         return updated_image
 
