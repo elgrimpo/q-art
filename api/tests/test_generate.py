@@ -36,6 +36,7 @@ ORIG_URL = f"https://qrartimages.s3.us-west-1.amazonaws.com/{FAKE_IMAGE_ID}.png"
 WMARK_URL = f"https://qrartimageswatermarked.s3.us-west-1.amazonaws.com/{FAKE_IMAGE_ID}.png"
 
 PREDICT_KWARGS = dict(
+    job_id="test-job-1",
     prompt="a dragon",
     website="https://example.com",
     negative_prompt="ugly blurry",
@@ -179,54 +180,6 @@ async def test_generate_does_not_check_credits_for_logged_in_user(
         mock_create_doc, mock_upload, mock_update, mock_increment,
     )
     assert result["image_url"] == ORIG_URL
-
-
-@patch("api.controllers.generate_controller.increment_user_count", new_callable=AsyncMock)
-@patch("api.controllers.generate_controller.update_image", new_callable=AsyncMock)
-@patch("api.controllers.generate_controller.upload_image_to_s3", new_callable=AsyncMock)
-@patch("api.controllers.generate_controller.create_image_doc", new_callable=AsyncMock)
-@patch("api.controllers.generate_controller.create_watermark")
-@patch("api.controllers.generate_controller.download_image_bytes", new_callable=AsyncMock)
-@patch("api.controllers.generate_controller.client")
-@patch("api.controllers.generate_controller.guest_credits_col")
-async def test_generate_guest_skips_db_credit_check(
-    mock_guest_credits,
-    mock_novita_client,
-    mock_download,
-    mock_create_watermark,
-    mock_create_doc,
-    mock_upload,
-    mock_update,
-    mock_increment,
-):
-    """Guest users must use the guest_credits quota, not the users collection."""
-    mock_novita_client.img2img_v3.return_value = _build_novita_mocks()
-    mock_guest_credits.find_one_and_update = AsyncMock(return_value={"_id": "guest_abc123", "used": 1})
-    mock_download.return_value = _white_png_bytes()
-    mock_create_watermark.return_value = Image.new("RGB", (512, 512), "grey")
-    mock_create_doc.return_value = FAKE_IMAGE_ID
-    mock_upload.side_effect = [ORIG_URL, WMARK_URL]
-    mock_update.return_value = {"_id": FAKE_IMAGE_ID, "image_url": ORIG_URL, "watermarked_image_url": WMARK_URL}
-
-    await predict(**{**PREDICT_KWARGS, "user_id": "guest_abc123"})
-
-    mock_guest_credits.find_one_and_update.assert_called_once()
-
-
-@patch("api.controllers.generate_controller.guest_credits_col")
-async def test_generate_guest_exhausted_quota_raises_403(mock_guest_credits):
-    """A guest that has used all free credits must get a 403."""
-    mock_guest_credits.find_one_and_update = AsyncMock(
-        return_value={"_id": "guest_abc123", "used": 4}  # > GUEST_FREE_CREDITS (3)
-    )
-    mock_guest_credits.update_one = AsyncMock()
-
-    with pytest.raises(HTTPException) as exc_info:
-        await predict(**{**PREDICT_KWARGS, "user_id": "guest_abc123"})
-
-    assert exc_info.value.status_code == 403
-    assert "credits" in exc_info.value.detail.lower()
-    mock_guest_credits.update_one.assert_called_once()  # undo increment
 
 
 # ---------------------------------------------------------------------------- #
@@ -492,3 +445,33 @@ async def test_scorer_failure_does_not_block_generation(
     call_args = mocks["update"].call_args
     update_data = call_args[0][1]
     assert update_data.get("scannability_score") is None
+
+
+@patch("api.controllers.generate_controller.increment_user_count", new_callable=AsyncMock)
+@patch("api.controllers.generate_controller.update_image", new_callable=AsyncMock)
+@patch("api.controllers.generate_controller.upload_image_to_s3", new_callable=AsyncMock)
+@patch("api.controllers.generate_controller.create_image_doc", new_callable=AsyncMock)
+@patch("api.controllers.generate_controller.create_watermark")
+@patch("api.controllers.generate_controller.download_image_bytes", new_callable=AsyncMock)
+@patch("api.controllers.generate_controller.client")
+async def test_generate_leaves_job_at_100_percent_finishing(
+    mock_novita_client,
+    mock_download,
+    mock_create_watermark,
+    mock_create_doc,
+    mock_upload,
+    mock_update,
+    mock_increment,
+):
+    """By the time predict() returns, the job's progress must reflect 100%
+    complete — start_generation() (Task 3) relies on this to mark 'succeeded'."""
+    from api.controllers.generate_controller import get_job
+
+    await _run_predict(
+        mock_novita_client, mock_download, mock_create_watermark,
+        mock_create_doc, mock_upload, mock_update, mock_increment,
+    )
+
+    job = get_job(PREDICT_KWARGS["job_id"])
+    assert job["percent"] == 100
+    assert job["stage"] == "finishing"

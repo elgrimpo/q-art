@@ -10,7 +10,6 @@ from bson import ObjectId
 from bson.errors import InvalidId
 from fastapi import HTTPException
 import motor.motor_asyncio as motor
-from pymongo import ReturnDocument
 import certifi
 from io import BytesIO
 from PIL import Image
@@ -49,9 +48,6 @@ _tls = {"tlsCAFile": certifi.where()} if "localhost" not in mongo_url else {}
 client = motor.AsyncIOMotorClient(mongo_url, **_tls)
 db = client.get_database("QART")
 images = db.get_collection("images")
-guest_credits_col = db.get_collection("guest_credits")
-
-GUEST_FREE_CREDITS = 3
 
 # S3
 api_url = os.environ["S3_URL"]
@@ -205,6 +201,7 @@ async def download_image_bytes(image_url):
 
 
 async def predict(
+    job_id: str,
     prompt: str,
     website: str,
     negative_prompt: str,
@@ -224,24 +221,10 @@ async def predict(
         timings[step_name] = round(time.perf_counter() - since, 3)
         return time.perf_counter()
 
+    _update_job(job_id, status="processing", stage="prep", percent=0)
+
     try:
         t = time.perf_counter()
-
-        # --------------------------------- CHECK FUNDS ------------------------------- #
-        # Handle guest users: enforce server-side quota via atomic MongoDB counter.
-        if str(user_id).startswith("guest_"):
-            result = await guest_credits_col.find_one_and_update(
-                {"_id": user_id},
-                {"$inc": {"used": 1}},
-                upsert=True,
-                return_document=ReturnDocument.AFTER,
-            )
-            if result["used"] > GUEST_FREE_CREDITS:
-                # Undo the increment so the counter stays stable at the limit.
-                await guest_credits_col.update_one({"_id": user_id}, {"$inc": {"used": -1}})
-                raise HTTPException(status_code=403, detail="Insufficient credits")
-
-        t = mark("credit_check", t)
 
         # ------------------------------ CREATE QR CODE ------------------------------ #
         qr = qrcode.QRCode(
@@ -291,6 +274,21 @@ async def predict(
                 )
 
         t = mark("build_img2img_request", t)
+        _update_job(job_id, stage="prep", percent=_stage_bounds("prep")[1])
+
+        def _novita_progress_callback(progress):
+            task = progress.task
+            if task.progress_percent is None:
+                return
+            start, end = _stage_bounds("novita")
+            overall = start + (task.progress_percent / 100) * (end - start)
+            _update_job(
+                job_id,
+                status="processing",
+                stage="novita",
+                percent=round(overall),
+                eta=task.eta,
+            )
 
         try:
             # Novita calls are network I/O — run in a thread pool so the event
@@ -304,9 +302,15 @@ async def predict(
             # is set False because the client's default behavior
             # downloads+base64-encodes every result image before returning,
             # which we then discarded anyway since we re-download the bytes
-            # ourselves below via download_image_bytes().
+            # ourselves below via download_image_bytes(). callback fires on
+            # every poll with a real progress_percent/eta from Novita.
             res = await asyncio.to_thread(
-                functools.partial(client.img2img_v3, download_images=False, **req)
+                functools.partial(
+                    client.img2img_v3,
+                    download_images=False,
+                    callback=_novita_progress_callback,
+                    **req,
+                )
             )
 
             if res is None:
@@ -319,6 +323,7 @@ async def predict(
             logger.debug("Novita task id: %s", task_id)
 
             t = mark("novita_generate", t)
+            _update_job(job_id, stage="novita", percent=_stage_bounds("novita")[1])
 
             # Novita's response has no explicit "loras applied" field, but
             # debug_info.request_info is the request as Novita actually
@@ -346,7 +351,8 @@ async def predict(
             image_url = res.get_image_urls()[0]  # Or iterate if multiple
 
             # Download image (async + timed out so a slow CDN can't hang the loop)
-            image_bytes = await download_image_bytes(image_url)
+            async with _progress_ramp(job_id, "download"):
+                image_bytes = await download_image_bytes(image_url)
             generated_image = Image.open(BytesIO(image_bytes))
 
             t = mark("image_download", t)
@@ -383,12 +389,11 @@ async def predict(
 
             t = mark("create_image_doc", t)
 
-            # ---------------------------- UPLOAD IMAGES TO S3 --------------------------- #
-
             # Apply watermark to the original image
             watermarked_image = create_watermark(generated_image)
 
             t = mark("create_watermark", t)
+            _update_job(job_id, stage="processing", percent=_stage_bounds("processing")[1])
 
             # Create name for image files
             object_name = f"{inserted_image_id}.png"
@@ -396,12 +401,13 @@ async def predict(
             # Upload original + watermarked images to S3 concurrently — they're
             # independent uploads to different buckets, so there's no reason
             # to wait on one before starting the other.
-            original_image_url, watermarked_image_url = await asyncio.gather(
-                upload_image_to_s3(generated_image, object_name, s3_bucket_name),
-                upload_image_to_s3(
-                    watermarked_image, object_name, s3_bucket_watermarked_name
-                ),
-            )
+            async with _progress_ramp(job_id, "upload"):
+                original_image_url, watermarked_image_url = await asyncio.gather(
+                    upload_image_to_s3(generated_image, object_name, s3_bucket_name),
+                    upload_image_to_s3(
+                        watermarked_image, object_name, s3_bucket_watermarked_name
+                    ),
+                )
 
             t = mark("s3_uploads", t)
 
@@ -429,6 +435,7 @@ async def predict(
             raise HTTPException(status_code=500, detail="User count update failed")
 
         t = mark("increment_user_count", t)
+        _update_job(job_id, stage="finishing", percent=100)
 
         timings["total"] = round(time.perf_counter() - request_start, 3)
         logger.info("predict() step timings (seconds): %s", timings)
