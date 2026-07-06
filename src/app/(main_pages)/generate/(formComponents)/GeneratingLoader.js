@@ -6,7 +6,8 @@ import {
   const GIF_URL =
     "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExNXd0ZmY4N3VweW54ejIwN29yaGQxcmdtOWh5aGZuMG1wZW5mdHprYyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/R8dDMt8IgVvhK/giphy.gif";
 
-  const GeneratingLoader = ({ fill = false }) => {
+  const GeneratingLoader = ({ fill = false, percent = 0 }) => {
+    const clampedPercent = Math.max(0, Math.min(100, percent));
 
     return (
         <Box
@@ -48,6 +49,19 @@ import {
             He's slow so give him a minute!
           </Typography>
         </Box>
+        <Box
+          data-testid="generation-progress-bar"
+          sx={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            height: "3px",
+            width: `${clampedPercent}%`,
+            backgroundColor: "primary.main",
+            boxShadow: (theme) => `0 0 8px 1px ${theme.palette.primary.main}`,
+            transition: "width 0.3s ease-out",
+          }}
+        />
       </Box>
     );
   };
