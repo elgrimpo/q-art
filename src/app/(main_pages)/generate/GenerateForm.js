@@ -11,7 +11,7 @@ import { useStore } from "@/store";
 import SimpleDialog from "@/_components/SimpleDialog";
 import GenerationFormFields from "./(formComponents)/GenerationFormFields";
 import GeneratingLoader from "./(formComponents)/GeneratingLoader";
-import { generateImage } from "@/_utils/ImagesUtils";
+import { startGeneration, getGenerationProgress } from "@/_utils/ImagesUtils";
 import { selectRandomStyle } from "@/_utils/ImageStyles";
 
 function nextGenerationNumber() {
@@ -45,6 +45,14 @@ function GenerateForm() {
   const [dialogContent, setDialogContent] = useState({});
   const [dialogOpen, setDialogOpen] = useState(false);
   const [submitDisabled, setSubmitDisabled] = useState(true);
+  const [percent, setPercent] = useState(0);
+  const pollTimerRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
+    };
+  }, []);
 
   // Measure the form box's natural height while it's showing the fields, so
   // switching into the loading state can lock to that height instead of
@@ -125,8 +133,41 @@ function GenerateForm() {
     }
   };
 
+  const pollUntilDone = (jobId) => {
+    const startedAt = Date.now();
+    return new Promise((resolve, reject) => {
+      let failedAttempts = 0;
+      const tick = () => {
+        getGenerationProgress(jobId)
+          .then((progress) => {
+            failedAttempts = 0;
+            setPercent(progress.percent ?? 0);
+            if (progress.status === "succeeded") {
+              resolve(progress.result);
+            } else if (progress.status === "failed") {
+              reject(new Error(progress.error || "GenerationFailed"));
+            } else if (Date.now() - startedAt > 120000) {
+              reject(new Error("GenerationFailed"));
+            } else {
+              pollTimerRef.current = setTimeout(tick, 1200);
+            }
+          })
+          .catch((error) => {
+            failedAttempts += 1;
+            if (failedAttempts > 3) {
+              reject(error);
+              return;
+            }
+            pollTimerRef.current = setTimeout(tick, 1200);
+          });
+      };
+      tick();
+    });
+  };
+
   const handleGenerate = async () => {
     setGeneratingImage(true);
+    setPercent(0);
     try {
       const generationNumber = nextGenerationNumber();
       amplitude.track("Generate Image", {
@@ -153,7 +194,8 @@ function GenerateForm() {
         };
       }
 
-      const image = await generateImage(generateForm, user);
+      const { job_id } = await startGeneration(generateForm, user);
+      const image = await pollUntilDone(job_id);
       setGeneratingImage(false);
       openAlert("success", "Image generated successfully!");
 
@@ -196,7 +238,7 @@ function GenerateForm() {
         }}
       >
         {generatingImage ? (
-          <GeneratingLoader fill={Boolean(formHeight)} />
+          <GeneratingLoader fill={Boolean(formHeight)} percent={percent} />
         ) : (
           <Box sx={{ width: "100%" }}>
             <GenerationFormFields

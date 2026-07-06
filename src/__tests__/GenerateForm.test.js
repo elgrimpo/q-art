@@ -8,14 +8,25 @@
  *   events and test disabled/enabled state of the Generate button.
  * - The Zustand store (useStore) is real; we reset it between tests via
  *   useStore.setState so each test starts from a known state.
- * - generateImage is mocked at the module level because ImagesUtils is a
- *   "use server" file with server-only imports (next/cache, next/navigation).
+ * - startGeneration/getGenerationProgress are mocked at the module level
+ *   because ImagesUtils is a "use server" file with server-only imports
+ *   (next/cache, next/navigation).
  */
 
 import React from 'react'
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import * as amplitude from '@amplitude/analytics-browser'
+
+// GenerateForm measures its form box via ResizeObserver (to lock the
+// container's height while showing the loader); jsdom doesn't implement it.
+global.ResizeObserver =
+  global.ResizeObserver ||
+  class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  }
 
 // ---- Next.js / auth mocks (must come before component import) ----
 const mockPush = jest.fn()
@@ -36,9 +47,11 @@ jest.mock('next-auth/react', () => ({
 jest.mock('@amplitude/analytics-browser', () => ({ track: jest.fn() }))
 
 // ---- ImagesUtils (server action — mock the whole module) ----
-const mockGenerateImage = jest.fn()
+const mockStartGeneration = jest.fn()
+const mockGetGenerationProgress = jest.fn()
 jest.mock('../_utils/ImagesUtils', () => ({
-  generateImage: (...args) => mockGenerateImage(...args),
+  startGeneration: (...args) => mockStartGeneration(...args),
+  getGenerationProgress: (...args) => mockGetGenerationProgress(...args),
   getImages: jest.fn(),
   getImageById: jest.fn(),
   deleteImage: jest.fn(),
@@ -53,7 +66,7 @@ jest.mock('../app/(main_pages)/generate/(formComponents)/StylesModal', () => ({
 }))
 jest.mock('../app/(main_pages)/generate/(formComponents)/GeneratingLoader', () => ({
   __esModule: true,
-  default: () => <div data-testid="generating-loader" />,
+  default: ({ percent }) => <div data-testid="generating-loader" data-percent={percent} />,
 }))
 
 // ---- Import component and store AFTER mocks are set ----
@@ -64,22 +77,16 @@ import GenerateForm from '../app/(main_pages)/generate/GenerateForm'
 /*                               HELPERS                                       */
 /* -------------------------------------------------------------------------- */
 
-/**
- * Helper to find the main Generate submit button (aria-label="generate").
- * We use getByLabelText on the exact aria-label to avoid matching the
- * "Generate random prompt" dice icon button inside UrlPrompt.
- */
 function getGenerateBtn() {
   return screen.getByRole('button', { name: 'generate' })
 }
 
-/** Reset Zustand store to a clean state before each test */
 function resetStore(overrides = {}) {
   useStore.setState({
     user: { id: 'user_123', is_guest: false },
     generateFormValues: {
       website: '',
-      prompt: 'a random prompt', // non-empty so button enables when website is filled
+      prompt: 'a random prompt',
       style_id: 1,
       style_title: 'Random',
       style_prompt: '',
@@ -94,8 +101,11 @@ function resetStore(overrides = {}) {
   })
 }
 
-// Suppress expected console.error calls from the component's own error handler
-// (e.g. handleGenerate logs before branching on error.message).
+/** A resolved progress response that immediately ends the poll loop. */
+function succeeded(result) {
+  return { status: 'succeeded', percent: 100, stage: 'finishing', eta: null, result }
+}
+
 beforeAll(() => {
   jest.spyOn(console, 'error').mockImplementation(() => {})
 })
@@ -106,7 +116,8 @@ afterAll(() => {
 beforeEach(() => {
   resetStore()
   mockPush.mockClear()
-  mockGenerateImage.mockReset()
+  mockStartGeneration.mockReset()
+  mockGetGenerationProgress.mockReset()
   window.sessionStorage.clear()
   amplitude.track.mockClear()
 })
@@ -120,17 +131,13 @@ describe('GenerateForm', () => {
   test('renders website input, prompt input, and generate button', () => {
     render(<GenerateForm />)
 
-    // Website field: TextField with id="website"
     expect(screen.getByRole('textbox', { name: /website/i })).toBeInTheDocument()
-    // Prompt field: TextField with id="prompt"
     expect(screen.getByRole('textbox', { name: /prompt/i })).toBeInTheDocument()
-    // Generate button: has aria-label="generate"
     expect(getGenerateBtn()).toBeInTheDocument()
   })
 
   // ---- 2. Generate button disabled when website is empty ----
   test('generate button is disabled when website is empty', () => {
-    // Store default has website: ''
     render(<GenerateForm />)
     const btn = getGenerateBtn()
     expect(btn).toBeDisabled()
@@ -145,19 +152,16 @@ describe('GenerateForm', () => {
       fireEvent.change(websiteInput, { target: { name: 'website', value: 'example.com' } })
     })
 
-    // The useEffect watches generateFormValues — after the change the store
-    // should have website='example.com' and prompt is already non-empty.
     await waitFor(() => {
       expect(getGenerateBtn()).not.toBeDisabled()
     })
   })
 
-  // ---- 4. Calls generateImage on click (happy path) ----
-  test('calls generateImage with form values on generate click', async () => {
-    const fakeImage = { _id: 'img_abc' }
-    mockGenerateImage.mockResolvedValueOnce(fakeImage)
+  // ---- 4. Calls startGeneration on click, polls once, then navigates (happy path) ----
+  test('calls startGeneration with form values on generate click', async () => {
+    mockStartGeneration.mockResolvedValueOnce({ job_id: 'job-1' })
+    mockGetGenerationProgress.mockResolvedValueOnce(succeeded({ _id: 'img_abc' }))
 
-    // Pre-fill store with both website and prompt so button is enabled
     resetStore({
       generateFormValues: {
         website: 'example.com',
@@ -180,13 +184,16 @@ describe('GenerateForm', () => {
     })
 
     await waitFor(() => {
-      expect(mockGenerateImage).toHaveBeenCalledTimes(1)
+      expect(mockStartGeneration).toHaveBeenCalledTimes(1)
     })
 
-    // First arg to generateImage should contain the form values
-    const [formArg] = mockGenerateImage.mock.calls[0]
+    const [formArg] = mockStartGeneration.mock.calls[0]
     expect(formArg.website).toBe('example.com')
     expect(formArg.prompt).toBe('a dragon')
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/images/img_abc?justGenerated=true')
+    })
   })
 
   // ---- 5. Shows generating loader when generatingImage is true ----
@@ -195,17 +202,15 @@ describe('GenerateForm', () => {
     render(<GenerateForm />)
 
     expect(screen.getByTestId('generating-loader')).toBeInTheDocument()
-    // The form inputs should not be visible
     expect(screen.queryByRole('textbox', { name: /website/i })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'generate' })).not.toBeInTheDocument()
   })
 
   // ---- 6. Logged-in users have no client-side credit gate — generation proceeds ----
-  test('calls generateImage even when logged-in user has no credits field', async () => {
-    const fakeImage = { _id: 'img_abc' }
-    mockGenerateImage.mockResolvedValueOnce(fakeImage)
+  test('calls startGeneration even when logged-in user has no credits field', async () => {
+    mockStartGeneration.mockResolvedValueOnce({ job_id: 'job-2' })
+    mockGetGenerationProgress.mockResolvedValueOnce(succeeded({ _id: 'img_abc' }))
 
-    // No credits field on user — logged-in users are no longer credit-gated on the frontend
     resetStore({
       user: { id: 'user_123', is_guest: false },
       generateFormValues: {
@@ -228,13 +233,13 @@ describe('GenerateForm', () => {
     })
 
     await waitFor(() => {
-      expect(mockGenerateImage).toHaveBeenCalledTimes(1)
+      expect(mockStartGeneration).toHaveBeenCalledTimes(1)
     })
   })
 
   // ---- 7. Shows "Sign in to keep going" dialog when backend rejects with InsufficientCredits error ----
   test('shows "Sign in to keep going" dialog when backend rejects with InsufficientCredits error', async () => {
-    mockGenerateImage.mockRejectedValueOnce(new Error('InsufficientCredits'))
+    mockStartGeneration.mockRejectedValueOnce(new Error('InsufficientCredits'))
 
     resetStore({
       generateFormValues: {
@@ -261,7 +266,46 @@ describe('GenerateForm', () => {
     })
   })
 
-  // ---- 8 & 9. Regeneration props on Generate Image event ----
+  // ---- 8. Progress percent reaches the loader across multiple polls ----
+  test('updates the loader percent as progress polls come back, then navigates on success', async () => {
+    mockStartGeneration.mockResolvedValueOnce({ job_id: 'job-3' })
+    mockGetGenerationProgress
+      .mockResolvedValueOnce({ status: 'processing', percent: 20, stage: 'novita', eta: 5 })
+      .mockResolvedValueOnce(succeeded({ _id: 'img_abc' }))
+
+    resetStore({
+      generateFormValues: {
+        website: 'example.com',
+        prompt: 'a dragon',
+        style_id: 2,
+        style_title: 'Anime',
+        style_prompt: 'anime style',
+        qr_weight: 0.0,
+        negative_prompt: '',
+        seed: -1,
+        sd_model: 'cyberrealistic_v40_151857.safetensors',
+      },
+    })
+
+    render(<GenerateForm />)
+
+    await act(async () => {
+      fireEvent.click(getGenerateBtn())
+    })
+
+    await waitFor(() => {
+      expect(screen.getByTestId('generating-loader').dataset.percent).toBe('20')
+    })
+
+    // Real ~1.2s poll interval — wait past it so the second (final) poll fires.
+    await new Promise((resolve) => setTimeout(resolve, 1300))
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/images/img_abc?justGenerated=true')
+    })
+  }, 10000)
+
+  // ---- 9 & 10. Regeneration props on Generate Image event ----
 
   function getGenerateImageProps() {
     const call = amplitude.track.mock.calls.find((c) => c[0] === 'Generate Image')
@@ -279,7 +323,8 @@ describe('GenerateForm', () => {
   }
 
   test('first generation tags the event as generation_number 1 / is_first_generation true', async () => {
-    mockGenerateImage.mockResolvedValueOnce({ _id: 'img_abc' })
+    mockStartGeneration.mockResolvedValueOnce({ job_id: 'job-4' })
+    mockGetGenerationProgress.mockResolvedValueOnce(succeeded({ _id: 'img_abc' }))
     fillForm()
     render(<GenerateForm />)
 
@@ -292,7 +337,8 @@ describe('GenerateForm', () => {
 
   test('a repeat generation in the same session increments generation_number', async () => {
     window.sessionStorage.setItem('qrai_generation_count', '1')
-    mockGenerateImage.mockResolvedValueOnce({ _id: 'img_def' })
+    mockStartGeneration.mockResolvedValueOnce({ job_id: 'job-5' })
+    mockGetGenerationProgress.mockResolvedValueOnce(succeeded({ _id: 'img_def' }))
     fillForm()
     render(<GenerateForm />)
 
