@@ -83,7 +83,7 @@ export const generateImage = async (generateFormValues, user) => {
     const payload = {
       ...rest,
       qr_weight: Math.round(Number(generateFormValues.qr_weight) || 0),
-      style_modifier: Math.round(Number(generateFormValues.style_modifier) || 0),
+      style_modifier: Number(generateFormValues.style_modifier) || 0,
       style_loras: JSON.stringify(loras ?? []),
     };
     const queryParams = new URLSearchParams(payload);

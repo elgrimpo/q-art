@@ -93,7 +93,7 @@ async def predict(
     style_title: str,
     style_loras: str = "[]",
     qr_weight: int = 0,
-    style_modifier: int = 0,
+    style_modifier: float = 0,
 ):
     try:
         # --------------------------------- CHECK FUNDS ------------------------------- #

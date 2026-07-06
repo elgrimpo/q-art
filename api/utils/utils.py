@@ -120,7 +120,7 @@ def prepare_img2img_request(
     qr_weight,
     style_prompt,
     loras=None,
-    style_modifier: int = 0,
+    style_modifier: float = 0,
 ):
     if len(prompt.split()) < SHORT_PROMPT_THRESHOLD:
         prompt = prompt + ", " + QUALITY_SUFFIX
