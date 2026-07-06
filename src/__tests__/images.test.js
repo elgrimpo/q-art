@@ -36,12 +36,18 @@ describe('generateImage', () => {
     await expect(generateImage(FAKE_FORM, FAKE_USER)).rejects.toThrow('InsufficientCredits')
   })
 
+  // generateImage now polls to completion (POST /start, then GET /progress
+  // until status is "succeeded"/"failed") instead of a single fetch, so
+  // these tests queue a second mocked response for the progress poll.
+  function mockSucceeds(result, jobId = 'job_1') {
+    fetch
+      .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ job_id: jobId }) })
+      .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ status: 'succeeded', result }) })
+  }
+
   test('resolves with image data on success', async () => {
     const fakeImage = { _id: 'img_123', image_url: 'https://s3.example/img.png' }
-    fetch.mockResolvedValueOnce({
-      ok: true,
-      json: () => Promise.resolve(fakeImage),
-    })
+    mockSucceeds(fakeImage)
 
     const result = await generateImage(FAKE_FORM, FAKE_USER)
     expect(result).toEqual(fakeImage)
@@ -54,17 +60,14 @@ describe('generateImage', () => {
   })
 
   test('does not reject for an unrelated detail field', async () => {
-    fetch.mockResolvedValueOnce({
-      ok: true,
-      json: () => Promise.resolve({ detail: 'Some other error', _id: 'img_456' }),
-    })
+    mockSucceeds({ _id: 'img_456' })
 
     // A detail that is not exactly "Insufficient credits" must resolve, not reject
     await expect(generateImage(FAKE_FORM, FAKE_USER)).resolves.toBeDefined()
   })
 
   test('attaches Authorization header and omits user_id from query', async () => {
-    fetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ _id: 'img_1' }) })
+    mockSucceeds({ _id: 'img_1' })
     await generateImage(FAKE_FORM, FAKE_USER)
     const [url, opts] = fetch.mock.calls[0]
     expect(opts.headers.Authorization).toBe('Bearer test-token')
@@ -74,7 +77,7 @@ describe('generateImage', () => {
   // qr_weight is sent to the backend as-is (rounded), on the same -2..+2
   // scale the slider exposes — no translation (QRAI-135/136).
   test('rounds qr_weight to the nearest integer before sending', async () => {
-    fetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ _id: 'img_1' }) })
+    mockSucceeds({ _id: 'img_1' })
     await generateImage({ ...FAKE_FORM, qr_weight: 1.6 }, FAKE_USER)
     const [url] = fetch.mock.calls[0]
     const sent = new URL(url).searchParams.get('qr_weight')
@@ -82,28 +85,28 @@ describe('generateImage', () => {
   })
 
   test('defaults qr_weight to 0 when the form value is missing', async () => {
-    fetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ _id: 'img_1' }) })
+    mockSucceeds({ _id: 'img_1' })
     await generateImage(FAKE_FORM, FAKE_USER)
     const [url] = fetch.mock.calls[0]
     expect(new URL(url).searchParams.get('qr_weight')).toBe('0')
   })
 
   test('sends the style_modifier value from the form', async () => {
-    fetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ _id: 'img_1' }) })
+    mockSucceeds({ _id: 'img_1' })
     await generateImage({ ...FAKE_FORM, style_modifier: -1 }, FAKE_USER)
     const [url] = fetch.mock.calls[0]
     expect(new URL(url).searchParams.get('style_modifier')).toBe('-1')
   })
 
   test('defaults style_modifier to 0 when the form value is missing', async () => {
-    fetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ _id: 'img_1' }) })
+    mockSucceeds({ _id: 'img_1' })
     await generateImage(FAKE_FORM, FAKE_USER)
     const [url] = fetch.mock.calls[0]
     expect(new URL(url).searchParams.get('style_modifier')).toBe('0')
   })
 
   test('serializes loras into a style_loras JSON query param', async () => {
-    fetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ _id: 'img_1' }) })
+    mockSucceeds({ _id: 'img_1' })
     const form = { ...FAKE_FORM, loras: [{ model_name: 'LAS_17554', strength: 0.7 }] }
     await generateImage(form, FAKE_USER)
     const [url] = fetch.mock.calls[0]
@@ -116,7 +119,7 @@ describe('generateImage', () => {
   })
 
   test('sends style_loras="[]" when the form has no loras', async () => {
-    fetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ _id: 'img_1' }) })
+    mockSucceeds({ _id: 'img_1' })
     await generateImage(FAKE_FORM, FAKE_USER)
     const [url] = fetch.mock.calls[0]
     expect(new URL(url).searchParams.get('style_loras')).toBe('[]')
