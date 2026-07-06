@@ -178,19 +178,16 @@ async def test_post_user_auth_returns_422_for_missing_fields():
 #                             GENERATE ROUTES                                  #
 # ---------------------------------------------------------------------------- #
 
-async def test_get_generate_returns_422_for_missing_params():
-    """All generate params are required; calling without them (and without auth) must return 401."""
+async def test_generate_start_requires_auth():
+    """POST /api/generate/start must return 401 with no token (auth fires before param validation)."""
     async with _client() as client:
-        response = await client.get("/api/generate")
+        response = await client.post("/api/generate/start")
 
-    # Auth dependency fires before param validation — 401, not 422
     assert response.status_code == 401
 
 
-@patch("api.main.predict", new_callable=AsyncMock)
-async def test_get_generate_returns_200_with_all_params(mock_predict):
-    mock_predict.return_value = {"image_url": "https://example.com/img.png"}
-
+@patch("api.main.start_generation", new_callable=AsyncMock)
+async def test_generate_start_returns_job_id(mock_start_generation):
     params = {
         "prompt": "a dragon",
         "website": "https://example.com",
@@ -202,9 +199,56 @@ async def test_get_generate_returns_200_with_all_params(mock_predict):
         "style_title": "Cinematic",
     }
     async with _client() as client:
-        response = await client.get("/api/generate", params=params, headers=_guest_auth_headers())
+        response = await client.post("/api/generate/start", params=params, headers=_guest_auth_headers())
 
     assert response.status_code == 200
+    body = response.json()
+    assert isinstance(body.get("job_id"), str) and body["job_id"]
+
+
+# ---------------------------------------------------------------------------- #
+#                          GENERATION PROGRESS ROUTE                           #
+# ---------------------------------------------------------------------------- #
+
+async def test_generate_progress_requires_auth():
+    """GET /api/generate/progress/:id must return 401 with no token."""
+    async with _client() as client:
+        response = await client.get("/api/generate/progress/job-abc")
+    assert response.status_code == 401
+
+
+@patch("api.main.get_job")
+async def test_generate_progress_returns_job_status(mock_get_job):
+    mock_get_job.return_value = {
+        "user_id": "guest_test", "status": "processing", "percent": 42,
+        "stage": "novita", "eta": 5, "result": None, "error": None,
+    }
+    async with _client() as client:
+        response = await client.get("/api/generate/progress/job-abc", headers=_guest_auth_headers())
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["percent"] == 42
+    assert body["stage"] == "novita"
+
+
+@patch("api.main.get_job")
+async def test_generate_progress_404_for_unknown_job(mock_get_job):
+    mock_get_job.return_value = None
+    async with _client() as client:
+        response = await client.get("/api/generate/progress/does-not-exist", headers=_guest_auth_headers())
+    assert response.status_code == 404
+
+
+@patch("api.main.get_job")
+async def test_generate_progress_403_for_other_users_job(mock_get_job):
+    mock_get_job.return_value = {
+        "user_id": "someone_else", "status": "processing", "percent": 10,
+        "stage": "prep", "eta": None, "result": None, "error": None,
+    }
+    async with _client() as client:
+        response = await client.get("/api/generate/progress/job-abc", headers=_guest_auth_headers())
+    assert response.status_code == 403
 
 
 # ---------------------------------------------------------------------------- #

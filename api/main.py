@@ -1,5 +1,5 @@
 # Libraries Import
-from fastapi import FastAPI, Header, Depends, Query
+from fastapi import FastAPI, Header, Depends, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import requests as requests
 from dotenv import load_dotenv
@@ -10,8 +10,10 @@ from starlette.requests import Request
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
+import asyncio
 import logging
 import os
+import uuid
 
 logging.basicConfig(
     level=logging.INFO,
@@ -20,7 +22,7 @@ logging.basicConfig(
 
 # App imports
 from api.controllers.images_controller import get_images, get_image, toggle_like, delete_image, toggle_featured
-from api.controllers.generate_controller import predict
+from api.controllers.generate_controller import seed_job, start_generation, get_job, sweep_old_jobs
 from api.controllers.users_controller import get_user_info, authenticate_user
 from api.controllers.login_code_controller import request_login_code, verify_login_code
 from api.controllers.payment_controller import create_unlock_checkout_session, stripe_webhook
@@ -98,10 +100,10 @@ async def verify_code_endpoint(body: LoginCodeVerify, _: None = Depends(require_
 
 # ------------------------------ GENERATE ROUTES ----------------------------- #
 
-# GENERATE IMAGE
-@app.get("/api/generate")
+# START GENERATION (returns immediately; runs predict() in the background)
+@app.post("/api/generate/start")
 @limiter.limit("20/hour")
-async def generate_endpoint(
+async def generate_start_endpoint(
     request: Request,
     website: Annotated[str, Query(min_length=1, max_length=2048)],
     sd_model: Annotated[str, Query(min_length=1, max_length=200)],
@@ -115,19 +117,42 @@ async def generate_endpoint(
     style_modifier: Annotated[float, Query(ge=-2, le=2)] = 0,
     current_user: dict = Depends(get_current_user),
 ):
-    return await predict(
-        prompt,
-        website,
-        negative_prompt,
-        seed,
-        sd_model,
-        current_user["user_id"],
-        style_prompt,
-        style_title,
-        style_loras,
-        qr_weight,
-        style_modifier,
-    )
+    sweep_old_jobs()
+    job_id = str(uuid.uuid4())
+    seed_job(job_id, current_user["user_id"])
+    asyncio.create_task(start_generation(
+        job_id, prompt, website, negative_prompt, seed, sd_model,
+        current_user["user_id"], style_prompt, style_title, style_loras,
+        qr_weight, style_modifier,
+    ))
+    return {"job_id": job_id}
+
+
+# GENERATION PROGRESS
+@app.get("/api/generate/progress/{job_id}")
+@limiter.limit("120/minute")
+async def generate_progress_endpoint(
+    request: Request,
+    job_id: str,
+    current_user: dict = Depends(get_current_user),
+):
+    job = get_job(job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="Job not found")
+    if job["user_id"] != current_user["user_id"]:
+        raise HTTPException(status_code=403, detail="Not your job")
+
+    response = {
+        "status": job["status"],
+        "percent": job["percent"],
+        "stage": job["stage"],
+        "eta": job["eta"],
+    }
+    if job["status"] == "succeeded":
+        response["result"] = job["result"]
+    elif job["status"] == "failed":
+        response["error"] = job["error"]
+    return response
 
 # ------------------------------- IMAGE ROUTES ------------------------------- #
 

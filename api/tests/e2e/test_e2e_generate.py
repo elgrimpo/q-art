@@ -8,6 +8,7 @@ It cleans up after itself, but interrupting it mid-run will leave orphaned recor
 """
 import os
 import time
+import asyncio
 import httpx
 import pytest
 from api.main import app
@@ -34,6 +35,21 @@ def _client():
     )
 
 
+async def _await_generation(client, job_id, headers, timeout_seconds=180.0):
+    """Poll /api/generate/progress/:id until the job reaches a terminal state."""
+    deadline = time.monotonic() + timeout_seconds
+    while time.monotonic() < deadline:
+        resp = await client.get(f"/api/generate/progress/{job_id}", headers=headers, timeout=30.0)
+        assert resp.status_code == 200, f"Progress endpoint returned {resp.status_code}: {resp.text[:500]}"
+        progress = resp.json()
+        if progress["status"] == "succeeded":
+            return progress["result"]
+        if progress["status"] == "failed":
+            raise AssertionError(f"Generation job failed: {progress.get('error')}")
+        await asyncio.sleep(1.5)
+    raise AssertionError(f"Generation job {job_id} did not complete within {timeout_seconds}s")
+
+
 @pytest.mark.e2e
 @pytest.mark.novita
 async def test_generate_produces_scannable_image(mongo_db):
@@ -41,10 +57,10 @@ async def test_generate_produces_scannable_image(mongo_db):
     Full generation flow: real Novita call produces image, stored in S3 and MongoDB.
 
     Steps:
-      1. Send generate request as a guest user
+      1. Start generation as a guest user, poll until it completes
       2. Assert response contains image_url and watermarked_image_url
       3. Verify image document written to QART.images
-      4. Cleanup: delete via API + remove guest_credits record
+      4. Cleanup: delete via API
     """
     guest_id = f"guest_e2e_{int(time.time() * 1000)}"
     headers = {"Authorization": f"Bearer {mint_guest_jwt(guest_id)}"}
@@ -52,17 +68,18 @@ async def test_generate_produces_scannable_image(mongo_db):
 
     try:
         async with _client() as client:
-            resp = await client.get(
-                "/api/generate",
+            start_resp = await client.post(
+                "/api/generate/start",
                 params=GENERATE_PARAMS,
                 headers=headers,
-                timeout=180.0,
+                timeout=30.0,
             )
+            assert start_resp.status_code == 200, (
+                f"Generate start endpoint returned {start_resp.status_code}: {start_resp.text[:500]}"
+            )
+            job_id = start_resp.json()["job_id"]
 
-        assert resp.status_code == 200, (
-            f"Generate endpoint returned {resp.status_code}: {resp.text[:500]}"
-        )
-        data = resp.json()
+            data = await _await_generation(client, job_id, headers)
 
         # Both S3 URLs must be present and non-empty
         assert "image_url" in data, "Response missing image_url"
@@ -93,6 +110,3 @@ async def test_generate_produces_scannable_image(mongo_db):
             # 200 or 404 (already deleted) are both acceptable
             assert del_resp.status_code in (200, 404), \
                 f"Cleanup delete returned {del_resp.status_code}"
-
-        # Remove the guest_credits record created during generation
-        await mongo_db["guest_credits"].delete_one({"_id": guest_id})
