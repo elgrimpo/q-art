@@ -14,7 +14,7 @@ export const styles = [
     id: 2,
     title: "Ukiyo-e",
     prompt:
-      "Detailed, Graphic Novel, Cinematic, Ukiyo-e Flat Design, Dramatic, Scene, Establishing Shot, Proportion",
+      "ukiyo-e, woodblock print, flat colors, flowing lines, Japanese, traditional, Establishing Shot, Proportion",
     loras: [],
     style_modifier: 0,
     image_url:
@@ -26,24 +26,12 @@ export const styles = [
     id: 3,
     title: "Expressionism",
     prompt:
-      "abstract expressionist painting, award-winning photo, energetic brushwork, bold colors, abstract forms, expressive",
-    loras: [],
-    style_modifier: 0,
+      "Expressionism art style, distorted perspective, vivid non-naturalistic colors, thick coarse brushwork, intense raw emotion, anxiety atmosphere, inspired by Edvard Munch",
+    loras: [{ model_name: "Painting_131556", strength: 0.6 }],
+    style_modifier: -1,
     image_url:
-      "https://qrartimages.s3.us-west-1.amazonaws.com/657c2de53be54bfd1a349401.png",
+      "https://qrartimages.s3.us-west-1.amazonaws.com/6a498f50dbeee01fccc37bc6.png",
     keywords: ["Expressionism", "Bold colors"],
-    sd_model: "colorful_v31_62333.safetensors",
-  },
-  {
-    id: 4,
-    title: "Dreamy",
-    prompt:
-      "digital painting, extremely smooth, fluid, 3d fractals, light particles, dreamy, shimmering, dreamy glow, HQ, 4K",
-    loras: [{ model_name: "LAS_17554", strength: 0.7 }],
-    style_modifier: 0,
-    image_url:
-      "https://qrartimages.s3.us-west-1.amazonaws.com/6598392c55848e0542b40d0e.png",
-    keywords: ["Dreamy glow", "Light particles"],
     sd_model: "colorful_v31_62333.safetensors",
   },
   {
@@ -62,19 +50,19 @@ export const styles = [
     id: 6,
     title: "Photography",
     prompt:
-      "Photography, Happy Colors, Epic Composition, Cinematic, Detailed, 4k",
-    loras: [],
+      "photography, photorealistic, cinematic lighting, shallow depth of field, ultra detailed, DSLR",
+    loras: [{ model_name: "epiCRealLife_117118", strength: 0.8 }],
     style_modifier: 0,
     image_url:
-      "https://qrartimages.s3.us-west-1.amazonaws.com/657c0f23c7e41120dabfeff7.png",
+      "https://qrartimages.s3.us-west-1.amazonaws.com/6a4abe9e2164b64ac00f0758.png",
     keywords: ["Photography", "Cinematic"],
     sd_model: "cyberrealistic_v40_151857.safetensors",
   },
   {
     id: 12,
     title: "Vector Art",
-    prompt: "Flat Design, Vector Art, illustrator",
-    loras: [{ model_name: "0mib3(gut auf 1)_47645", strength: 0.7 }],
+    prompt: "vector art, clean lines, flat colors, geometric shapes, crisp edges, minimal shading",
+    loras: [{ model_name: "0mib3(gut auf 1)_47645", strength: 0.9 }],
     style_modifier: 0,
     image_url:
       "https://qrartimages.s3.us-west-1.amazonaws.com/65cc123c7b729925fcced038.png",
@@ -95,7 +83,7 @@ export const styles = [
   {
     id: 7,
     title: "Ink",
-    prompt: "monochrome, ink sketch, watercolors, brush strokes",
+    prompt: "ink wash, sumi-e, expressive brushstrokes, flowing ink, monochrome, splatter",
     loras: [{ model_name: "zyd232_InkStyle_v1_0_53697", strength: 1 }],
     style_modifier: 0,
     image_url:
@@ -106,8 +94,8 @@ export const styles = [
   {
     id: 9,
     title: "Oil Painting",
-    prompt: "oil painting, masterpiece, best quality",
-    loras: [{ model_name: "bichu-v0612_65240", strength: 0.6 }],
+    prompt: "oil painting, impasto, saturated colors, vibrant palette, bold brushstrokes, painterly, bichu, Impressionism",
+    loras: [{ model_name: "bichu-v0612_65240", strength: 0.8 }],
     style_modifier: 0,
     image_url:
       "https://qrartimages.s3.us-west-1.amazonaws.com/659801fb55848e0542b40cd0.png",
@@ -118,10 +106,10 @@ export const styles = [
   {
     id: 11,
     title: "Chinese art",
-    prompt: "Chinese traditional art",
+    prompt: "Chinese ink painting, shan shui, ink wash, brushwork, rice paper, traditional, shuimobysim, wuxia",
     loras: [
       { model_name: "wuxia2_62008", strength: 0.8 },
-      { model_name: "MoXinV1_12781", strength: 0.4 },
+      { model_name: "MoXinV1_12781", strength: 0.7 },
     ],
     style_modifier: 0,
     image_url:
@@ -132,35 +120,46 @@ export const styles = [
   {
     id: 11,
     title: "Watercolor",
-    prompt: "Watercolor painting, soft colors, masterpiece, sharp",
+    prompt: "watercolor, soft washes, delicate pigments, fluid edges, paper texture, translucent",
     loras: [{ model_name: "Colorwater_v4", strength: 0.5 }],
-    style_modifier: 0,
+    style_modifier: -2.0,
     image_url:
-      "https://qrartimages.s3.us-west-1.amazonaws.com/65d79f889478a127106f32e0.png",
+      "https://qrartimages.s3.us-west-1.amazonaws.com/6a49894ce43200a51524b869.png",
     keywords: ["Water color"],
     sd_model: "colorful_v31_62333.safetensors",
   },
-
-  {
-    id: 13,
-    title: "Sticker",
-    prompt: "Art Nouveau, Sticker, Turkish-Style, Miniature Faking",
-    loras: [],
-    style_modifier: 0,
+   {
+    id: 17,
+    title: "Ghibli",
+    prompt: "Studio Ghibli-inspired, whimsical, lush nature, soft watercolor, warm lighting, hand-painted",
+    loras: [{model_name: "ghibli_style_offset_10272", strength: 0.5}, {model_name: "Pyramid lora_Ghibli_n3_72103", strength: 0.5}],
+    style_modifier: -1.5,
     image_url:
-      "https://qrartimages.s3.us-west-1.amazonaws.com/6574e5ae9961d5a54e2ff525.png",
-    keywords: ["Miniature Faking", "Art Nouveau"],
+      "https://qrartimages.s3.us-west-1.amazonaws.com/6a4bbb07890b1939b5192cd8.png",
+    keywords: ["Rainbow Core", "Color Blend"],
     sd_model: "colorful_v31_62333.safetensors",
   },
-  {
-    id: 16,
-    title: "Color blend",
-    prompt: "Synesthesia, Color Blend, streams of colored paint",
-    loras: [],
+     {
+    id: 18,
+    title: "Cyberpunk",
+    prompt: "cyberpunk, neon-lit, futuristic megacity, rainy streets, holographic glow, cinematic lighting",
+    loras: [{model_name: "CyberPunkAI_56082", strength: 0.7}],
     style_modifier: 0,
     image_url:
-      "https://qrartimages.s3.us-west-1.amazonaws.com/6599191455848e0542b40d14.png",
+      "https://qrartimages.s3.us-west-1.amazonaws.com/6a4508cc3b23a83b1fa7b4c3.png",
     keywords: ["Rainbow Core", "Color Blend"],
+    sd_model: "colorful_v31_62333.safetensors",
+  },
+    {
+    id: 4,
+    title: "Illustration",
+    prompt:
+      "illustration, stylized, painterly, soft colors, clean linework, detailed, Zylagidam art style",
+    loras: [{ model_name: "Comic_book_7_E10", strength: 0.6 },{ model_name: "Drawing_85106", strength: 0.5 }],
+    style_modifier: 0,
+    image_url:
+      "https://qrartimages.s3.us-west-1.amazonaws.com/6a4bb59e2cfa329e8d58854c.png",
+    keywords: ["Dreamy glow", "Light particles"],
     sd_model: "colorful_v31_62333.safetensors",
   },
 ];
