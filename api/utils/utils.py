@@ -136,7 +136,7 @@ def prepare_img2img_request(
         model_name=sd_model,
         input_image=gray_init_base64,
         prompt=full_prompt,
-        negative_prompt="blurry, low contrast, washed out",
+        negative_prompt="blurry, low contrast, washed out, white margin, blank border, empty corners, negative space, vignette, unfinished edges, plain background, solid color frame, letterboxing, pillarboxing",
         sampler_name="DPM++ 2M Karras",
         width=side,
         height=side,
