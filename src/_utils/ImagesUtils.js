@@ -122,7 +122,16 @@ export const getGenerationProgress = async (jobId) => {
     err.status = response.status;
     throw err;
   }
-  return response.json(); // { status, percent, stage, eta, result?, error? }
+  const progress = await response.json(); // { status, percent, stage, eta, result?, error? }
+  // GenerateForm.js and IteratePanel.js poll this directly (via
+  // useGenerationPolling) instead of going through generateImage() below —
+  // this is the only place in that flow that runs server-side, so it's
+  // where the 'images'/'user' cache tags must be revalidated on success.
+  if (progress.status === "succeeded") {
+    revalidateTag('images');
+    revalidateTag('user');
+  }
+  return progress;
 };
 
 /* -------------------------------------------------------------------------- */

@@ -1,4 +1,4 @@
-import { generateImage, deleteImage, likeImage, unlockImage, getImages, getImageById, bookmarkImage, bookmarkHero, adminDownloadImage } from '../_utils/ImagesUtils'
+import { generateImage, deleteImage, likeImage, unlockImage, getImages, getImageById, bookmarkImage, bookmarkHero, adminDownloadImage, getGenerationProgress } from '../_utils/ImagesUtils'
 import axios from 'axios'
 
 // Mock Next.js server-only APIs used by ImagesUtils
@@ -371,5 +371,55 @@ describe('getImageById', () => {
       await getImageById('missing_id')
     } catch (_) { /* expected */ }
     expect(notFound).toHaveBeenCalled()
+  })
+})
+
+// --------------------------------------------------------------------------
+// getGenerationProgress
+//
+// GenerateForm.js and IteratePanel.js poll this directly (via
+// useGenerationPolling) instead of going through generateImage() — so this
+// is the only place in the real generation flow where the 'images'/'user'
+// cache tags can be revalidated once a job succeeds. Without it, a freshly
+// generated image doesn't show up in /mycodes until the 60s fetch cache
+// naturally expires.
+// --------------------------------------------------------------------------
+
+describe('getGenerationProgress', () => {
+  test('revalidates images and user tags when status is succeeded', async () => {
+    const { revalidateTag } = require('next/cache')
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ status: 'succeeded', percent: 100, result: { _id: 'img_1' } }),
+    })
+
+    await getGenerationProgress('job_1')
+
+    expect(revalidateTag).toHaveBeenCalledWith('images')
+    expect(revalidateTag).toHaveBeenCalledWith('user')
+  })
+
+  test('does not revalidate while still processing', async () => {
+    const { revalidateTag } = require('next/cache')
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ status: 'processing', percent: 40 }),
+    })
+
+    await getGenerationProgress('job_1')
+
+    expect(revalidateTag).not.toHaveBeenCalled()
+  })
+
+  test('does not revalidate when the job failed', async () => {
+    const { revalidateTag } = require('next/cache')
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ status: 'failed', error: 'GenerationFailed' }),
+    })
+
+    await getGenerationProgress('job_1')
+
+    expect(revalidateTag).not.toHaveBeenCalled()
   })
 })
