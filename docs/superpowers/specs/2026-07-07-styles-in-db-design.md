@@ -23,6 +23,9 @@ New collection `styles` in the `QART` DB:
 ```
 {
   _id: ObjectId,
+  style_key: str,       # stable slug shared by every version of this style, e.g. "ukiyo-e"
+  version: int,         # 1, 2, 3... increments per style_key
+  is_active: bool,      # true for the version currently live on the frontend
   title: str,
   prompt: str,
   loras: [{ model_name: str, strength: float }],
@@ -31,17 +34,32 @@ New collection `styles` in the `QART` DB:
 }
 ```
 
-No `keywords`, no `image_url`. IDs are Mongo-generated `ObjectId`s (stringified
-on the way out, same convention as `images`/`users`).
+No `keywords`, no `image_url`. Document `_id`s are Mongo-generated `ObjectId`s
+(stringified on the way out, same convention as `images`/`users`) — that's
+still what the frontend holds and what generation resolves by. `style_key` +
+`version` exist purely to link a style's versions together for
+querying/history; they are never looked up directly during generation.
+
+**Creating a new version:** insert a new doc with the same `style_key`,
+`version` incremented, `is_active: true`, and the tweaked
+prompt/loras/style_modifier/sd_model. Flip the prior version's `is_active` to
+`false`. Update the frontend's `ImageStyles.js` entry to point its `id` at the
+new doc's `_id` when ready to roll it out — until then, the frontend keeps
+generating against the old version. `is_active` is informational only and is
+**not** enforced by the generate endpoint — an inactive version's `_id` still
+resolves fine, so a browser tab open before a rollout (or an old `ImageDoc`
+being iterated on) keeps working against the exact version it was using.
 
 The current "Random" entry (`id: 1` today, empty prompt, never actually used
 for generation — it's always swapped client-side for a concrete style before
-submit) is **not** migrated into the DB. It stays a frontend-only UI sentinel.
+submit) is **not** migrated into the DB. It stays a frontend-only UI sentinel
+and has no `style_key`/version history.
 
 ## Backend changes
 
 - **New `Style` schema** in `api/schemas/schemas.py` (id via `PyObjectId`
-  alias, title, prompt, loras, style_modifier, sd_model).
+  alias, style_key, version, is_active, title, prompt, loras, style_modifier,
+  sd_model).
 - **New lookup helper** (e.g. `api/controllers/styles_controller.py`):
   `get_style(style_id) -> Style`, raises if not found. Internal use only — no
   public list/read endpoint, since the frontend never fetches styles from the
@@ -100,15 +118,19 @@ A one-off script (`api/scripts/seed_styles.py`, following the existing
 `api/scripts/` convention of not being part of the request path) inserts the
 current styles' `title, prompt, loras, style_modifier, sd_model` (source: the
 current contents of `ImageStyles.js`, minus `keywords`/`image_url`/`id`) into
-the new `styles` collection, then prints the resulting `{_id, title}` pairs.
-Those ids get pasted into the trimmed `ImageStyles.js` by hand, paired with
-each style's existing `image_url`. **Running this script writes to the live
-Mongo Atlas DB — it will be run only with explicit confirmation at
-implementation time, not automatically.**
+the new `styles` collection as `version: 1`, `is_active: true`, with a
+`style_key` slugified from each title (e.g. "Ukiyo-e" → `"ukiyo-e"`), then
+prints the resulting `{_id, title}` pairs. Those ids get pasted into the
+trimmed `ImageStyles.js` by hand, paired with each style's existing
+`image_url`. **Running this script writes to the live Mongo Atlas DB — it
+will be run only with explicit confirmation at implementation time, not
+automatically.**
 
-Any future new style requires manually inserting a doc into `styles` and
-adding the matching `{id, title, image_url}` entry to the frontend file — no
-tooling for this is being built now (out of scope).
+Any future new style (not a new version of an existing one) requires
+manually inserting a doc with a new `style_key` into `styles` and adding the
+matching `{id, title, image_url}` entry to the frontend file — no tooling for
+this is being built now (out of scope). Publishing a new *version* of an
+existing style is the insert-and-swap-the-id workflow described above.
 
 ## Removing `keywords` / dead code
 
@@ -135,6 +157,10 @@ tooling for this is being built now (out of scope).
 
 ## Out of scope
 
-- No admin UI for managing styles.
+- No admin UI for managing styles or publishing versions — it's a manual
+  insert-doc-then-edit-frontend-file workflow.
 - No public `GET /api/styles` endpoint.
 - No backfill of `style_id` onto pre-existing `ImageDoc`s.
+- No enforcement of `is_active` at generation time (see Data model).
+- No endpoint to list a style's version history — `style_key`/`version` are
+  stored for future querying directly against Mongo, not surfaced via API.
