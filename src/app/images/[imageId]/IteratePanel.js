@@ -15,7 +15,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useRouter } from "next/navigation";
 import GenerationFormFields from "@/app/(main_pages)/generate/(formComponents)/GenerationFormFields";
 
-import { styles, selectRandomStyle } from "@/_utils/ImageStyles";
+import { styles, selectRandomStyle, RANDOM_STYLE_ID } from "@/_utils/ImageStyles";
 import { startGeneration } from "@/_utils/ImagesUtils";
 import { useGenerationPolling } from "@/_utils/useGenerationPolling";
 
@@ -30,17 +30,16 @@ const isGenerationFailure = (err) => GENERATION_ERRORS.has(err?.message);
 
 function initFormValues(image, isOwner = true) {
   const img = image ?? {};
-  const sourceStyle = styles.find((s) => s.title === img.style_title) ?? styles[0];
+  const sourceStyle =
+    styles.find((s) => s.id === img.style_id) ??
+    styles.find((s) => s.title === img.style_title) ??
+    styles[0];
   return {
     website: isOwner ? (img.content ?? "") : "",
     prompt: img.prompt ?? "",
     style_id: sourceStyle.id,
     style_title: sourceStyle.title,
-    style_prompt: sourceStyle.prompt,
-    loras: sourceStyle.loras ?? [],
-    sd_model: img.sd_model ?? "cyberrealistic_v40_151857.safetensors",
     qr_weight: img.qr_weight ?? 0,
-    style_modifier: sourceStyle.style_modifier ?? 0,
   };
 }
 
@@ -90,17 +89,16 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
 
   const buildPayload = (trigger) => {
     if (trigger === "newVariation") {
-      const sourceStyle = styles.find((s) => s.title === image.style_title) ?? styles[0];
+      const sourceStyle =
+        styles.find((s) => s.id === image.style_id) ??
+        styles.find((s) => s.title === image.style_title) ??
+        styles[0];
       return {
         website: image.content ?? "",
         prompt: image.prompt ?? "",
         style_id: sourceStyle.id,
         style_title: sourceStyle.title,
-        style_prompt: sourceStyle.prompt,
-        loras: sourceStyle.loras ?? [],
-        sd_model: image.sd_model,
         qr_weight: image.qr_weight ?? 0,
-        style_modifier: sourceStyle.style_modifier ?? 0,
         negative_prompt: image.negative_prompt ?? "",
         seed: -1,
       };
@@ -108,19 +106,11 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
 
     let style_id = formValues.style_id;
     let style_title = formValues.style_title;
-    let style_prompt = formValues.style_prompt;
-    let loras = formValues.loras;
-    let sd_model = formValues.sd_model;
-    let style_modifier = formValues.style_modifier;
 
-    if (style_id === 1) {
+    if (style_id === RANDOM_STYLE_ID) {
       const resolved = selectRandomStyle();
       style_id = resolved.id;
       style_title = resolved.title;
-      style_prompt = resolved.prompt;
-      loras = resolved.loras ?? [];
-      sd_model = resolved.sd_model;
-      style_modifier = resolved.style_modifier ?? 0;
     }
 
     const seed = style_title !== originalStyleTitle.current ? -1 : image.seed;
@@ -130,11 +120,7 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
       prompt: formValues.prompt,
       style_id,
       style_title,
-      style_prompt,
-      loras,
-      sd_model,
       qr_weight: formValues.qr_weight,
-      style_modifier,
       negative_prompt: image.negative_prompt ?? "",
       seed,
     };
@@ -352,10 +338,6 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
                   ...prev,
                   style_id: style.id,
                   style_title: style.title,
-                  style_prompt: style.prompt,
-                  loras: style.loras ?? [],
-                  sd_model: style.sd_model,
-                  style_modifier: style.style_modifier ?? 0,
                 }))
               }
               onQrWeightChange={(val) =>

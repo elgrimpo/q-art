@@ -44,12 +44,13 @@ jest.mock('@/_utils/qrWeight', () => ({
 }))
 
 jest.mock('@/_utils/ImageStyles', () => ({
+  RANDOM_STYLE_ID: 'random',
   styles: [
-    { id: 1, title: 'Random', prompt: '', loras: [], sd_model: 'model.safetensors', image_url: '' },
-    { id: 2, title: 'Photorealistic', prompt: 'photo', loras: [], sd_model: 'model.safetensors', image_url: '' },
+    { id: 'random', title: 'Random', image_url: '' },
+    { id: 'style-2', title: 'Photorealistic', image_url: '' },
   ],
   selectRandomStyle: jest.fn(() => ({
-    id: 2, title: 'Photorealistic', prompt: 'photo', loras: [], sd_model: 'model.safetensors',
+    id: 'style-2', title: 'Photorealistic', image_url: '',
   })),
 }))
 
