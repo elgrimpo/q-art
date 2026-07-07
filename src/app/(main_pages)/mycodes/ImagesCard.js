@@ -9,6 +9,8 @@ import LockIcon from "@mui/icons-material/Lock";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
+import StarIcon from "@mui/icons-material/Star";
+import StarBorderIcon from "@mui/icons-material/StarBorder";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import DownloadIcon from "@mui/icons-material/Download";
 import * as amplitude from "@amplitude/analytics-browser";
@@ -17,7 +19,8 @@ import { palette } from "@/_styles/palette";
 import LikeButton from "@/_components/actions/LikeButton.js";
 import SkeletonCard from "./SkeletonCard.js";
 import { useStore } from "@/store.js";
-import { bookmarkImage, deleteImage } from "@/_utils/ImagesUtils";
+import { bookmarkImage, bookmarkHero, deleteImage } from "@/_utils/ImagesUtils";
+import { isSquareImage } from "@/_utils/imageAspect";
 
 /* -------------------------------------------------------------------------- */
 /*  Scannability thresholds — kept in sync with ImageSidebar.js               */
@@ -134,6 +137,7 @@ export default function ImageCard({
 
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [featured, setFeatured] = useState(!!image?.featured);
+  const [isHero, setIsHero] = useState(!!image?.is_hero);
 
   const handleMenuOpen = (e) => setMenuAnchor(e.currentTarget);
   const handleMenuClose = () => setMenuAnchor(null);
@@ -155,6 +159,18 @@ export default function ImageCard({
     } catch {
       setFeatured(prev);
       openAlert("error", "Could not update bookmark.");
+    }
+  };
+
+  const handleHero = async () => {
+    handleMenuClose();
+    const prev = isHero;
+    setIsHero(!prev);
+    try {
+      await bookmarkHero(image._id);
+    } catch {
+      setIsHero(prev);
+      openAlert("error", "Could not update hero.");
     }
   };
 
@@ -260,6 +276,14 @@ export default function ImageCard({
                     </ListItemIcon>
                     <Typography variant="body2">{featured ? "Remove from Explore" : "Add to Explore"}</Typography>
                   </MenuItem>
+                  {featured && isSquareImage(image) && (
+                    <MenuItem onClick={handleHero}>
+                      <ListItemIcon sx={{ color: isHero ? "warning.main" : "primary.main" }}>
+                        {isHero ? <StarIcon fontSize="small" /> : <StarBorderIcon fontSize="small" />}
+                      </ListItemIcon>
+                      <Typography variant="body2">{isHero ? "Remove as Hero" : "Set as Hero"}</Typography>
+                    </MenuItem>
+                  )}
                   <Divider />
                   <MenuItem onClick={handleDownloadWatermarked}>
                     <ListItemIcon sx={{ color: "primary.main" }}>

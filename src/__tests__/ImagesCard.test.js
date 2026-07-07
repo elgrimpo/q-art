@@ -1,14 +1,16 @@
 import React from 'react'
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 
 jest.mock('@/_utils/ImagesUtils', () => ({
   bookmarkImage: jest.fn(),
+  bookmarkHero: jest.fn(),
   deleteImage: jest.fn(),
 }))
 jest.mock('@amplitude/analytics-browser', () => ({ track: jest.fn() }))
 
+let mockUser = { _id: 'u1', is_guest: false, is_admin: false }
 jest.mock('@/store.js', () => ({
-  useStore: () => ({ user: { _id: 'u1', is_guest: false }, openAlert: jest.fn() }),
+  useStore: () => ({ user: mockUser, openAlert: jest.fn() }),
 }))
 jest.mock('@/_components/actions/LikeButton.js', () => ({
   __esModule: true,
@@ -20,6 +22,7 @@ jest.mock('../app/(main_pages)/mycodes/SkeletonCard.js', () => ({
 }))
 
 import ImageCard from '../app/(main_pages)/mycodes/ImagesCard'
+import { bookmarkHero } from '@/_utils/ImagesUtils'
 
 const BASE = {
   _id: 'img1',
@@ -29,6 +32,10 @@ const BASE = {
   unlocked: false,
   scannability_score: null,
   likes: [],
+  width: 768,
+  height: 768,
+  featured: false,
+  is_hero: false,
 }
 
 function renderCard(imageOverrides = {}) {
@@ -104,4 +111,50 @@ test('renders skeleton card when variant is skeleton', () => {
 test('renders like button overlay', () => {
   renderCard()
   expect(screen.getByTestId('like-button')).toBeInTheDocument()
+})
+
+afterEach(() => {
+  mockUser = { _id: 'u1', is_guest: false, is_admin: false }
+})
+
+test('non-admin users do not see the admin menu', () => {
+  renderCard()
+  expect(screen.queryByLabelText('Admin actions')).not.toBeInTheDocument()
+})
+
+test('admin sees Set as Hero for a featured square image', () => {
+  mockUser = { _id: 'admin1', is_guest: false, is_admin: true }
+  renderCard({ featured: true })
+  fireEvent.click(screen.getByLabelText('Admin actions'))
+  expect(screen.getByText('Set as Hero')).toBeInTheDocument()
+})
+
+test('admin does not see the Hero option for a non-square image', () => {
+  mockUser = { _id: 'admin1', is_guest: false, is_admin: true }
+  renderCard({ featured: true, width: 1152, height: 768 })
+  fireEvent.click(screen.getByLabelText('Admin actions'))
+  expect(screen.queryByText('Set as Hero')).not.toBeInTheDocument()
+})
+
+test('admin does not see the Hero option when the image is not featured', () => {
+  mockUser = { _id: 'admin1', is_guest: false, is_admin: true }
+  renderCard({ featured: false })
+  fireEvent.click(screen.getByLabelText('Admin actions'))
+  expect(screen.queryByText('Set as Hero')).not.toBeInTheDocument()
+})
+
+test('clicking Set as Hero calls bookmarkHero with the image id', () => {
+  mockUser = { _id: 'admin1', is_guest: false, is_admin: true }
+  bookmarkHero.mockResolvedValueOnce({ is_hero: true })
+  renderCard({ featured: true })
+  fireEvent.click(screen.getByLabelText('Admin actions'))
+  fireEvent.click(screen.getByText('Set as Hero'))
+  expect(bookmarkHero).toHaveBeenCalledWith('img1')
+})
+
+test('shows Remove as Hero for an image already marked as hero', () => {
+  mockUser = { _id: 'admin1', is_guest: false, is_admin: true }
+  renderCard({ featured: true, is_hero: true })
+  fireEvent.click(screen.getByLabelText('Admin actions'))
+  expect(screen.getByText('Remove as Hero')).toBeInTheDocument()
 })
