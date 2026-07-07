@@ -5,6 +5,8 @@ import { Box, Button, Divider, IconButton, ListItemIcon, Menu, MenuItem, Typogra
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
+import StarBorderIcon from "@mui/icons-material/StarBorder";
+import StarIcon from "@mui/icons-material/Star";
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import DownloadIcon from "@mui/icons-material/Download";
@@ -15,8 +17,9 @@ import * as amplitude from "@amplitude/analytics-browser";
 import LikeButton from "@/_components/actions/LikeButton";
 import ShareButton from "@/_components/actions/ShareButton";
 import DeleteButton from "@/_components/actions/DeleteButton";
-import { bookmarkImage, deleteImage } from "@/_utils/ImagesUtils";
+import { bookmarkImage, bookmarkHero, deleteImage } from "@/_utils/ImagesUtils";
 import { useStore } from "@/store";
+import { isSquareImage } from "@/_utils/imageAspect";
 import AdminImageInfoDialog from "./AdminImageInfoDialog";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
@@ -31,6 +34,7 @@ export default function ImageTopBar({ image, user, customDeleteAction, customLik
 
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [featured, setFeatured] = useState(!!image?.featured);
+  const [isHero, setIsHero] = useState(!!image?.is_hero);
   const [infoDialogOpen, setInfoDialogOpen] = useState(false);
 
   const handleMenuOpen = (e) => setMenuAnchor(e.currentTarget);
@@ -53,6 +57,18 @@ export default function ImageTopBar({ image, user, customDeleteAction, customLik
     } catch {
       setFeatured(prev);
       openAlert("error", "Could not update bookmark.");
+    }
+  };
+
+  const handleHero = async () => {
+    handleMenuClose();
+    const prev = isHero;
+    setIsHero(!prev);
+    try {
+      await bookmarkHero(image._id);
+    } catch {
+      setIsHero(prev);
+      openAlert("error", "Could not update hero.");
     }
   };
 
@@ -153,6 +169,14 @@ export default function ImageTopBar({ image, user, customDeleteAction, customLik
                 </ListItemIcon>
                 <Typography variant="body2">{featured ? "Remove from Explore" : "Add to Explore"}</Typography>
               </MenuItem>
+              {featured && isSquareImage(image) && (
+                <MenuItem onClick={handleHero}>
+                  <ListItemIcon sx={{ color: isHero ? "warning.main" : "primary.main" }}>
+                    {isHero ? <StarIcon fontSize="small" /> : <StarBorderIcon fontSize="small" />}
+                  </ListItemIcon>
+                  <Typography variant="body2">{isHero ? "Remove as Hero" : "Set as Hero"}</Typography>
+                </MenuItem>
+              )}
               <Divider />
               <MenuItem onClick={handleDownloadWatermarked}>
                 <ListItemIcon sx={{ color: "primary.main" }}>
