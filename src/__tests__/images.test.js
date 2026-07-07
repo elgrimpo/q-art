@@ -1,4 +1,4 @@
-import { generateImage, deleteImage, likeImage, unlockImage, getImages, getImageById, bookmarkImage, adminDownloadImage } from '../_utils/ImagesUtils'
+import { generateImage, deleteImage, likeImage, unlockImage, getImages, getImageById, bookmarkImage, bookmarkHero, adminDownloadImage } from '../_utils/ImagesUtils'
 import axios from 'axios'
 
 // Mock Next.js server-only APIs used by ImagesUtils
@@ -266,6 +266,38 @@ describe('bookmarkImage', () => {
   test('throws when response is not ok', async () => {
     fetch.mockResolvedValueOnce({ ok: false, status: 403 })
     await expect(bookmarkImage('img_bm1')).rejects.toThrow('Failed to toggle bookmark')
+  })
+})
+
+// --------------------------------------------------------------------------
+// bookmarkHero
+// --------------------------------------------------------------------------
+
+describe('bookmarkHero', () => {
+  test('PUTs to /api/images/hero/:id with auth header', async () => {
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ is_hero: true }),
+    })
+    await bookmarkHero('img_hero1')
+    const [url, opts] = fetch.mock.calls[0]
+    expect(url).toContain('/api/images/hero/img_hero1')
+    expect(opts.method).toBe('PUT')
+    expect(opts.headers.Authorization).toBe('Bearer test-token')
+  })
+
+  test('resolves with response JSON on success', async () => {
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ is_hero: true }),
+    })
+    const result = await bookmarkHero('img_hero1')
+    expect(result).toEqual({ is_hero: true })
+  })
+
+  test('throws when response is not ok', async () => {
+    fetch.mockResolvedValueOnce({ ok: false, status: 400 })
+    await expect(bookmarkHero('img_hero1')).rejects.toThrow('Failed to toggle hero')
   })
 })
 

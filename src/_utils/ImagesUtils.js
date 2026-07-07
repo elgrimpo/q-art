@@ -213,6 +213,23 @@ export const bookmarkImage = async (id) => {
 };
 
 /* -------------------------------------------------------------------------- */
+/*                             BOOKMARK HERO (admin)                          */
+/* -------------------------------------------------------------------------- */
+
+export const bookmarkHero = async (id) => {
+  const token = await getBackendToken();
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/images/hero/${id}`,
+    {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+  if (!res.ok) throw new Error("Failed to toggle hero");
+  return res.json();
+};
+
+/* -------------------------------------------------------------------------- */
 /*                           ADMIN DOWNLOAD IMAGE                             */
 /* -------------------------------------------------------------------------- */
 
