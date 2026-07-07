@@ -76,14 +76,13 @@ export const getImages = async (params) => {
 
 export const startGeneration = async (generateFormValues, user) => {
   const token = await getBackendToken();
-  // loras is an array of objects, which URLSearchParams can't serialize — send
-  // it as a single JSON string param (style_loras) the backend decodes.
-  const { loras, ...rest } = generateFormValues;
+  // style_title is kept client-side for display/local logic (e.g. seed-reset
+  // comparisons) but the backend resolves the canonical title from the DB —
+  // drop it before sending.
+  const { style_title, ...rest } = generateFormValues;
   const payload = {
     ...rest,
     qr_weight: Math.round(Number(generateFormValues.qr_weight) || 0),
-    style_modifier: Number(generateFormValues.style_modifier) || 0,
-    style_loras: JSON.stringify(loras ?? []),
   };
   const queryParams = new URLSearchParams(payload);
   const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/generate/start?${queryParams.toString()}`;

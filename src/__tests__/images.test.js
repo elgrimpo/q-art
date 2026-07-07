@@ -91,38 +91,24 @@ describe('generateImage', () => {
     expect(new URL(url).searchParams.get('qr_weight')).toBe('0')
   })
 
-  test('sends the style_modifier value from the form', async () => {
+  test('forwards style_id and drops style_title from the query', async () => {
     mockSucceeds({ _id: 'img_1' })
-    await generateImage({ ...FAKE_FORM, style_modifier: -1 }, FAKE_USER)
-    const [url] = fetch.mock.calls[0]
-    expect(new URL(url).searchParams.get('style_modifier')).toBe('-1')
-  })
-
-  test('defaults style_modifier to 0 when the form value is missing', async () => {
-    mockSucceeds({ _id: 'img_1' })
-    await generateImage(FAKE_FORM, FAKE_USER)
-    const [url] = fetch.mock.calls[0]
-    expect(new URL(url).searchParams.get('style_modifier')).toBe('0')
-  })
-
-  test('serializes loras into a style_loras JSON query param', async () => {
-    mockSucceeds({ _id: 'img_1' })
-    const form = { ...FAKE_FORM, loras: [{ model_name: 'LAS_17554', strength: 0.7 }] }
-    await generateImage(form, FAKE_USER)
+    await generateImage({ ...FAKE_FORM, style_id: 'abc123', style_title: 'Anime' }, FAKE_USER)
     const [url] = fetch.mock.calls[0]
     const params = new URL(url).searchParams
-    expect(JSON.parse(params.get('style_loras'))).toEqual([
-      { model_name: 'LAS_17554', strength: 0.7 },
-    ])
-    // The raw array must not be sent as its own param.
-    expect(params.has('loras')).toBe(false)
+    expect(params.get('style_id')).toBe('abc123')
+    expect(params.has('style_title')).toBe(false)
   })
 
-  test('sends style_loras="[]" when the form has no loras', async () => {
+  test('does not send loras/style_modifier/style_loras/sd_model — those are DB-resolved now', async () => {
     mockSucceeds({ _id: 'img_1' })
-    await generateImage(FAKE_FORM, FAKE_USER)
+    await generateImage({ ...FAKE_FORM, style_id: 'abc123' }, FAKE_USER)
     const [url] = fetch.mock.calls[0]
-    expect(new URL(url).searchParams.get('style_loras')).toBe('[]')
+    const params = new URL(url).searchParams
+    expect(params.has('loras')).toBe(false)
+    expect(params.has('style_modifier')).toBe(false)
+    expect(params.has('style_loras')).toBe(false)
+    expect(params.has('sd_model')).toBe(false)
   })
 })
 
