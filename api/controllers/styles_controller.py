@@ -3,11 +3,15 @@ import os
 from bson import ObjectId
 from bson.errors import InvalidId
 from fastapi import HTTPException
+from dotenv import load_dotenv
 import motor.motor_asyncio as motor
 import certifi
 
 # App imports
 from api.schemas.schemas import Style
+
+
+load_dotenv()
 
 # ---------------------------- INITIALIZE CLIENTS ---------------------------- #
 

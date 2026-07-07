@@ -8,6 +8,7 @@ import * as amplitude from "@amplitude/analytics-browser";
 // App imports
 import StyledIconButton from "@/_components/StyledIconButton.js";
 import { useStore } from "@/store";
+import { styles } from "@/_utils/ImageStyles";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
@@ -19,11 +20,15 @@ export default function CopyButton(props) {
 
   const handleCopy = (image) => {
     amplitude.track("Copy Image");
+    const sourceStyle =
+      styles.find((s) => s.id === image.style_id) ??
+      styles.find((s) => s.title === image.style_title) ??
+      styles[0];
     const copyValues = {
       website: image.content,
       prompt: image.prompt,
-      style_id: image.style_id,
-      style_title: image.style_title,
+      style_id: sourceStyle.id,
+      style_title: sourceStyle.title,
       qr_weight: image.qr_weight,
       negative_prompt: image.negative_prompt,
       seed: image.seed,

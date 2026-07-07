@@ -12,7 +12,6 @@ Living reference of all product features, their implementation location, and tes
 | Style presets | Pre-built style title + prompt pairs applied at generation time | `src/_utils/ImageStyles.js` | — (data only) |
 | Random prompt | Randomises who/what/where/when + keyword categories for the prompt field | `src/_utils/PromptGenerator.js` | `promptGenerator.test.js` |
 | QR weight slider | Controls ControlNet monster unit strength (0.85–1.05) and guidance start | `api/utils/utils.py` → `prepare_img2img_request` | `test_utils.py` (TestPrepareImg2ImgRequest) |
-| Custom style | User-provided style prompt via Settings modal | `src/app/(main_pages)/generate/(formComponents)/CustomStyleModal.js` | — |
 | Watermarking | Overlay applied before storing watermarked version to S3 | `api/utils/utils.py` → `create_watermark` | `test_utils.py` (TestCreateWatermark) |
 
 ---

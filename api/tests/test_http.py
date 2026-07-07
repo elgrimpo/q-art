@@ -220,7 +220,7 @@ async def test_generate_start_returns_job_id(mock_get_style, mock_start_generati
 
 
 @patch("api.main.get_style", new_callable=AsyncMock)
-async def test_generate_start_returns_400_for_unknown_style(mock_get_style):
+async def test_generate_start_returns_404_for_unknown_style(mock_get_style):
     from fastapi import HTTPException
 
     mock_get_style.side_effect = HTTPException(status_code=404, detail="Style not found")
