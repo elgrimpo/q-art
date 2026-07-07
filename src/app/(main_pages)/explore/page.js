@@ -15,36 +15,17 @@ import LikeButton from "@/_components/actions/LikeButton";
 import { getImages } from "@/_utils/ImagesUtils";
 import { useStore } from "@/store";
 import theme from "@/_styles/theme";
+import { itemLayout } from "./gridLayout";
 
 const IMAGES_PER_PAGE = 12;
-
-function getImageAspect(image) {
-  if (!image.width || !image.height) return "square";
-  const r = image.width / image.height;
-  if (r > 1.2) return "landscape";
-  if (r < 0.8) return "portrait";
-  return "square";
-}
-
-// Every 7th image (index 0, 7, 14, …) that is square becomes a 2×2 hero.
-function isHero(image, index) {
-  return getImageAspect(image) === "square" && index % 7 === 0;
-}
-
-function itemLayout(image, index) {
-  if (isHero(image, index)) {
-    return { gridColumn: "span 2", gridRow: "span 2", aspectRatio: "1/1" };
-  }
-  const aspect = getImageAspect(image);
-  // Landscape spans 2 columns but keeps square height so rows stay consistent.
-  if (aspect === "landscape") return { gridColumn: "span 2", aspectRatio: "1/1" };
-  // Portrait and square both render as 1×1 — objectFit cover handles cropping.
-  return { gridColumn: "span 1", aspectRatio: "1/1" };
-}
 
 const GRID_SX = {
   display: "grid",
   gridAutoFlow: "row dense",
+  // `start` (not the grid default `stretch`) so a tile's own aspect-ratio
+  // height wins instead of being stretched to match the tallest tile sharing
+  // its row track — required now that tiles have genuinely different heights.
+  alignItems: "start",
   gap: "8px",
 };
 
