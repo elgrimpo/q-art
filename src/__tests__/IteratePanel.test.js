@@ -299,10 +299,10 @@ describe('Error state and recovery', () => {
 
   // Skipped: selector-based store mock cannot trigger re-renders; error dismissal UI is untestable without a live store.
   it.skip('Back to image after New Variation failure dismisses error state', async () => {
-    mockGenerateImage.mockRejectedValueOnce(new Error('GenerationFailed'))
+    mockGetGenerationProgress.mockResolvedValueOnce({ status: 'failed', error: 'GenerationFailed' })
     render(<IteratePanel image={IMAGE} isOpen={false} onOpen={onOpen} isOwner={true} />)
     fireEvent.click(screen.getByText('New Variation'))
-    await waitFor(() => expect(mockGenerateImage).toHaveBeenCalled())
+    await waitFor(() => expect(mockStartGeneration).toHaveBeenCalled())
     // Verify clearIterateSession would be called on back-to-image
     expect(mockClearIterateSession).not.toHaveBeenCalled()
   })
@@ -316,13 +316,13 @@ describe('Error state and recovery', () => {
   })
 
   // Skipped: selector-based store mock cannot trigger re-renders; retry button is untestable without a live store.
-  it.skip('Retry re-fires the same generateImage call', async () => {
-    mockGenerateImage
-      .mockRejectedValueOnce(new Error('GenerationFailed'))
-      .mockResolvedValueOnce({ _id: 'newimg2' })
+  it.skip('Retry re-fires the same startGeneration call', async () => {
+    mockGetGenerationProgress
+      .mockResolvedValueOnce({ status: 'failed', error: 'GenerationFailed' })
+      .mockResolvedValueOnce({ status: 'succeeded', percent: 100, result: { _id: 'newimg2' } })
     render(<IteratePanel image={IMAGE} isOpen={false} onOpen={onOpen} isOwner={true} />)
     fireEvent.click(screen.getByText('New Variation'))
-    await waitFor(() => expect(mockGenerateImage).toHaveBeenCalledTimes(1))
+    await waitFor(() => expect(mockStartGeneration).toHaveBeenCalledTimes(1))
     // Verify the error was caught and setIterateSession was called with error state
     expect(mockSetIterateSession).toHaveBeenCalled()
   })
