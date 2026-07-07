@@ -70,6 +70,22 @@ class ControlNet(BaseModel):
     guidance_end: float
     # resize_mode: int
 
+class StyleLora(BaseModel):
+    model_name: str
+    strength: float
+
+
+class Style(BaseModel):
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    style_key: str
+    version: int = 1
+    is_active: bool = True
+    title: str
+    prompt: str
+    loras: List[StyleLora] = []
+    style_modifier: float = 0
+    sd_model: str
+
 class Like(BaseModel):
     userId: str
     time: datetime
@@ -82,6 +98,7 @@ class ImageDoc(BaseModel):
     negative_prompt: Optional[str] = None
     style_title: Optional[str] = "Default"
     style_prompt: Optional[str] = None
+    style_id: Optional[str] = None
     content: str
     sd_model: str
     seed: int
