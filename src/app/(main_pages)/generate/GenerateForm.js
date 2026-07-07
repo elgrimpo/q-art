@@ -11,7 +11,8 @@ import { useStore } from "@/store";
 import SimpleDialog from "@/_components/SimpleDialog";
 import GenerationFormFields from "./(formComponents)/GenerationFormFields";
 import GeneratingLoader from "./(formComponents)/GeneratingLoader";
-import { startGeneration, getGenerationProgress } from "@/_utils/ImagesUtils";
+import { startGeneration } from "@/_utils/ImagesUtils";
+import { useGenerationPolling } from "@/_utils/useGenerationPolling";
 import { selectRandomStyle } from "@/_utils/ImageStyles";
 
 function nextGenerationNumber() {
@@ -45,14 +46,7 @@ function GenerateForm() {
   const [dialogContent, setDialogContent] = useState({});
   const [dialogOpen, setDialogOpen] = useState(false);
   const [submitDisabled, setSubmitDisabled] = useState(true);
-  const [percent, setPercent] = useState(0);
-  const pollTimerRef = useRef(null);
-
-  useEffect(() => {
-    return () => {
-      if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
-    };
-  }, []);
+  const [jobId, setJobId] = useState(null);
 
   // Measure the form box's natural height while it's showing the fields, so
   // switching into the loading state can lock to that height instead of
@@ -133,41 +127,37 @@ function GenerateForm() {
     }
   };
 
-  const pollUntilDone = (jobId) => {
-    const startedAt = Date.now();
-    return new Promise((resolve, reject) => {
-      let failedAttempts = 0;
-      const tick = () => {
-        getGenerationProgress(jobId)
-          .then((progress) => {
-            failedAttempts = 0;
-            setPercent(progress.percent ?? 0);
-            if (progress.status === "succeeded") {
-              resolve(progress.result);
-            } else if (progress.status === "failed") {
-              reject(new Error(progress.error || "GenerationFailed"));
-            } else if (Date.now() - startedAt > 120000) {
-              reject(new Error("GenerationFailed"));
-            } else {
-              pollTimerRef.current = setTimeout(tick, 1200);
-            }
-          })
-          .catch((error) => {
-            failedAttempts += 1;
-            if (failedAttempts > 3) {
-              reject(error);
-              return;
-            }
-            pollTimerRef.current = setTimeout(tick, 1200);
-          });
-      };
-      tick();
-    });
-  };
+  const percent = useGenerationPolling(jobId, {
+    onSucceeded: async (image) => {
+      setGeneratingImage(false);
+      openAlert("success", "Image generated successfully!");
+
+      if (user?.is_guest) {
+        const newCredits = user.credits - 1;
+        const updated = await updateGuestCredits(newCredits);
+        if (updated) {
+          router.push(`/images/${image._id}?justGenerated=true`);
+        } else {
+          console.error("handleGenerate: Failed to update credits");
+          openAlert("error", "Failed to update credits. Please refresh the page.");
+        }
+      } else {
+        router.push(`/images/${image._id}?justGenerated=true`);
+      }
+    },
+    onFailed: (error) => {
+      console.error("handleGenerate: Generation error:", error);
+      if (error.message === "InsufficientCredits") {
+        handleInsufficientCredits();
+      } else {
+        openAlert("error", "Failed to generate image. Please try again.");
+      }
+      setGeneratingImage(false);
+    },
+  });
 
   const handleGenerate = async () => {
     setGeneratingImage(true);
-    setPercent(0);
     try {
       const generationNumber = nextGenerationNumber();
       amplitude.track("Generate Image", {
@@ -195,22 +185,7 @@ function GenerateForm() {
       }
 
       const { job_id } = await startGeneration(generateForm, user);
-      const image = await pollUntilDone(job_id);
-      setGeneratingImage(false);
-      openAlert("success", "Image generated successfully!");
-
-      if (user?.is_guest) {
-        const newCredits = user.credits - 1;
-        const updated = await updateGuestCredits(newCredits);
-        if (updated) {
-          router.push(`/images/${image._id}?justGenerated=true`);
-        } else {
-          console.error("handleGenerate: Failed to update credits");
-          openAlert("error", "Failed to update credits. Please refresh the page.");
-        }
-      } else {
-        router.push(`/images/${image._id}?justGenerated=true`);
-      }
+      setJobId(job_id);
     } catch (error) {
       console.error("handleGenerate: Generation error:", error);
       if (error.message === "InsufficientCredits") {
@@ -258,7 +233,6 @@ function GenerateForm() {
               size="large"
               fullWidth
               aria-label="generate"
-              
               disabled={submitDisabled}
               onClick={() => handleGenerate()}
               sx={{
