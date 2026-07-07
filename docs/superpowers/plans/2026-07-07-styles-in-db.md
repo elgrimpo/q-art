@@ -1024,7 +1024,7 @@ STYLES = [
         "title": "Ink",
         "prompt": "ink wash, sumi-e, expressive brushstrokes, flowing ink, monochrome, splatter",
         "loras": [{"model_name": "zyd232_InkStyle_v1_0_53697", "strength": 1}],
-        "style_modifier": -1,
+        "style_modifier": 0,
         "sd_model": "colorful_v31_62333.safetensors",
     },
     {
@@ -1064,7 +1064,7 @@ STYLES = [
     {
         "title": "Cyberpunk",
         "prompt": "cyberpunk, neon-lit, futuristic megacity, rainy streets, holographic glow, cinematic lighting",
-        "loras": [{"model_name": "CyberPunkAI_56082", "strength": 0.7}],
+        "loras": [{"model_name": "CyberPunkAI_56082", "strength": 0.5}],
         "style_modifier": -0.5,
         "sd_model": "colorful_v31_62333.safetensors",
     },
