@@ -14,21 +14,20 @@ const MAX_TOTAL_MS = 120000;
 export function useGenerationPolling(jobId, { onSucceeded, onFailed, onProgress, initialPercent = 0 } = {}) {
   const [percent, setPercent] = useState(initialPercent);
   const timerRef = useRef(null);
-  const cancelledRef = useRef(false);
   const callbacksRef = useRef({ onSucceeded, onFailed, onProgress });
   callbacksRef.current = { onSucceeded, onFailed, onProgress };
 
   useEffect(() => {
     if (!jobId) return undefined;
 
-    cancelledRef.current = false;
+    let cancelled = false;
     const startedAt = Date.now();
     let failedAttempts = 0;
 
     const tick = () => {
       getGenerationProgress(jobId)
         .then((progress) => {
-          if (cancelledRef.current) return;
+          if (cancelled) return;
           failedAttempts = 0;
           const nextPercent = progress.percent ?? 0;
           setPercent(nextPercent);
@@ -49,7 +48,7 @@ export function useGenerationPolling(jobId, { onSucceeded, onFailed, onProgress,
           timerRef.current = setTimeout(tick, POLL_INTERVAL_MS);
         })
         .catch((error) => {
-          if (cancelledRef.current) return;
+          if (cancelled) return;
           failedAttempts += 1;
           if (failedAttempts > MAX_FAILED_ATTEMPTS) {
             callbacksRef.current.onFailed(error);
@@ -61,7 +60,7 @@ export function useGenerationPolling(jobId, { onSucceeded, onFailed, onProgress,
     tick();
 
     return () => {
-      cancelledRef.current = true;
+      cancelled = true;
       if (timerRef.current) clearTimeout(timerRef.current);
     };
   }, [jobId]);

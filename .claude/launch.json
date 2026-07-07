@@ -6,6 +6,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "next-dev"],
       "port": 3001
+    },
+    {
+      "name": "fastapi",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "fastapi-dev"],
+      "port": 8000
     }
   ]
 }

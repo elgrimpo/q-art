@@ -127,3 +127,30 @@ test('does not call callbacks for a poll response that resolves after unmount', 
   expect(onSucceeded).not.toHaveBeenCalled()
   expect(onFailed).not.toHaveBeenCalled()
 }, 10000)
+
+test('does not act on a stale response after jobId changes on a live instance', async () => {
+  let resolveJobA
+  mockGetGenerationProgress.mockImplementation((id) => {
+    if (id === 'job-A') {
+      return new Promise((resolve) => { resolveJobA = resolve })
+    }
+    return Promise.resolve({ status: 'processing', percent: 1 })
+  })
+
+  const onSucceeded = jest.fn()
+  const onFailed = jest.fn()
+  const { rerender } = renderHook(
+    ({ jobId }) => useGenerationPolling(jobId, { onSucceeded, onFailed }),
+    { initialProps: { jobId: 'job-A' } }
+  )
+
+  await waitFor(() => expect(mockGetGenerationProgress).toHaveBeenCalledWith('job-A'))
+
+  rerender({ jobId: 'job-B' })
+  await waitFor(() => expect(mockGetGenerationProgress).toHaveBeenCalledWith('job-B'))
+
+  resolveJobA({ status: 'succeeded', percent: 100, result: { _id: 'stale-job-a-result' } })
+  await new Promise((resolve) => setTimeout(resolve, 50))
+
+  expect(onSucceeded).not.toHaveBeenCalled()
+}, 10000)
