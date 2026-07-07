@@ -31,10 +31,7 @@ const StylesModal = (props) => {
       setGenerateFormValues({
         ...generateFormValues,
         style_id: item.id,
-        style_prompt: item.prompt,
         style_title: item.title,
-        sd_model: item.sd_model,
-        loras: item.loras ?? [],
       });
     }
 
