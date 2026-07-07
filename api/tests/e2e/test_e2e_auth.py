@@ -29,7 +29,7 @@ async def test_auth_creates_user_and_transfers_guest_images(mongo_db):
     Auth bootstrap flow:
       1. Seed a guest image in QART.images
       2. POST /api/user/auth with guest_id (simulating Google sign-in)
-      3. Assert new user created with 10 starter credits
+      3. Assert new user was created
       4. Assert image re-attributed to new user's _id
     """
     ts = int(time.time() * 1000)
@@ -85,12 +85,9 @@ async def test_auth_creates_user_and_transfers_guest_images(mongo_db):
 
         assert resp.status_code == 200, f"Auth returned {resp.status_code}: {resp.text}"
 
-        # New user must exist with 10 starter credits
+        # New user must exist
         new_user = await mongo_db["users"].find_one({"email": test_email})
         assert new_user is not None, f"User with email {test_email} was not created"
-        assert new_user["credits"] == 10, (
-            f"Expected 10 starter credits, got {new_user['credits']}"
-        )
 
         # Image must be re-attributed from guest_id to new user's _id
         updated_image = await mongo_db["images"].find_one({"_id": image_id})
@@ -112,13 +109,12 @@ async def test_auth_with_existing_user_adds_auth_provider(mongo_db):
       1. Seed a user with one auth provider (e.g., google)
       2. POST /api/user/auth with the same email but a different provider (e.g., github)
       3. Assert new provider was added to auth_providers list
-      4. Assert user still has original credits
+      4. Assert user document still exists
     """
     ts = int(time.time() * 1000)
     test_email = f"e2e_existing_{ts}@test.example.com"
     google_provider_id = f"google_e2e_{ts}"
     github_provider_id = f"github_e2e_{ts}"
-    original_credits = 10
 
     # Seed an existing user with google auth
     user_result = await mongo_db["users"].insert_one({
@@ -127,8 +123,6 @@ async def test_auth_with_existing_user_adds_auth_provider(mongo_db):
         "auth_providers": [{"provider": "google", "providerId": google_provider_id}],
         "picture": None,
         "image_counts": {},
-        "credits": original_credits,
-        "payment_history": [],
     })
     user_id = user_result.inserted_id
 
@@ -151,12 +145,9 @@ async def test_auth_with_existing_user_adds_auth_provider(mongo_db):
 
         assert resp.status_code == 200, f"Auth returned {resp.status_code}: {resp.text}"
 
-        # User must still exist with original credits
+        # User must still exist
         updated_user = await mongo_db["users"].find_one({"_id": user_id})
         assert updated_user is not None, "User was deleted"
-        assert updated_user["credits"] == original_credits, (
-            f"Credits should remain {original_credits}, got {updated_user['credits']}"
-        )
 
         # User must now have both google and github auth providers
         providers = updated_user["auth_providers"]
@@ -190,8 +181,6 @@ async def test_auth_transfers_guest_images_to_existing_user(mongo_db):
         "auth_providers": [{"provider": "google", "providerId": google_provider_id}],
         "picture": None,
         "image_counts": {},
-        "credits": 10,
-        "payment_history": [],
     })
     user_id = user_result.inserted_id
 
