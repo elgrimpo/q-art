@@ -22,13 +22,11 @@ export default function CopyButton(props) {
     const copyValues = {
       website: image.content,
       prompt: image.prompt,
-      // style_id: 1,
+      style_id: image.style_id,
       style_title: image.style_title,
-      style_prompt: image.style_prompt,
       qr_weight: image.qr_weight,
       negative_prompt: image.negative_prompt,
       seed: image.seed,
-      sd_model: image.sd_model,
     };
     setGenerateFormValues(copyValues);
 
