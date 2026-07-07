@@ -16,15 +16,12 @@ from api.tests.e2e.conftest import mint_guest_jwt
 
 BASE = "http://test"
 
-GENERATE_PARAMS = {
+GENERATE_PARAMS_BASE = {
     "prompt": "a simple red geometric shape",
     "website": "https://qr-ai.co",
     "negative_prompt": "ugly blurry text",
     "seed": "42",
     "qr_weight": "1",
-    "sd_model": "cyberrealistic_v40_151857.safetensors",
-    "style_prompt": "",
-    "style_title": "Custom",
 }
 
 
@@ -57,20 +54,33 @@ async def test_generate_produces_scannable_image(mongo_db):
     Full generation flow: real Novita call produces image, stored in S3 and MongoDB.
 
     Steps:
-      1. Start generation as a guest user, poll until it completes
-      2. Assert response contains image_url and watermarked_image_url
-      3. Verify image document written to QART.images
-      4. Cleanup: delete via API
+      1. Insert a temporary style doc (this test's own style, cleaned up after)
+      2. Start generation as a guest user, poll until it completes
+      3. Assert response contains image_url and watermarked_image_url
+      4. Verify image document written to QART.images
+      5. Cleanup: delete the image via API and the temp style doc
     """
     guest_id = f"guest_e2e_{int(time.time() * 1000)}"
     headers = {"Authorization": f"Bearer {mint_guest_jwt(guest_id)}"}
     image_id = None
 
+    style_result = await mongo_db["styles"].insert_one({
+        "style_key": "e2e-test-style",
+        "version": 1,
+        "is_active": True,
+        "title": "E2E Test Style",
+        "prompt": "",
+        "loras": [],
+        "style_modifier": 0,
+        "sd_model": "cyberrealistic_v40_151857.safetensors",
+    })
+    style_id = str(style_result.inserted_id)
+
     try:
         async with _client() as client:
             start_resp = await client.post(
                 "/api/generate/start",
-                params=GENERATE_PARAMS,
+                params={**GENERATE_PARAMS_BASE, "style_id": style_id},
                 headers=headers,
                 timeout=30.0,
             )
@@ -81,7 +91,6 @@ async def test_generate_produces_scannable_image(mongo_db):
 
             data = await _await_generation(client, job_id, headers)
 
-        # Both S3 URLs must be present and non-empty
         assert "image_url" in data, "Response missing image_url"
         assert "watermarked_image_url" in data, "Response missing watermarked_image_url"
         assert data["image_url"].startswith("https://"), "image_url is not an HTTPS URL"
@@ -91,15 +100,14 @@ async def test_generate_produces_scannable_image(mongo_db):
         image_id = data.get("_id")
         assert image_id, "Response missing _id"
 
-        # Verify document was written to MongoDB
         from bson import ObjectId
         db_doc = await mongo_db["images"].find_one({"_id": ObjectId(image_id)})
         assert db_doc is not None, f"Image {image_id} not found in QART.images"
         assert db_doc["user_id"] == guest_id
         assert db_doc["image_url"] == data["image_url"]
+        assert db_doc["style_id"] == style_id
 
     finally:
-        # Cleanup: delete image via API (exercises the delete endpoint too)
         if image_id:
             async with _client() as client:
                 del_resp = await client.delete(
@@ -107,6 +115,6 @@ async def test_generate_produces_scannable_image(mongo_db):
                     headers=headers,
                     timeout=30.0,
                 )
-            # 200 or 404 (already deleted) are both acceptable
             assert del_resp.status_code in (200, 404), \
                 f"Cleanup delete returned {del_resp.status_code}"
+        await mongo_db["styles"].delete_one({"_id": style_result.inserted_id})
