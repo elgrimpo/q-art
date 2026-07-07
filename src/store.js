@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { RANDOM_STYLE_ID } from "./_utils/ImageStyles";
 
 export const useStore = create((set) => ({
   user: {},
@@ -10,15 +11,11 @@ export const useStore = create((set) => ({
   generateFormValues: {
     website: "",
     prompt: "",
-    style_id: 1,
+    style_id: RANDOM_STYLE_ID,
     style_title: "Random",
-    style_prompt: "",
-    loras: [],
     qr_weight: 0.0,
-    style_modifier: 0,
     negative_prompt: "",
     seed: -1,
-    sd_model: "cyberrealistic_v40_151857.safetensors",
   },
   generatingImage: false,
   iterateSession: null,
@@ -37,17 +34,14 @@ export const useStore = create((set) => ({
       generateFormValues: {
         website: "",
         prompt: "",
-        style_id: 1,
+        style_id: RANDOM_STYLE_ID,
         style_title: "Random",
-        style_prompt: "",
-        loras: [],
         qr_weight: 0.0,
         negative_prompt: "",
         seed: -1,
-        sd_model: "cyberrealistic_v40_151857.safetensors",
       },
     })),
-    setGeneratingImage: (bool) =>
+  setGeneratingImage: (bool) =>
     set((state) => ({
       ...state,
       generatingImage: bool
