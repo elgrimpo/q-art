@@ -1,11 +1,16 @@
-"""One-off script: compute and store scannability_score for all images that
-don't have one yet.
+"""One-off script: (re)compute and store scannability_score for every image,
+overwriting any existing score.
 
 Run from the repo root:
     python -m api.scripts.backfill_scannability
 
 Requires MONGO_URL in the environment (sourced from .env automatically).
 Skips docs where image_url is missing or the download fails.
+
+Rescores everything (not just docs missing a score) because the structural
+scorer was upgraded after the original backfill ran (QRAI-110: center-square
+localization so portrait/landscape renders align correctly) — images scored
+before that fix carry stale scores from the old, aspect-ratio-blind scorer.
 """
 import asyncio
 import logging
@@ -33,9 +38,9 @@ async def main():
     client = motor.AsyncIOMotorClient(MONGO_URL, **tls)
     images = client.get_database("QART").get_collection("images")
 
-    query = {"scannability_score": {"$exists": False}}
+    query = {}
     total = await images.count_documents(query)
-    logger.info("Found %d images to backfill", total)
+    logger.info("Found %d images to rescore", total)
 
     processed = 0
     failed = 0
