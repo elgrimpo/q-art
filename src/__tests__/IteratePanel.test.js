@@ -25,14 +25,18 @@ jest.mock('@/store', () => ({
     }),
 }))
 
-jest.mock('@/_utils/ImagesUtils', () => ({ generateImage: jest.fn() }))
+jest.mock('@/_utils/ImagesUtils', () => ({
+  startGeneration: jest.fn(),
+  getGenerationProgress: jest.fn(),
+}))
 
 jest.mock('../app/(main_pages)/generate/(formComponents)/StylesModal', () => ({
   __esModule: true,
   default: () => <div data-testid="styles-modal-stub" />,
 }))
 
-const mockGenerateImage = require('@/_utils/ImagesUtils').generateImage
+const mockStartGeneration = require('@/_utils/ImagesUtils').startGeneration
+const mockGetGenerationProgress = require('@/_utils/ImagesUtils').getGenerationProgress
 
 jest.mock('@/_utils/qrWeight', () => ({
   QR_SLIDER_MIN: 0,
@@ -65,7 +69,8 @@ const onClose = jest.fn()
 
 beforeEach(() => {
   jest.clearAllMocks()
-  mockGenerateImage.mockResolvedValue({ _id: 'newimg1' })
+  mockStartGeneration.mockResolvedValue({ job_id: 'job1' })
+  mockGetGenerationProgress.mockResolvedValue({ status: 'succeeded', percent: 100, result: { _id: 'newimg1' } })
   storeState.iterateSession = null
 })
 
@@ -191,21 +196,21 @@ describe('generating inline state', () => {
   })
 })
 
-// ─── New Variation (async generateImage) ──────────────────────────────────────
+// ─── New Variation (async startGeneration) ──────────────────────────────────────
 
 describe('New Variation', () => {
-  it('New Variation fires generateImage with seed -1', async () => {
+  it('New Variation fires startGeneration with seed -1', async () => {
     render(<IteratePanel image={IMAGE} isOpen={false} onOpen={onOpen} isOwner={true} />)
     fireEvent.click(screen.getByText('New Variation'))
-    await waitFor(() => expect(mockGenerateImage).toHaveBeenCalledTimes(1))
-    expect(mockGenerateImage.mock.calls[0][0].seed).toBe(-1)
+    await waitFor(() => expect(mockStartGeneration).toHaveBeenCalledTimes(1))
+    expect(mockStartGeneration.mock.calls[0][0].seed).toBe(-1)
   })
 
-  it('New Variation fires generateImage with original image values', async () => {
+  it('New Variation fires startGeneration with original image values', async () => {
     render(<IteratePanel image={IMAGE} isOpen={false} onOpen={onOpen} isOwner={true} />)
     fireEvent.click(screen.getByText('New Variation'))
-    await waitFor(() => expect(mockGenerateImage).toHaveBeenCalledTimes(1))
-    const payload = mockGenerateImage.mock.calls[0][0]
+    await waitFor(() => expect(mockStartGeneration).toHaveBeenCalledTimes(1))
+    const payload = mockStartGeneration.mock.calls[0][0]
     expect(payload.website).toBe('https://example.com')
     expect(payload.prompt).toBe('a beautiful forest')
   })
@@ -213,8 +218,8 @@ describe('New Variation', () => {
   it('New Variation preserves the original image qr_weight', async () => {
     render(<IteratePanel image={IMAGE} isOpen={false} onOpen={onOpen} isOwner={true} />)
     fireEvent.click(screen.getByText('New Variation'))
-    await waitFor(() => expect(mockGenerateImage).toHaveBeenCalledTimes(1))
-    expect(mockGenerateImage.mock.calls[0][0].qr_weight).toBe(IMAGE.qr_weight)
+    await waitFor(() => expect(mockStartGeneration).toHaveBeenCalledTimes(1))
+    expect(mockStartGeneration.mock.calls[0][0].qr_weight).toBe(IMAGE.qr_weight)
   })
 })
 
@@ -224,8 +229,8 @@ describe('Iterate Generate seed logic', () => {
   it('Generate with style unchanged uses image.seed', async () => {
     render(<IteratePanel image={IMAGE} isOpen={true} onOpen={onOpen} onClose={onClose} isOwner={true} />)
     fireEvent.click(screen.getByRole('button', { name: 'Generate' }))
-    await waitFor(() => expect(mockGenerateImage).toHaveBeenCalledTimes(1))
-    expect(mockGenerateImage.mock.calls[0][0].seed).toBe(42)
+    await waitFor(() => expect(mockStartGeneration).toHaveBeenCalledTimes(1))
+    expect(mockStartGeneration.mock.calls[0][0].seed).toBe(42)
   })
 
   // Skipped: StylesCard mock was removed; seed-after-style-change logic needs a full style interaction stub to test.
@@ -242,9 +247,41 @@ describe('Iterate Generate seed logic', () => {
 
 describe('Navigation on success', () => {
   it('on success navigates to new image', async () => {
-    render(<IteratePanel image={IMAGE} isOpen={false} onOpen={onOpen} isOwner={true} />)
+    const { rerender } = render(<IteratePanel image={IMAGE} isOpen={false} onOpen={onOpen} isOwner={true} />)
     fireEvent.click(screen.getByText('New Variation'))
+
+    // handleGenerate awaits startGeneration, then calls setIterateSession — which
+    // mutates storeState but (per this file's documented mock limitation) doesn't
+    // trigger a re-render on its own. Force one so the component picks up the
+    // real jobId on a fresh render, same technique this file already uses for
+    // pre-seeded-store tests, just applied mid-test instead of before the initial render.
+    await waitFor(() => expect(mockStartGeneration).toHaveBeenCalledTimes(1))
+    rerender(<IteratePanel image={IMAGE} isOpen={false} onOpen={onOpen} isOwner={true} />)
+
     await waitFor(() => expect(mockPush).toHaveBeenCalledWith('/images/newimg1'))
+  })
+})
+
+describe('Resuming a generation after remount (modal reopened)', () => {
+  it('shows the persisted percent immediately and resumes polling using the persisted jobId', async () => {
+    storeState.iterateSession = {
+      imageId: IMAGE._id,
+      generating: true,
+      error: false,
+      payload: { website: IMAGE.content, prompt: IMAGE.prompt, seed: -1 },
+      trigger: 'newVariation',
+      jobId: 'job-resumed',
+      percent: 40,
+    }
+    mockGetGenerationProgress.mockResolvedValueOnce({ status: 'succeeded', percent: 100, result: { _id: 'resumedimg' } })
+
+    render(<IteratePanel image={IMAGE} isOpen={false} onOpen={onOpen} isOwner={true} />)
+
+    // Bar shows the persisted percent immediately, before the first poll resolves.
+    expect(screen.getByTestId('generation-progress-bar')).toHaveStyle({ width: '40%' })
+
+    await waitFor(() => expect(mockGetGenerationProgress).toHaveBeenCalledWith('job-resumed'))
+    await waitFor(() => expect(mockPush).toHaveBeenCalledWith('/images/resumedimg'))
   })
 })
 
@@ -252,12 +289,12 @@ describe('Error state and recovery', () => {
   // Skipped: selector-based store mock cannot trigger re-renders; error UI is untestable without a live store.
   it.skip('on failure shows inline error state', async () => {
     // Note: Error state requires Zustand store integration that's difficult to test with selector mocks.
-    // This test verifies the error handling path is executed (mockGenerateImage is called),
+    // This test verifies the error handling path is executed (mockStartGeneration is called),
     // and the error is caught (not thrown to test suite).
-    mockGenerateImage.mockRejectedValueOnce(new Error('GenerationFailed'))
+    mockGetGenerationProgress.mockResolvedValueOnce({ status: 'failed', error: 'GenerationFailed' })
     render(<IteratePanel image={IMAGE} isOpen={false} onOpen={onOpen} isOwner={true} />)
     fireEvent.click(screen.getByText('New Variation'))
-    await waitFor(() => expect(mockGenerateImage).toHaveBeenCalled())
+    await waitFor(() => expect(mockStartGeneration).toHaveBeenCalled())
   })
 
   // Skipped: selector-based store mock cannot trigger re-renders; error dismissal UI is untestable without a live store.
@@ -271,10 +308,10 @@ describe('Error state and recovery', () => {
   })
 
   it('Back to image after iterate failure dismisses error and does not call onClose', async () => {
-    mockGenerateImage.mockRejectedValueOnce(new Error('GenerationFailed'))
+    mockGetGenerationProgress.mockResolvedValueOnce({ status: 'failed', error: 'GenerationFailed' })
     render(<IteratePanel image={IMAGE} isOpen={true} onOpen={onOpen} onClose={onClose} isOwner={true} />)
     fireEvent.click(screen.getByRole('button', { name: 'Generate' }))
-    await waitFor(() => expect(mockGenerateImage).toHaveBeenCalled())
+    await waitFor(() => expect(mockStartGeneration).toHaveBeenCalled())
     expect(onClose).not.toHaveBeenCalled()
   })
 

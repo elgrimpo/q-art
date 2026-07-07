@@ -16,7 +16,8 @@ import { useRouter } from "next/navigation";
 import GenerationFormFields from "@/app/(main_pages)/generate/(formComponents)/GenerationFormFields";
 
 import { styles, selectRandomStyle } from "@/_utils/ImageStyles";
-import { generateImage } from "@/_utils/ImagesUtils";
+import { startGeneration } from "@/_utils/ImagesUtils";
+import { useGenerationPolling } from "@/_utils/useGenerationPolling";
 
 const GIF_URL =
   "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExNXd0ZmY4N3VweW54ejIwN29yaGQxcmdtOWh5aGZuMG1wZW5mdHprYyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/R8dDMt8IgVvhK/giphy.gif";
@@ -58,6 +59,26 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
   const [formValues, setFormValues] = useState(() => initFormValues(image, isOwner));
 
   const isActive = generating || generatingError;
+
+  const percent = useGenerationPolling(generating ? iterateSession?.jobId : null, {
+    initialPercent: iterateSession?.percent ?? 0,
+    onProgress: (p) => {
+      if (iterateSession) {
+        setIterateSession({ ...iterateSession, percent: p });
+      }
+    },
+    onSucceeded: (newImage) => {
+      clearIterateSession();
+      router.push(`/images/${newImage._id}`);
+    },
+    onFailed: (err) => {
+      if (iterateSession && isGenerationFailure(err)) {
+        setIterateSession({ ...iterateSession, generating: false, error: true });
+      } else {
+        clearIterateSession();
+      }
+    },
+  });
 
   useEffect(() => {
     onGeneratingChange?.(isActive);
@@ -121,11 +142,9 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
 
   const handleGenerate = async (trigger) => {
     const payload = buildPayload(trigger);
-    setIterateSession({ imageId: image._id, generating: true, error: false, payload, trigger });
     try {
-      const newImage = await generateImage(payload);
-      clearIterateSession();
-      router.push(`/images/${newImage._id}`);
+      const { job_id } = await startGeneration(payload);
+      setIterateSession({ imageId: image._id, generating: true, error: false, payload, trigger, jobId: job_id, percent: 0 });
     } catch (err) {
       if (isGenerationFailure(err)) {
         setIterateSession({ imageId: image._id, generating: false, error: true, payload, trigger });
@@ -138,11 +157,9 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
   const handleRetry = async () => {
     if (!iterateSession?.payload) return;
     const { payload, trigger } = iterateSession;
-    setIterateSession({ imageId: image._id, generating: true, error: false, payload, trigger });
     try {
-      const newImage = await generateImage(payload);
-      clearIterateSession();
-      router.push(`/images/${newImage._id}`);
+      const { job_id } = await startGeneration(payload);
+      setIterateSession({ imageId: image._id, generating: true, error: false, payload, trigger, jobId: job_id, percent: 0 });
     } catch (err) {
       if (isGenerationFailure(err)) {
         setIterateSession({ imageId: image._id, generating: false, error: true, payload, trigger });
@@ -195,6 +212,19 @@ export default function IteratePanel({ image = {}, isOpen, onOpen, onClose, onGe
                   Hang tight, this takes about a minute.
                 </Typography>
               </Box>
+              <Box
+                data-testid="generation-progress-bar"
+                sx={{
+                  position: "absolute",
+                  bottom: 0,
+                  left: 0,
+                  height: "3px",
+                  width: `${Math.max(0, Math.min(100, percent))}%`,
+                  backgroundColor: "primary.main",
+                  boxShadow: (theme) => `0 0 8px 1px ${theme.palette.primary.main}`,
+                  transition: "width 0.3s ease-out",
+                }}
+              />
             </Box>
           ) : (
             <Box sx={{ p: "20px 22px" }}>
