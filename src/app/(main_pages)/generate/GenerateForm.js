@@ -13,7 +13,7 @@ import GenerationFormFields from "./(formComponents)/GenerationFormFields";
 import GeneratingLoader from "./(formComponents)/GeneratingLoader";
 import { startGeneration } from "@/_utils/ImagesUtils";
 import { useGenerationPolling } from "@/_utils/useGenerationPolling";
-import { selectRandomStyle } from "@/_utils/ImageStyles";
+import { selectRandomStyle, RANDOM_STYLE_ID } from "@/_utils/ImageStyles";
 
 function nextGenerationNumber() {
   if (typeof window === "undefined") return 1;
@@ -89,11 +89,7 @@ function GenerateForm() {
     setGenerateFormValues({
       ...generateFormValues,
       style_id: item.id,
-      style_prompt: item.prompt,
       style_title: item.title,
-      sd_model: item.sd_model,
-      loras: item.loras ?? [],
-      style_modifier: item.style_modifier ?? 0,
     });
   };
 
@@ -171,16 +167,12 @@ function GenerateForm() {
       });
 
       let generateForm = generateFormValues;
-      if (generateForm.style_id === 1) {
+      if (generateForm.style_id === RANDOM_STYLE_ID) {
         const randomStyle = selectRandomStyle();
         generateForm = {
           ...generateFormValues,
           style_id: randomStyle.id,
-          style_prompt: randomStyle.prompt,
           style_title: randomStyle.title,
-          sd_model: randomStyle.sd_model,
-          loras: randomStyle.loras ?? [],
-          style_modifier: randomStyle.style_modifier ?? 0,
         };
       }
 

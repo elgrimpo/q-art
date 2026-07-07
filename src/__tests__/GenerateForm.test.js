@@ -87,13 +87,11 @@ function resetStore(overrides = {}) {
     generateFormValues: {
       website: '',
       prompt: 'a random prompt',
-      style_id: 1,
+      style_id: 'random',
       style_title: 'Random',
-      style_prompt: '',
       qr_weight: 0.0,
       negative_prompt: '',
       seed: -1,
-      sd_model: 'cyberrealistic_v40_151857.safetensors',
     },
     generatingImage: false,
     alert: { open: false, severity: 'info', message: '' },
@@ -166,13 +164,11 @@ describe('GenerateForm', () => {
       generateFormValues: {
         website: 'example.com',
         prompt: 'a dragon',
-        style_id: 2,
+        style_id: 'style-2',
         style_title: 'Anime',
-        style_prompt: 'anime style',
         qr_weight: 0.0,
         negative_prompt: '',
         seed: -1,
-        sd_model: 'cyberrealistic_v40_151857.safetensors',
       },
     })
 
@@ -216,13 +212,11 @@ describe('GenerateForm', () => {
       generateFormValues: {
         website: 'example.com',
         prompt: 'a dragon',
-        style_id: 2,
+        style_id: 'style-2',
         style_title: 'Anime',
-        style_prompt: 'anime style',
         qr_weight: 0.0,
         negative_prompt: '',
         seed: -1,
-        sd_model: 'cyberrealistic_v40_151857.safetensors',
       },
     })
 
@@ -245,13 +239,11 @@ describe('GenerateForm', () => {
       generateFormValues: {
         website: 'example.com',
         prompt: 'a dragon',
-        style_id: 2,
+        style_id: 'style-2',
         style_title: 'Anime',
-        style_prompt: 'anime style',
         qr_weight: 0.0,
         negative_prompt: '',
         seed: -1,
-        sd_model: 'cyberrealistic_v40_151857.safetensors',
       },
     })
 
@@ -277,13 +269,11 @@ describe('GenerateForm', () => {
       generateFormValues: {
         website: 'example.com',
         prompt: 'a dragon',
-        style_id: 2,
+        style_id: 'style-2',
         style_title: 'Anime',
-        style_prompt: 'anime style',
         qr_weight: 0.0,
         negative_prompt: '',
         seed: -1,
-        sd_model: 'cyberrealistic_v40_151857.safetensors',
       },
     })
 
@@ -315,9 +305,9 @@ describe('GenerateForm', () => {
   function fillForm() {
     resetStore({
       generateFormValues: {
-        website: 'example.com', prompt: 'a dragon', style_id: 2,
-        style_title: 'Anime', style_prompt: 'anime style', qr_weight: 0.0,
-        negative_prompt: '', seed: -1, sd_model: 'cyberrealistic_v40_151857.safetensors',
+        website: 'example.com', prompt: 'a dragon', style_id: 'style-2',
+        style_title: 'Anime', qr_weight: 0.0,
+        negative_prompt: '', seed: -1,
       },
     })
   }
