@@ -324,7 +324,7 @@ async def test_toggle_featured_sets_false_when_true(mock_images):
     result = await toggle_featured(FAKE_IMAGE_ID)
 
     mock_images.update_one.assert_called_once_with(
-        {"_id": ObjectId(FAKE_IMAGE_ID)}, {"$set": {"featured": False}}
+        {"_id": ObjectId(FAKE_IMAGE_ID)}, {"$set": {"featured": False, "is_hero": False}}
     )
     assert result == {"message": "Featured toggled successfully", "featured": False}
 

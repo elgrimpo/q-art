@@ -317,7 +317,12 @@ async def toggle_featured(id):
             raise HTTPException(status_code=404, detail="Image not found")
 
         new_value = not image.get("featured", False)
-        await images.update_one({"_id": ObjectId(id)}, {"$set": {"featured": new_value}})
+        update = {"featured": new_value}
+        if not new_value:
+            # An image can't be a hero without being featured — clear it so a
+            # de-featured image never lingers as a stale hero tile.
+            update["is_hero"] = False
+        await images.update_one({"_id": ObjectId(id)}, {"$set": update})
 
         return {"message": "Featured toggled successfully", "featured": new_value}
 
