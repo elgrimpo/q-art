@@ -30,25 +30,26 @@ async def test_admin_download_already_unlocked_serves_existing_s3_file(mock_imag
     assert "attachment" in response.headers["Content-Disposition"]
 
 
-@patch("api.controllers.admin_controller._run_upscale", new_callable=AsyncMock)
+@patch("api.controllers.admin_controller._download_from_s3", new_callable=AsyncMock)
 @patch("api.controllers.admin_controller.images")
-async def test_admin_download_not_unlocked_runs_upscale_without_persisting(mock_images, mock_run_upscale):
+async def test_admin_download_not_unlocked_serves_existing_s3_file_without_upscaling(mock_images, mock_download):
+    """Locked images already have a valid (768px) file sitting at the S3 key — no need to upscale."""
     mock_images.find_one = AsyncMock(return_value={"_id": ObjectId(FAKE_IMAGE_ID), "unlocked": False})
-    mock_run_upscale.return_value = (b"freshly-upscaled-bytes", 2048, 2048)
+    mock_download.return_value = b"original-768px-bytes"
 
     response = await admin_download_image(FAKE_IMAGE_ID)
 
-    mock_run_upscale.assert_called_once_with(FAKE_IMAGE_ID)
+    mock_download.assert_called_once_with(FAKE_IMAGE_ID)
     assert response.media_type == "image/png"
 
 
 @patch("api.controllers.admin_controller.update_image")
-@patch("api.controllers.admin_controller._run_upscale", new_callable=AsyncMock)
+@patch("api.controllers.admin_controller._download_from_s3", new_callable=AsyncMock)
 @patch("api.controllers.admin_controller.images")
-async def test_admin_download_does_not_call_update_image(mock_images, mock_run_upscale, mock_update_image):
+async def test_admin_download_does_not_call_update_image(mock_images, mock_download, mock_update_image):
     """The whole point of this endpoint: it must never mutate the target ImageDoc."""
     mock_images.find_one = AsyncMock(return_value={"_id": ObjectId(FAKE_IMAGE_ID), "unlocked": False})
-    mock_run_upscale.return_value = (b"bytes", 2048, 2048)
+    mock_download.return_value = b"bytes"
 
     await admin_download_image(FAKE_IMAGE_ID)
 

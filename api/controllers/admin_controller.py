@@ -11,7 +11,6 @@ from fastapi import HTTPException
 from fastapi.responses import StreamingResponse
 
 from api.controllers.images_controller import update_image  # imported for tests that assert it's NOT called
-from api.controllers.unlock_controller import _run_upscale
 
 logger = logging.getLogger(__name__)
 
@@ -45,18 +44,14 @@ async def admin_download_image(image_id: str) -> StreamingResponse:
     if not image:
         raise HTTPException(status_code=404, detail="Image not found")
 
-    if image.get("unlocked"):
-        # Already upscaled and sitting in S3 — just serve it. No mutation either way.
+    # unlock_image() overwrites the same S3 key in place (768px original -> 2048px
+    # upscale), so this key always holds a valid file regardless of unlock state.
+    # No need to run the paid-tier upscale just to serve an admin download (QRAI-131).
+    try:
         image_bytes = await _download_from_s3(image_id)
-    else:
-        # Run the same upscale step unlock_image uses, but discard the result —
-        # never write back to S3, never call update_image. This is intentional:
-        # admin downloads must not affect the owner's unlock state (QRAI-131).
-        try:
-            image_bytes, _, _ = await _run_upscale(image_id)
-        except Exception:
-            logger.error("Admin download upscale failed for image %s", image_id, exc_info=True)
-            raise HTTPException(status_code=500, detail="Image preparation failed — please try again")
+    except Exception:
+        logger.error("Admin download failed for image %s", image_id, exc_info=True)
+        raise HTTPException(status_code=500, detail="Image download failed — please try again")
 
     return StreamingResponse(
         io.BytesIO(image_bytes),
