@@ -154,3 +154,19 @@ test('does not act on a stale response after jobId changes on a live instance', 
 
   expect(onSucceeded).not.toHaveBeenCalled()
 }, 10000)
+
+test('resets percent to initialPercent when jobId changes on a live instance', async () => {
+  mockGetGenerationProgress.mockResolvedValue({ status: 'processing', percent: 5 })
+  const { result, rerender } = renderHook(
+    ({ jobId }) => useGenerationPolling(jobId, { onSucceeded: jest.fn(), onFailed: jest.fn(), initialPercent: 0 }),
+    { initialProps: { jobId: 'job-A' } }
+  )
+
+  await waitFor(() => expect(result.current).toBe(5))
+
+  rerender({ jobId: 'job-B' })
+
+  // Percent must reset to initialPercent (0) as soon as the jobId changes,
+  // not linger at the previous job's last-known value.
+  await waitFor(() => expect(result.current).toBe(0))
+})

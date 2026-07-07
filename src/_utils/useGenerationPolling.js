@@ -20,6 +20,7 @@ export function useGenerationPolling(jobId, { onSucceeded, onFailed, onProgress,
   useEffect(() => {
     if (!jobId) return undefined;
 
+    setPercent(initialPercent);
     let cancelled = false;
     const startedAt = Date.now();
     let failedAttempts = 0;
