@@ -1,7 +1,7 @@
 # Libraries Import
 import requests as requests
 import datetime
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Dict, List, Optional
 from datetime import datetime
 from typing_extensions import Annotated
@@ -71,6 +71,8 @@ class ControlNet(BaseModel):
     # resize_mode: int
 
 class StyleLora(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
+
     model_name: str
     strength: float
 
