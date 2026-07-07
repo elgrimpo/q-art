@@ -23,6 +23,7 @@ logging.basicConfig(
 # App imports
 from api.controllers.images_controller import get_images, get_image, toggle_like, delete_image, toggle_featured
 from api.controllers.generate_controller import seed_job, start_generation, get_job, sweep_old_jobs
+from api.controllers.styles_controller import get_style
 from api.controllers.users_controller import get_user_info, authenticate_user
 from api.controllers.login_code_controller import request_login_code, verify_login_code
 from api.controllers.payment_controller import create_unlock_checkout_session, stripe_webhook
@@ -30,6 +31,7 @@ from api.controllers.unlock_controller import unlock_image
 from api.controllers.admin_controller import admin_download_image, admin_get_image_info
 from api.schemas.schemas import User, UserAuth, LoginCodeRequest, LoginCodeVerify
 from api.utils.auth import get_current_user, require_service_token, require_admin
+from novita_client import Img2V3ImgLoRA
 
 
 def _get_real_ip(request: Request) -> str:
@@ -106,24 +108,22 @@ async def verify_code_endpoint(body: LoginCodeVerify, _: None = Depends(require_
 async def generate_start_endpoint(
     request: Request,
     website: Annotated[str, Query(min_length=1, max_length=2048)],
-    sd_model: Annotated[str, Query(min_length=1, max_length=200)],
+    style_id: Annotated[str, Query(min_length=1, max_length=64)],
     prompt: Annotated[str, Query(max_length=500)] = "",
     negative_prompt: Annotated[str, Query(max_length=500)] = "",
-    style_prompt: Annotated[str, Query(max_length=1000)] = "",
-    style_title: Annotated[str, Query(max_length=100)] = "",
-    style_loras: Annotated[str, Query(max_length=2000)] = "[]",
     seed: Annotated[int, Query(ge=-1)] = -1,
     qr_weight: Annotated[int, Query(ge=-2, le=2)] = 0,
-    style_modifier: Annotated[float, Query(ge=-2, le=2)] = 0,
     current_user: dict = Depends(get_current_user),
 ):
     sweep_old_jobs()
+    style = await get_style(style_id)
+    loras = [Img2V3ImgLoRA(model_name=l.model_name, strength=l.strength) for l in style.loras]
     job_id = str(uuid.uuid4())
     seed_job(job_id, current_user["user_id"])
     asyncio.create_task(start_generation(
-        job_id, prompt, website, negative_prompt, seed, sd_model,
-        current_user["user_id"], style_prompt, style_title, style_loras,
-        qr_weight, style_modifier,
+        job_id, prompt, website, negative_prompt, seed, style.sd_model,
+        current_user["user_id"], style.id, style.title, style.prompt, loras,
+        qr_weight, style.style_modifier,
     ))
     return {"job_id": job_id}
 

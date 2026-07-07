@@ -187,16 +187,28 @@ async def test_generate_start_requires_auth():
 
 
 @patch("api.main.start_generation", new_callable=AsyncMock)
-async def test_generate_start_returns_job_id(mock_start_generation):
+@patch("api.main.get_style", new_callable=AsyncMock)
+async def test_generate_start_returns_job_id(mock_get_style, mock_start_generation):
+    from api.schemas.schemas import Style
+
+    mock_get_style.return_value = Style(
+        _id="507f1f77bcf86cd799439099",
+        style_key="cinematic",
+        version=1,
+        is_active=True,
+        title="Cinematic",
+        prompt=", cinematic",
+        loras=[],
+        style_modifier=0,
+        sd_model="sd-v1-5",
+    )
     params = {
         "prompt": "a dragon",
         "website": "https://example.com",
         "negative_prompt": "ugly",
         "seed": "42",
         "qr_weight": "1",
-        "sd_model": "sd-v1-5",
-        "style_prompt": ", cinematic",
-        "style_title": "Cinematic",
+        "style_id": "507f1f77bcf86cd799439099",
     }
     async with _client() as client:
         response = await client.post("/api/generate/start", params=params, headers=_guest_auth_headers())
@@ -204,6 +216,23 @@ async def test_generate_start_returns_job_id(mock_start_generation):
     assert response.status_code == 200
     body = response.json()
     assert isinstance(body.get("job_id"), str) and body["job_id"]
+    mock_get_style.assert_awaited_once_with("507f1f77bcf86cd799439099")
+
+
+@patch("api.main.get_style", new_callable=AsyncMock)
+async def test_generate_start_returns_400_for_unknown_style(mock_get_style):
+    from fastapi import HTTPException
+
+    mock_get_style.side_effect = HTTPException(status_code=404, detail="Style not found")
+    params = {
+        "prompt": "a dragon",
+        "website": "https://example.com",
+        "style_id": "000000000000000000000000",
+    }
+    async with _client() as client:
+        response = await client.post("/api/generate/start", params=params, headers=_guest_auth_headers())
+
+    assert response.status_code == 404
 
 
 # ---------------------------------------------------------------------------- #
