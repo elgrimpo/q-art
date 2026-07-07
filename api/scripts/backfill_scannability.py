@@ -24,6 +24,7 @@ from PIL import Image
 import os
 
 from api.utils.structural_score import structural_score
+from api.utils.utils import normalize_qr_url
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
@@ -49,12 +50,20 @@ async def main():
         async for doc in images.find(query):
             doc_id = doc["_id"]
             image_url = doc.get("image_url")
-            payload = doc.get("content")
+            content = doc.get("content")
 
-            if not image_url or not payload:
+            if not image_url or not content:
                 logger.warning("[%s] skipping — missing image_url or content", doc_id)
                 failed += 1
                 continue
+
+            # The actual embedded QR (and generate_controller.py's own scoring
+            # at generation time) always encodes normalize_qr_url(content), not
+            # the raw content field. Scoring against the raw field compares the
+            # image to the wrong expected QR pattern whenever content has a
+            # 'www.', a protocol, or a trailing slash — corrupting an
+            # already-correct score with a near-zero floor value.
+            payload = normalize_qr_url(content)
 
             try:
                 resp = await http.get(image_url)
