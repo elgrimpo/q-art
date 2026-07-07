@@ -28,6 +28,8 @@ async def get_style(style_id: str) -> Style:
     endpoint before creating a generation job, so an invalid or missing
     style_id fails fast with a clean HTTP error instead of surfacing only
     as an async job failure."""
+    if not style_id:
+        raise HTTPException(status_code=400, detail="Invalid style_id")
     try:
         object_id = ObjectId(style_id)
     except (InvalidId, TypeError):

@@ -50,3 +50,9 @@ async def test_get_style_raises_400_for_malformed_id():
     with pytest.raises(HTTPException) as exc_info:
         await get_style("not-a-valid-object-id")
     assert exc_info.value.status_code == 400
+
+
+async def test_get_style_raises_400_for_none_id():
+    with pytest.raises(HTTPException) as exc_info:
+        await get_style(None)
+    assert exc_info.value.status_code == 400
