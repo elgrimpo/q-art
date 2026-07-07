@@ -21,7 +21,7 @@ logging.basicConfig(
 )
 
 # App imports
-from api.controllers.images_controller import get_images, get_image, toggle_like, delete_image, toggle_featured
+from api.controllers.images_controller import get_images, get_image, toggle_like, delete_image, toggle_featured, toggle_hero
 from api.controllers.generate_controller import seed_job, start_generation, get_job, sweep_old_jobs
 from api.controllers.styles_controller import get_style
 from api.controllers.users_controller import get_user_info, authenticate_user
@@ -188,6 +188,11 @@ async def toggle_like_endpoint(id: str, current_user: dict = Depends(get_current
 @app.put("/api/images/bookmark/{id}")
 async def toggle_featured_endpoint(id: str, _: dict = Depends(require_admin)):
     return await toggle_featured(id)
+
+# HERO IMAGE (admin only) — requires the image to already be featured
+@app.put("/api/images/hero/{id}")
+async def toggle_hero_endpoint(id: str, _: dict = Depends(require_admin)):
+    return await toggle_hero(id)
 
 # DELETE IMAGE
 @app.delete("/api/images/delete/{id}")

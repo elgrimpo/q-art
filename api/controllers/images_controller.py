@@ -326,3 +326,29 @@ async def toggle_featured(id):
     except Exception:
         logger.error("Unexpected error in toggle_featured", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+# ---------------------------------------------------------------------------- #
+#                                TOGGLE HERO                                    #
+# ---------------------------------------------------------------------------- #
+
+
+async def toggle_hero(id):
+    try:
+        image = await images.find_one({"_id": ObjectId(id)})
+        if not image:
+            raise HTTPException(status_code=404, detail="Image not found")
+
+        if not image.get("featured", False):
+            raise HTTPException(status_code=400, detail="Image must be featured before it can be a hero")
+
+        new_value = not image.get("is_hero", False)
+        await images.update_one({"_id": ObjectId(id)}, {"$set": {"is_hero": new_value}})
+
+        return {"message": "Hero toggled successfully", "is_hero": new_value}
+
+    except HTTPException:
+        raise
+    except Exception:
+        logger.error("Unexpected error in toggle_hero", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal Server Error")

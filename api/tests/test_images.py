@@ -335,3 +335,58 @@ async def test_toggle_featured_not_found_404(mock_images):
     with pytest.raises(HTTPException) as exc:
         await toggle_featured(FAKE_IMAGE_ID)
     assert exc.value.status_code == 404
+
+
+# ---------------------------------------------------------------------------- #
+#                                TOGGLE HERO                                    #
+# ---------------------------------------------------------------------------- #
+
+from api.controllers.images_controller import toggle_hero
+
+
+@patch("api.controllers.images_controller.images")
+async def test_toggle_hero_sets_true_when_featured_and_not_hero(mock_images):
+    mock_images.find_one = AsyncMock(
+        return_value={"_id": ObjectId(FAKE_IMAGE_ID), "featured": True, "is_hero": False}
+    )
+    mock_images.update_one = AsyncMock()
+
+    result = await toggle_hero(FAKE_IMAGE_ID)
+
+    mock_images.update_one.assert_called_once_with(
+        {"_id": ObjectId(FAKE_IMAGE_ID)}, {"$set": {"is_hero": True}}
+    )
+    assert result == {"message": "Hero toggled successfully", "is_hero": True}
+
+
+@patch("api.controllers.images_controller.images")
+async def test_toggle_hero_sets_false_when_true(mock_images):
+    mock_images.find_one = AsyncMock(
+        return_value={"_id": ObjectId(FAKE_IMAGE_ID), "featured": True, "is_hero": True}
+    )
+    mock_images.update_one = AsyncMock()
+
+    result = await toggle_hero(FAKE_IMAGE_ID)
+
+    mock_images.update_one.assert_called_once_with(
+        {"_id": ObjectId(FAKE_IMAGE_ID)}, {"$set": {"is_hero": False}}
+    )
+    assert result == {"message": "Hero toggled successfully", "is_hero": False}
+
+
+@patch("api.controllers.images_controller.images")
+async def test_toggle_hero_rejects_when_not_featured(mock_images):
+    mock_images.find_one = AsyncMock(
+        return_value={"_id": ObjectId(FAKE_IMAGE_ID), "featured": False, "is_hero": False}
+    )
+    with pytest.raises(HTTPException) as exc:
+        await toggle_hero(FAKE_IMAGE_ID)
+    assert exc.value.status_code == 400
+
+
+@patch("api.controllers.images_controller.images")
+async def test_toggle_hero_not_found_404(mock_images):
+    mock_images.find_one = AsyncMock(return_value=None)
+    with pytest.raises(HTTPException) as exc:
+        await toggle_hero(FAKE_IMAGE_ID)
+    assert exc.value.status_code == 404
