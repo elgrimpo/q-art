@@ -29,7 +29,6 @@ from api.controllers.images_controller import (
 from api.utils.utils import (
     prepare_img2img_request,
     create_watermark,
-    parse_style_loras,
     normalize_qr_url,
 )
 from api.controllers.users_controller import increment_user_count
@@ -208,9 +207,10 @@ async def predict(
     seed: int,
     sd_model: str,
     user_id: str,
-    style_prompt: str,
+    style_id: str,
     style_title: str,
-    style_loras: str = "[]",
+    style_prompt: str,
+    loras: list,
     qr_weight: int = 0,
     style_modifier: float = 0,
 ):
@@ -247,8 +247,6 @@ async def predict(
         t = mark("qr_code_build", t)
 
         # -------------------------- GENERATE IMAGE AND SAVE ------------------------- #
-
-        loras = parse_style_loras(style_loras)
 
         # Log what we're *asking* Novita to apply. This is the only
         # ground-truth record of intent — Novita's response doesn't echo
@@ -385,6 +383,7 @@ async def predict(
                 prompt,
                 style_prompt,
                 style_title,
+                style_id,
             )
 
             t = mark("create_image_doc", t)
@@ -458,9 +457,10 @@ async def start_generation(
     seed,
     sd_model,
     user_id,
-    style_prompt,
+    style_id,
     style_title,
-    style_loras="[]",
+    style_prompt,
+    loras,
     qr_weight=0,
     style_modifier=0,
 ):
@@ -472,7 +472,7 @@ async def start_generation(
     try:
         result = await predict(
             job_id, prompt, website, negative_prompt, seed, sd_model,
-            user_id, style_prompt, style_title, style_loras, qr_weight, style_modifier,
+            user_id, style_id, style_title, style_prompt, loras, qr_weight, style_modifier,
         )
         _update_job(job_id, status="succeeded", percent=100, stage="finishing", result=result)
     except Exception:

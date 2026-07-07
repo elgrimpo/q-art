@@ -43,8 +43,10 @@ PREDICT_KWARGS = dict(
     seed=42,
     sd_model="sd-v1-5",
     user_id=FAKE_IMAGE_ID,
-    style_prompt=", cinematic",
+    style_id="507f1f77bcf86cd799439099",
     style_title="Cinematic",
+    style_prompt=", cinematic",
+    loras=[],
 )
 
 
@@ -388,7 +390,7 @@ async def test_generate_stores_scannability_score(
 @patch("api.controllers.generate_controller.download_image_bytes", new_callable=AsyncMock)
 @patch("api.controllers.generate_controller.client")
 @patch("api.controllers.generate_controller.prepare_img2img_request")
-async def test_predict_passes_parsed_loras_to_request_builder(
+async def test_predict_passes_loras_straight_to_request_builder(
     mock_prepare,
     mock_novita_client,
     mock_download,
@@ -398,10 +400,13 @@ async def test_predict_passes_parsed_loras_to_request_builder(
     mock_update,
     mock_increment,
 ):
-    """predict() must parse style_loras and pass the LoRA objects to the builder."""
+    """predict() must pass the already-resolved style loras straight through
+    to the request builder — no parsing/JSON-decoding happens in predict()
+    anymore, since the caller (the /api/generate/start endpoint) resolves
+    them from the DB before calling predict()."""
     from novita_client import Img2V3ImgLoRA
 
-    mock_prepare.return_value = {"model_name": "sd-v1-5"}  # trivial valid req dict
+    mock_prepare.return_value = {"model_name": "sd-v1-5"}
     mock_novita_client.img2img_v3.return_value = _build_novita_mocks()
     mock_download.return_value = _white_png_bytes()
     mock_create_watermark.return_value = Image.new("RGB", (512, 512), "grey")
@@ -409,13 +414,10 @@ async def test_predict_passes_parsed_loras_to_request_builder(
     mock_upload.side_effect = [ORIG_URL, WMARK_URL]
     mock_update.return_value = {"_id": FAKE_IMAGE_ID, "image_url": ORIG_URL, "watermarked_image_url": WMARK_URL}
 
-    await predict(
-        **{**PREDICT_KWARGS, "style_loras": '[{"model_name": "LAS_17554", "strength": 0.7}]'}
-    )
+    resolved_loras = [Img2V3ImgLoRA(model_name="LAS_17554", strength=0.7)]
+    await predict(**{**PREDICT_KWARGS, "loras": resolved_loras})
 
-    assert mock_prepare.call_args.kwargs["loras"] == [
-        Img2V3ImgLoRA(model_name="LAS_17554", strength=0.7)
-    ]
+    assert mock_prepare.call_args.kwargs["loras"] == resolved_loras
 
 
 @patch("api.controllers.generate_controller.increment_user_count", new_callable=AsyncMock)
