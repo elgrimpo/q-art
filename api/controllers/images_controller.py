@@ -50,11 +50,11 @@ s3_session = aioboto3.Session()
 # ---------------------------------------------------------------------------- #
 #                                 INSERT IMAGE DOC                             #
 # ---------------------------------------------------------------------------- #
-async def create_image_doc(req, seed, website, qr_weight, user_id, prompt, style_prompt, style_title):
+async def create_image_doc(req, seed, website, qr_weight, user_id, prompt, style_prompt, style_title, style_id=None):
     try:
         # Prepare the document
         doc = prepare_doc(
-            req, seed, website, qr_weight, user_id, prompt, style_prompt, style_title
+            req, seed, website, qr_weight, user_id, prompt, style_prompt, style_title, style_id
         )
 
         # Insert image document into MongoDB

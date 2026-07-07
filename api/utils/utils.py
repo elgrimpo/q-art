@@ -155,7 +155,7 @@ def create_watermark(image):
 
 
 def prepare_doc(
-    req, seed, website, qr_weight, user_id, prompt, style_prompt, style_title
+    req, seed, website, qr_weight, user_id, prompt, style_prompt, style_title, style_id=None
 ):
     # sampler_name = req["sampler_name"]
     # control_mode_0 = req["controlnet_units"][0].control_mode.value
@@ -176,6 +176,7 @@ def prepare_doc(
         negative_prompt=req["negative_prompt"],
         style_title=style_title,
         style_prompt=style_prompt,
+        style_id=style_id,
         content=website,
         sd_model=req["model_name"],
         seed=seed,

@@ -166,6 +166,40 @@ class TestShortPromptSuffix:
 
 
 # ---------------------------------------------------------------------------- #
+#                                PREPARE DOC                                    #
+# ---------------------------------------------------------------------------- #
+
+from api.utils.utils import prepare_doc
+
+
+class TestPrepareDoc:
+    def _req(self):
+        return prepare_img2img_request(
+            prompt="a dragon",
+            negative_prompt="ugly",
+            sd_model="sd-v1-5",
+            seed=42,
+            image_base64_str="base64string==",
+            qr_weight=0,
+            style_prompt=", cinematic",
+        )
+
+    def test_style_id_is_stored_on_the_doc(self):
+        doc = prepare_doc(
+            self._req(), 42, "https://example.com", 0, "user_1", "a dragon",
+            ", cinematic", "Cinematic", style_id="507f1f77bcf86cd799439099",
+        )
+        assert doc.style_id == "507f1f77bcf86cd799439099"
+
+    def test_style_id_defaults_to_none(self):
+        doc = prepare_doc(
+            self._req(), 42, "https://example.com", 0, "user_1", "a dragon",
+            ", cinematic", "Cinematic",
+        )
+        assert doc.style_id is None
+
+
+# ---------------------------------------------------------------------------- #
 #                         CREATE IMAGES FILTER QUERY                           #
 # ---------------------------------------------------------------------------- #
 
