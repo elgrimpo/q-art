@@ -8,11 +8,9 @@ from api.utils.utils import (
     prepare_img2img_request,
     createImagesFilterQuery,
     create_watermark,
-    parse_style_loras,
     SHORT_PROMPT_THRESHOLD,
     QUALITY_SUFFIX,
 )
-from novita_client import Img2V3ImgLoRA
 
 
 # ---------------------------------------------------------------------------- #
@@ -165,76 +163,6 @@ class TestShortPromptSuffix:
     def test_suffix_is_string(self):
         assert isinstance(QUALITY_SUFFIX, str)
         assert len(QUALITY_SUFFIX) > 0
-
-
-# ---------------------------------------------------------------------------- #
-#                           PARSE STYLE LORAS                                  #
-# ---------------------------------------------------------------------------- #
-
-class TestParseStyleLoras:
-    def test_empty_string_returns_empty(self):
-        assert parse_style_loras("") == []
-
-    def test_none_returns_empty(self):
-        assert parse_style_loras(None) == []
-
-    def test_empty_json_array_returns_empty(self):
-        assert parse_style_loras("[]") == []
-
-    def test_malformed_json_returns_empty(self):
-        assert parse_style_loras("not json") == []
-
-    def test_non_list_json_returns_empty(self):
-        assert parse_style_loras('{"model_name": "x"}') == []
-
-    def test_single_valid_lora(self):
-        result = parse_style_loras('[{"model_name": "LAS_17554", "strength": 0.7}]')
-        assert result == [Img2V3ImgLoRA(model_name="LAS_17554", strength=0.7)]
-
-    def test_two_valid_loras(self):
-        result = parse_style_loras(
-            '[{"model_name": "wuxia2_62008", "strength": 0.8},'
-            ' {"model_name": "MoXinV1_12781", "strength": 0.4}]'
-        )
-        assert result == [
-            Img2V3ImgLoRA(model_name="wuxia2_62008", strength=0.8),
-            Img2V3ImgLoRA(model_name="MoXinV1_12781", strength=0.4),
-        ]
-
-    def test_name_with_spaces_and_parens_preserved(self):
-        result = parse_style_loras('[{"model_name": "0mib3(gut auf 1)_47645", "strength": 0.7}]')
-        assert result[0].model_name == "0mib3(gut auf 1)_47645"
-
-    def test_missing_model_name_dropped(self):
-        assert parse_style_loras('[{"strength": 0.5}]') == []
-
-    def test_blank_model_name_dropped(self):
-        assert parse_style_loras('[{"model_name": "   ", "strength": 0.5}]') == []
-
-    def test_missing_strength_defaults_to_one(self):
-        result = parse_style_loras('[{"model_name": "x"}]')
-        assert result[0].strength == 1.0
-
-    def test_non_numeric_strength_defaults_to_one(self):
-        result = parse_style_loras('[{"model_name": "x", "strength": "abc"}]')
-        assert result[0].strength == 1.0
-
-    def test_strength_clamped_high(self):
-        result = parse_style_loras('[{"model_name": "x", "strength": 5}]')
-        assert result[0].strength == 1.5
-
-    def test_strength_clamped_low(self):
-        result = parse_style_loras('[{"model_name": "x", "strength": -2}]')
-        assert result[0].strength == 0.0
-
-    def test_caps_at_six_loras(self):
-        entries = ",".join(f'{{"model_name": "m{i}", "strength": 0.5}}' for i in range(10))
-        result = parse_style_loras(f"[{entries}]")
-        assert len(result) == 6
-
-    def test_non_dict_entries_skipped(self):
-        result = parse_style_loras('["just a string", {"model_name": "ok", "strength": 0.5}]')
-        assert result == [Img2V3ImgLoRA(model_name="ok", strength=0.5)]
 
 
 # ---------------------------------------------------------------------------- #

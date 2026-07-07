@@ -2,7 +2,6 @@
 import requests as requests
 import datetime
 import re
-import json
 import base64
 from io import BytesIO
 from datetime import datetime, timedelta
@@ -51,60 +50,6 @@ def parse_seed(metadata):
         return int(seed_value)
     else:
         return None
-
-
-# ---------------------------------------------------------------------------- #
-#                            PARSE STYLE LORAS                                 #
-# ---------------------------------------------------------------------------- #
-
-# A style's LoRAs arrive as an untrusted JSON query param (style_loras). Our
-# styles use at most 2; cap and clamp so a bad client value can't push extreme
-# or oversized input to Novita.
-MAX_STYLE_LORAS = 6
-LORA_STRENGTH_MIN = 0.0
-LORA_STRENGTH_MAX = 1.5
-MAX_LORA_NAME_LEN = 200
-
-
-def parse_style_loras(raw):
-    """Parse the client-supplied ``style_loras`` JSON into Novita LoRA objects.
-
-    ``raw`` is a JSON-encoded list of ``{"model_name": str, "strength": number}``.
-    This must NEVER raise: any malformed, empty, or non-list input returns ``[]``
-    so a bad value can't 500 a generation. Entries without a non-empty string
-    ``model_name`` are dropped; ``strength`` is coerced to float, defaulted to
-    1.0, and clamped to [LORA_STRENGTH_MIN, LORA_STRENGTH_MAX]. At most
-    MAX_STYLE_LORAS valid entries are returned.
-    """
-    if not raw:
-        return []
-    try:
-        data = json.loads(raw)
-    except (ValueError, TypeError):
-        return []
-    if not isinstance(data, list):
-        return []
-
-    loras = []
-    for entry in data:
-        if len(loras) >= MAX_STYLE_LORAS:
-            break
-        if not isinstance(entry, dict):
-            continue
-        model_name = entry.get("model_name")
-        if not isinstance(model_name, str):
-            continue
-        model_name = model_name.strip()
-        if not model_name or len(model_name) > MAX_LORA_NAME_LEN:
-            continue
-        try:
-            strength = float(entry.get("strength", 1.0))
-        except (ValueError, TypeError):
-            strength = 1.0
-        strength = max(LORA_STRENGTH_MIN, min(LORA_STRENGTH_MAX, strength))
-        loras.append(Img2V3ImgLoRA(model_name=model_name, strength=strength))
-    return loras
-
 
 # ---------------------------------------------------------------------------- #
 #                            PREPARE IMG2IMG REQUEST                           #
