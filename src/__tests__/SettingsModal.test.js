@@ -17,13 +17,11 @@ function resetStore(qrWeight = 0.0) {
     generateFormValues: {
       website: '',
       prompt: '',
-      style_id: 1,
+      style_id: 'random',
       style_title: 'Random',
-      style_prompt: '',
       qr_weight: qrWeight,
       negative_prompt: '',
       seed: -1,
-      sd_model: 'cyberrealistic_v40_151857.safetensors',
     },
   })
 }
