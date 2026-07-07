@@ -105,3 +105,25 @@ test('cleans up its timer on unmount (no further polling)', async () => {
   await new Promise((resolve) => setTimeout(resolve, 1300))
   expect(mockGetGenerationProgress.mock.calls.length).toBe(callsAtUnmount)
 })
+
+test('does not call callbacks for a poll response that resolves after unmount', async () => {
+  let resolveSecondPoll
+  mockGetGenerationProgress
+    .mockResolvedValueOnce({ status: 'processing', percent: 5 })
+    .mockImplementationOnce(() => new Promise((resolve) => { resolveSecondPoll = resolve }))
+
+  const onSucceeded = jest.fn()
+  const onFailed = jest.fn()
+  const { unmount } = renderHook(() => useGenerationPolling('job-8', { onSucceeded, onFailed }))
+
+  await waitFor(() => expect(mockGetGenerationProgress).toHaveBeenCalledTimes(1))
+  await new Promise((resolve) => setTimeout(resolve, 1300)) // let the second tick fire and start its request
+  await waitFor(() => expect(mockGetGenerationProgress).toHaveBeenCalledTimes(2))
+
+  unmount()
+  resolveSecondPoll({ status: 'succeeded', percent: 100, result: { _id: 'too-late' } })
+  await new Promise((resolve) => setTimeout(resolve, 50)) // let the resolved promise's .then run, if unguarded
+
+  expect(onSucceeded).not.toHaveBeenCalled()
+  expect(onFailed).not.toHaveBeenCalled()
+}, 10000)
