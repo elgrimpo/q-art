@@ -12,6 +12,12 @@ def test_image_doc_has_unlocked_not_downloaded():
     assert fields["featured"].default is False
 
 
+def test_image_doc_has_is_hero():
+    fields = ImageDoc.model_fields
+    assert "is_hero" in fields
+    assert fields["is_hero"].default is False
+
+
 def test_user_has_no_credits_or_payment_history():
     fields = User.model_fields
     assert "credits" not in fields

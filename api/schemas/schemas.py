@@ -119,4 +119,5 @@ class ImageDoc(BaseModel):
     unlocked: Optional[bool] = False
     unlock_pending: Optional[bool] = False
     featured: Optional[bool] = False
+    is_hero: Optional[bool] = False
     scannability_score: Optional[float] = None
