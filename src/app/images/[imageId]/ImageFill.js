@@ -6,8 +6,14 @@ import LockIcon from "@mui/icons-material/Lock";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 
-export default function ImageFill({ image, sx, onPrev, onNext, topOverlay }) {
+export default function ImageFill({ image, sx, onPrev, onNext, topOverlay, maxHeight }) {
   const imageUrl = image?.unlocked ? image?.image_url : image?.watermarked_image_url;
+  // Real aspect ratio, letterboxed via objectFit:contain instead of force-
+  // cropped — matches the myCodes grid fix. `maxHeight` (modal contexts
+  // only) clamps a tall portrait image's box height; contain still shows
+  // the full image within that clamped box rather than cropping it.
+  const aspectRatio =
+    image?.width && image?.height ? `${image.width} / ${image.height}` : "1 / 1";
 
   return (
     <Box
@@ -23,7 +29,7 @@ export default function ImageFill({ image, sx, onPrev, onNext, topOverlay }) {
         <Skeleton
           variant="rounded"
           animation="wave"
-          sx={{ width: "100%", aspectRatio: "1/1" }}
+          sx={{ width: "100%", aspectRatio, ...(maxHeight && { maxHeight }) }}
         />
       ) : (
         <CardMedia
@@ -32,9 +38,10 @@ export default function ImageFill({ image, sx, onPrev, onNext, topOverlay }) {
           sx={{
             display: "block",
             width: "100%",
-            aspectRatio: "1/1",
-            objectFit: "cover",
+            aspectRatio,
+            objectFit: "contain",
             pointerEvents: "none",
+            ...(maxHeight && { maxHeight }),
           }}
         />
       )}

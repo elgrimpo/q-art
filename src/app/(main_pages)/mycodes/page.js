@@ -6,7 +6,7 @@ import { useInView } from "react-intersection-observer";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import { Grid, Box } from "@mui/material";
+import { Box } from "@mui/material";
 
 // App imports
 import ImageCard from "./ImagesCard";
@@ -19,6 +19,7 @@ import { styles } from "@/_utils/ImageStyles";
 import theme from "@/_styles/theme";
 import { useStore } from "@/store";
 import { getImages } from "@/_utils/ImagesUtils";
+import { ROW_UNIT_PX } from "./gridLayout";
 
 export default function MyCodes() {
   /* --------------------------- DECLARE VARIABLES ---------------------------- */
@@ -30,6 +31,11 @@ export default function MyCodes() {
   const isAdmin = !!user?.is_admin;
   // Screen size
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  // POC masonry column count — mirrors the xs:1, sm:2, md:2, lg:3, xl:3
+  // breakpoints the old MUI Grid used.
+  const isSmUp = useMediaQuery(theme.breakpoints.up("sm"));
+  const isLgUp = useMediaQuery(theme.breakpoints.up("lg"));
+  const colCount = isLgUp ? 3 : isSmUp ? 2 : 1;
   const [images, setImages] = useState([]);
   const [page, setPage] = useState(0);
   // Admin-only: defaults to showing only the admin's own codes; never persisted.
@@ -283,14 +289,17 @@ export default function MyCodes() {
       </Box>
 
       {/* --------------------------- IMAGES LIST ------------------------- */}
-      <Grid
-        container
-        direction="row"
-        justifyContent="center"
-        alignItems="stretch"
-        columns={{ xs: 1, sm: 2, md: 2, lg: 3, xl: 3 }}
-        spacing={{ xs: 1, sm: 2, md: 2, lg: 3, xl: 3 }}
-        sx={{ mb: "1.5rem" }}
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: `repeat(${colCount}, 1fr)`,
+          gridAutoRows: `${ROW_UNIT_PX}px`,
+          gridAutoFlow: "row dense",
+          alignItems: "start",
+          columnGap: { xs: 1, sm: 2, md: 2, lg: 3, xl: 3 },
+          rowGap: 0,
+          mb: "1.5rem",
+        }}
       >
         {images &&
           images.map((image, index) => (
@@ -299,30 +308,34 @@ export default function MyCodes() {
               index={index}
               key={index}
               variant="image"
+              colCount={colCount}
               handleCardClick={() => handleModalOpen(index)}
               upscaling={upscaling}
               customLikeAction={customLikeAction}
               customDeleteAction={customDeleteAction}
             />
           ))}
-      </Grid>
+      </Box>
 
       {/* --------------------------- SKELETON CARDS -------------------------- */}
       {page >= 0 && (
-        <Grid
+        <Box
           ref={ref}
-          container
-          direction="row"
-          justifyContent="center"
-          alignItems="stretch"
-          columns={{ xs: 1, sm: 2, md: 2, lg: 3, xl: 3 }}
-          spacing={{ xs: 1, sm: 2, md: 2, lg: 3, xl: 3 }}
-          sx={{ mb: "1.5rem" }}
+          sx={{
+            display: "grid",
+            gridTemplateColumns: `repeat(${colCount}, 1fr)`,
+            gridAutoRows: `${ROW_UNIT_PX}px`,
+            gridAutoFlow: "row dense",
+            alignItems: "start",
+            columnGap: { xs: 1, sm: 2, md: 2, lg: 3, xl: 3 },
+            rowGap: 0,
+            mb: "1.5rem",
+          }}
         >
           {Array.from({ length: 12 }, (_, index) => index).map((_, index) => (
-            <ImageCard item={_} variant="skeleton" index={index} key={index} />
+            <ImageCard item={_} variant="skeleton" index={index} colCount={colCount} key={index} />
           ))}
-        </Grid>
+        </Box>
       )}
 
       {/* ------------------------ IMAGE DETAILS MODAL ----------------------- */}

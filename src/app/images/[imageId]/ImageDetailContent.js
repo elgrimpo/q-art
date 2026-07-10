@@ -44,13 +44,9 @@ export default function ImageDetailContent({
         sx={{
           // full-bleed on phone: width grows by 2× the parent's xs padding (2 = 16px)
           // and the negative margins pull it edge-to-edge symmetrically.
-          // In modals (fitHeight) the square is also capped to the visible modal
-          // height (100vh − 40px paper margin − 48px body padding, plus an 8px
-          // buffer for rounding) so it never forces a scroll, keeping the
-          // padding even on all sides.
           width: {
             xs: "calc(100% + 32px)",
-            md: fitHeight ? "min(60%, calc(100vh - 96px))" : "60%",
+            md: "60%",
           },
           flexShrink: 0,
           mx: { xs: -2, md: 0 },
@@ -60,6 +56,12 @@ export default function ImageDetailContent({
           image={image}
           onPrev={onPrev}
           onNext={onNext}
+          // In modals (fitHeight), clamp the image's own height to the visible
+          // modal height (100vh − 40px paper margin − 48px body padding, plus
+          // an 8px buffer) so a tall portrait image can't force the modal to
+          // scroll — objectFit:contain still shows the full image, letterboxed,
+          // within that clamped box rather than cropping it.
+          maxHeight={fitHeight ? { md: "calc(100vh - 96px)" } : undefined}
           topOverlay={
             <ImageTopBar
               image={image}

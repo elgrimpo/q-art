@@ -1,7 +1,7 @@
 "use client";
-import React, { useState } from "react";
+import React, { useLayoutEffect, useRef, useState } from "react";
 import {
-  Box, Chip, Grid, Typography,
+  Box, Chip, Typography,
   Menu, MenuItem, ListItemIcon, Divider, IconButton,
 } from "@mui/material";
 import LinkIcon from "@mui/icons-material/Link";
@@ -21,6 +21,7 @@ import SkeletonCard from "./SkeletonCard.js";
 import { useStore } from "@/store.js";
 import { bookmarkImage, bookmarkHero, deleteImage } from "@/_utils/ImagesUtils";
 import { isSquareImage } from "@/_utils/imageAspect";
+import { itemLayout, ROW_UNIT_PX, CARD_GAP_PX } from "./gridLayout";
 
 /* -------------------------------------------------------------------------- */
 /*  Scannability thresholds — kept in sync with ImageSidebar.js               */
@@ -128,11 +129,44 @@ export default function ImageCard({
   variant,
   image,
   index,
+  colCount = 3,
   handleCardClick,
   customLikeAction,
   customDeleteAction,
 }) {
   const { user, openAlert } = useStore();
+  const { aspect, gridColumn, imageAspectRatio } =
+    variant === "skeleton"
+      ? { aspect: "square", gridColumn: "span 1", imageAspectRatio: "1 / 1" }
+      : itemLayout(image, colCount);
+
+  // A portrait card has ONE footer where two stacked square cards have TWO —
+  // so a pure 2x-image-ratio slot leaves the portrait card short of the
+  // combined height of two squares beside it. Boost the portrait image area
+  // by exactly one footer + one gap (measured live off this card's own
+  // footer, not hardcoded) so the bottoms line up. Square/landscape don't
+  // need this: they're always single-row, so they only ever compete against
+  // other single-footer cards in the same row.
+  const cardRef = useRef(null);
+  const footerRef = useRef(null);
+  const [portraitImageHeight, setPortraitImageHeight] = useState(null);
+  const [rowSpan, setRowSpan] = useState(1);
+  useLayoutEffect(() => {
+    const el = cardRef.current;
+    if (!el) return undefined;
+    const measure = () => {
+      if (aspect === "portrait" && footerRef.current) {
+        const colWidth = el.offsetWidth;
+        const footerHeight = footerRef.current.offsetHeight;
+        setPortraitImageHeight(2 * colWidth + footerHeight + CARD_GAP_PX);
+      }
+      setRowSpan(Math.max(1, Math.ceil((el.offsetHeight + CARD_GAP_PX) / ROW_UNIT_PX)));
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [aspect, imageAspectRatio, colCount]);
   const isAdmin = !!user?.is_admin;
 
   const [menuAnchor, setMenuAnchor] = useState(null);
@@ -199,7 +233,11 @@ export default function ImageCard({
   const preventRightClick = (e) => e.preventDefault();
 
   return (
-    <Grid item xs={1} key={index}>
+    <Box
+      ref={cardRef}
+      sx={{ gridColumn, gridRow: `span ${rowSpan}`, mb: `${CARD_GAP_PX}px` }}
+      key={index}
+    >
       {variant === "skeleton" ? (
         <SkeletonCard index={index} />
       ) : (
@@ -224,7 +262,9 @@ export default function ImageCard({
             sx={{
               position: "relative",
               width: "100%",
-              aspectRatio: "1/1",
+              ...(aspect === "portrait" && portraitImageHeight
+                ? { height: `${portraitImageHeight}px` }
+                : { aspectRatio: imageAspectRatio }),
               overflow: "hidden",
             }}
           >
@@ -236,7 +276,7 @@ export default function ImageCard({
               sx={{
                 width: "100%",
                 height: "100%",
-                objectFit: "cover",
+                objectFit: "contain",
                 display: "block",
               }}
             />
@@ -358,6 +398,7 @@ export default function ImageCard({
 
           {/* ── Card body ── */}
           <Box
+            ref={footerRef}
             sx={{
               p: "14px 16px 16px",
               display: "flex",
@@ -429,6 +470,6 @@ export default function ImageCard({
           </Box>
         </Box>
       )}
-    </Grid>
+    </Box>
   );
 }
