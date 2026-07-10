@@ -80,7 +80,7 @@ export const styles = [
       "https://qrartimages.s3.us-west-1.amazonaws.com/6a4508cc3b23a83b1fa7b4c3.png",
   },
   {
-    id: "6a4cfaee4021f21026e477f9",
+    id: "6a4cfaef4021f21026e477f9",
     title: "Illustration",
     image_url:
       "https://qrartimages.s3.us-west-1.amazonaws.com/6a4bb59e2cfa329e8d58854c.png",
