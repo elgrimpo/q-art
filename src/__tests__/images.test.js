@@ -15,6 +15,7 @@ const FAKE_FORM = { prompt: 'a dragon', website: 'https://example.com' }
 // Replace global fetch before each test
 beforeEach(() => {
   global.fetch = jest.fn()
+  process.env.NEXT_PUBLIC_BACKEND_URL = 'http://backend'
 })
 afterEach(() => {
   jest.clearAllMocks()
