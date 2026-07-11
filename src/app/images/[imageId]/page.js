@@ -58,6 +58,10 @@ export default async function ImagePage({ params }) {
           image={image}
           user={userProp}
           customDeleteAction={customDeleteAction}
+          // Clamp the image to roughly one viewport (fixed navbar + this
+          // page's own top/bottom chrome) so a tall portrait image doesn't
+          // force scrolling just to see the whole thing, matching the modal.
+          imageMaxHeight={{ md: "calc(100vh - 160px)" }}
         />
       </Box>
     </Box>

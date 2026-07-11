@@ -26,8 +26,16 @@ export default function ImageDetailContent({
   customDeleteAction,
   customLikeAction,
   fitHeight = false,
+  imageMaxHeight,
   imageBoxProps = {},
 }) {
+  // fitHeight (modals) clamps both the image AND the sidebar to the visible
+  // modal height. The standalone page instead passes imageMaxHeight directly:
+  // only the image gets clamped (so a tall portrait doesn't force scrolling
+  // past it) while the sidebar and page keep scrolling normally.
+  const resolvedImageMaxHeight = fitHeight
+    ? { md: "calc(100vh - 96px)" }
+    : imageMaxHeight;
   return (
     <Box
       sx={{
@@ -56,12 +64,11 @@ export default function ImageDetailContent({
           image={image}
           onPrev={onPrev}
           onNext={onNext}
-          // In modals (fitHeight), clamp the image's own height to the visible
-          // modal height (100vh − 40px paper margin − 48px body padding, plus
-          // an 8px buffer) so a tall portrait image can't force the modal to
-          // scroll — objectFit:contain still shows the full image, letterboxed,
-          // within that clamped box rather than cropping it.
-          maxHeight={fitHeight ? { md: "calc(100vh - 96px)" } : undefined}
+          // Clamp the image's own height so a tall portrait image can't force
+          // scrolling just to see the whole thing — objectFit:contain still
+          // shows the full image, letterboxed, within the clamped box rather
+          // than cropping it.
+          maxHeight={resolvedImageMaxHeight}
           topOverlay={
             <ImageTopBar
               image={image}

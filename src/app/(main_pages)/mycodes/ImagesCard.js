@@ -135,38 +135,28 @@ export default function ImageCard({
   customDeleteAction,
 }) {
   const { user, openAlert } = useStore();
-  const { aspect, gridColumn, imageAspectRatio } =
+  const { gridColumn, imageAspectRatio } =
     variant === "skeleton"
-      ? { aspect: "square", gridColumn: "span 1", imageAspectRatio: "1 / 1" }
+      ? { gridColumn: "span 1", imageAspectRatio: "1 / 1" }
       : itemLayout(image, colCount);
 
-  // A portrait card has ONE footer where two stacked square cards have TWO —
-  // so a pure 2x-image-ratio slot leaves the portrait card short of the
-  // combined height of two squares beside it. Boost the portrait image area
-  // by exactly one footer + one gap (measured live off this card's own
-  // footer, not hardcoded) so the bottoms line up. Square/landscape don't
-  // need this: they're always single-row, so they only ever compete against
-  // other single-footer cards in the same row.
+  // Row span is measured (not assumed) from the card's actual rendered
+  // height, since it now varies with each image's real aspect ratio.
+  // Re-measures on column-width changes (ResizeObserver) since image height
+  // depends on the resolved column width.
   const cardRef = useRef(null);
-  const footerRef = useRef(null);
-  const [portraitImageHeight, setPortraitImageHeight] = useState(null);
   const [rowSpan, setRowSpan] = useState(1);
   useLayoutEffect(() => {
     const el = cardRef.current;
     if (!el) return undefined;
     const measure = () => {
-      if (aspect === "portrait" && footerRef.current) {
-        const colWidth = el.offsetWidth;
-        const footerHeight = footerRef.current.offsetHeight;
-        setPortraitImageHeight(2 * colWidth + footerHeight + CARD_GAP_PX);
-      }
       setRowSpan(Math.max(1, Math.ceil((el.offsetHeight + CARD_GAP_PX) / ROW_UNIT_PX)));
     };
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [aspect, imageAspectRatio, colCount]);
+  }, [imageAspectRatio, colCount]);
   const isAdmin = !!user?.is_admin;
 
   const [menuAnchor, setMenuAnchor] = useState(null);
@@ -262,9 +252,7 @@ export default function ImageCard({
             sx={{
               position: "relative",
               width: "100%",
-              ...(aspect === "portrait" && portraitImageHeight
-                ? { height: `${portraitImageHeight}px` }
-                : { aspectRatio: imageAspectRatio }),
+              aspectRatio: imageAspectRatio,
               overflow: "hidden",
             }}
           >
@@ -398,7 +386,6 @@ export default function ImageCard({
 
           {/* ── Card body ── */}
           <Box
-            ref={footerRef}
             sx={{
               p: "14px 16px 16px",
               display: "flex",
