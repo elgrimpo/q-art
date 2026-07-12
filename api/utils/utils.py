@@ -123,24 +123,43 @@ def prepare_img2img_request(
 # ---------------------------------------------------------------------------- #
 
 # Where the badge lands: approximates the top-right finder square of the QR
-# once it's fitted onto generate_controller's 768x1152 output canvas (the QR
-# occupies x:[0,768], y:[192,960] there — see fit_qr_to_canvas). The literal
-# QR-geometry calculation, from a representative 37-module QR (~35-char URL)
-# using the same box_size=10/border=4 constants real QR generation uses:
-#   qr_px = (37 + 2*4) * 10 = 450; scale = 768 / qr_px = 1.7067
+# within the QR's OWN square footprint on the canvas — side = min(width,
+# height), letterboxed/centered exactly like fit_qr_to_canvas does (offset
+# by (width-side)//2, (height-side)//2). Expressing the position as a
+# fraction of that square (not of the full canvas) keeps it correct no
+# matter the canvas's overall aspect ratio — e.g. a plain square 768x768
+# generation today, or a letterboxed 768x1152 one — since only the
+# letterboxing offset changes between the two, not the QR's own internal
+# geometry.
+#
+# The literal QR-geometry calculation, from a representative 37-module QR
+# (~35-char URL) using the same box_size=10/border=4 constants real QR
+# generation uses:
+#   qr_px = (37 + 2*4) * 10 = 450; scale = side / qr_px = 768/450 = 1.7067
 #   finder_inset = 4 * 10 * scale = 68.3px; finder_size = 7 * 10 * scale = 119.5px
-#   finder_center = (768 - 68.3 - 119.5/2, 192 + 68.3 + 119.5/2) = (640, 320)
-# gives (640, 320) — but the AI-rendered art doesn't track the ControlNet
-# guidance pixel-exactly, so the actual finder-square/viewfinder-bracket
-# motif the model draws lands down and left of that literal point in
-# practice. (590, 370) is that literal point empirically nudged down-left
-# after checking a real generation; size was confirmed correct as-is. The
-# badge is kept at its native size and centered on this point rather than
-# resized per-request — a fixed placement avoids the badge visibly
-# growing/shrinking between generations (see the design spec, "Options
-# considered"). Only valid for the 768x1152 canvas create_watermark() is
-# actually called on.
-BADGE_CENTER = (590, 370)
+#   finder_center_in_square = (side - 68.3 - 119.5/2, 68.3 + 119.5/2) = (640, 128)
+# gives fraction (640/768, 128/768) = (0.8333, 0.1667) of the square — but the
+# AI-rendered art doesn't track the ControlNet guidance pixel-exactly, so the
+# actual finder-square/viewfinder-bracket motif the model draws lands down
+# and left of that literal point in practice. (0.7682, 0.2318) is that
+# literal fraction empirically nudged down-left after checking a real
+# generation (768x1152 canvas, where this landed at (590, 370)); size was
+# confirmed correct as-is. The badge is kept at its native size and centered
+# on this point rather than resized per-request — a fixed placement avoids
+# the badge visibly growing/shrinking between generations (see the design
+# spec, "Options considered").
+BADGE_CENTER_FRACTION = (0.7682, 0.2318)
+
+
+def badge_center(width, height):
+    """Badge center point on a width x height canvas — see BADGE_CENTER_FRACTION."""
+    side = min(width, height)
+    x_offset = (width - side) // 2
+    y_offset = (height - side) // 2
+    return (
+        x_offset + BADGE_CENTER_FRACTION[0] * side,
+        y_offset + BADGE_CENTER_FRACTION[1] * side,
+    )
 
 
 def create_watermark(image):
@@ -152,10 +171,11 @@ def create_watermark(image):
         watermarked_image = image.copy()
 
         # Place the badge over the QR's top-right finder-square area
+        center_x, center_y = badge_center(*watermarked_image.size)
         watermark_size = watermark.size
         position = (
-            round(BADGE_CENTER[0] - watermark_size[0] / 2),
-            round(BADGE_CENTER[1] - watermark_size[1] / 2),
+            round(center_x - watermark_size[0] / 2),
+            round(center_y - watermark_size[1] / 2),
         )
 
         watermarked_image.paste(watermark, position, watermark)

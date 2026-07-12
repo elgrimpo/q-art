@@ -8,7 +8,7 @@ from api.utils.utils import (
     prepare_img2img_request,
     createImagesFilterQuery,
     create_watermark,
-    BADGE_CENTER,
+    badge_center,
     SHORT_PROMPT_THRESHOLD,
     QUALITY_SUFFIX,
 )
@@ -283,19 +283,41 @@ class TestCreateWatermark:
             result = create_watermark(self._img())
         assert result is None
 
-    def test_places_badge_near_qr_top_right_finder_square(self):
+    def test_places_badge_near_qr_top_right_finder_square_on_portrait_canvas(self):
         img = self._img((768, 1152))
         result = create_watermark(img)
-        # A white pixel at BADGE_CENTER means the badge didn't land where
-        # expected. Referencing the constant (rather than a hardcoded
-        # literal) keeps this test in sync as the position gets tuned.
-        assert result.getpixel(BADGE_CENTER) != (255, 255, 255)
+        # A white pixel at badge_center() means the badge didn't land where
+        # expected. Computing via badge_center() (rather than a hardcoded
+        # literal) keeps this test in sync as the position gets tuned, and
+        # exercises the real letterboxing math for a non-square canvas.
+        center = tuple(round(c) for c in badge_center(768, 1152))
+        assert result.getpixel(center) != (255, 255, 255)
+
+    def test_places_badge_near_qr_top_right_finder_square_on_square_canvas(self):
+        # Regression test: badge_center() must track the QR's own square
+        # footprint, not a hardcoded absolute position tied to one specific
+        # canvas shape — otherwise a plain square (non-letterboxed) canvas
+        # gets the wrong position (this broke once already: the position was
+        # calibrated against a 768x1152 canvas and hardcoded as absolute
+        # pixels, which was wrong on the 768x768 canvas the app actually
+        # ships today).
+        img = self._img((768, 768))
+        result = create_watermark(img)
+        center = tuple(round(c) for c in badge_center(768, 768))
+        assert result.getpixel(center) != (255, 255, 255)
+        # On a square canvas the badge must land in the TOP portion (near the
+        # real finder square), not down where the portrait canvas's badge
+        # would be — pin this down explicitly so a regression back to a
+        # portrait-only hardcoded position fails loudly.
+        assert center[1] < 768 // 2
 
     def test_no_longer_watermarks_bottom_right(self):
         img = self._img((768, 1152))
         result = create_watermark(img)
         # Old behavior pasted the watermark flush into the bottom-right
-        # corner; confirm that area is untouched now.
+        # corner (the old 146x36 asset's top-left landed at roughly
+        # (622, 1091)); confirm that whole region is untouched now.
+        assert result.getpixel((700, 1110)) == (255, 255, 255)
         assert result.getpixel((767, 1151)) == (255, 255, 255)
 
 
