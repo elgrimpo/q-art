@@ -8,6 +8,7 @@ from api.utils.utils import (
     prepare_img2img_request,
     createImagesFilterQuery,
     create_watermark,
+    BADGE_CENTER,
     SHORT_PROMPT_THRESHOLD,
     QUALITY_SUFFIX,
 )
@@ -285,9 +286,10 @@ class TestCreateWatermark:
     def test_places_badge_near_qr_top_right_finder_square(self):
         img = self._img((768, 1152))
         result = create_watermark(img)
-        # BADGE_CENTER in utils.py is (640, 320) on this canvas size — a
-        # white pixel there means the badge didn't land where expected.
-        assert result.getpixel((640, 320)) != (255, 255, 255)
+        # A white pixel at BADGE_CENTER means the badge didn't land where
+        # expected. Referencing the constant (rather than a hardcoded
+        # literal) keeps this test in sync as the position gets tuned.
+        assert result.getpixel(BADGE_CENTER) != (255, 255, 255)
 
     def test_no_longer_watermarks_bottom_right(self):
         img = self._img((768, 1152))
