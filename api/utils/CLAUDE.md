@@ -4,7 +4,7 @@ Stateless helpers used by the controllers. No DB/network clients here.
 
 - `utils.py` — `prepare_img2img_request()`, `create_watermark()`, `prepare_doc()`, `calculate_credits()`, `sufficient_credit()`, `createImagesFilterQuery()`, `parse_seed()`.
 - `payload_config.py` — static config for request payloads.
-- `watermark.png` — the watermark asset pasted bottom-right by `create_watermark()`.
+- `watermark.png` — the watermark badge `create_watermark()` pastes at a fixed position (`BADGE_CENTER`) approximating the QR's top-right finder square.
 
 ## The img2img request (`prepare_img2img_request`) — handle with care
 
