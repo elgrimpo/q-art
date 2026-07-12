@@ -122,6 +122,23 @@ def prepare_img2img_request(
 #                            CREATE WATERMARKED B64 IMAGE                            #
 # ---------------------------------------------------------------------------- #
 
+# Where the badge lands: approximates the top-right finder square of the QR
+# once it's fitted onto generate_controller's 768x1152 output canvas (the QR
+# occupies x:[0,768], y:[192,960] there — see fit_qr_to_canvas). Derived from
+# a representative 37-module QR (~35-char URL, e.g.
+# "instagram.com/some_business_name") using the same box_size=10/border=4
+# constants real QR generation uses:
+#   qr_px = (37 + 2*4) * 10 = 450; scale = 768 / qr_px = 1.7067
+#   finder_inset = 4 * 10 * scale = 68.3px; finder_size = 7 * 10 * scale = 119.5px
+#   finder_center = (768 - 68.3 - 119.5/2, 192 + 68.3 + 119.5/2) = (640, 320)
+# The badge is kept at its native size and centered on that point rather than
+# resized per-request — shorter/longer URLs shift the real finder square by
+# roughly +/-40px from here, but a fixed placement avoids the badge visibly
+# growing/shrinking between generations (see the design spec, "Options
+# considered"). Only valid for the 768x1152 canvas create_watermark() is
+# actually called on.
+BADGE_CENTER = (640, 320)
+
 
 def create_watermark(image):
     try:
@@ -131,10 +148,12 @@ def create_watermark(image):
         # Create a copy of the original image
         watermarked_image = image.copy()
 
-        # Place the watermark in the bottom right corner
-        width, height = watermarked_image.size
+        # Place the badge over the QR's top-right finder-square area
         watermark_size = watermark.size
-        position = (width - watermark_size[0], height - watermark_size[1] - 25)
+        position = (
+            round(BADGE_CENTER[0] - watermark_size[0] / 2),
+            round(BADGE_CENTER[1] - watermark_size[1] / 2),
+        )
 
         watermarked_image.paste(watermark, position, watermark)
 

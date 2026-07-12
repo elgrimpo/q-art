@@ -282,6 +282,20 @@ class TestCreateWatermark:
             result = create_watermark(self._img())
         assert result is None
 
+    def test_places_badge_near_qr_top_right_finder_square(self):
+        img = self._img((768, 1152))
+        result = create_watermark(img)
+        # BADGE_CENTER in utils.py is (640, 320) on this canvas size — a
+        # white pixel there means the badge didn't land where expected.
+        assert result.getpixel((640, 320)) != (255, 255, 255)
+
+    def test_no_longer_watermarks_bottom_right(self):
+        img = self._img((768, 1152))
+        result = create_watermark(img)
+        # Old behavior pasted the watermark flush into the bottom-right
+        # corner; confirm that area is untouched now.
+        assert result.getpixel((767, 1151)) == (255, 255, 255)
+
 
 # ---------------------------------------------------------------------------- #
 #                          STRUCTURAL SCORE                                     #
