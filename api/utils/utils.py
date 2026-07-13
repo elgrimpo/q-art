@@ -129,22 +129,10 @@ QR_BOX_SIZE = 10
 QR_BORDER = 4
 QR_FINDER_MODULES = 7  # a QR finder pattern is always a 7x7-module block
 
-# Reference module count used for calibration and in tests (a ~35-char URL,
-# e.g. "instagram.com/some_business_name") — not used in badge_geometry's
-# math anymore (the badge is sized to exactly match the real finder square,
-# no reference/scaling needed), but kept as a stand-in "typical URL" value.
+# Reference module count used in tests as a stand-in "typical URL" value —
+# not used in badge_geometry's math (the badge tracks the QR's literal
+# geometry directly, no reference/calibration point needed).
 REFERENCE_MODULES = 37
-
-# How far down-left of the literal QR-geometry point the AI-rendered
-# finder-square/viewfinder-bracket motif actually lands, as a fraction of
-# the finder square's own (scaled) size. Calibrated against one real
-# generation at REFERENCE_MODULES, where the literal point (640, 128) in the
-# QR's square footprint was nudged to (590, 178) — a nudge of 50px against a
-# finder_size of 119.5px at that module count, i.e. 50/119.5 = 0.4184.
-# Expressed as a fraction of finder_size (rather than a fixed pixel amount)
-# so the nudge scales proportionally with the badge for very short/long URLs
-# instead of staying a constant 50px regardless of badge size.
-NUDGE_FRACTION = 0.4184
 
 
 def _finder_square_geometry(side, modules_count):
@@ -168,11 +156,14 @@ def badge_geometry(width, height, modules_count):
     min(width, height), letterboxed/centered exactly like fit_qr_to_canvas
     does — so this stays correct regardless of the canvas's overall aspect
     ratio (a plain square 768x768 generation, or a letterboxed 768x1152
-    one). Within that square, the literal top-right finder-square center is
-    computed from the QR's REAL module count (see _finder_square_geometry),
-    then nudged down-left by NUDGE_FRACTION of the finder square's size —
-    see the module-level constants above for what these numbers mean and
-    where they come from.
+    one). Within that square, this is the LITERAL top-right finder-square
+    position, computed directly from the QR's real module count (see
+    _finder_square_geometry) — no empirical adjustment. Verified against a
+    real generation (qr_weight=0.0): the unnudged literal position lines up
+    with the AI-rendered structure almost exactly, so an earlier empirical
+    "nudge" (calibrated against an unverified single data point) was
+    removed — it was moving the badge away from the correct spot, not
+    toward it.
 
     finder_size is the finder square's real pixel size (it's square — a QR
     finder pattern is always QR_FINDER_MODULES x QR_FINDER_MODULES). The
@@ -185,10 +176,7 @@ def badge_geometry(width, height, modules_count):
     y_offset = (height - side) // 2
 
     inset, size = _finder_square_geometry(side, modules_count)
-    literal_x = side - inset - size / 2
-    literal_y = inset + size / 2
-    nudge = NUDGE_FRACTION * size
-    center = (x_offset + literal_x - nudge, y_offset + literal_y + nudge)
+    center = (x_offset + side - inset - size / 2, y_offset + inset + size / 2)
 
     return center, size
 

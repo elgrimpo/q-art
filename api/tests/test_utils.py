@@ -261,12 +261,13 @@ class TestCreateImagesFilterQuery:
 # ---------------------------------------------------------------------------- #
 
 class TestBadgeGeometry:
-    def test_matches_prior_position_calibration_at_reference_modules(self):
-        # Position (the empirical down-left nudge) is independent of the
-        # size fix below — this is the regression anchor for where the
-        # nudged center should land.
+    def test_position_matches_the_literal_qr_finder_square(self):
+        # Verified against a real generation (see commit history): the
+        # unnudged literal position lines up with the AI-rendered structure
+        # almost exactly, so this must be the literal point — not an
+        # empirically nudged one.
         center, _ = badge_geometry(768, 1152, REFERENCE_MODULES)
-        assert tuple(round(c) for c in center) == (590, 370)
+        assert tuple(round(c) for c in center) == (640, 320)
 
     def test_badge_size_matches_the_real_finder_square_size(self):
         # Regression test: the badge must be sized to literally equal the
@@ -302,7 +303,7 @@ class TestBadgeGeometry:
         # footprint, not the full canvas) must still hold once modules_count
         # is part of the formula.
         center, finder_size = badge_geometry(768, 768, REFERENCE_MODULES)
-        assert tuple(round(c) for c in center) == (590, 178)
+        assert tuple(round(c) for c in center) == (640, 128)
         assert finder_size == pytest.approx(119.5, abs=0.1)
 
 
