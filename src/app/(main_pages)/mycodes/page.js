@@ -292,7 +292,7 @@ export default function MyCodes() {
       <Box
         sx={{
           display: "grid",
-          gridTemplateColumns: `repeat(${colCount}, 1fr)`,
+          gridTemplateColumns: `repeat(${colCount}, minmax(0, 1fr))`,
           gridAutoRows: `${ROW_UNIT_PX}px`,
           gridAutoFlow: "row dense",
           alignItems: "start",
@@ -323,7 +323,7 @@ export default function MyCodes() {
           ref={ref}
           sx={{
             display: "grid",
-            gridTemplateColumns: `repeat(${colCount}, 1fr)`,
+            gridTemplateColumns: `repeat(${colCount}, minmax(0, 1fr))`,
             gridAutoRows: `${ROW_UNIT_PX}px`,
             gridAutoFlow: "row dense",
             alignItems: "start",
