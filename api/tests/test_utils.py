@@ -8,7 +8,8 @@ from api.utils.utils import (
     prepare_img2img_request,
     createImagesFilterQuery,
     create_watermark,
-    badge_center,
+    badge_geometry,
+    REFERENCE_MODULES,
     SHORT_PROMPT_THRESHOLD,
     QUALITY_SUFFIX,
 )
@@ -259,42 +260,78 @@ class TestCreateImagesFilterQuery:
 #                             CREATE WATERMARK                                 #
 # ---------------------------------------------------------------------------- #
 
+class TestBadgeGeometry:
+    def test_matches_prior_calibration_at_reference_modules(self):
+        # At REFERENCE_MODULES the badge must render at its native size
+        # (scale_factor 1.0) and land exactly where the original single-URL
+        # calibration placed it — this is the regression anchor for every
+        # other module count.
+        center, scale_factor = badge_geometry(768, 1152, REFERENCE_MODULES)
+        assert scale_factor == pytest.approx(1.0)
+        assert tuple(round(c) for c in center) == (590, 370)
+
+    def test_shorter_url_scales_badge_up(self):
+        _, scale_factor = badge_geometry(768, 1152, 25)
+        assert scale_factor > 1.0
+
+    def test_longer_url_scales_badge_down(self):
+        _, scale_factor = badge_geometry(768, 1152, 57)
+        assert scale_factor < 1.0
+
+    def test_center_shifts_with_modules_count(self):
+        # Regression test for "size/position doesn't adjust for different
+        # URL lengths" — modules_count must actually change the output, not
+        # be silently ignored.
+        center_short, _ = badge_geometry(768, 1152, 25)
+        center_long, _ = badge_geometry(768, 1152, 57)
+        assert center_short != center_long
+
+    def test_square_canvas_still_letterboxes_correctly(self):
+        # The canvas-aspect-ratio fix (badge tracks the QR's own square
+        # footprint, not the full canvas) must still hold once modules_count
+        # is part of the formula.
+        center, scale_factor = badge_geometry(768, 768, REFERENCE_MODULES)
+        assert scale_factor == pytest.approx(1.0)
+        assert tuple(round(c) for c in center) == (590, 178)
+
+
 class TestCreateWatermark:
     def _img(self, size=(512, 512)):
         return Image.new("RGB", size, "white")
 
     def test_returns_pil_image(self):
-        result = create_watermark(self._img())
+        result = create_watermark(self._img(), REFERENCE_MODULES)
         assert isinstance(result, Image.Image)
 
     def test_preserves_original_dimensions(self):
         img = self._img((512, 512))
-        result = create_watermark(img)
+        result = create_watermark(img, REFERENCE_MODULES)
         assert result.size == img.size
 
     def test_does_not_mutate_original(self):
         img = self._img()
         original_pixel = img.getpixel((0, 0))
-        create_watermark(img)
+        create_watermark(img, REFERENCE_MODULES)
         assert img.getpixel((0, 0)) == original_pixel
 
     def test_returns_none_when_watermark_file_missing(self):
         with patch("api.utils.utils.Image.open", side_effect=FileNotFoundError):
-            result = create_watermark(self._img())
+            result = create_watermark(self._img(), REFERENCE_MODULES)
         assert result is None
 
     def test_places_badge_near_qr_top_right_finder_square_on_portrait_canvas(self):
         img = self._img((768, 1152))
-        result = create_watermark(img)
-        # A white pixel at badge_center() means the badge didn't land where
-        # expected. Computing via badge_center() (rather than a hardcoded
-        # literal) keeps this test in sync as the position gets tuned, and
-        # exercises the real letterboxing math for a non-square canvas.
-        center = tuple(round(c) for c in badge_center(768, 1152))
-        assert result.getpixel(center) != (255, 255, 255)
+        result = create_watermark(img, REFERENCE_MODULES)
+        # A white pixel at badge_geometry()'s center means the badge didn't
+        # land where expected. Computing via badge_geometry() (rather than a
+        # hardcoded literal) keeps this test in sync as the position gets
+        # tuned, and exercises the real letterboxing math for a non-square
+        # canvas.
+        center, _ = badge_geometry(768, 1152, REFERENCE_MODULES)
+        assert result.getpixel(tuple(round(c) for c in center)) != (255, 255, 255)
 
     def test_places_badge_near_qr_top_right_finder_square_on_square_canvas(self):
-        # Regression test: badge_center() must track the QR's own square
+        # Regression test: badge_geometry() must track the QR's own square
         # footprint, not a hardcoded absolute position tied to one specific
         # canvas shape — otherwise a plain square (non-letterboxed) canvas
         # gets the wrong position (this broke once already: the position was
@@ -302,23 +339,43 @@ class TestCreateWatermark:
         # pixels, which was wrong on the 768x768 canvas the app actually
         # ships today).
         img = self._img((768, 768))
-        result = create_watermark(img)
-        center = tuple(round(c) for c in badge_center(768, 768))
-        assert result.getpixel(center) != (255, 255, 255)
+        result = create_watermark(img, REFERENCE_MODULES)
+        center, _ = badge_geometry(768, 768, REFERENCE_MODULES)
+        rounded_center = tuple(round(c) for c in center)
+        assert result.getpixel(rounded_center) != (255, 255, 255)
         # On a square canvas the badge must land in the TOP portion (near the
         # real finder square), not down where the portrait canvas's badge
         # would be — pin this down explicitly so a regression back to a
         # portrait-only hardcoded position fails loudly.
-        assert center[1] < 768 // 2
+        assert rounded_center[1] < 768 // 2
 
     def test_no_longer_watermarks_bottom_right(self):
         img = self._img((768, 1152))
-        result = create_watermark(img)
+        result = create_watermark(img, REFERENCE_MODULES)
         # Old behavior pasted the watermark flush into the bottom-right
         # corner (the old 146x36 asset's top-left landed at roughly
         # (622, 1091)); confirm that whole region is untouched now.
         assert result.getpixel((700, 1110)) == (255, 255, 255)
         assert result.getpixel((767, 1151)) == (255, 255, 255)
+
+    def test_badge_actually_resizes_for_a_shorter_url(self):
+        # Regression test for "size doesn't adjust": a short URL (fewer
+        # modules) must produce a visibly BIGGER badge than the reference
+        # length, not just a repositioned same-size one. Measure the actual
+        # painted width along the horizontal line through the badge's own
+        # center, for both a short URL and the reference length, on the same
+        # canvas — the short-URL badge's measured width must exceed the
+        # reference badge's.
+        def painted_width(modules_count):
+            img = self._img((768, 1152))
+            result = create_watermark(img, modules_count)
+            center, _ = badge_geometry(768, 1152, modules_count)
+            y = round(center[1])
+            row = [result.getpixel((x, y)) for x in range(768)]
+            painted_xs = [x for x, px in enumerate(row) if px != (255, 255, 255)]
+            return max(painted_xs) - min(painted_xs)
+
+        assert painted_width(25) > painted_width(REFERENCE_MODULES)
 
 
 # ---------------------------------------------------------------------------- #

@@ -122,47 +122,80 @@ def prepare_img2img_request(
 #                            CREATE WATERMARKED B64 IMAGE                            #
 # ---------------------------------------------------------------------------- #
 
-# Where the badge lands: approximates the top-right finder square of the QR
-# within the QR's OWN square footprint on the canvas — side = min(width,
-# height), letterboxed/centered exactly like fit_qr_to_canvas does (offset
-# by (width-side)//2, (height-side)//2). Expressing the position as a
-# fraction of that square (not of the full canvas) keeps it correct no
-# matter the canvas's overall aspect ratio — e.g. a plain square 768x768
-# generation today, or a letterboxed 768x1152 one — since only the
-# letterboxing offset changes between the two, not the QR's own internal
-# geometry.
-#
-# The literal QR-geometry calculation, from a representative 37-module QR
-# (~35-char URL) using the same box_size=10/border=4 constants real QR
-# generation uses:
-#   qr_px = (37 + 2*4) * 10 = 450; scale = side / qr_px = 768/450 = 1.7067
-#   finder_inset = 4 * 10 * scale = 68.3px; finder_size = 7 * 10 * scale = 119.5px
-#   finder_center_in_square = (side - 68.3 - 119.5/2, 68.3 + 119.5/2) = (640, 128)
-# gives fraction (640/768, 128/768) = (0.8333, 0.1667) of the square — but the
-# AI-rendered art doesn't track the ControlNet guidance pixel-exactly, so the
-# actual finder-square/viewfinder-bracket motif the model draws lands down
-# and left of that literal point in practice. (0.7682, 0.2318) is that
-# literal fraction empirically nudged down-left after checking a real
-# generation (768x1152 canvas, where this landed at (590, 370)); size was
-# confirmed correct as-is. The badge is kept at its native size and centered
-# on this point rather than resized per-request — a fixed placement avoids
-# the badge visibly growing/shrinking between generations (see the design
-# spec, "Options considered").
-BADGE_CENTER_FRACTION = (0.7682, 0.2318)
+# QR generation constants — must match generate_controller.py's
+# qrcode.QRCode(box_size=10, border=4) exactly, since the geometry below is
+# derived from the real QR's module count.
+QR_BOX_SIZE = 10
+QR_BORDER = 4
+QR_FINDER_MODULES = 7  # a QR finder pattern is always a 7x7-module block
+
+# Reference module count the badge's native asset size was calibrated
+# against (a ~35-char URL, e.g. "instagram.com/some_business_name"). At this
+# module count the badge renders at exactly its native size with zero nudge
+# scaling change from the original calibration; shorter URLs (fewer modules,
+# a visually bigger finder square) scale it up, longer URLs scale it down.
+REFERENCE_MODULES = 37
+
+# How far down-left of the literal QR-geometry point the AI-rendered
+# finder-square/viewfinder-bracket motif actually lands, as a fraction of
+# the finder square's own (scaled) size. Calibrated against one real
+# generation at REFERENCE_MODULES, where the literal point (640, 128) in the
+# QR's square footprint was nudged to (590, 178) — a nudge of 50px against a
+# finder_size of 119.5px at that module count, i.e. 50/119.5 = 0.4184.
+# Expressed as a fraction of finder_size (rather than a fixed pixel amount)
+# so the nudge scales proportionally with the badge for very short/long URLs
+# instead of staying a constant 50px regardless of badge size.
+NUDGE_FRACTION = 0.4184
 
 
-def badge_center(width, height):
-    """Badge center point on a width x height canvas — see BADGE_CENTER_FRACTION."""
+def _finder_square_geometry(side, modules_count):
+    """(inset, size) in pixels of the QR's finder-square block, within a
+    `side`-pixel-wide square QR image with `modules_count` modules, using
+    QR_BOX_SIZE/QR_BORDER — the finder pattern always sits QR_BORDER modules
+    in from the corner and is QR_FINDER_MODULES modules square, regardless
+    of the QR's overall module count."""
+    qr_px = (modules_count + 2 * QR_BORDER) * QR_BOX_SIZE
+    scale = side / qr_px
+    inset = QR_BORDER * QR_BOX_SIZE * scale
+    size = QR_FINDER_MODULES * QR_BOX_SIZE * scale
+    return inset, size
+
+
+def badge_geometry(width, height, modules_count):
+    """((center_x, center_y), scale_factor) for the watermark badge on a
+    width x height canvas, for a QR with `modules_count` modules.
+
+    The QR occupies its own square footprint on the canvas — side =
+    min(width, height), letterboxed/centered exactly like fit_qr_to_canvas
+    does — so this stays correct regardless of the canvas's overall aspect
+    ratio (a plain square 768x768 generation, or a letterboxed 768x1152
+    one). Within that square, the literal top-right finder-square center is
+    computed from the QR's REAL module count (see _finder_square_geometry),
+    then nudged down-left by NUDGE_FRACTION of the finder square's size —
+    see the module-level constants above for what these numbers mean and
+    where they come from.
+
+    scale_factor is 1.0 at REFERENCE_MODULES (the badge renders at its
+    native asset size); apply it to that native size to get the badge's
+    on-canvas size for this specific QR.
+    """
     side = min(width, height)
     x_offset = (width - side) // 2
     y_offset = (height - side) // 2
-    return (
-        x_offset + BADGE_CENTER_FRACTION[0] * side,
-        y_offset + BADGE_CENTER_FRACTION[1] * side,
-    )
+
+    inset, size = _finder_square_geometry(side, modules_count)
+    literal_x = side - inset - size / 2
+    literal_y = inset + size / 2
+    nudge = NUDGE_FRACTION * size
+    center = (x_offset + literal_x - nudge, y_offset + literal_y + nudge)
+
+    _, reference_size = _finder_square_geometry(side, REFERENCE_MODULES)
+    scale_factor = size / reference_size
+
+    return center, scale_factor
 
 
-def create_watermark(image):
+def create_watermark(image, modules_count):
     try:
         watermark_image_path = "api/utils/watermark.png"
         watermark = Image.open(watermark_image_path)
@@ -170,12 +203,19 @@ def create_watermark(image):
         # Create a copy of the original image
         watermarked_image = image.copy()
 
-        # Place the badge over the QR's top-right finder-square area
-        center_x, center_y = badge_center(*watermarked_image.size)
-        watermark_size = watermark.size
+        # Place the badge over the QR's real top-right finder-square area,
+        # sized to match that finder square's real, per-request size.
+        center, scale_factor = badge_geometry(*watermarked_image.size, modules_count)
+        badge_size = (
+            round(watermark.size[0] * scale_factor),
+            round(watermark.size[1] * scale_factor),
+        )
+        if badge_size != watermark.size:
+            watermark = watermark.resize(badge_size, Image.LANCZOS)
+
         position = (
-            round(center_x - watermark_size[0] / 2),
-            round(center_y - watermark_size[1] / 2),
+            round(center[0] - badge_size[0] / 2),
+            round(center[1] - badge_size[1] / 2),
         )
 
         watermarked_image.paste(watermark, position, watermark)

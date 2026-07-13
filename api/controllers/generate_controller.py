@@ -388,8 +388,9 @@ async def predict(
 
             t = mark("create_image_doc", t)
 
-            # Apply watermark to the original image
-            watermarked_image = create_watermark(generated_image)
+            # Apply watermark to the original image, sized/positioned to
+            # this specific QR's real finder-square geometry
+            watermarked_image = create_watermark(generated_image, qr.modules_count)
 
             t = mark("create_watermark", t)
             _update_job(job_id, stage="processing", percent=_stage_bounds("processing")[1])
