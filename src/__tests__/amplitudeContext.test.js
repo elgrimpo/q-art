@@ -14,6 +14,8 @@ jest.mock('@amplitude/analytics-browser', () => ({
 
 beforeEach(() => {
   jest.clearAllMocks();
+  localStorage.clear();
+  window.history.replaceState({}, "", "/");
   useStore.setState({ user: {} });
 });
 
@@ -61,6 +63,50 @@ describe('AmplitudeContextProvider — identify', () => {
     render(<AmplitudeContextProvider><div /></AmplitudeContextProvider>);
 
     expect(amplitude.setUserId).not.toHaveBeenCalled();
+    expect(amplitude.identify).not.toHaveBeenCalled();
+  });
+});
+
+describe('AmplitudeContextProvider — persistent internal flag', () => {
+  it('opts the browser in via ?internal=1 and tags it even as a guest', () => {
+    window.history.replaceState({}, "", "/?internal=1");
+    useStore.setState({ user: { _id: 'guest_1', is_guest: true } });
+    render(<AmplitudeContextProvider><div /></AmplitudeContextProvider>);
+
+    expect(localStorage.getItem('qart_is_internal')).toBe('true');
+    const instance = amplitude.Identify.mock.results[0].value;
+    expect(instance.set).toHaveBeenCalledWith('is_internal', true);
+    expect(amplitude.identify).toHaveBeenCalled();
+  });
+
+  it('re-applies is_internal=true on load when the flag is already stored', () => {
+    localStorage.setItem('qart_is_internal', 'true');
+    useStore.setState({ user: { _id: 'guest_2', is_guest: true } });
+    render(<AmplitudeContextProvider><div /></AmplitudeContextProvider>);
+
+    const instance = amplitude.Identify.mock.results[0].value;
+    expect(instance.set).toHaveBeenCalledWith('is_internal', true);
+  });
+
+  it('clears the flag via ?internal=0', () => {
+    localStorage.setItem('qart_is_internal', 'true');
+    window.history.replaceState({}, "", "/?internal=0");
+    render(<AmplitudeContextProvider><div /></AmplitudeContextProvider>);
+
+    expect(localStorage.getItem('qart_is_internal')).toBeNull();
+  });
+
+  it('persists the flag after an internal user signs in', () => {
+    useStore.setState({ user: { _id: 'me123', email: 'biedermann.chris@gmail.com' } });
+    render(<AmplitudeContextProvider><div /></AmplitudeContextProvider>);
+
+    expect(localStorage.getItem('qart_is_internal')).toBe('true');
+  });
+
+  it('does not tag an ordinary browser as internal', () => {
+    render(<AmplitudeContextProvider><div /></AmplitudeContextProvider>);
+
+    expect(localStorage.getItem('qart_is_internal')).toBeNull();
     expect(amplitude.identify).not.toHaveBeenCalled();
   });
 });

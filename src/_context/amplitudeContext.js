@@ -11,6 +11,16 @@ const INTERNAL_EMAILS = [
   "christopherpeterman812@gmail.com",
 ];
 
+// Once a browser is known to be internal we remember it here, so we keep
+// tagging it even in later anonymous/guest sessions (no re-sign-in needed).
+const INTERNAL_FLAG_KEY = "qart_is_internal";
+
+const markInternal = () => {
+  const identifyEvent = new Identify();
+  identifyEvent.set("is_internal", true);
+  identify(identifyEvent);
+};
+
 export const AmplitudeContext = createContext({});
 
 const AmplitudeContextProvider = ({ children }) => {
@@ -21,6 +31,23 @@ const AmplitudeContextProvider = ({ children }) => {
       defaultTracking: true,
     });
     captureLandingVariant();
+
+    // Browser-level internal tagging, independent of auth. Visit any page with
+    // ?internal=1 once to opt this browser in (?internal=0 to opt out); after
+    // that the flag persists and re-applies on every load, guest or not.
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("internal") === "1") {
+        localStorage.setItem(INTERNAL_FLAG_KEY, "true");
+      } else if (params.get("internal") === "0") {
+        localStorage.removeItem(INTERNAL_FLAG_KEY);
+      }
+      if (localStorage.getItem(INTERNAL_FLAG_KEY) === "true") {
+        markInternal();
+      }
+    } catch {
+      // localStorage unavailable (private mode, SSR edge) — skip silently.
+    }
   }, []);
 
   useEffect(() => {
@@ -28,9 +55,21 @@ const AmplitudeContextProvider = ({ children }) => {
 
     setUserId(user._id);
 
+    const isInternal = INTERNAL_EMAILS.includes(user.email);
+
     const identifyEvent = new Identify();
-    identifyEvent.set("is_internal", INTERNAL_EMAILS.includes(user.email));
+    identifyEvent.set("is_internal", isInternal);
     identify(identifyEvent);
+
+    // Remember an internal sign-in so this browser stays tagged next time,
+    // even if the later session is an anonymous guest one.
+    if (isInternal) {
+      try {
+        localStorage.setItem(INTERNAL_FLAG_KEY, "true");
+      } catch {
+        // ignore
+      }
+    }
   }, [user]);
 
   const trackAmplitudeEvent = (eventName, eventProperties) => {
