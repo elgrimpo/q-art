@@ -129,11 +129,10 @@ QR_BOX_SIZE = 10
 QR_BORDER = 4
 QR_FINDER_MODULES = 7  # a QR finder pattern is always a 7x7-module block
 
-# Reference module count the badge's native asset size was calibrated
-# against (a ~35-char URL, e.g. "instagram.com/some_business_name"). At this
-# module count the badge renders at exactly its native size with zero nudge
-# scaling change from the original calibration; shorter URLs (fewer modules,
-# a visually bigger finder square) scale it up, longer URLs scale it down.
+# Reference module count used for calibration and in tests (a ~35-char URL,
+# e.g. "instagram.com/some_business_name") — not used in badge_geometry's
+# math anymore (the badge is sized to exactly match the real finder square,
+# no reference/scaling needed), but kept as a stand-in "typical URL" value.
 REFERENCE_MODULES = 37
 
 # How far down-left of the literal QR-geometry point the AI-rendered
@@ -162,7 +161,7 @@ def _finder_square_geometry(side, modules_count):
 
 
 def badge_geometry(width, height, modules_count):
-    """((center_x, center_y), scale_factor) for the watermark badge on a
+    """((center_x, center_y), finder_size) for the watermark badge on a
     width x height canvas, for a QR with `modules_count` modules.
 
     The QR occupies its own square footprint on the canvas — side =
@@ -175,9 +174,11 @@ def badge_geometry(width, height, modules_count):
     see the module-level constants above for what these numbers mean and
     where they come from.
 
-    scale_factor is 1.0 at REFERENCE_MODULES (the badge renders at its
-    native asset size); apply it to that native size to get the badge's
-    on-canvas size for this specific QR.
+    finder_size is the finder square's real pixel size (it's square — a QR
+    finder pattern is always QR_FINDER_MODULES x QR_FINDER_MODULES). The
+    badge is resized to exactly (finder_size, finder_size) so it always
+    overlaps and matches the size of the real top-right finder square,
+    rather than being scaled relative to its own native asset size.
     """
     side = min(width, height)
     x_offset = (width - side) // 2
@@ -189,10 +190,7 @@ def badge_geometry(width, height, modules_count):
     nudge = NUDGE_FRACTION * size
     center = (x_offset + literal_x - nudge, y_offset + literal_y + nudge)
 
-    _, reference_size = _finder_square_geometry(side, REFERENCE_MODULES)
-    scale_factor = size / reference_size
-
-    return center, scale_factor
+    return center, size
 
 
 def create_watermark(image, modules_count):
@@ -204,12 +202,9 @@ def create_watermark(image, modules_count):
         watermarked_image = image.copy()
 
         # Place the badge over the QR's real top-right finder-square area,
-        # sized to match that finder square's real, per-request size.
-        center, scale_factor = badge_geometry(*watermarked_image.size, modules_count)
-        badge_size = (
-            round(watermark.size[0] * scale_factor),
-            round(watermark.size[1] * scale_factor),
-        )
+        # resized to exactly match that finder square's real size.
+        center, finder_size = badge_geometry(*watermarked_image.size, modules_count)
+        badge_size = (round(finder_size), round(finder_size))
         if badge_size != watermark.size:
             watermark = watermark.resize(badge_size, Image.LANCZOS)
 

@@ -261,22 +261,33 @@ class TestCreateImagesFilterQuery:
 # ---------------------------------------------------------------------------- #
 
 class TestBadgeGeometry:
-    def test_matches_prior_calibration_at_reference_modules(self):
-        # At REFERENCE_MODULES the badge must render at its native size
-        # (scale_factor 1.0) and land exactly where the original single-URL
-        # calibration placed it — this is the regression anchor for every
-        # other module count.
-        center, scale_factor = badge_geometry(768, 1152, REFERENCE_MODULES)
-        assert scale_factor == pytest.approx(1.0)
+    def test_matches_prior_position_calibration_at_reference_modules(self):
+        # Position (the empirical down-left nudge) is independent of the
+        # size fix below — this is the regression anchor for where the
+        # nudged center should land.
+        center, _ = badge_geometry(768, 1152, REFERENCE_MODULES)
         assert tuple(round(c) for c in center) == (590, 370)
 
-    def test_shorter_url_scales_badge_up(self):
-        _, scale_factor = badge_geometry(768, 1152, 25)
-        assert scale_factor > 1.0
+    def test_badge_size_matches_the_real_finder_square_size(self):
+        # Regression test: the badge must be sized to literally equal the
+        # QR's real finder-square size, not scaled relative to its own
+        # native 151x152 asset dimensions. Scaling relative to the native
+        # asset was the actual bug — it made the badge ~26% too big at
+        # every URL length, since the native asset doesn't happen to match
+        # the finder square's real pixel size at any reference point.
+        for modules_count, expected_size in [(21, 185.4), (37, 119.5), (57, 82.7)]:
+            _, finder_size = badge_geometry(768, 1152, modules_count)
+            assert finder_size == pytest.approx(expected_size, abs=0.1)
 
-    def test_longer_url_scales_badge_down(self):
-        _, scale_factor = badge_geometry(768, 1152, 57)
-        assert scale_factor < 1.0
+    def test_shorter_url_produces_larger_finder_size(self):
+        _, size_short = badge_geometry(768, 1152, 25)
+        _, size_reference = badge_geometry(768, 1152, REFERENCE_MODULES)
+        assert size_short > size_reference
+
+    def test_longer_url_produces_smaller_finder_size(self):
+        _, size_long = badge_geometry(768, 1152, 57)
+        _, size_reference = badge_geometry(768, 1152, REFERENCE_MODULES)
+        assert size_long < size_reference
 
     def test_center_shifts_with_modules_count(self):
         # Regression test for "size/position doesn't adjust for different
@@ -290,9 +301,9 @@ class TestBadgeGeometry:
         # The canvas-aspect-ratio fix (badge tracks the QR's own square
         # footprint, not the full canvas) must still hold once modules_count
         # is part of the formula.
-        center, scale_factor = badge_geometry(768, 768, REFERENCE_MODULES)
-        assert scale_factor == pytest.approx(1.0)
+        center, finder_size = badge_geometry(768, 768, REFERENCE_MODULES)
         assert tuple(round(c) for c in center) == (590, 178)
+        assert finder_size == pytest.approx(119.5, abs=0.1)
 
 
 class TestCreateWatermark:
