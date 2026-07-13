@@ -36,6 +36,13 @@ export const metadata = {
   twitter: {
     card: "summary_large_image",
   },
+  // Pinterest domain verification (Business account → Claim website).
+  // Renders: <meta name="p:domain_verify" content="..."/>
+  verification: {
+    other: {
+      "p:domain_verify": "2aac0e7e0d33418d2491f4cfcbc0d1f3",
+    },
+  },
 };
 
 const websiteSchema = {
