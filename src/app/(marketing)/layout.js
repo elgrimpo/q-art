@@ -9,8 +9,9 @@ import Footer from "../(main_pages)/Footer";
 
 const navLinks = [
   { href: "/generate", label: "Generate" },
-  { href: "/gallery", label: "Gallery" },
+  { href: "/explore", label: "Explore" },
   { href: "/how-it-works", label: "How It Works" },
+  { href: "/blog", label: "Blog" },
   { href: "/pricing", label: "Pricing" },
   { href: "/faq", label: "FAQ" },
 ];

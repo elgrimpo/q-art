@@ -24,7 +24,7 @@ const steps = [
   {
     number: "03",
     title: "Pick an art style",
-    body: "Choose from 13 curated art styles: Ukiyo-e, Expressionism, Dreamy, Low Poly Art, Photography, Vector Art, Doodle Art, Ink, Oil Painting, Chinese Art, Watercolor, Sticker, and Color Blend. Each style uses a specific Stable Diffusion checkpoint and LoRA weights tuned for that aesthetic. You can also use the Random option to let the AI surprise you.",
+    body: "Choose from 13 curated art styles: Ukiyo-e, Expressionism, Low Poly Art, Photography, Vector Art, Doodle Art, Ink, Oil Painting, Chinese Art, Watercolor, Ghibli, Cyberpunk, and Illustration. Each style uses a specific Stable Diffusion checkpoint and LoRA weights tuned for that aesthetic. You can also use the Random option to let the AI surprise you.",
   },
   {
     number: "04",
@@ -34,7 +34,7 @@ const steps = [
   {
     number: "05",
     title: "Generate and download",
-    body: "Click Generate. QR AI submits the request to a GPU-powered AI pipeline and returns your artwork in seconds. You can download the full-resolution image or save it to your personal gallery. Logged-in users can also upscale images to 512px, 1024px, 2048px, or 4096px for print-quality output.",
+    body: "Click Generate. QR AI submits the request to a GPU-powered AI pipeline and returns your artwork in seconds. Preview the result and save it to your gallery — and when you're happy with one, unlock the high-resolution, watermark-free download.",
   },
 ];
 
@@ -89,14 +89,14 @@ export default function HowItWorksPage() {
       <Typography variant="h2" color="primary" sx={{ fontSize: "1.6rem", mb: 2 }}>
         Under the hood: the AI pipeline
       </Typography>
-      <Typography component="p" sx={{ mb: 3, lineHeight: 1.8 }}>
+      <Typography component="p" sx={{ mb: 3, lineHeight: 1.8, color: "text.secondary" }}>
         QR AI&rsquo;s generation pipeline runs on{" "}
         <strong>Stable Diffusion 1.5</strong> with two simultaneous{" "}
         <strong>ControlNet units</strong>:
       </Typography>
       <Box
         component="ul"
-        sx={{ pl: 3, mb: 3, "& li": { mb: 2, lineHeight: 1.8 } }}
+        sx={{ pl: 3, mb: 3, color: "text.secondary", "& li": { mb: 2, lineHeight: 1.8 } }}
       >
         <li>
           <strong>Brightness ControlNet</strong> (control_v1p_sd15_brightness, strength 0.35) — guides the
@@ -109,7 +109,7 @@ export default function HowItWorksPage() {
           before the QR structure is enforced.
         </li>
       </Box>
-      <Typography component="p" sx={{ mb: 3, lineHeight: 1.8 }}>
+      <Typography component="p" sx={{ mb: 3, lineHeight: 1.8, color: "text.secondary" }}>
         The QR code is generated first using the Python{" "}
         <code style={{ backgroundColor: "#2A2A2A", padding: "2px 6px", borderRadius: "4px" }}>qrcode</code>{" "}
         library with error correction level H — the highest level, which means up to 30% of the QR
@@ -123,7 +123,7 @@ export default function HowItWorksPage() {
       </Typography>
       <Box
         component="ul"
-        sx={{ pl: 3, mb: 6, "& li": { mb: 1.5, lineHeight: 1.8 } }}
+        sx={{ pl: 3, mb: 6, color: "text.secondary", "& li": { mb: 1.5, lineHeight: 1.8 } }}
       >
         <li>
           <strong>Test scannability before publishing.</strong> Always scan your generated QR code with multiple
@@ -143,8 +143,8 @@ export default function HowItWorksPage() {
           generate several variations.
         </li>
         <li>
-          <strong>Upscale for print.</strong> Use the upscale feature (512px to 4096px) for any artwork
-          you plan to print — the default output size is optimized for screens.
+          <strong>Unlock the HD version for print.</strong> Previews are watermarked and sized for
+          screens — unlock the high-resolution, watermark-free download for anything you plan to print.
         </li>
       </Box>
 

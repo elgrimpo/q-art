@@ -2,27 +2,25 @@ import Link from "next/link";
 import { Box, Typography, Button } from "@mui/material";
 
 export const metadata = {
-  title: "Pricing — Free to Start, Credits for More | QR AI",
+  title: "Pricing — Generate Free, Unlock HD for $3.99 | QR AI",
   description:
-    "QR AI is free to try. Generate your first AI QR code with no sign-up required. Buy credits for more generations, downloads, and upscaling.",
+    "QR AI is free to try — generate and preview AI QR codes with no sign-up. Only pay when you love one: unlock a high-resolution, watermark-free download for $3.99. No subscriptions.",
   alternates: {
     canonical: "https://www.qr-ai.co/pricing",
   },
 };
 
-const creditActions = [
-  { action: "Generate an AI QR code", credits: 1 },
-  { action: "Download full-resolution image", credits: 10 },
-  { action: "Upscale to 512 px", credits: 10 },
-  { action: "Upscale to 1024 px", credits: 15 },
-  { action: "Upscale to 2048 px", credits: 20 },
-  { action: "Upscale to 4096 px (print quality)", credits: 25 },
+const unlockPerks = [
+  "High-resolution, print-ready image",
+  "Watermark removed",
+  "Yours to use personally and commercially",
+  "One-time payment — no subscription, no credits to track",
 ];
 
-const creditPacks = [
-  { credits: 50, price: 5, perCredit: "10¢", label: "Starter" },
-  { credits: 100, price: 9, perCredit: "9¢", label: "Creator", highlight: true },
-  { credits: 250, price: 20, perCredit: "8¢", label: "Studio" },
+const steps = [
+  { n: "01", t: "Generate for free", d: "Open the generator, enter a URL, pick a style, and create — no account or card required." },
+  { n: "02", t: "Preview every result", d: "Browse your generations and see exactly how each one looks before you decide. Previews are free." },
+  { n: "03", t: "Unlock the one you love", d: "Found a winner? Pay $3.99 once to unlock the high-res, watermark-free download of that image." },
 ];
 
 export default function PricingPage() {
@@ -32,145 +30,99 @@ export default function PricingPage() {
         variant="h1"
         sx={{ fontSize: { xs: "2rem", md: "2.8rem" }, mb: 2 }}
       >
-        Pricing
+        Simple pricing
       </Typography>
       <Typography component="p" sx={{ mb: 6, color: "text.secondary", fontSize: "1.1rem", lineHeight: 1.8 }}>
-        QR AI uses a credit-based system. You get free credits to start with no account required —
-        just open the generator and create. Buy more credits when you need them. No subscriptions,
-        no monthly fees. Credits never expire.
+        Generating and previewing AI QR codes is free — no sign-up, no credit card. You only pay
+        when you find one you want to keep. No subscriptions, no monthly fees, no credits to manage.
       </Typography>
 
-      {/* Free tier */}
-      <Box
-        sx={{
-          backgroundColor: "background.paper",
-          border: "1px solid",
-          borderColor: "primary.light",
-          borderRadius: 2,
-          p: 4,
-          mb: 6,
-        }}
-      >
-        <Typography variant="h2" color="primary" sx={{ fontSize: "1.5rem", mb: 1 }}>
-          Free tier
-        </Typography>
-        <Typography component="p" sx={{ color: "text.secondary", lineHeight: 1.8, mb: 3 }}>
-          Every guest (anonymous) session includes{" "}
-          <strong style={{ color: "#FFFFFF" }}>free credits</strong> — no sign-up, no credit card
-          required. Sign in with Google to keep your gallery and transfer any images you created as a
-          guest to your account.
-        </Typography>
-        <Box sx={{ display: "flex", gap: 2 }}>
-          <Link href="/generate" passHref>
-            <Button variant="contained">Try for free</Button>
-          </Link>
-        </Box>
-      </Box>
-
-      {/* Credit packs */}
-      <Typography variant="h2" color="primary" sx={{ fontSize: "1.5rem", mb: 3 }}>
-        Credit packs
-      </Typography>
-      <Typography component="p" sx={{ mb: 4, color: "text.secondary", lineHeight: 1.8 }}>
-        Credits are one-time purchases. They&rsquo;re deducted when you generate images, download
-        full-resolution files, or upscale. Purchased credits never expire.
-      </Typography>
-
+      {/* Two-card layout: Free vs Unlock */}
       <Box
         sx={{
           display: "grid",
-          gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr 1fr" },
+          gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
           gap: 3,
           mb: 8,
         }}
       >
-        {creditPacks.map((pack) => (
-          <Box
-            key={pack.label}
-            sx={{
-              backgroundColor: pack.highlight ? "background.elevated" : "background.paper",
-              border: pack.highlight ? "2px solid" : "1px solid",
-              borderColor: pack.highlight ? "primary.light" : "divider",
-              borderRadius: 2,
-              p: 3,
-              textAlign: "center",
-              position: "relative",
-            }}
-          >
-            {pack.highlight && (
-              <Box
-                sx={{
-                  position: "absolute",
-                  top: -12,
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "primary.light",
-                  color: "background.default",
-                  fontSize: "0.75rem",
-                  fontWeight: 700,
-                  px: 2,
-                  py: 0.5,
-                  borderRadius: 1,
-                  whiteSpace: "nowrap",
-                }}
-              >
-                Most popular
-              </Box>
-            )}
-            <Typography sx={{ fontSize: "1rem", color: "text.muted", mb: 1 }}>{pack.label}</Typography>
+        {/* Free */}
+        <Box
+          sx={{
+            backgroundColor: "background.paper",
+            border: "1px solid",
+            borderColor: "divider",
+            borderRadius: 2,
+            p: 4,
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <Typography variant="h2" color="primary" sx={{ fontSize: "1.5rem", mb: 1 }}>
+            Generate &amp; preview
+          </Typography>
+          <Typography sx={{ fontSize: "2.5rem", fontWeight: 800, color: "primary.light", lineHeight: 1, mb: 2 }}>
+            Free
+          </Typography>
+          <Typography component="p" sx={{ color: "text.secondary", lineHeight: 1.8, mb: 3, flexGrow: 1 }}>
+            Create AI QR codes and preview every result at no cost. No account needed — sign in with
+            Google only if you want to save your gallery across devices.
+          </Typography>
+          <Link href="/generate" passHref>
+            <Button variant="outlined" fullWidth>Try for free</Button>
+          </Link>
+        </Box>
+
+        {/* Unlock */}
+        <Box
+          sx={{
+            backgroundColor: "background.elevated",
+            border: "2px solid",
+            borderColor: "primary.light",
+            borderRadius: 2,
+            p: 4,
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <Typography variant="h2" color="primary" sx={{ fontSize: "1.5rem", mb: 1 }}>
+            Unlock HD
+          </Typography>
+          <Box sx={{ display: "flex", alignItems: "baseline", gap: 1, mb: 2 }}>
             <Typography sx={{ fontSize: "2.5rem", fontWeight: 800, color: "primary.light", lineHeight: 1 }}>
-              ${pack.price}
+              $3.99
             </Typography>
-            <Typography sx={{ fontSize: "1.1rem", color: "text.primary", mt: 1, mb: 0.5 }}>
-              {pack.credits} credits
-            </Typography>
-            <Typography sx={{ fontSize: "0.85rem", color: "text.muted", mb: 3 }}>
-              {pack.perCredit} per credit
-            </Typography>
-            <Link href="/generate" passHref>
-              <Button
-                variant={pack.highlight ? "contained" : "outlined"}
-                fullWidth
-                size="small"
-              >
-                Get started
-              </Button>
-            </Link>
+            <Typography sx={{ color: "text.muted", fontSize: "0.95rem" }}>per image</Typography>
           </Box>
-        ))}
+          <Box component="ul" sx={{ pl: 2.5, mb: 3, flexGrow: 1, "& li": { mb: 1, lineHeight: 1.7, color: "text.secondary" } }}>
+            {unlockPerks.map((perk) => (
+              <li key={perk}>{perk}</li>
+            ))}
+          </Box>
+          <Link href="/generate" passHref>
+            <Button variant="contained" fullWidth>Start creating</Button>
+          </Link>
+        </Box>
       </Box>
 
-      {/* Credit usage table */}
+      {/* How it works */}
       <Typography variant="h2" color="primary" sx={{ fontSize: "1.5rem", mb: 3 }}>
-        How credits are used
+        How it works
       </Typography>
-      <Box
-        sx={{
-          border: "1px solid",
-          borderColor: "divider",
-          borderRadius: 2,
-          overflow: "hidden",
-          mb: 8,
-        }}
-      >
-        {creditActions.map((row, idx) => (
-          <Box
-            key={row.action}
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              px: 3,
-              py: 2,
-              borderBottom: idx < creditActions.length - 1 ? "1px solid" : "none",
-              borderColor: "divider",
-              backgroundColor: idx % 2 === 0 ? "background.paper" : "background.default",
-            }}
-          >
-            <Typography sx={{ color: "text.secondary" }}>{row.action}</Typography>
-            <Typography sx={{ color: "primary.light", fontWeight: 700, minWidth: "80px", textAlign: "right" }}>
-              {row.credits} {row.credits === 1 ? "credit" : "credits"}
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 3, mb: 8 }}>
+        {steps.map((s) => (
+          <Box key={s.n} sx={{ display: "flex", gap: 3, alignItems: "flex-start" }}>
+            <Typography sx={{ fontSize: "1.6rem", fontWeight: 800, color: "primary.light", minWidth: 40, lineHeight: 1.2 }}>
+              {s.n}
             </Typography>
+            <Box>
+              <Typography component="h3" sx={{ color: "text.primary", fontWeight: 600, mb: 0.5 }}>
+                {s.t}
+              </Typography>
+              <Typography component="p" sx={{ color: "text.secondary", lineHeight: 1.8 }}>
+                {s.d}
+              </Typography>
+            </Box>
           </Box>
         ))}
       </Box>
@@ -184,36 +136,43 @@ export default function PricingPage() {
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
           <Box>
             <Typography component="h3" sx={{ color: "text.primary", fontWeight: 600, mb: 1 }}>
-              Do I need an account to try QR AI?
+              Do I need to pay to try QR AI?
             </Typography>
             <Typography component="p" sx={{ color: "text.secondary", lineHeight: 1.8 }}>
-              No. Guest sessions are fully anonymous and come with free credits. You can generate,
-              preview, and download images without creating an account. Sign in with Google to save
-              your gallery and access purchased credits across devices.
+              No. Generating AI QR codes and previewing the results is completely free, with no
+              account required. You only pay if you decide to unlock a high-resolution download.
             </Typography>
           </Box>
 
           <Box>
             <Typography component="h3" sx={{ color: "text.primary", fontWeight: 600, mb: 1 }}>
-              Do credits expire?
+              What does the $3.99 unlock include?
             </Typography>
             <Typography component="p" sx={{ color: "text.secondary", lineHeight: 1.8 }}>
-              Purchased credits never expire. Guest session credits are tied to the browser session and
-              will not carry over if you clear cookies without signing in first.
+              A one-time $3.99 payment unlocks the high-resolution, watermark-free version of that
+              specific image, ready to download and use — including for commercial projects like
+              menus, packaging, invitations, and posters.
             </Typography>
           </Box>
 
           <Box>
             <Typography component="h3" sx={{ color: "text.primary", fontWeight: 600, mb: 1 }}>
-              Can I get a refund?
+              Is it a subscription?
             </Typography>
             <Typography component="p" sx={{ color: "text.secondary", lineHeight: 1.8 }}>
-              Credits are non-refundable, except as required by applicable law. If you experience a
-              technical issue that consumes credits without delivering a result, contact us at{" "}
-              <a href="mailto:support@qr-ai.co" style={{ color: "#70E195" }}>
-                support@qr-ai.co
-              </a>{" "}
-              and we&rsquo;ll make it right.
+              No. There are no subscriptions, monthly fees, or credit bundles. You pay per image,
+              only for the ones you choose to unlock.
+            </Typography>
+          </Box>
+
+          <Box>
+            <Typography component="h3" sx={{ color: "text.primary", fontWeight: 600, mb: 1 }}>
+              What if an image doesn&rsquo;t work after I unlock it?
+            </Typography>
+            <Typography component="p" sx={{ color: "text.secondary", lineHeight: 1.8 }}>
+              If a technical issue prevents you from getting the image you paid for, let us know and
+              we&rsquo;ll make it right. We always recommend previewing a result and testing that it
+              scans before unlocking.
             </Typography>
           </Box>
         </Box>
@@ -221,7 +180,7 @@ export default function PricingPage() {
 
       <Box sx={{ textAlign: "center", py: 4, borderTop: "1px solid", borderColor: "divider" }}>
         <Typography variant="h3" color="primary" sx={{ mb: 2, fontSize: "1.4rem" }}>
-          Start with free credits — no sign-up required
+          Generate for free — pay only when you love it
         </Typography>
         <Link href="/generate" passHref>
           <Button variant="contained" size="large">

@@ -166,9 +166,9 @@ export default function PrivacyPage() {
       <Typography variant="h2" color="primary" sx={{ fontSize: "1.4rem", mt: 4, mb: 1 }}>
         9. Contact
       </Typography>
-      <Typography component="p" sx={{ mb: 3, lineHeight: 1.8 }}>
-        For privacy-related questions or data requests, please contact us at:{" "}
-        <strong>support@qr-ai.co</strong>
+      <Typography component="p" sx={{ mb: 3, lineHeight: 1.8, color: "text.secondary" }}>
+        For privacy-related questions or data requests, please get in touch through{" "}
+        <strong>qr-ai.co</strong>.
       </Typography>
 
       <Typography

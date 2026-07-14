@@ -25,7 +25,7 @@ const faqs = [
   },
   {
     q: "What art styles are available?",
-    a: "QR AI currently offers 13 curated styles: Ukiyo-e, Expressionism, Dreamy, Low Poly Art, Photography, Vector Art, Doodle Art, Ink, Oil Painting, Chinese Art, Watercolor, Sticker, and Color Blend. Each style uses a specific Stable Diffusion 1.5 model checkpoint and LoRA weights trained for that aesthetic. You can also add a custom text prompt to any style to further guide the artwork — for example, \"cherry blossoms and mountains\" with the Watercolor style.",
+    a: "QR AI currently offers 13 curated styles: Ukiyo-e, Expressionism, Low Poly Art, Photography, Vector Art, Doodle Art, Ink, Oil Painting, Chinese Art, Watercolor, Ghibli, Cyberpunk, and Illustration. Each style uses a specific Stable Diffusion 1.5 model checkpoint and LoRA weights trained for that aesthetic. You can also add a custom text prompt to any style to further guide the artwork — for example, \"cherry blossoms and mountains\" with the Watercolor style.",
   },
   {
     q: "What is the QR weight slider?",
@@ -41,15 +41,15 @@ const faqs = [
   },
   {
     q: "Do I need to sign in?",
-    a: "No sign-up is required to start. Anonymous (guest) sessions get free credits. Sign in with Google to save your gallery, access credits you've purchased, and transfer guest-generated images to your account.",
+    a: "No sign-up is required to start. You can generate and preview AI QR codes as an anonymous guest, completely free. Sign in with Google to save your gallery across devices and keep track of the images you've unlocked.",
   },
   {
-    q: "How do credits work?",
-    a: "Credits are consumed when you generate images (1 credit), download full-resolution images (10 credits), or upscale to higher resolutions (10–25 credits depending on size). Guest sessions include free credits. You can buy additional credit packs ($5 for 50 credits, $9 for 100, $20 for 250) — they never expire.",
+    q: "How much does QR AI cost?",
+    a: "Generating and previewing AI QR codes is free — no account or credit card needed. When you find one you want to keep, you unlock its high-resolution, watermark-free download for a one-time $3.99. You only pay for the specific images you choose to unlock. There are no subscriptions, monthly fees, or credit bundles.",
   },
   {
-    q: "What resolution are generated images?",
-    a: "Generated images are 512×512 pixels by default — enough for screens and small prints. Upscaling is available to 512, 1024, 2048, or 4096 pixels (4096px is suitable for large-format print). Upscaling uses additional credits.",
+    q: "What resolution are the images?",
+    a: "Previews are shown at a web-friendly size with a small watermark. When you unlock an image for $3.99, you get a high-resolution version with the watermark removed — suitable for most digital and print use, including menus, invitations, and posters.",
   },
   {
     q: "How long does generation take?",
@@ -122,10 +122,7 @@ export default function FAQPage() {
 
       <Box sx={{ textAlign: "center", py: 6 }}>
         <Typography component="p" sx={{ color: "text.muted", mb: 3 }}>
-          Still have questions?{" "}
-          <a href="mailto:support@qr-ai.co" style={{ color: "#70E195" }}>
-            Contact us
-          </a>
+          Still curious? The best way to get a feel for it is to try it yourself.
         </Typography>
         <Link href="/generate" passHref>
           <Button variant="contained" size="large">

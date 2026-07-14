@@ -22,6 +22,8 @@ const nextConfig = {
       return [
         // permanent: true emits 308 (Next.js); Google treats 308 === 301 for SEO.
         { source: '/', destination: '/generate', permanent: true },
+        // /gallery retired in favor of /explore; preserve its link equity.
+        { source: '/gallery', destination: '/explore', permanent: true },
       ];
     },
     async headers() {

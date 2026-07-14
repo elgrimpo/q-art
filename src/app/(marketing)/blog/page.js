@@ -20,17 +20,51 @@ export default function BlogPage() {
         QR AI Blog
       </Typography>
       <Typography component="p" sx={{ mb: 6, color: "text.secondary", fontSize: "1.1rem", lineHeight: 1.8 }}>
-        Tips, guides, and inspiration for creating beautiful AI QR code artwork. Posts coming soon.
+        Tips, guides, and inspiration for creating beautiful AI QR code artwork.
       </Typography>
 
-      {/* Placeholder: upcoming posts */}
+      {/* Published posts */}
+      <Link
+        href="/blog/qr-code-that-looks-like-art"
+        style={{ textDecoration: "none" }}
+      >
+        <Box
+          sx={{
+            border: "1px solid",
+            borderColor: "divider",
+            borderRadius: 2,
+            p: 4,
+            backgroundColor: "background.paper",
+            mb: 4,
+            transition: "border-color 0.2s ease",
+            "&:hover": { borderColor: "primary.main" },
+          }}
+        >
+          <Typography component="p" sx={{ color: "text.muted", fontSize: "0.85rem", mb: 1 }}>
+            Guide
+          </Typography>
+          <Typography variant="h2" color="primary" sx={{ fontSize: "1.4rem", mb: 1.5 }}>
+            How to Make a QR Code That Looks Like Art (and Still Scans)
+          </Typography>
+          <Typography component="p" sx={{ lineHeight: 1.8, color: "text.secondary" }}>
+            The same code that links to your playlist, Instagram, or wedding RSVP
+            can look like a watercolor painting &mdash; and still scan. Here&rsquo;s
+            how AI QR code generators work, plus a step-by-step workflow and
+            troubleshooting tips.
+          </Typography>
+          <Typography component="p" sx={{ mt: 2, color: "primary.main", fontWeight: 600 }}>
+            Read the guide →
+          </Typography>
+        </Box>
+      </Link>
+
+      {/* Upcoming posts */}
       <Box
         sx={{
           border: "1px solid",
           borderColor: "divider",
           borderRadius: 2,
           p: 4,
-          backgroundColor: "background.paper",
           mb: 6,
         }}
       >
@@ -38,16 +72,15 @@ export default function BlogPage() {
           Coming soon
         </Typography>
         <Typography component="p" sx={{ lineHeight: 1.8, color: "text.secondary", mb: 3 }}>
-          We&rsquo;re working on a series of guides to help you get the most out of QR AI:
+          More guides in the works:
         </Typography>
         <Box
           component="ul"
           sx={{ pl: 3, color: "text.muted", "& li": { mb: 1, lineHeight: 1.8 } }}
         >
-          <li>How to make an AI QR code — a complete beginner&rsquo;s guide</li>
-          <li>The best AI QR code styles for restaurants and cafés</li>
           <li>Do AI QR codes still scan? Everything you need to know</li>
-          <li>AI QR codes for business cards — tips and templates</li>
+          <li>Why won&rsquo;t my artistic QR code scan? A troubleshooting guide</li>
+          <li>The best AI QR code styles for restaurants and cafés</li>
           <li>How to create a QR code art piece for events and weddings</li>
         </Box>
       </Box>
@@ -56,8 +89,8 @@ export default function BlogPage() {
         <Link href="/how-it-works" passHref>
           <Button variant="outlined">How it works →</Button>
         </Link>
-        <Link href="/gallery" passHref>
-          <Button variant="outlined">View gallery →</Button>
+        <Link href="/explore" passHref>
+          <Button variant="outlined">Explore examples →</Button>
         </Link>
         <Link href="/faq" passHref>
           <Button variant="outlined">FAQ →</Button>

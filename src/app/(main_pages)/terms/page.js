@@ -186,8 +186,8 @@ export default function TermsPage() {
       <Typography variant="h2" color="primary" sx={{ fontSize: "1.4rem", mt: 4, mb: 1 }}>
         13. Contact
       </Typography>
-      <Typography component="p" sx={{ mb: 3, lineHeight: 1.8 }}>
-        Questions about these Terms? Contact us at: <strong>support@qr-ai.co</strong>
+      <Typography component="p" sx={{ mb: 3, lineHeight: 1.8, color: "text.secondary" }}>
+        Questions about these Terms? Please get in touch through <strong>qr-ai.co</strong>.
       </Typography>
 
       <Typography
