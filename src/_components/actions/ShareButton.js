@@ -39,7 +39,7 @@ export default function ShareButton(props) {
     amplitude.track("Share Image", { social: social })
   };
 
-  const shareUrl = `http://www.qr-ai.co/images/${image?._id}`;
+  const shareUrl = `https://www.qr-ai.co/images/${image?._id}`;
   const shareTitle = `Check out my QR Code @qr-ai.co`;
 
   return (
