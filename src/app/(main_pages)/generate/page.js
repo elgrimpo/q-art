@@ -32,10 +32,23 @@ export const metadata = {
   alternates: {
     canonical: "https://www.qr-ai.co/generate",
   },
-  // No openGraph/twitter override here on purpose: defining an openGraph object
-  // would shallow-replace the root one and drop the site-wide opengraph-image.
-  // og:title/og:description auto-populate from title/description above; og:image,
-  // site_name, type and twitter.card are inherited from the root layout.
+  // Next.js metadata does NOT deep-merge nested objects across segments — a child
+  // `openGraph` key fully replaces the root's, including the auto-detected
+  // opengraph-image.js file-convention image (see QRAI-8/8a426d49e). So every
+  // field the root sets (siteName, type, image) must be repeated here alongside
+  // the page-specific url. og:title/og:description still auto-populate from
+  // title/description above.
+  openGraph: {
+    url: "https://www.qr-ai.co/generate",
+    siteName: "QR AI",
+    type: "website",
+    images: {
+      url: "/opengraph-image",
+      width: 1200,
+      height: 630,
+      alt: "QR AI — Transform any URL into AI-generated QR code artwork",
+    },
+  },
 };
 
 export default function GeneratePage() {
