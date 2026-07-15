@@ -59,36 +59,35 @@ export default function ExamplesCarousel({ initialExamples, styleTitle, caption 
           <Box
             key={img._id}
             onClick={() => handleOpen(i)}
-            sx={{ width: CARD_WIDTH, flex: "0 0 auto" }}
+            sx={{
+              width: CARD_WIDTH,
+              flex: "0 0 auto",
+              borderRadius: "12px",
+              overflow: "hidden",
+              border: "0.5px solid",
+              borderColor: "primary.main",
+              bgcolor: "background.paper",
+              cursor: "pointer",
+              transition: "border-color 0.2s, transform 0.15s",
+              "&:hover": {
+                borderColor: "primary.light",
+                transform: "translateY(-2px)",
+              },
+            }}
           >
-            <Box
-              sx={{
-                borderRadius: "12px",
-                overflow: "hidden",
-                border: "0.5px solid",
-                borderColor: "primary.main",
-                bgcolor: "background.paper",
-                cursor: "pointer",
-                transition: "border-color 0.2s, transform 0.15s",
-                "&:hover": {
-                  borderColor: "primary.light",
-                  transform: "translateY(-2px)",
-                },
-              }}
-            >
-              <Box sx={{ aspectRatio: "1 / 1", position: "relative" }}>
-                <Image
-                  src={img.watermarked_image_url}
-                  alt={img.prompt || `${styleTitle} QR code example`}
-                  fill
-                  sizes="(max-width: 600px) 200px, 240px"
-                  style={{ objectFit: "cover" }}
-                />
-              </Box>
+            <Box sx={{ aspectRatio: "1 / 1", position: "relative" }}>
+              <Image
+                src={img.watermarked_image_url}
+                alt={img.prompt || `${styleTitle} QR code example`}
+                fill
+                sizes="(max-width: 600px) 200px, 240px"
+                style={{ objectFit: "cover" }}
+              />
             </Box>
             <Typography
               sx={{
-                mt: 1,
+                px: 1.5,
+                py: 1,
                 fontSize: "0.78rem",
                 color: "text.secondary",
                 overflow: "hidden",
