@@ -1,37 +1,24 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
-import { Box, IconButton, Typography } from "@mui/material";
-import ChevronRightOutlined from "@mui/icons-material/ChevronRightOutlined";
+import { Box, Typography } from "@mui/material";
 import ImageModal from "@/app/(main_pages)/mycodes/ImageModal";
+import HorizontalScroller from "./HorizontalScroller";
 
-const VISIBLE = 4;
 const CARD_WIDTH = 170;
-const GAP = 16;
 
 /**
- * Horizontally-paged example strip (4 visible + a next button) that opens
- * the same ImageModal used on /mycodes and /explore, instead of navigating
- * to /images/[id] — that full page currently 500s in dev on a missing
- * react-share vendor chunk, and a modal is the better UX here anyway.
+ * Full-width, single-row example strip with prev/next scroll buttons.
+ * Opens the same ImageModal used on /mycodes and /explore, instead of
+ * navigating to /images/[id] — that full page currently 500s in dev on a
+ * missing react-share vendor chunk, and a modal is the better UX here
+ * anyway.
  */
 export default function ExamplesCarousel({ initialExamples, styleTitle }) {
   const [examples, setExamples] = useState(initialExamples);
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [atEnd, setAtEnd] = useState(true);
-  const scrollerRef = useRef(null);
-
-  const updateAtEnd = () => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    setAtEnd(el.scrollLeft + el.clientWidth >= el.scrollWidth - 4);
-  };
-
-  useEffect(() => {
-    updateAtEnd();
-  }, [examples]);
 
   if (examples.length === 0) {
     return (
@@ -40,12 +27,6 @@ export default function ExamplesCarousel({ initialExamples, styleTitle }) {
       </Typography>
     );
   }
-
-  const scrollNext = () => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    el.scrollBy({ left: (CARD_WIDTH + GAP) * VISIBLE, behavior: "smooth" });
-  };
 
   const handleOpen = (index) => {
     setSelectedIndex(index);
@@ -70,19 +51,8 @@ export default function ExamplesCarousel({ initialExamples, styleTitle }) {
   };
 
   return (
-    <Box sx={{ position: "relative", maxWidth: VISIBLE * (CARD_WIDTH + GAP) - GAP }}>
-      <Box
-        ref={scrollerRef}
-        onScroll={updateAtEnd}
-        sx={{
-          display: "flex",
-          gap: `${GAP}px`,
-          overflowX: "auto",
-          pb: 1,
-          scrollbarWidth: "none",
-          "&::-webkit-scrollbar": { display: "none" },
-        }}
-      >
+    <>
+      <HorizontalScroller>
         {examples.map((img, i) => (
           <Box
             key={img._id}
@@ -121,25 +91,7 @@ export default function ExamplesCarousel({ initialExamples, styleTitle }) {
             </Typography>
           </Box>
         ))}
-      </Box>
-
-      {!atEnd && (
-        <IconButton
-          onClick={scrollNext}
-          aria-label="Show more examples"
-          sx={{
-            position: "absolute",
-            right: -16,
-            top: "32%",
-            backgroundColor: "background.paper",
-            border: "1px solid",
-            borderColor: "divider",
-            "&:hover": { backgroundColor: "background.paper" },
-          }}
-        >
-          <ChevronRightOutlined />
-        </IconButton>
-      )}
+      </HorizontalScroller>
 
       <ImageModal
         open={modalOpen}
@@ -151,6 +103,6 @@ export default function ExamplesCarousel({ initialExamples, styleTitle }) {
         handlePrevious={showPrevious}
         customLikeAction={customLikeAction}
       />
-    </Box>
+    </>
   );
 }

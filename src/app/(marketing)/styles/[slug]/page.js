@@ -18,6 +18,7 @@ import {
 } from "@/_utils/ImageStyles";
 import { getImages } from "@/_utils/ImagesUtils";
 import ExamplesCarousel from "./ExamplesCarousel";
+import HorizontalScroller from "./HorizontalScroller";
 
 const ICONS = {
   BrushOutlined,
@@ -252,8 +253,16 @@ function RichStyleLayout({ style, lp, examples }) {
   return (
     <Box sx={{ maxWidth: "1120px", mx: "auto" }}>
       {/* Hero */}
-      <Box sx={{ mb: 8 }}>
-        <Box sx={{ textAlign: { xs: "center", md: "left" }, mb: 4 }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          alignItems: "center",
+          gap: { xs: 4, md: 6 },
+          mb: 8,
+        }}
+      >
+        <Box sx={{ flex: "1 1 420px", textAlign: { xs: "center", md: "left" } }}>
           <Box
             sx={{
               display: "inline-flex",
@@ -325,7 +334,9 @@ function RichStyleLayout({ style, lp, examples }) {
 
         <Box
           sx={{
+            flex: "1 1 420px",
             width: "100%",
+            maxWidth: 460,
             borderRadius: 3,
             overflow: "hidden",
             border: "1px solid",
@@ -338,7 +349,7 @@ function RichStyleLayout({ style, lp, examples }) {
             width={900}
             height={900}
             priority
-            sizes="(max-width: 1120px) 100vw, 1120px"
+            sizes="(max-width: 460px) 100vw, 460px"
             style={{ width: "100%", height: "auto", display: "block" }}
           />
         </Box>
@@ -398,20 +409,16 @@ function RichStyleLayout({ style, lp, examples }) {
         <Typography variant="h2" sx={{ fontSize: { xs: "1.3rem", md: "1.6rem" }, mb: 3 }}>
           Perfect For
         </Typography>
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: { xs: "repeat(2, 1fr)", sm: "repeat(3, 1fr)" },
-            gap: 2,
-          }}
-        >
+        <HorizontalScroller>
           {lp.perfectFor.map((card) => {
             const Icon = ICONS[card.icon];
             return (
               <Box
                 key={card.title}
                 sx={{
+                  width: { xs: 200, sm: 240 },
                   aspectRatio: "1 / 1",
+                  flex: "0 0 auto",
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "flex-end",
@@ -437,7 +444,7 @@ function RichStyleLayout({ style, lp, examples }) {
               </Box>
             );
           })}
-        </Box>
+        </HorizontalScroller>
       </Box>
 
       {/* Bottom CTA */}
