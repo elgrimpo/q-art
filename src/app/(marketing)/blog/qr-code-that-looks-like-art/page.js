@@ -24,6 +24,7 @@ export const metadata = {
     siteName: "QR AI",
     type: "article",
     publishedTime: PUBLISHED,
+    images: [{ url: "/blog/hero.webp", width: 768, height: 768 }],
   },
 };
 
