@@ -139,7 +139,7 @@ export default function GeneratePage() {
             variant="h2"
             sx={{ fontSize: { xs: "1.5rem", sm: "2rem", md: "2.5rem" }, mt: 1, mb: 0 }}
           >
-            Create beautiful QR codes people actually want to scan.
+            Create beautiful AI QR code art that people actually want to scan.
           </Typography>
 
           <Box

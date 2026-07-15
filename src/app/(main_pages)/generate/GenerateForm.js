@@ -66,15 +66,18 @@ function GenerateForm() {
   }, [generatingImage]);
 
   // Deep-link support for the /styles/[slug] landing pages' "Generate this
-  // style" CTA (?style=watercolor) — preselect the matching style on mount.
+  // style" CTA (?style=watercolor-qr-code) — preselect the matching style on
+  // mount. Style page slugs are keyword-rich ("watercolor-qr-code"); strip
+  // that suffix back off to match ImageStyles by title alone.
   useEffect(() => {
     if (typeof window === "undefined") return;
     const styleParam = new URLSearchParams(window.location.search).get("style");
     if (!styleParam) return;
+    const normalized = styleParam.toLowerCase().replace(/-qr-code$/, "");
     const match = styles.find(
       (s) =>
         s.id !== RANDOM_STYLE_ID &&
-        s.title.toLowerCase().replace(/\s+/g, "-") === styleParam.toLowerCase(),
+        s.title.toLowerCase().replace(/\s+/g, "-") === normalized,
     );
     if (match) {
       setGenerateFormValues((prev) => ({

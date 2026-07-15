@@ -3,7 +3,7 @@ import Image from "next/image";
 import { Box, Typography, Button } from "@mui/material";
 import { styles } from "@/_utils/ImageStyles";
 import BeforeAfterSlider from "./BeforeAfterSlider";
-import { styleSlugs } from "../../styles/[slug]/styleContent";
+import { styleContent } from "../../styles/[slug]/styleContent";
 
 const POST_URL =
   "https://www.qr-ai.co/blog/qr-code-that-looks-like-art";
@@ -279,8 +279,9 @@ export default function QrCodeThatLooksLikeArtPost() {
         }}
       >
         {styleStrip.map((s) => {
-          const slug = s.title.toLowerCase().replace(/\s+/g, "-");
-          const hasStylePage = styleSlugs.includes(slug);
+          const stylePage = Object.values(styleContent).find(
+            (entry) => entry.title.toLowerCase() === s.title.toLowerCase(),
+          );
           const card = (
             <Box>
               <Box sx={{ borderRadius: 2, overflow: "hidden", border: "1px solid", borderColor: "divider" }}>
@@ -298,8 +299,8 @@ export default function QrCodeThatLooksLikeArtPost() {
               </Typography>
             </Box>
           );
-          return hasStylePage ? (
-            <Link key={s.id} href={`/styles/${slug}`} style={{ textDecoration: "none" }}>
+          return stylePage ? (
+            <Link key={s.id} href={`/styles/${stylePage.slug}`} style={{ textDecoration: "none" }}>
               {card}
             </Link>
           ) : (

@@ -1,10 +1,12 @@
 // Content for the per-style landing pages (/styles/[slug]). Each entry maps
-// to a real style in `_utils/ImageStyles.js` — the hero image and the
-// `?style=` deep-link into /generate both key off `slug` matching that
-// style's title (lowercased, spaces to hyphens).
+// to a real style in `_utils/ImageStyles.js` via `title`. Slugs are
+// keyword-rich (`watercolor-qr-code`, not `watercolor`) for a small SEO edge
+// on URL/keyword match — decided 2026-07-15, see keyword-map.md. The
+// `?style=` deep-link into /generate strips a trailing "-qr-code" back off
+// (see GenerateForm.js) so it can still match ImageStyles by title alone.
 export const styleContent = {
-  watercolor: {
-    slug: "watercolor",
+  "watercolor-qr-code": {
+    slug: "watercolor-qr-code",
     title: "Watercolor",
     styleImageUrl:
       "https://qrartimages.s3.us-west-1.amazonaws.com/6a49894ce43200a51524b869.png",
@@ -26,8 +28,8 @@ export const styleContent = {
       "Event signage with a soft, artistic feel",
     ],
   },
-  "ukiyo-e": {
-    slug: "ukiyo-e",
+  "ukiyo-e-qr-code": {
+    slug: "ukiyo-e-qr-code",
     title: "Ukiyo-e",
     styleImageUrl:
       "https://qrartimages.s3.us-west-1.amazonaws.com/656e2d37e3aafee4354c812b.png",
