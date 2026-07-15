@@ -23,10 +23,16 @@ export const useStore = create((set) => ({
   setIterateSession: (session) => set({ iterateSession: session }),
   clearIterateSession: () => set({ iterateSession: null }),
 
+  // Accepts either a plain object or an updater `(prevFormValues) => nextFormValues`,
+  // like React's setState. The functional form reads state fresh at commit
+  // time instead of a caller's closed-over snapshot — needed when more than
+  // one mount-time effect updates generateFormValues, or they can race and
+  // silently clobber each other.
   setGenerateFormValues: (values) =>
     set((state) => ({
       ...state,
-      generateFormValues: values,
+      generateFormValues:
+        typeof values === "function" ? values(state.generateFormValues) : values,
     })),
   resetGenerateFormValues: () =>
     set((state) => ({

@@ -13,7 +13,7 @@ import GenerationFormFields from "./(formComponents)/GenerationFormFields";
 import GeneratingLoader from "./(formComponents)/GeneratingLoader";
 import { startGeneration } from "@/_utils/ImagesUtils";
 import { useGenerationPolling } from "@/_utils/useGenerationPolling";
-import { selectRandomStyle, RANDOM_STYLE_ID } from "@/_utils/ImageStyles";
+import { selectRandomStyle, RANDOM_STYLE_ID, styles } from "@/_utils/ImageStyles";
 
 function nextGenerationNumber() {
   if (typeof window === "undefined") return 1;
@@ -65,6 +65,27 @@ function GenerateForm() {
     return () => observer.disconnect();
   }, [generatingImage]);
 
+  // Deep-link support for the /styles/[slug] landing pages' "Generate this
+  // style" CTA (?style=watercolor) — preselect the matching style on mount.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const styleParam = new URLSearchParams(window.location.search).get("style");
+    if (!styleParam) return;
+    const match = styles.find(
+      (s) =>
+        s.id !== RANDOM_STYLE_ID &&
+        s.title.toLowerCase().replace(/\s+/g, "-") === styleParam.toLowerCase(),
+    );
+    if (match) {
+      setGenerateFormValues((prev) => ({
+        ...prev,
+        style_id: match.id,
+        style_title: match.title,
+      }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setGenerateFormValues({ ...generateFormValues, [name]: value });
@@ -78,10 +99,9 @@ function GenerateForm() {
     }
 
     if (generateFormValues.prompt === "") {
-      setGenerateFormValues({
-        ...generateFormValues,
-        prompt: promptRandomizer(),
-      });
+      setGenerateFormValues((prev) =>
+        prev.prompt === "" ? { ...prev, prompt: promptRandomizer() } : prev,
+      );
     }
   }, [generateFormValues]);
 

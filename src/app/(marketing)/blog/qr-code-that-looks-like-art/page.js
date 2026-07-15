@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Box, Typography, Button } from "@mui/material";
 import { styles } from "@/_utils/ImageStyles";
 import BeforeAfterSlider from "./BeforeAfterSlider";
+import { styleSlugs } from "../../styles/[slug]/styleContent";
 
 const POST_URL =
   "https://www.qr-ai.co/blog/qr-code-that-looks-like-art";
@@ -277,23 +278,34 @@ export default function QrCodeThatLooksLikeArtPost() {
           mb: 5,
         }}
       >
-        {styleStrip.map((s) => (
-          <Box key={s.id}>
-            <Box sx={{ borderRadius: 2, overflow: "hidden", border: "1px solid", borderColor: "divider" }}>
-              <Image
-                src={s.image_url}
-                alt={`${s.title} style AI QR code example`}
-                width={400}
-                height={400}
-                sizes="(max-width: 600px) 45vw, 180px"
-                style={{ width: "100%", height: "auto", display: "block" }}
-              />
+        {styleStrip.map((s) => {
+          const slug = s.title.toLowerCase().replace(/\s+/g, "-");
+          const hasStylePage = styleSlugs.includes(slug);
+          const card = (
+            <Box>
+              <Box sx={{ borderRadius: 2, overflow: "hidden", border: "1px solid", borderColor: "divider" }}>
+                <Image
+                  src={s.image_url}
+                  alt={`${s.title} style AI QR code example`}
+                  width={400}
+                  height={400}
+                  sizes="(max-width: 600px) 45vw, 180px"
+                  style={{ width: "100%", height: "auto", display: "block" }}
+                />
+              </Box>
+              <Typography component="p" sx={{ mt: 0.75, textAlign: "center", fontSize: "0.8rem", color: "text.secondary" }}>
+                {s.title}
+              </Typography>
             </Box>
-            <Typography component="p" sx={{ mt: 0.75, textAlign: "center", fontSize: "0.8rem", color: "text.secondary" }}>
-              {s.title}
-            </Typography>
-          </Box>
-        ))}
+          );
+          return hasStylePage ? (
+            <Link key={s.id} href={`/styles/${slug}`} style={{ textDecoration: "none" }}>
+              {card}
+            </Link>
+          ) : (
+            <Box key={s.id}>{card}</Box>
+          );
+        })}
       </Box>
 
       <Typography variant="h2" color="primary" sx={h2}>
