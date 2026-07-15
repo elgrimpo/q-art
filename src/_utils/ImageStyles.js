@@ -103,6 +103,12 @@ export const styles = [
       headingAccent: "QR",
       intro:
         "Soft, painterly QR art that brings beauty to everything you share — without sacrificing scannability.",
+      // Shown under every card in the live Examples strip instead of that
+      // generation's real prompt — real prompts are user-written and can be
+      // off-brand for a marketing page (test/joke prompts, unrelated
+      // subjects). Edit this string directly; it's the same caption on
+      // every example card until there's a real per-image curation model.
+      exampleCaption: "Real, scannable Watercolor QR code — made with QR AI",
       features: [
         { icon: "BrushOutlined", label: "Soft painterly aesthetic" },
         { icon: "QrCode2Outlined", label: "Scannable by design" },

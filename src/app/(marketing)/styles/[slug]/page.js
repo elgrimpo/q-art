@@ -360,7 +360,11 @@ function RichStyleLayout({ style, lp, examples }) {
         <Typography variant="h2" sx={{ fontSize: { xs: "1.3rem", md: "1.6rem" }, mb: 3 }}>
           {style.title} QR Code Examples
         </Typography>
-        <ExamplesCarousel initialExamples={examples} styleTitle={style.title} />
+        <ExamplesCarousel
+          initialExamples={examples}
+          styleTitle={style.title}
+          caption={lp.exampleCaption}
+        />
       </Box>
 
       {/* Prompt ideas */}

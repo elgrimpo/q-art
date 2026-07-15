@@ -17,7 +17,7 @@ const CARD_WIDTH = { xs: 200, sm: 240 };
  * missing react-share vendor chunk, and a modal is the better UX here
  * anyway.
  */
-export default function ExamplesCarousel({ initialExamples, styleTitle }) {
+export default function ExamplesCarousel({ initialExamples, styleTitle, caption }) {
   const [examples, setExamples] = useState(initialExamples);
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -59,25 +59,32 @@ export default function ExamplesCarousel({ initialExamples, styleTitle }) {
           <Box
             key={img._id}
             onClick={() => handleOpen(i)}
-            sx={{ width: CARD_WIDTH, flex: "0 0 auto", cursor: "pointer" }}
+            sx={{ width: CARD_WIDTH, flex: "0 0 auto" }}
           >
             <Box
               sx={{
-                borderRadius: 2,
+                borderRadius: "12px",
                 overflow: "hidden",
-                border: "1px solid",
-                borderColor: "divider",
-                aspectRatio: "1 / 1",
-                position: "relative",
+                border: "0.5px solid",
+                borderColor: "primary.main",
+                bgcolor: "background.paper",
+                cursor: "pointer",
+                transition: "border-color 0.2s, transform 0.15s",
+                "&:hover": {
+                  borderColor: "primary.light",
+                  transform: "translateY(-2px)",
+                },
               }}
             >
-              <Image
-                src={img.watermarked_image_url}
-                alt={img.prompt || `${styleTitle} QR code example`}
-                fill
-                sizes="(max-width: 600px) 200px, 240px"
-                style={{ objectFit: "cover" }}
-              />
+              <Box sx={{ aspectRatio: "1 / 1", position: "relative" }}>
+                <Image
+                  src={img.watermarked_image_url}
+                  alt={img.prompt || `${styleTitle} QR code example`}
+                  fill
+                  sizes="(max-width: 600px) 200px, 240px"
+                  style={{ objectFit: "cover" }}
+                />
+              </Box>
             </Box>
             <Typography
               sx={{
@@ -89,7 +96,7 @@ export default function ExamplesCarousel({ initialExamples, styleTitle }) {
                 whiteSpace: "nowrap",
               }}
             >
-              {img.prompt || `${styleTitle} QR code`}
+              {caption || `${styleTitle} QR code`}
             </Typography>
           </Box>
         ))}
