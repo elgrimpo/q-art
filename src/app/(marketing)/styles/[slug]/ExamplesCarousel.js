@@ -6,7 +6,9 @@ import { Box, Typography } from "@mui/material";
 import ImageModal from "@/app/(main_pages)/mycodes/ImageModal";
 import HorizontalScroller from "./HorizontalScroller";
 
-const CARD_WIDTH = 170;
+// Matches the Perfect For card sizing so both scroll rows read as the same
+// visual scale.
+const CARD_WIDTH = { xs: 200, sm: 240 };
 
 /**
  * Full-width, single-row example strip with prev/next scroll buttons.
@@ -73,7 +75,7 @@ export default function ExamplesCarousel({ initialExamples, styleTitle }) {
                 src={img.watermarked_image_url}
                 alt={img.prompt || `${styleTitle} QR code example`}
                 fill
-                sizes={`${CARD_WIDTH}px`}
+                sizes="(max-width: 600px) 200px, 240px"
                 style={{ objectFit: "cover" }}
               />
             </Box>
