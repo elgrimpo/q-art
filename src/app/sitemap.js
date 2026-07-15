@@ -1,4 +1,12 @@
+import { stylesWithLandingPage } from "@/_utils/ImageStyles";
+
 export default function sitemap() {
+  const stylePages = stylesWithLandingPage().map((s) => ({
+    url: `https://www.qr-ai.co/styles/${s.landingPage.slug}`,
+    lastModified: new Date('2026-07-15'),
+    priority: 0.6,
+  }));
+
   return [
     { url: 'https://www.qr-ai.co/generate',      lastModified: new Date(), priority: 1.0 },
     { url: 'https://www.qr-ai.co/explore',        lastModified: new Date(), priority: 0.9 },
@@ -8,8 +16,7 @@ export default function sitemap() {
     { url: 'https://www.qr-ai.co/blog',           lastModified: new Date(), priority: 0.6 },
     { url: 'https://www.qr-ai.co/blog/qr-code-that-looks-like-art', lastModified: new Date('2026-07-14'), priority: 0.7 },
     { url: 'https://www.qr-ai.co/blog/are-artistic-qr-codes-scannable', lastModified: new Date('2026-07-15'), priority: 0.7 },
-    { url: 'https://www.qr-ai.co/styles/watercolor-qr-code', lastModified: new Date('2026-07-15'), priority: 0.6 },
-    { url: 'https://www.qr-ai.co/styles/ukiyo-e-qr-code',    lastModified: new Date('2026-07-15'), priority: 0.6 },
+    ...stylePages,
     { url: 'https://www.qr-ai.co/privacy',        lastModified: new Date(), priority: 0.3 },
     { url: 'https://www.qr-ai.co/terms',          lastModified: new Date(), priority: 0.3 },
   ];

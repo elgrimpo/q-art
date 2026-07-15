@@ -2,42 +2,101 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Box, Typography, Button } from "@mui/material";
-import { styleContent, styleSlugs } from "./styleContent";
+import LinkOutlined from "@mui/icons-material/LinkOutlined";
+import ArrowOutwardOutlined from "@mui/icons-material/ArrowOutwardOutlined";
+import BrushOutlined from "@mui/icons-material/BrushOutlined";
+import QrCode2Outlined from "@mui/icons-material/QrCode2Outlined";
+import LocalPrintshopOutlined from "@mui/icons-material/LocalPrintshopOutlined";
+import FavoriteBorderOutlined from "@mui/icons-material/FavoriteBorderOutlined";
+import LocalCafeOutlined from "@mui/icons-material/LocalCafeOutlined";
+import CelebrationOutlined from "@mui/icons-material/CelebrationOutlined";
+import Inventory2Outlined from "@mui/icons-material/Inventory2Outlined";
+import ShareOutlined from "@mui/icons-material/ShareOutlined";
+import {
+  stylesWithLandingPage,
+  findStyleByLandingSlug,
+  isRichLandingPage,
+} from "@/_utils/ImageStyles";
+import { getImages } from "@/_utils/ImagesUtils";
+
+const ICONS = {
+  BrushOutlined,
+  QrCode2Outlined,
+  LocalPrintshopOutlined,
+  FavoriteBorderOutlined,
+  LocalCafeOutlined,
+  CelebrationOutlined,
+  Inventory2Outlined,
+  ShareOutlined,
+};
 
 export function generateStaticParams() {
-  return styleSlugs.map((slug) => ({ slug }));
+  return stylesWithLandingPage().map((s) => ({ slug: s.landingPage.slug }));
 }
 
 export function generateMetadata({ params }) {
-  const style = styleContent[params.slug];
+  const style = findStyleByLandingSlug(params.slug);
   if (!style) return {};
-  const url = `https://www.qr-ai.co/styles/${style.slug}`;
+  const lp = style.landingPage;
+  const url = `https://www.qr-ai.co/styles/${lp.slug}`;
+  const heading = lp.heading || `${lp.headingLines?.join(" ")}`;
   return {
-    title: style.metaTitle,
-    description: style.metaDescription,
+    title: lp.metaTitle,
+    description: lp.metaDescription,
     alternates: { canonical: url },
     openGraph: {
-      title: style.heading,
-      description: style.metaDescription,
+      title: heading,
+      description: lp.metaDescription,
       url,
       siteName: "QR AI",
       type: "website",
-      images: [{ url: style.styleImageUrl, width: 1024, height: 1024 }],
+      images: [{ url: style.image_url, width: 1024, height: 1024 }],
     },
   };
 }
 
+export default async function StylePage({ params }) {
+  const style = findStyleByLandingSlug(params.slug);
+  if (!style) notFound();
+
+  const lp = style.landingPage;
+  const rich = isRichLandingPage(lp);
+  const otherStyle = stylesWithLandingPage().find(
+    (s) => s.landingPage.slug !== lp.slug,
+  );
+
+  let examples = [];
+  if (rich) {
+    try {
+      examples =
+        (await getImages({
+          image_style: style.title,
+          featured: true,
+          images_per_page: 8,
+        })) || [];
+    } catch {
+      examples = [];
+    }
+  }
+
+  return rich ? (
+    <RichStyleLayout style={style} lp={lp} otherStyle={otherStyle} examples={examples} />
+  ) : (
+    <SimpleStyleLayout style={style} lp={lp} otherStyle={otherStyle} />
+  );
+}
+
+/* ---------------------------------------------------------------------- */
+/*                            SIMPLE LAYOUT                                */
+/* ---------------------------------------------------------------------- */
+/* Used until a style has promptIdeas/perfectFor content written for it —  */
+/* see ImageStyles.js. Thin, text-first, matches the site's other          */
+/* marketing pages (faq, pricing, blog).                                   */
+
 const h2 = { fontSize: "1.4rem", mb: 2, mt: 5 };
 const p = { mb: 3, lineHeight: 1.8, color: "text.secondary" };
 
-export default function StylePage({ params }) {
-  const style = styleContent[params.slug];
-  if (!style) notFound();
-
-  const otherStyle = Object.values(styleContent).find(
-    (s) => s.slug !== style.slug,
-  );
-
+function SimpleStyleLayout({ style, lp, otherStyle }) {
   return (
     <Box sx={{ maxWidth: "760px", mx: "auto" }}>
       <Typography
@@ -45,13 +104,13 @@ export default function StylePage({ params }) {
         variant="h1"
         sx={{ fontSize: { xs: "2rem", md: "2.6rem" }, mb: 2, lineHeight: 1.2 }}
       >
-        {style.heading}
+        {lp.heading}
       </Typography>
       <Typography
         component="p"
         sx={{ mb: 4, color: "text.secondary", fontSize: "1.1rem", lineHeight: 1.8 }}
       >
-        {style.intro}
+        {lp.intro}
       </Typography>
 
       <Box
@@ -66,7 +125,7 @@ export default function StylePage({ params }) {
         }}
       >
         <Image
-          src={style.styleImageUrl}
+          src={style.image_url}
           alt={`Example ${style.title} style AI-generated QR code`}
           width={800}
           height={800}
@@ -77,7 +136,7 @@ export default function StylePage({ params }) {
       </Box>
 
       <Box sx={{ textAlign: "center", mb: 6, mt: 3 }}>
-        <Link href={`/generate?style=${style.slug}`} passHref>
+        <Link href={`/generate?style=${lp.slug}`} passHref>
           <Button variant="contained" size="large">
             Generate a {style.title} QR code — free
           </Button>
@@ -91,7 +150,7 @@ export default function StylePage({ params }) {
         component="ul"
         sx={{ pl: 3, mb: 3, color: "text.secondary", "& li": { mb: 1.5, lineHeight: 1.8 } }}
       >
-        {style.why.map((line) => (
+        {lp.why.map((line) => (
           <li key={line}>{line}</li>
         ))}
       </Box>
@@ -103,7 +162,7 @@ export default function StylePage({ params }) {
         component="ul"
         sx={{ pl: 3, mb: 3, color: "text.secondary", "& li": { mb: 1.5, lineHeight: 1.8 } }}
       >
-        {style.useCases.map((line) => (
+        {lp.useCases.map((line) => (
           <li key={line}>{line}</li>
         ))}
       </Box>
@@ -125,7 +184,7 @@ export default function StylePage({ params }) {
         <Typography component="p" sx={{ ...p, mb: 6 }}>
           Prefer a different look?{" "}
           <Link
-            href={`/styles/${otherStyle.slug}`}
+            href={`/styles/${otherStyle.landingPage.slug}`}
             style={{ color: "#70E195" }}
           >
             Try the {otherStyle.title} style →
@@ -141,11 +200,367 @@ export default function StylePage({ params }) {
           borderColor: "divider",
         }}
       >
-        <Link href={`/generate?style=${style.slug}`} passHref>
+        <Link href={`/generate?style=${lp.slug}`} passHref>
           <Button variant="contained" size="large">
             Try it free — no sign-up required
           </Button>
         </Link>
+      </Box>
+    </Box>
+  );
+}
+
+/* ---------------------------------------------------------------------- */
+/*                              RICH LAYOUT                                 */
+/* ---------------------------------------------------------------------- */
+
+function AccentHeading({ lines, accent }) {
+  const [line1, line2] = lines;
+  const parts = line2.split(accent);
+  return (
+    <Typography
+      component="h1"
+      variant="h1"
+      sx={{
+        fontSize: { xs: "2.5rem", md: "3.5rem" },
+        fontWeight: 900,
+        fontFamily: "var(--font-inter), Inter, sans-serif",
+        letterSpacing: "-0.02em",
+        lineHeight: 1.05,
+        mb: 2,
+      }}
+    >
+      {line1}
+      <br />
+      {parts.map((part, i) => (
+        <span key={i}>
+          {part}
+          {i < parts.length - 1 && (
+            <Box component="span" sx={{ color: "primary.main" }}>
+              {accent}
+            </Box>
+          )}
+        </span>
+      ))}
+    </Typography>
+  );
+}
+
+function RichStyleLayout({ style, lp, otherStyle, examples }) {
+  const generateHref = `/generate?style=${lp.slug}`;
+
+  return (
+    <Box sx={{ maxWidth: "1120px", mx: "auto" }}>
+      {/* Hero */}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          alignItems: "center",
+          gap: { xs: 4, md: 6 },
+          mb: 8,
+        }}
+      >
+        <Box sx={{ flex: "1 1 420px", textAlign: { xs: "center", md: "left" } }}>
+          <Box
+            sx={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 0.75,
+              px: 1.5,
+              py: 0.5,
+              borderRadius: 999,
+              backgroundColor: "rgba(112, 225, 149, 0.08)",
+              border: "1px solid",
+              borderColor: "primary.main",
+              mb: 2,
+            }}
+          >
+            <LinkOutlined sx={{ fontSize: 14, color: "primary.main" }} />
+            <Typography
+              sx={{
+                fontSize: "0.7rem",
+                fontWeight: 700,
+                letterSpacing: "0.06em",
+                color: "primary.main",
+                textTransform: "uppercase",
+              }}
+            >
+              {lp.badge}
+            </Typography>
+          </Box>
+
+          <AccentHeading lines={lp.headingLines} accent={lp.headingAccent} />
+
+          <Typography
+            component="p"
+            sx={{ mb: 3, color: "text.secondary", fontSize: "1.1rem", lineHeight: 1.7, maxWidth: 480 }}
+          >
+            {lp.intro}
+          </Typography>
+
+          <Link href={generateHref} passHref>
+            <Button
+              variant="contained"
+              size="large"
+              endIcon={<ArrowOutwardOutlined />}
+              sx={{ mb: 3 }}
+            >
+              Generate with this style
+            </Button>
+          </Link>
+
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 3,
+              justifyContent: { xs: "center", md: "flex-start" },
+            }}
+          >
+            {lp.features.map((f) => {
+              const Icon = ICONS[f.icon];
+              return (
+                <Box key={f.label} sx={{ display: "flex", alignItems: "center", gap: 1, maxWidth: 140 }}>
+                  {Icon && <Icon sx={{ color: "primary.main", fontSize: 20, flexShrink: 0 }} />}
+                  <Typography sx={{ fontSize: "0.8rem", color: "text.secondary", lineHeight: 1.3, textAlign: "left" }}>
+                    {f.label}
+                  </Typography>
+                </Box>
+              );
+            })}
+          </Box>
+        </Box>
+
+        <Box
+          sx={{
+            flex: "1 1 420px",
+            width: "100%",
+            maxWidth: 460,
+            borderRadius: 3,
+            overflow: "hidden",
+            border: "1px solid",
+            borderColor: "divider",
+          }}
+        >
+          <Image
+            src={style.image_url}
+            alt={`Example ${style.title} style AI-generated QR code`}
+            width={900}
+            height={900}
+            priority
+            sizes="(max-width: 460px) 100vw, 460px"
+            style={{ width: "100%", height: "auto", display: "block" }}
+          />
+        </Box>
+      </Box>
+
+      {/* Examples */}
+      <Box sx={{ mb: 8 }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", mb: 3 }}>
+          <Typography variant="h2" sx={{ fontSize: { xs: "1.3rem", md: "1.6rem" } }}>
+            {style.title} QR Code Examples
+          </Typography>
+          <Link href="/explore" style={{ color: "#70E195", fontSize: "0.9rem", textDecoration: "none" }}>
+            View all examples →
+          </Link>
+        </Box>
+
+        {examples.length > 0 ? (
+          <Box sx={{ display: "flex", gap: 2, overflowX: "auto", pb: 1 }}>
+            {examples.map((img) => (
+              <Link
+                key={img._id}
+                href={`/images/${img._id}`}
+                style={{ textDecoration: "none", flex: "0 0 auto" }}
+              >
+                <Box sx={{ width: 170 }}>
+                  <Box
+                    sx={{
+                      borderRadius: 2,
+                      overflow: "hidden",
+                      border: "1px solid",
+                      borderColor: "divider",
+                      aspectRatio: "1 / 1",
+                      position: "relative",
+                    }}
+                  >
+                    <Image
+                      src={img.watermarked_image_url}
+                      alt={img.prompt || `${style.title} QR code example`}
+                      fill
+                      sizes="170px"
+                      style={{ objectFit: "cover" }}
+                    />
+                  </Box>
+                  <Typography
+                    sx={{
+                      mt: 1,
+                      fontSize: "0.78rem",
+                      color: "text.secondary",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {img.prompt || `${style.title} QR code`}
+                  </Typography>
+                </Box>
+              </Link>
+            ))}
+          </Box>
+        ) : (
+          <Typography sx={{ color: "text.muted", fontStyle: "italic" }}>
+            Examples coming soon — be the first to generate one.
+          </Typography>
+        )}
+      </Box>
+
+      {/* Prompt ideas */}
+      <Box
+        sx={{
+          mb: 8,
+          p: { xs: 3, md: 5 },
+          borderRadius: 3,
+          backgroundColor: "background.paper",
+          border: "1px solid",
+          borderColor: "divider",
+        }}
+      >
+        <Typography variant="h2" sx={{ fontSize: { xs: "1.3rem", md: "1.6rem" }, mb: 3 }}>
+          Best Prompt Ideas
+        </Typography>
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5, mb: 3 }}>
+          {lp.promptIdeas.map((prompt) => (
+            <Link
+              key={prompt}
+              href={`/generate?style=${lp.slug}&prompt=${encodeURIComponent(prompt)}`}
+              style={{ textDecoration: "none" }}
+            >
+              <Box
+                sx={{
+                  px: 2.5,
+                  py: 1.2,
+                  borderRadius: 999,
+                  border: "1px solid",
+                  borderColor: "divider",
+                  color: "text.secondary",
+                  fontSize: "0.9rem",
+                  transition: "border-color 0.15s ease, color 0.15s ease",
+                  "&:hover": { borderColor: "primary.main", color: "primary.main" },
+                }}
+              >
+                {prompt}
+              </Box>
+            </Link>
+          ))}
+        </Box>
+        <Link href={generateHref} style={{ color: "#70E195", fontSize: "0.9rem", textDecoration: "none" }}>
+          Explore more ideas in the generator →
+        </Link>
+      </Box>
+
+      {/* Perfect for */}
+      <Box sx={{ mb: 8 }}>
+        <Typography variant="h2" sx={{ fontSize: { xs: "1.3rem", md: "1.6rem" }, mb: 3 }}>
+          Perfect For
+        </Typography>
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: { xs: "repeat(2, 1fr)", sm: "repeat(3, 1fr)", md: "repeat(5, 1fr)" },
+            gap: 2,
+          }}
+        >
+          {lp.perfectFor.map((card) => {
+            const Icon = ICONS[card.icon];
+            return (
+              <Box
+                key={card.title}
+                sx={{
+                  p: 2.5,
+                  borderRadius: 2,
+                  border: "1px solid",
+                  borderColor: "divider",
+                  backgroundColor: "background.paper",
+                  ...(card.imageUrl && {
+                    backgroundImage: `linear-gradient(0deg, rgba(0,0,0,0.65), rgba(0,0,0,0.25)), url(${card.imageUrl})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                  }),
+                }}
+              >
+                {Icon && <Icon sx={{ color: "primary.main", fontSize: 22, mb: 1 }} />}
+                <Typography sx={{ fontWeight: 600, fontSize: "0.9rem", mb: 0.5, color: "text.primary" }}>
+                  {card.title}
+                </Typography>
+                <Typography sx={{ fontSize: "0.8rem", color: "text.muted", lineHeight: 1.5 }}>
+                  {card.description}
+                </Typography>
+              </Box>
+            );
+          })}
+        </Box>
+      </Box>
+
+      <Typography component="p" sx={{ ...p, textAlign: "center" }}>
+        Every QR AI style scans exactly the same way underneath. See{" "}
+        <Link href="/blog/are-artistic-qr-codes-scannable" style={{ color: "#70E195" }}>
+          our scannability guide
+        </Link>
+        {otherStyle && (
+          <>
+            {" "}
+            — or{" "}
+            <Link href={`/styles/${otherStyle.landingPage.slug}`} style={{ color: "#70E195" }}>
+              try the {otherStyle.title} style
+            </Link>
+            .
+          </>
+        )}
+      </Typography>
+
+      {/* Bottom CTA */}
+      <Box
+        sx={{
+          mt: 6,
+          p: { xs: 4, md: 6 },
+          borderRadius: 3,
+          background: "linear-gradient(135deg, rgba(112,225,149,0.14), rgba(112,225,149,0.02))",
+          border: "1px solid",
+          borderColor: "divider",
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 3,
+        }}
+      >
+        <Box>
+          <Typography variant="h3" sx={{ fontSize: { xs: "1.3rem", md: "1.5rem" }, mb: 1 }}>
+            Ready to create your {style.title.toLowerCase()} QR code?
+          </Typography>
+          <Typography sx={{ color: "text.secondary" }}>
+            Turn links into living art — scannable, and beautifully styled.
+          </Typography>
+        </Box>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: { xs: "flex-start", md: "flex-end" },
+            gap: 1,
+          }}
+        >
+          <Link href={generateHref} passHref>
+            <Button variant="contained" size="large" endIcon={<ArrowOutwardOutlined />}>
+              Generate with this style
+            </Button>
+          </Link>
+          <Link href="/explore" style={{ color: "#70E195", fontSize: "0.85rem", textDecoration: "none" }}>
+            Explore examples →
+          </Link>
+        </Box>
       </Box>
     </Box>
   );

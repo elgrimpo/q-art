@@ -65,27 +65,33 @@ function GenerateForm() {
     return () => observer.disconnect();
   }, [generatingImage]);
 
-  // Deep-link support for the /styles/[slug] landing pages' "Generate this
-  // style" CTA (?style=watercolor-qr-code) — preselect the matching style on
-  // mount. Style page slugs are keyword-rich ("watercolor-qr-code"); strip
-  // that suffix back off to match ImageStyles by title alone.
+  // Deep-link support for the /styles/[slug] landing pages: "Generate with
+  // this style" (?style=watercolor-qr-code) preselects the matching style;
+  // a prompt-idea chip (?style=...&prompt=...) also prefills the prompt
+  // field without submitting. Style page slugs are keyword-rich
+  // ("watercolor-qr-code"); strip that suffix back off to match ImageStyles
+  // by title alone.
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const styleParam = new URLSearchParams(window.location.search).get("style");
-    if (!styleParam) return;
-    const normalized = styleParam.toLowerCase().replace(/-qr-code$/, "");
-    const match = styles.find(
-      (s) =>
-        s.id !== RANDOM_STYLE_ID &&
-        s.title.toLowerCase().replace(/\s+/g, "-") === normalized,
-    );
-    if (match) {
-      setGenerateFormValues((prev) => ({
-        ...prev,
-        style_id: match.id,
-        style_title: match.title,
-      }));
-    }
+    const params = new URLSearchParams(window.location.search);
+    const styleParam = params.get("style");
+    const promptParam = params.get("prompt");
+    if (!styleParam && !promptParam) return;
+
+    const match = styleParam
+      ? styles.find(
+          (s) =>
+            s.id !== RANDOM_STYLE_ID &&
+            s.title.toLowerCase().replace(/\s+/g, "-") ===
+              styleParam.toLowerCase().replace(/-qr-code$/, ""),
+        )
+      : null;
+
+    setGenerateFormValues((prev) => ({
+      ...prev,
+      ...(match && { style_id: match.id, style_title: match.title }),
+      ...(promptParam && { prompt: promptParam }),
+    }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
