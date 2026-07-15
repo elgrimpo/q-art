@@ -252,16 +252,8 @@ function RichStyleLayout({ style, lp, examples }) {
   return (
     <Box sx={{ maxWidth: "1120px", mx: "auto" }}>
       {/* Hero */}
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          alignItems: "center",
-          gap: { xs: 4, md: 6 },
-          mb: 8,
-        }}
-      >
-        <Box sx={{ flex: "1 1 420px", textAlign: { xs: "center", md: "left" } }}>
+      <Box sx={{ mb: 8 }}>
+        <Box sx={{ textAlign: { xs: "center", md: "left" }, mb: 4 }}>
           <Box
             sx={{
               display: "inline-flex",
@@ -333,9 +325,7 @@ function RichStyleLayout({ style, lp, examples }) {
 
         <Box
           sx={{
-            flex: "1 1 420px",
             width: "100%",
-            maxWidth: 460,
             borderRadius: 3,
             overflow: "hidden",
             border: "1px solid",
@@ -348,7 +338,7 @@ function RichStyleLayout({ style, lp, examples }) {
             width={900}
             height={900}
             priority
-            sizes="(max-width: 460px) 100vw, 460px"
+            sizes="(max-width: 1120px) 100vw, 1120px"
             style={{ width: "100%", height: "auto", display: "block" }}
           />
         </Box>
@@ -411,7 +401,7 @@ function RichStyleLayout({ style, lp, examples }) {
         <Box
           sx={{
             display: "grid",
-            gridTemplateColumns: { xs: "repeat(2, 1fr)", sm: "repeat(3, 1fr)", md: "repeat(5, 1fr)" },
+            gridTemplateColumns: { xs: "repeat(2, 1fr)", sm: "repeat(3, 1fr)" },
             gap: 2,
           }}
         >
@@ -421,23 +411,27 @@ function RichStyleLayout({ style, lp, examples }) {
               <Box
                 key={card.title}
                 sx={{
+                  aspectRatio: "1 / 1",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "flex-end",
                   p: 2.5,
                   borderRadius: 2,
                   border: "1px solid",
                   borderColor: "divider",
                   backgroundColor: "background.paper",
                   ...(card.imageUrl && {
-                    backgroundImage: `linear-gradient(0deg, rgba(0,0,0,0.65), rgba(0,0,0,0.25)), url(${card.imageUrl})`,
+                    backgroundImage: `linear-gradient(0deg, rgba(0,0,0,0.8), rgba(0,0,0,0.25) 65%), url(${card.imageUrl})`,
                     backgroundSize: "cover",
                     backgroundPosition: "center",
                   }),
                 }}
               >
-                {Icon && <Icon sx={{ color: "primary.main", fontSize: 22, mb: 1 }} />}
-                <Typography sx={{ fontWeight: 600, fontSize: "0.9rem", mb: 0.5, color: "text.primary" }}>
+                {Icon && <Icon sx={{ color: "primary.main", fontSize: 26, mb: 1 }} />}
+                <Typography sx={{ fontWeight: 600, fontSize: "1rem", mb: 0.5, color: "text.primary" }}>
                   {card.title}
                 </Typography>
-                <Typography sx={{ fontSize: "0.8rem", color: "text.muted", lineHeight: 1.5 }}>
+                <Typography sx={{ fontSize: "0.85rem", color: "text.muted", lineHeight: 1.5 }}>
                   {card.description}
                 </Typography>
               </Box>
