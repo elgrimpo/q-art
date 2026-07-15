@@ -25,6 +25,39 @@ export default function BlogPage() {
 
       {/* Published posts */}
       <Link
+        href="/blog/are-artistic-qr-codes-scannable"
+        style={{ textDecoration: "none" }}
+      >
+        <Box
+          sx={{
+            border: "1px solid",
+            borderColor: "divider",
+            borderRadius: 2,
+            p: 4,
+            backgroundColor: "background.paper",
+            mb: 4,
+            transition: "border-color 0.2s ease",
+            "&:hover": { borderColor: "primary.main" },
+          }}
+        >
+          <Typography component="p" sx={{ color: "text.muted", fontSize: "0.85rem", mb: 1 }}>
+            Guide
+          </Typography>
+          <Typography variant="h2" color="primary" sx={{ fontSize: "1.4rem", mb: 1.5 }}>
+            Are Artistic QR Codes Scannable? Here&rsquo;s What Actually Matters
+          </Typography>
+          <Typography component="p" sx={{ lineHeight: 1.8, color: "text.secondary" }}>
+            Yes &mdash; here&rsquo;s why error correction makes it possible,
+            what actually makes a code fail, and a checklist for guaranteeing
+            yours works before you print it.
+          </Typography>
+          <Typography component="p" sx={{ mt: 2, color: "primary.main", fontWeight: 600 }}>
+            Read the guide →
+          </Typography>
+        </Box>
+      </Link>
+
+      <Link
         href="/blog/qr-code-that-looks-like-art"
         style={{ textDecoration: "none" }}
       >
@@ -78,7 +111,6 @@ export default function BlogPage() {
           component="ul"
           sx={{ pl: 3, color: "text.muted", "& li": { mb: 1, lineHeight: 1.8 } }}
         >
-          <li>Do AI QR codes still scan? Everything you need to know</li>
           <li>Why won&rsquo;t my artistic QR code scan? A troubleshooting guide</li>
           <li>The best AI QR code styles for restaurants and cafés</li>
           <li>How to create a QR code art piece for events and weddings</li>
