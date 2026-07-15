@@ -2,7 +2,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Box, Typography, Button } from "@mui/material";
-import LinkOutlined from "@mui/icons-material/LinkOutlined";
 import ArrowOutwardOutlined from "@mui/icons-material/ArrowOutwardOutlined";
 import BrushOutlined from "@mui/icons-material/BrushOutlined";
 import QrCode2Outlined from "@mui/icons-material/QrCode2Outlined";
@@ -18,6 +17,7 @@ import {
   isRichLandingPage,
 } from "@/_utils/ImageStyles";
 import { getImages } from "@/_utils/ImagesUtils";
+import ExamplesCarousel from "./ExamplesCarousel";
 
 const ICONS = {
   BrushOutlined,
@@ -80,7 +80,7 @@ export default async function StylePage({ params }) {
   }
 
   return rich ? (
-    <RichStyleLayout style={style} lp={lp} otherStyle={otherStyle} examples={examples} />
+    <RichStyleLayout style={style} lp={lp} examples={examples} />
   ) : (
     <SimpleStyleLayout style={style} lp={lp} otherStyle={otherStyle} />
   );
@@ -246,7 +246,7 @@ function AccentHeading({ lines, accent }) {
   );
 }
 
-function RichStyleLayout({ style, lp, otherStyle, examples }) {
+function RichStyleLayout({ style, lp, examples }) {
   const generateHref = `/generate?style=${lp.slug}`;
 
   return (
@@ -276,7 +276,6 @@ function RichStyleLayout({ style, lp, otherStyle, examples }) {
               mb: 2,
             }}
           >
-            <LinkOutlined sx={{ fontSize: 14, color: "primary.main" }} />
             <Typography
               sx={{
                 fontSize: "0.7rem",
@@ -357,63 +356,10 @@ function RichStyleLayout({ style, lp, otherStyle, examples }) {
 
       {/* Examples */}
       <Box sx={{ mb: 8 }}>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", mb: 3 }}>
-          <Typography variant="h2" sx={{ fontSize: { xs: "1.3rem", md: "1.6rem" } }}>
-            {style.title} QR Code Examples
-          </Typography>
-          <Link href="/explore" style={{ color: "#70E195", fontSize: "0.9rem", textDecoration: "none" }}>
-            View all examples →
-          </Link>
-        </Box>
-
-        {examples.length > 0 ? (
-          <Box sx={{ display: "flex", gap: 2, overflowX: "auto", pb: 1 }}>
-            {examples.map((img) => (
-              <Link
-                key={img._id}
-                href={`/images/${img._id}`}
-                style={{ textDecoration: "none", flex: "0 0 auto" }}
-              >
-                <Box sx={{ width: 170 }}>
-                  <Box
-                    sx={{
-                      borderRadius: 2,
-                      overflow: "hidden",
-                      border: "1px solid",
-                      borderColor: "divider",
-                      aspectRatio: "1 / 1",
-                      position: "relative",
-                    }}
-                  >
-                    <Image
-                      src={img.watermarked_image_url}
-                      alt={img.prompt || `${style.title} QR code example`}
-                      fill
-                      sizes="170px"
-                      style={{ objectFit: "cover" }}
-                    />
-                  </Box>
-                  <Typography
-                    sx={{
-                      mt: 1,
-                      fontSize: "0.78rem",
-                      color: "text.secondary",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {img.prompt || `${style.title} QR code`}
-                  </Typography>
-                </Box>
-              </Link>
-            ))}
-          </Box>
-        ) : (
-          <Typography sx={{ color: "text.muted", fontStyle: "italic" }}>
-            Examples coming soon — be the first to generate one.
-          </Typography>
-        )}
+        <Typography variant="h2" sx={{ fontSize: { xs: "1.3rem", md: "1.6rem" }, mb: 3 }}>
+          {style.title} QR Code Examples
+        </Typography>
+        <ExamplesCarousel initialExamples={examples} styleTitle={style.title} />
       </Box>
 
       {/* Prompt ideas */}
@@ -455,9 +401,6 @@ function RichStyleLayout({ style, lp, otherStyle, examples }) {
             </Link>
           ))}
         </Box>
-        <Link href={generateHref} style={{ color: "#70E195", fontSize: "0.9rem", textDecoration: "none" }}>
-          Explore more ideas in the generator →
-        </Link>
       </Box>
 
       {/* Perfect for */}
@@ -503,23 +446,6 @@ function RichStyleLayout({ style, lp, otherStyle, examples }) {
         </Box>
       </Box>
 
-      <Typography component="p" sx={{ ...p, textAlign: "center" }}>
-        Every QR AI style scans exactly the same way underneath. See{" "}
-        <Link href="/blog/are-artistic-qr-codes-scannable" style={{ color: "#70E195" }}>
-          our scannability guide
-        </Link>
-        {otherStyle && (
-          <>
-            {" "}
-            — or{" "}
-            <Link href={`/styles/${otherStyle.landingPage.slug}`} style={{ color: "#70E195" }}>
-              try the {otherStyle.title} style
-            </Link>
-            .
-          </>
-        )}
-      </Typography>
-
       {/* Bottom CTA */}
       <Box
         sx={{
@@ -547,9 +473,9 @@ function RichStyleLayout({ style, lp, otherStyle, examples }) {
         <Box
           sx={{
             display: "flex",
-            flexDirection: "column",
-            alignItems: { xs: "flex-start", md: "flex-end" },
-            gap: 1,
+            flexWrap: "wrap",
+            alignItems: "center",
+            gap: 1.5,
           }}
         >
           <Link href={generateHref} passHref>
@@ -557,8 +483,10 @@ function RichStyleLayout({ style, lp, otherStyle, examples }) {
               Generate with this style
             </Button>
           </Link>
-          <Link href="/explore" style={{ color: "#70E195", fontSize: "0.85rem", textDecoration: "none" }}>
-            Explore examples →
+          <Link href="/explore" passHref>
+            <Button variant="outlined" size="large">
+              Explore examples
+            </Button>
           </Link>
         </Box>
       </Box>

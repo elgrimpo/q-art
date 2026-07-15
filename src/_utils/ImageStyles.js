@@ -129,34 +129,39 @@ export const styles = [
         "Sunset over mountains, watercolor",
         "Eucalyptus leaves & watercolor wash",
       ],
-      // imageUrl intentionally omitted — no dedicated per-card photography
-      // yet. Cards render icon-only until real images are uploaded (S3) and
-      // added here.
+      // imageUrl is a placeholder pulled from the site's existing generic
+      // /product-placements/ set (same images the /generate use-case
+      // carousel uses) — swap for dedicated per-style photography later.
       perfectFor: [
         {
           title: "Wedding Stationery",
           description: "Elegant saves, invites & thank you cards",
           icon: "FavoriteBorderOutlined",
+          imageUrl: "/product-placements/weddings-stationery.png",
         },
         {
           title: "Menus & Café",
           description: "Beautiful menus that guests love",
           icon: "LocalCafeOutlined",
+          imageUrl: "/product-placements/restaurants-food-trucks.png",
         },
         {
           title: "Events & Posters",
           description: "Stand out with artwork that scans",
           icon: "CelebrationOutlined",
+          imageUrl: "/product-placements/events-exhibitions.png",
         },
         {
           title: "Product Packaging",
           description: "Add artistic QR codes to labels & packaging",
           icon: "Inventory2Outlined",
+          imageUrl: "/product-placements/business-branding.png",
         },
         {
           title: "Social Sharing",
           description: "Make your profile, portfolio & links pop",
           icon: "ShareOutlined",
+          imageUrl: "/product-placements/apparel-merch.png",
         },
       ],
     },
