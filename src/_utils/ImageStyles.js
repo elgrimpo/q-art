@@ -170,6 +170,62 @@ export const styles = [
     title: "Oil Painting",
     image_url:
       "https://qrartimages.s3.us-west-1.amazonaws.com/659801fb55848e0542b40cd0.png",
+    landingPage: {
+      slug: "oil-painting-qr-code",
+      metaTitle: "Oil Painting QR Code Generator — Rich Painted QR Art | QR AI",
+      metaDescription:
+        "Create richly colored oil-painting QR codes with visible brushwork and gallery-like depth using QR AI.",
+      badge: "Oil Painting Style",
+      headingLines: ["Oil Painting", "QR Codes"],
+      headingAccent: "QR",
+      intro:
+        "Rich pigment, visible brushwork, and luminous color transform your QR code into artwork with depth, warmth, and presence.",
+      exampleCaption: "Real, scannable Oil Painting QR code — made with QR AI",
+      features: [
+        { icon: "PaletteOutlined", label: "Rich defined color" },
+        { icon: "TextureOutlined", label: "Visible painted texture" },
+        { icon: "MuseumOutlined", label: "Gallery-like presence" },
+      ],
+      why: [
+        "Layered color and brush texture create a premium, handcrafted impression.",
+        "The style is ideal for food, wine, hospitality, cultural projects, and decorative print.",
+        "Bold color separation helps preserve recognizable QR structure inside a highly artistic composition.",
+      ],
+      useCases: [
+        "Wine and gourmet products",
+        "Hotels and restaurants",
+        "Art prints and exhibitions",
+        "Luxury packaging",
+      ],
+      promptIdeas: [
+        "wine bottles, grapes, cheese, figs, candlelight, rich oil painting",
+        "pumpkins, apples, pears, dried leaves, cinnamon sticks",
+        "roasted coffee beans, espresso cup, vintage grinder, burlap sack",
+        "sunflowers in a ceramic vase, dark background, defined golden color",
+        "rustic Italian table, tomatoes, basil, olive oil, warm light",
+        "mountain lodge terrace, wine glasses, sunset, expressive brushwork",
+      ],
+      perfectFor: [
+        {
+          title: "Wine & Gourmet",
+          description: "Rich artwork for labels, menus, and tastings",
+          icon: "WineBarOutlined",
+          imageUrl: "/product-placements/restaurants-food-trucks.png",
+        },
+        {
+          title: "Luxury Hospitality",
+          description: "Elegant guest material for hotels and restaurants",
+          icon: "HotelOutlined",
+          imageUrl: "/product-placements/events-exhibitions.png",
+        },
+        {
+          title: "Art Prints",
+          description: "Decorative QR designs made to be displayed",
+          icon: "MuseumOutlined",
+          imageUrl: "/product-placements/art-galleries.png",
+        },
+      ],
+    },
   },
   {
     id: "6a4cfaee4021f21026e477f5",
