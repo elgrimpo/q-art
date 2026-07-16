@@ -3,32 +3,14 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Box, Typography, Button } from "@mui/material";
 import ArrowOutwardOutlined from "@mui/icons-material/ArrowOutwardOutlined";
-import BrushOutlined from "@mui/icons-material/BrushOutlined";
-import QrCode2Outlined from "@mui/icons-material/QrCode2Outlined";
-import LocalPrintshopOutlined from "@mui/icons-material/LocalPrintshopOutlined";
-import FavoriteBorderOutlined from "@mui/icons-material/FavoriteBorderOutlined";
-import LocalCafeOutlined from "@mui/icons-material/LocalCafeOutlined";
-import CelebrationOutlined from "@mui/icons-material/CelebrationOutlined";
-import Inventory2Outlined from "@mui/icons-material/Inventory2Outlined";
-import ShareOutlined from "@mui/icons-material/ShareOutlined";
 import {
   stylesWithLandingPage,
   findStyleByLandingSlug,
   isRichLandingPage,
 } from "@/_utils/ImageStyles";
 import { getImages } from "@/_utils/ImagesUtils";
+import { STYLE_ICONS as ICONS } from "@/_utils/styleIcons";
 import ExamplesCarousel from "./ExamplesCarousel";
-
-const ICONS = {
-  BrushOutlined,
-  QrCode2Outlined,
-  LocalPrintshopOutlined,
-  FavoriteBorderOutlined,
-  LocalCafeOutlined,
-  CelebrationOutlined,
-  Inventory2Outlined,
-  ShareOutlined,
-};
 
 // Different portrait ratios per column so the Perfect For cards stagger
 // like a Pinterest board instead of lining up as uniform squares.
