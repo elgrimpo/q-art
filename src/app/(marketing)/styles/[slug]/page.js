@@ -18,7 +18,6 @@ import {
 } from "@/_utils/ImageStyles";
 import { getImages } from "@/_utils/ImagesUtils";
 import ExamplesCarousel from "./ExamplesCarousel";
-import HorizontalScroller from "./HorizontalScroller";
 
 const ICONS = {
   BrushOutlined,
@@ -30,6 +29,10 @@ const ICONS = {
   Inventory2Outlined,
   ShareOutlined,
 };
+
+// Different portrait ratios per column so the Perfect For cards stagger
+// like a Pinterest board instead of lining up as uniform squares.
+const PERFECT_FOR_RATIOS = ["3 / 4", "1 / 1", "4 / 5"];
 
 export function generateStaticParams() {
   return stylesWithLandingPage().map((s) => ({ slug: s.landingPage.slug }));
@@ -408,21 +411,27 @@ function RichStyleLayout({ style, lp, examples }) {
         </Box>
       </Box>
 
-      {/* Perfect for */}
+      {/* Perfect for — Pinterest-style masonry: 3 full-width columns, each
+          card a different portrait ratio so heights stagger naturally. */}
       <Box sx={{ mb: 8 }}>
         <Typography variant="h2" sx={{ fontSize: { xs: "1.3rem", md: "1.6rem" }, mb: 3 }}>
           Perfect For
         </Typography>
-        <HorizontalScroller>
-          {lp.perfectFor.map((card) => {
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: { xs: "1fr", sm: "repeat(3, 1fr)" },
+            alignItems: "start",
+            gap: 2,
+          }}
+        >
+          {lp.perfectFor.slice(0, 3).map((card, i) => {
             const Icon = ICONS[card.icon];
             return (
               <Box
                 key={card.title}
                 sx={{
-                  width: { xs: 200, sm: 240 },
-                  aspectRatio: "1 / 1",
-                  flex: "0 0 auto",
+                  aspectRatio: PERFECT_FOR_RATIOS[i % PERFECT_FOR_RATIOS.length],
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "flex-end",
@@ -448,7 +457,7 @@ function RichStyleLayout({ style, lp, examples }) {
               </Box>
             );
           })}
-        </HorizontalScroller>
+        </Box>
       </Box>
 
       {/* Bottom CTA */}
