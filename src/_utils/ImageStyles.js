@@ -328,6 +328,62 @@ export const styles = [
     title: "Doodle Art",
     image_url:
       "https://qrartimages.s3.us-west-1.amazonaws.com/65a19822d076ab86bf56acab.png",
+    landingPage: {
+      slug: "doodle-art-qr-code",
+      metaTitle: "Doodle QR Code Generator — Playful Hand-Drawn QR Art | QR AI",
+      metaDescription:
+        "Create playful doodle-style QR codes filled with hand-drawn charm. Generate fun, scannable QR art with QR AI.",
+      badge: "Doodle Art Style",
+      headingLines: ["Doodle Art", "QR Codes"],
+      headingAccent: "QR",
+      intro:
+        "Loose lines, playful icons, and hand-drawn personality make every QR code feel friendly, spontaneous, and fun.",
+      exampleCaption: "Real, scannable Doodle Art QR code — made with QR AI",
+      features: [
+        { icon: "GestureOutlined", label: "Playful hand-drawn feel" },
+        { icon: "SentimentSatisfiedAltOutlined", label: "Friendly & approachable" },
+        { icon: "ChildCareOutlined", label: "Perfect for casual brands" },
+      ],
+      why: [
+        "Hand-drawn marks make digital interactions feel personal and informal.",
+        "The style is a strong fit for education, creators, cafés, family events, and community projects.",
+        "Small icons and simple outlines decorate the QR structure without making the composition feel heavy.",
+      ],
+      useCases: [
+        "Kids and education",
+        "Creator profiles",
+        "Community events",
+        "Casual cafés and small businesses",
+      ],
+      promptIdeas: [
+        "coffee cup, croissant, beans, tiny stars, playful hand-drawn doodles",
+        "school books, pencils, ruler, backpack, cheerful doodle icons",
+        "mushrooms, pinecones, moss, fern leaves, acorns, sketchy doodles",
+        "teacups, macarons, flowers, lace tablecloth, whimsical line art",
+        "camera, passport, map, sunglasses, travel doodle collection",
+        "birthday cake, balloons, gifts, confetti, hand-drawn icons",
+      ],
+      perfectFor: [
+        {
+          title: "Education",
+          description: "Friendly QR codes for classes and learning materials",
+          icon: "SchoolOutlined",
+          imageUrl: "/product-placements/business-branding.png",
+        },
+        {
+          title: "Creators",
+          description: "Playful portfolio, profile, and social links",
+          icon: "BrushOutlined",
+          imageUrl: "/product-placements/art-galleries.png",
+        },
+        {
+          title: "Family Events",
+          description: "Invitations, activities, and celebration signage",
+          icon: "CelebrationOutlined",
+          imageUrl: "/product-placements/weddings-stationery.png",
+        },
+      ],
+    },
   },
   {
     id: "6a4cfaee4021f21026e477f3",
