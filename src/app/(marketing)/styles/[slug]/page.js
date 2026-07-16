@@ -397,11 +397,14 @@ function RichStyleLayout({ style, lp, examples }) {
                   py: 1.2,
                   borderRadius: 999,
                   border: "1px solid",
-                  borderColor: "divider",
+                  borderColor: "primary.main",
                   color: "text.secondary",
                   fontSize: "0.9rem",
-                  transition: "border-color 0.15s ease, color 0.15s ease",
-                  "&:hover": { borderColor: "primary.main", color: "primary.main" },
+                  transition: "background-color 0.15s ease, color 0.15s ease",
+                  "&:hover": {
+                    backgroundColor: "primary.main",
+                    color: "primary.contrastText",
+                  },
                 }}
               >
                 {prompt}
