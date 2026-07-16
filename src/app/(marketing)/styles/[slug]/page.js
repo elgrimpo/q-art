@@ -435,28 +435,40 @@ function RichStyleLayout({ style, lp, examples }) {
                 key={card.title}
                 sx={{
                   aspectRatio: PERFECT_FOR_RATIOS[i % PERFECT_FOR_RATIOS.length],
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "flex-end",
-                  p: 2.5,
+                  position: "relative",
+                  overflow: "hidden",
                   borderRadius: 2,
                   border: "1px solid",
                   borderColor: "divider",
                   backgroundColor: "background.paper",
-                  ...(card.imageUrl && {
-                    backgroundImage: `linear-gradient(0deg, rgba(0,0,0,0.8), rgba(0,0,0,0.25) 65%), url(${card.imageUrl})`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                  }),
                 }}
               >
-                {Icon && <Icon sx={{ color: "primary.main", fontSize: 26, mb: 1 }} />}
-                <Typography sx={{ fontWeight: 600, fontSize: "1rem", mb: 0.5, color: "text.primary" }}>
-                  {card.title}
-                </Typography>
-                <Typography sx={{ fontSize: "0.85rem", color: "text.muted", lineHeight: 1.5 }}>
-                  {card.description}
-                </Typography>
+                {card.imageUrl && (
+                  <Image
+                    src={card.imageUrl}
+                    alt={card.title}
+                    fill
+                    sizes="(max-width: 600px) 100vw, 33vw"
+                    style={{ objectFit: "cover" }}
+                  />
+                )}
+                <Box
+                  sx={{
+                    position: "absolute",
+                    inset: 0,
+                    background:
+                      "linear-gradient(0deg, rgba(0,0,0,0.8), rgba(0,0,0,0.25) 65%)",
+                  }}
+                />
+                <Box sx={{ position: "absolute", left: 0, right: 0, bottom: 0, p: 2.5 }}>
+                  {Icon && <Icon sx={{ color: "primary.main", fontSize: 26, mb: 1 }} />}
+                  <Typography sx={{ fontWeight: 600, fontSize: "1rem", mb: 0.5, color: "text.primary" }}>
+                    {card.title}
+                  </Typography>
+                  <Typography sx={{ fontSize: "0.85rem", color: "text.muted", lineHeight: 1.5 }}>
+                    {card.description}
+                  </Typography>
+                </Box>
               </Box>
             );
           })}
