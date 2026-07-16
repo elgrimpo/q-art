@@ -265,6 +265,63 @@ export const styles = [
     title: "Vector Art",
     image_url:
       "https://qrartimages.s3.us-west-1.amazonaws.com/65cc123c7b729925fcced038.png",
+    landingPage: {
+      slug: "vector-art-qr-code",
+      metaTitle:
+        "Vector Art QR Code Generator — Clean Graphic QR Designs | QR AI",
+      metaDescription:
+        "Create clean vector-style QR codes with bold shapes, crisp edges, and modern graphic character using QR AI.",
+      badge: "Vector Art Style",
+      headingLines: ["Vector Art", "QR Codes"],
+      headingAccent: "QR",
+      intro:
+        "Clean shapes, crisp edges, and confident color turn your QR code into polished graphic artwork built for modern brands.",
+      exampleCaption: "Real, scannable Vector Art QR code — made with QR AI",
+      features: [
+        { icon: "DrawOutlined", label: "Crisp graphic shapes" },
+        { icon: "BrandingWatermarkOutlined", label: "Brand-friendly design" },
+        { icon: "PrintOutlined", label: "Strong at any size" },
+      ],
+      why: [
+        "Flat shapes and controlled color produce a clean, professional look suitable for brand systems.",
+        "The style works equally well on screens, packaging, posters, and merchandise.",
+        "Simplified forms keep compositions readable at a glance and support strong scan performance.",
+      ],
+      useCases: [
+        "Brand and marketing campaigns",
+        "Packaging and labels",
+        "Apparel and merchandise",
+        "Infographics and digital products",
+      ],
+      promptIdeas: [
+        "modern café counter, espresso machine, pastries, bold flat shapes",
+        "lemons, oranges, olive branches, linen cloth, clean vector illustration",
+        "coconuts, mangoes, dragon fruit, monstera leaves, bright vector art",
+        "ceramic teapot, matcha bowl, bamboo whisk, cherry blossoms",
+        "wildflowers in a simple vase, geometric leaves, flat color",
+        "city skyline, bicycles, trees, clouds, contemporary graphic illustration",
+      ],
+      perfectFor: [
+        {
+          title: "Branding",
+          description: "Polished graphics for campaigns and identity systems",
+          icon: "BrandingWatermarkOutlined",
+          imageUrl: "/product-placements/business-branding.png",
+        },
+        {
+          title: "Packaging",
+          description: "Clean QR artwork for labels, boxes, and inserts",
+          icon: "Inventory2Outlined",
+          imageUrl: "/product-placements/restaurants-food-trucks.png",
+        },
+        {
+          title: "Merchandise",
+          description: "Bold designs for apparel, stickers, and accessories",
+          icon: "CheckroomOutlined",
+          imageUrl: "/product-placements/apparel-merch.png",
+        },
+      ],
+    },
   },
   {
     id: "6a4cfaee4021f21026e477f2",
