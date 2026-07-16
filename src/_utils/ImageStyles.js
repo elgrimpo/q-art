@@ -12,28 +12,64 @@ export const styles = [
     title: "Ukiyo-e",
     image_url:
       "https://qrartimages.s3.us-west-1.amazonaws.com/656e2d37e3aafee4354c812b.png",
-    // Simple landing page — no promptIdeas/perfectFor yet, so /styles/[slug]
-    // renders the lighter legacy layout for this style. See "Watercolor"
-    // below for the fuller shape once a style has that content written.
+    // Rich landing page — promptIdeas + perfectFor present, so /styles/[slug]
+    // renders the fuller template (examples grid pulled live from real
+    // generations, prompt-idea chips, "perfect for" cards).
     landingPage: {
       slug: "ukiyo-e-qr-code",
       metaTitle:
-        "Ukiyo-e QR Code Generator — Japanese Woodblock Art QR Codes | QR AI",
+        "Ukiyo-e QR Code Generator — Japanese Woodblock QR Art | QR AI",
       metaDescription:
-        "Turn any link into a Japanese ukiyo-e woodblock-style QR code that still scans. Free to try, no sign-up — pick the Ukiyo-e style and generate in seconds.",
-      heading: "Ukiyo-e QR Code Generator",
+        "Turn any link into a Japanese ukiyo-e-inspired QR code that still scans. Create bold woodblock-style QR art with QR AI.",
+      badge: "Ukiyo-e Style",
+      headingLines: ["Ukiyo-e", "QR Codes"],
+      headingAccent: "QR",
       intro:
-        "Bold outlines, flat planes of color, and the unmistakable look of Japanese woodblock printmaking — ukiyo-e turns a QR code into a piece of art with real cultural weight behind it.",
+        "Bold outlines, flat color, and the timeless character of Japanese woodblock prints — transformed into QR art made to be seen and scanned.",
+      exampleCaption: "Real, scannable Ukiyo-e QR code — made with QR AI",
+      features: [
+        { icon: "BrushOutlined", label: "Bold woodblock aesthetic" },
+        { icon: "QrCode2Outlined", label: "Strong visual structure" },
+        { icon: "LocalPrintshopOutlined", label: "Made for posters & menus" },
+      ],
       why: [
-        "Strong linework and high contrast naturally preserve the QR code's structure well.",
-        "A distinctive, recognizable aesthetic that stands out from typical AI-art looks.",
-        "Pairs naturally with food, travel, art, and culture-adjacent brands.",
+        "Strong linework and defined color blocks complement the geometric structure of a QR code.",
+        "The recognizable woodblock look gives food, travel, and culture-focused designs a distinctive identity.",
+        "Works especially well with dramatic landscapes, waves, florals, and traditional Japanese subjects.",
       ],
       useCases: [
         "Restaurant and izakaya menus",
-        "Art prints, posters, and gallery signage",
+        "Art prints and gallery signage",
         "Travel and hospitality collateral",
-        "Album art and music packaging",
+        "Album covers and event posters",
+      ],
+      promptIdeas: [
+        "great wave beneath Mount Fuji, fishing boats, rising sun",
+        "red-crowned cranes among pine trees, winter landscape",
+        "koi fish circling lotus flowers in a garden pond",
+        "sushi platter, ceramic sake bottle, chopsticks, wasabi, folded linen",
+        "matcha bowl, bamboo whisk, ceramic teapot, cherry blossoms",
+        "persimmons, folded indigo cloth, ceramic vase, maple leaves",
+      ],
+      perfectFor: [
+        {
+          title: "Japanese Restaurants",
+          description: "Distinctive menus, table cards, and takeaway packaging",
+          icon: "RestaurantOutlined",
+          imageUrl: "/product-placements/restaurants-food-trucks.png",
+        },
+        {
+          title: "Travel & Hospitality",
+          description: "Memorable guides, posters, and guest experiences",
+          icon: "TravelExploreOutlined",
+          imageUrl: "/product-placements/events-exhibitions.png",
+        },
+        {
+          title: "Art & Culture",
+          description: "Gallery signage, exhibitions, and cultural events",
+          icon: "MuseumOutlined",
+          imageUrl: "/product-placements/art-galleries.png",
+        },
       ],
     },
   },
