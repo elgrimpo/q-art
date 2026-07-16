@@ -390,6 +390,62 @@ export const styles = [
     title: "Ink",
     image_url:
       "https://qrartimages.s3.us-west-1.amazonaws.com/6595dd1fd3f4c7d50f757b65.png",
+    landingPage: {
+      slug: "ink-qr-code",
+      metaTitle: "Ink QR Code Generator — Elegant Black Ink QR Art | QR AI",
+      metaDescription:
+        "Create elegant ink-style QR codes with expressive linework and high-contrast detail. Generate scannable ink QR art with QR AI.",
+      badge: "Ink Style",
+      headingLines: ["Ink", "QR Codes"],
+      headingAccent: "QR",
+      intro:
+        "Expressive linework, deep contrast, and organic brush marks give your QR code a refined, timeless visual presence.",
+      exampleCaption: "Real, scannable Ink QR code — made with QR AI",
+      features: [
+        { icon: "DrawOutlined", label: "Expressive linework" },
+        { icon: "ContrastOutlined", label: "Elegant high contrast" },
+        { icon: "MenuBookOutlined", label: "Refined editorial feel" },
+      ],
+      why: [
+        "Dark ink and negative space align naturally with the visual logic of QR codes.",
+        "The restrained palette gives premium brands, menus, books, and exhibitions an elegant feel.",
+        "Ink works especially well for botanicals, architecture, animals, and atmospheric landscapes.",
+      ],
+      useCases: [
+        "Premium menus and packaging",
+        "Editorial and publishing",
+        "Gallery and museum signage",
+        "Tattoo, fashion, and design studios",
+      ],
+      promptIdeas: [
+        "raven perched on a twisted branch, black ink wash",
+        "misty mountains, pine trees, distant temple, expressive ink",
+        "ceramic teapot, matcha bowl, bamboo whisk, cherry blossoms",
+        "mushrooms, pinecones, moss, fern leaves, acorns, botanical ink study",
+        "wine bottle, grapes, corkscrew, folded linen, ink illustration",
+        "dried lavender bundles, candles, linen fabric, delicate linework",
+      ],
+      perfectFor: [
+        {
+          title: "Premium Hospitality",
+          description: "Elegant menus, wine lists, and guest collateral",
+          icon: "WineBarOutlined",
+          imageUrl: "/product-placements/events-exhibitions.png",
+        },
+        {
+          title: "Editorial Design",
+          description: "Refined QR art for books, magazines, and prints",
+          icon: "MenuBookOutlined",
+          imageUrl: "/product-placements/art-galleries.png",
+        },
+        {
+          title: "Art & Fashion",
+          description: "Distinctive material for studios and exhibitions",
+          icon: "DesignServicesOutlined",
+          imageUrl: "/product-placements/apparel-merch.png",
+        },
+      ],
+    },
   },
   {
     id: "6a4cfaee4021f21026e477f4",
