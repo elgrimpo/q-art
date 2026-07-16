@@ -219,6 +219,62 @@ export const styles = [
     title: "Cyberpunk",
     image_url:
       "https://qrartimages.s3.us-west-1.amazonaws.com/6a4508cc3b23a83b1fa7b4c3.png",
+    landingPage: {
+      slug: "cyberpunk-qr-code",
+      metaTitle: "Cyberpunk QR Code Generator — Neon Futuristic QR Art | QR AI",
+      metaDescription:
+        "Create neon cyberpunk QR codes with futuristic cities, glowing signs, and high-tech atmosphere using QR AI.",
+      badge: "Cyberpunk Style",
+      headingLines: ["Cyberpunk", "QR Codes"],
+      headingAccent: "QR",
+      intro:
+        "Neon light, futuristic cityscapes, and high-tech atmosphere turn your QR code into a vivid portal to another world.",
+      exampleCaption: "Real, scannable Cyberpunk QR code — made with QR AI",
+      features: [
+        { icon: "BoltOutlined", label: "Electric neon energy" },
+        { icon: "MemoryOutlined", label: "Futuristic visual language" },
+        { icon: "NightlifeOutlined", label: "Made for nightlife & tech" },
+      ],
+      why: [
+        "Bright neon contrast makes the QR structure visually prominent inside dark, atmospheric scenes.",
+        "The style is a natural fit for gaming, nightlife, music, technology, and Web3 communities.",
+        "Urban signs, grids, screens, and circuitry provide many ways to integrate QR geometry into the scene.",
+      ],
+      useCases: [
+        "Gaming and esports",
+        "Nightclubs and music events",
+        "Technology products",
+        "Web3 and digital communities",
+      ],
+      promptIdeas: [
+        "rainy neon alley, holographic signs, crowded futuristic city",
+        "female DJ in a cyberpunk club, lasers, glowing control panels",
+        "ramen bowl, chopsticks, neon bottles, metallic counter, pink and blue light",
+        "energy drink cans, headphones, circuit boards, holographic reflections",
+        "futuristic coffee bar, chrome espresso machine, glowing steam",
+        "cybernetic flowers in glass vessels, dark laboratory table",
+      ],
+      perfectFor: [
+        {
+          title: "Gaming & Esports",
+          description: "Neon QR art for launches, tournaments, and communities",
+          icon: "SportsEsportsOutlined",
+          imageUrl: "/product-placements/apparel-merch.png",
+        },
+        {
+          title: "Music & Nightlife",
+          description: "High-energy posters, screens, and venue signage",
+          icon: "NightlifeOutlined",
+          imageUrl: "/product-placements/music-nightlife.png",
+        },
+        {
+          title: "Technology",
+          description: "Futuristic QR visuals for products and events",
+          icon: "MemoryOutlined",
+          imageUrl: "/product-placements/business-branding.png",
+        },
+      ],
+    },
   },
   {
     id: "6a4cfaef4021f21026e477f9",
