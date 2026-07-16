@@ -670,6 +670,10 @@ export const styles = [
     // the generation pipeline and getImages() depend on.
     landingPage: {
       slug: "ghibli-qr-code",
+      // Name used in template-derived visible copy (Examples heading, CTAs,
+      // alt text) in place of the internal title "Ghibli". See
+      // styleDisplayName() and the /styles/[slug] page template.
+      displayName: "Whimsical Anime",
       metaTitle:
         "Whimsical Anime QR Code Generator — Cozy Storybook QR Art | QR AI",
       metaDescription:
@@ -876,4 +880,15 @@ export function findStyleByLandingSlug(slug) {
 /** A landing page is "rich" once it has prompt ideas + perfect-for content. */
 export function isRichLandingPage(landingPage) {
   return Boolean(landingPage?.promptIdeas?.length);
+}
+
+/**
+ * Name to show in a style page's visible copy (headings, CTAs, alt text).
+ * Falls back to the style's own title, but a style whose internal `title`
+ * is trademark-sensitive (e.g. "Ghibli", kept for the Mongo style_title the
+ * generation pipeline depends on) can set `landingPage.displayName` to a
+ * safe public label ("Whimsical Anime") that the template renders instead.
+ */
+export function styleDisplayName(style) {
+  return style?.landingPage?.displayName || style?.title;
 }

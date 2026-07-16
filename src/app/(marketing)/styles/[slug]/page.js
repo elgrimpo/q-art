@@ -7,6 +7,7 @@ import {
   stylesWithLandingPage,
   findStyleByLandingSlug,
   isRichLandingPage,
+  styleDisplayName,
 } from "@/_utils/ImageStyles";
 import { getImages } from "@/_utils/ImagesUtils";
 import { STYLE_ICONS as ICONS } from "@/_utils/styleIcons";
@@ -83,6 +84,10 @@ const h2 = { fontSize: "1.4rem", mb: 2, mt: 5 };
 const p = { mb: 3, lineHeight: 1.8, color: "text.secondary" };
 
 function SimpleStyleLayout({ style, lp, otherStyle }) {
+  // See RichStyleLayout: visible copy uses the display name, so a style whose
+  // internal title is trademark-sensitive (e.g. "Ghibli") never renders that
+  // name. No style currently uses this layout, but keep it symmetric.
+  const displayTitle = styleDisplayName(style);
   return (
     <Box sx={{ maxWidth: "760px", mx: "auto" }}>
       <Typography
@@ -112,7 +117,7 @@ function SimpleStyleLayout({ style, lp, otherStyle }) {
       >
         <Image
           src={style.image_url}
-          alt={`Example ${style.title} style AI-generated QR code`}
+          alt={`Example ${displayTitle} style AI-generated QR code`}
           width={800}
           height={800}
           priority
@@ -124,13 +129,13 @@ function SimpleStyleLayout({ style, lp, otherStyle }) {
       <Box sx={{ textAlign: "center", mb: 6, mt: 3 }}>
         <Link href={`/generate?style=${lp.slug}`} passHref>
           <Button variant="contained" size="large">
-            Generate a {style.title} QR code — free
+            Generate a {displayTitle} QR code — free
           </Button>
         </Link>
       </Box>
 
       <Typography variant="h2" color="primary" sx={h2}>
-        Why {style.title}?
+        Why {displayTitle}?
       </Typography>
       <Box
         component="ul"
@@ -155,7 +160,7 @@ function SimpleStyleLayout({ style, lp, otherStyle }) {
 
       <Typography component="p" sx={p}>
         Every QR AI style uses the same error-correction and ControlNet
-        guidance under the hood, so a {style.title} code scans exactly like
+        guidance under the hood, so a {displayTitle} code scans exactly like
         any other. See{" "}
         <Link
           href="/blog/are-artistic-qr-codes-scannable"
@@ -234,6 +239,10 @@ function AccentHeading({ lines, accent }) {
 
 function RichStyleLayout({ style, lp, examples }) {
   const generateHref = `/generate?style=${lp.slug}`;
+  // Visible copy uses the display name (e.g. "Whimsical Anime" for the Ghibli
+  // style, whose internal title stays "Ghibli" for the DB/generation
+  // pipeline). The Examples fetch above still keys off the real style.title.
+  const displayTitle = styleDisplayName(style);
 
   return (
     <Box sx={{ maxWidth: "1120px", mx: "auto" }}>
@@ -330,7 +339,7 @@ function RichStyleLayout({ style, lp, examples }) {
         >
           <Image
             src={style.image_url}
-            alt={`Example ${style.title} style AI-generated QR code`}
+            alt={`Example ${displayTitle} style AI-generated QR code`}
             width={900}
             height={900}
             priority
@@ -343,11 +352,11 @@ function RichStyleLayout({ style, lp, examples }) {
       {/* Examples */}
       <Box sx={{ mb: 8 }}>
         <Typography variant="h2" sx={{ fontSize: { xs: "1.3rem", md: "1.6rem" }, mb: 3 }}>
-          {style.title} QR Code Examples
+          {displayTitle} QR Code Examples
         </Typography>
         <ExamplesCarousel
           initialExamples={examples}
-          styleTitle={style.title}
+          styleTitle={displayTitle}
           caption={lp.exampleCaption}
         />
       </Box>
@@ -475,7 +484,7 @@ function RichStyleLayout({ style, lp, examples }) {
       >
         <Box>
           <Typography variant="h3" sx={{ fontSize: { xs: "1.3rem", md: "1.5rem" }, mb: 1 }}>
-            Ready to create your {style.title.toLowerCase()} QR code?
+            Ready to create your {displayTitle.toLowerCase()} QR code?
           </Typography>
           <Typography sx={{ color: "text.secondary" }}>
             Turn links into living art — scannable, and beautifully styled.

@@ -1,4 +1,9 @@
-import { styles, isRichLandingPage } from '../_utils/ImageStyles'
+import {
+  styles,
+  isRichLandingPage,
+  RANDOM_STYLE_ID,
+  styleDisplayName,
+} from '../_utils/ImageStyles'
 import { STYLE_ICONS } from '../_utils/styleIcons'
 
 const richStyles = () =>
@@ -78,7 +83,30 @@ describe('rich style landing pages — shape invariants', () => {
       lp.features,
       lp.why,
       lp.useCases,
+      lp.promptIdeas,
+      lp.perfectFor,
     ]).toLowerCase()
     expect(rendered).not.toContain('ghibli')
+  })
+
+  test('styleDisplayName is trademark-safe for the Ghibli style (guards template-derived headings/CTAs)', () => {
+    // The /styles/[slug] template derives the Examples heading, hero alt text,
+    // and bottom CTA from styleDisplayName(style), not the landingPage copy —
+    // so the visible title must also be free of "ghibli", even though the
+    // internal style.title stays "Ghibli" for the DB/generation pipeline.
+    const ghibli = styles.find((s) => s.title === 'Ghibli')
+    expect(ghibli.title).toBe('Ghibli') // internal name unchanged
+    expect(styleDisplayName(ghibli).toLowerCase()).not.toContain('ghibli')
+  })
+})
+
+describe('QRAI-138 batch completion', () => {
+  test('every non-Random style now has a rich landingPage', () => {
+    const nonRandom = styles.filter((s) => s.id !== RANDOM_STYLE_ID)
+    expect(nonRandom).toHaveLength(13)
+    for (const s of nonRandom) {
+      expect(s.landingPage).toBeDefined()
+      expect(isRichLandingPage(s.landingPage)).toBe(true)
+    }
   })
 })
