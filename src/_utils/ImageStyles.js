@@ -84,6 +84,62 @@ export const styles = [
     title: "Low Poly Art",
     image_url:
       "https://qrartimages.s3.us-west-1.amazonaws.com/65a167cad076ab86bf56ac89.png",
+    landingPage: {
+      slug: "low-poly-qr-code",
+      metaTitle: "Low Poly QR Code Generator — Geometric 3D QR Art | QR AI",
+      metaDescription:
+        "Create geometric low-poly QR codes with faceted shapes and modern 3D character. Generate scannable QR art with QR AI.",
+      badge: "Low Poly Style",
+      headingLines: ["Low Poly", "QR Codes"],
+      headingAccent: "QR",
+      intro:
+        "Faceted geometry and crisp polygonal forms give your QR code a modern, dimensional look with unmistakable digital character.",
+      exampleCaption: "Real, scannable Low Poly QR code — made with QR AI",
+      features: [
+        { icon: "ViewInArOutlined", label: "Faceted 3D aesthetic" },
+        { icon: "GridViewOutlined", label: "Geometry-led structure" },
+        { icon: "SportsEsportsOutlined", label: "Ideal for digital brands" },
+      ],
+      why: [
+        "Angular forms naturally complement the square geometry of a QR code.",
+        "The modern 3D look works well for gaming, technology, architecture, and product-focused brands.",
+        "Simple polygonal shapes create a strong visual identity without relying on fine detail.",
+      ],
+      useCases: [
+        "Gaming and esports",
+        "Technology campaigns",
+        "Architecture and real estate",
+        "Product launches",
+      ],
+      promptIdeas: [
+        "faceted fox in a geometric forest, low poly mountains",
+        "futuristic city skyline made from angular polygonal forms",
+        "crystal mountains beneath a glowing sunset",
+        "lemons, oranges, olive branches, folded cloth, geometric still life",
+        "coffee grinder, espresso cup, roasted beans, faceted geometry",
+        "coconuts, mangoes, dragon fruit, monstera leaves, polygonal forms",
+      ],
+      perfectFor: [
+        {
+          title: "Gaming & Esports",
+          description: "Distinctive graphics for communities and events",
+          icon: "SportsEsportsOutlined",
+          imageUrl: "/product-placements/apparel-merch.png",
+        },
+        {
+          title: "Tech Products",
+          description: "Modern launch assets, packaging, and demos",
+          icon: "DevicesOutlined",
+          imageUrl: "/product-placements/business-branding.png",
+        },
+        {
+          title: "Architecture",
+          description: "Geometric QR artwork for properties and studios",
+          icon: "ArchitectureOutlined",
+          imageUrl: "/product-placements/art-galleries.png",
+        },
+      ],
+    },
   },
   {
     id: "6a4cfaee4021f21026e477f0",
