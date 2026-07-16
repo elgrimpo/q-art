@@ -203,6 +203,62 @@ export const styles = [
     title: "Photography",
     image_url:
       "https://qrartimages.s3.us-west-1.amazonaws.com/6a4abe9e2164b64ac00f0758.png",
+    landingPage: {
+      slug: "photography-qr-code",
+      metaTitle: "Photorealistic QR Code Generator — AI Photo QR Codes | QR AI",
+      metaDescription:
+        "Blend your QR code into a photorealistic scene. Create detailed, scannable AI photo QR codes with QR AI.",
+      badge: "Photography Style",
+      headingLines: ["Photorealistic", "QR Codes"],
+      headingAccent: "QR",
+      intro:
+        "Natural light, realistic materials, and cinematic detail make your QR code feel embedded in a real photographed scene.",
+      exampleCaption: "Real, scannable Photography QR code — made with QR AI",
+      features: [
+        { icon: "PhotoCameraOutlined", label: "Photorealistic scenes" },
+        { icon: "CenterFocusStrongOutlined", label: "Cinematic composition" },
+        { icon: "StorefrontOutlined", label: "Made for real products" },
+      ],
+      why: [
+        "Photorealistic scenes help audiences immediately understand how the QR code fits into a real setting.",
+        "The style is especially strong for food, travel, property, products, and social content.",
+        "Careful composition makes the QR structure feel like part of the environment rather than an overlay.",
+      ],
+      useCases: [
+        "Food and beverage marketing",
+        "Travel and destination campaigns",
+        "Real estate and hospitality",
+        "Product and lifestyle advertising",
+      ],
+      promptIdeas: [
+        "rustic Italian table, tomatoes, basil, olive oil, warm trattoria lighting",
+        "roasted coffee beans, espresso cup, vintage grinder, burlap sack",
+        "ceramic teapot, matcha bowl, bamboo whisk, cherry blossoms",
+        "lemons, oranges, olive branches, linen cloth, soft window light",
+        "luxury villa perched on a cliff at sunset, ocean view",
+        "whisky tasting on a Swiss terrace, mountains, wooden table, golden hour",
+      ],
+      perfectFor: [
+        {
+          title: "Food & Beverage",
+          description: "Realistic menus, campaigns, and product scenes",
+          icon: "RestaurantOutlined",
+          imageUrl: "/product-placements/restaurants-food-trucks.png",
+        },
+        {
+          title: "Travel & Property",
+          description: "Destination, hotel, and real-estate marketing",
+          icon: "TravelExploreOutlined",
+          imageUrl: "/product-placements/events-exhibitions.png",
+        },
+        {
+          title: "Product Advertising",
+          description: "Lifestyle imagery that makes products feel tangible",
+          icon: "ShoppingBagOutlined",
+          imageUrl: "/product-placements/business-branding.png",
+        },
+      ],
+    },
   },
   {
     id: "6a4cfaee4021f21026e477f1",
