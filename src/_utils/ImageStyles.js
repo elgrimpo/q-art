@@ -78,6 +78,63 @@ export const styles = [
     title: "Expressionism",
     image_url:
       "https://qrartimages.s3.us-west-1.amazonaws.com/6a498f50dbeee01fccc37bc6.png",
+    landingPage: {
+      slug: "expressionism-qr-code",
+      metaTitle:
+        "Expressionist QR Code Generator — Bold Artistic QR Codes | QR AI",
+      metaDescription:
+        "Create expressive QR code art with energetic brushwork, vivid color, and emotional character. Free to try with QR AI.",
+      badge: "Expressionism Style",
+      headingLines: ["Expressionist", "QR Codes"],
+      headingAccent: "QR",
+      intro:
+        "Energetic brushwork, exaggerated color, and emotional intensity turn every QR code into a bold visual statement.",
+      exampleCaption: "Real, scannable Expressionist QR code — made with QR AI",
+      features: [
+        { icon: "PaletteOutlined", label: "Vivid emotional color" },
+        { icon: "AutoAwesomeOutlined", label: "Bold artistic energy" },
+        { icon: "CampaignOutlined", label: "Built to stand out" },
+      ],
+      why: [
+        "High-energy color and dramatic marks make even simple subjects feel expressive and memorable.",
+        "The style is ideal for campaigns, music, nightlife, and creative brands that want visual impact.",
+        "Strong contrasts and broad shapes preserve visual structure while allowing substantial artistic freedom.",
+      ],
+      useCases: [
+        "Music and festival posters",
+        "Creative brand campaigns",
+        "Gallery and exhibition materials",
+        "Editorial and cultural projects",
+      ],
+      promptIdeas: [
+        "stormy coastline, red sky, windswept trees, dramatic brushstrokes",
+        "jazz musicians in a crowded club, glowing stage lights",
+        "wildflowers in a ceramic vase, saturated colors, dark table",
+        "oranges, blue bottle, folded cloth, expressive shadows",
+        "coffee cup, scattered beans, vintage grinder, bold painted forms",
+        "pumpkins, apples, dried leaves, cinnamon sticks, vivid autumn color",
+      ],
+      perfectFor: [
+        {
+          title: "Music & Nightlife",
+          description: "High-impact posters, tickets, and venue graphics",
+          icon: "MusicNoteOutlined",
+          imageUrl: "/product-placements/music-nightlife.png",
+        },
+        {
+          title: "Creative Campaigns",
+          description: "Expressive visuals for brands with personality",
+          icon: "CampaignOutlined",
+          imageUrl: "/product-placements/business-branding.png",
+        },
+        {
+          title: "Exhibitions",
+          description: "Art-led signage and interactive gallery material",
+          icon: "MuseumOutlined",
+          imageUrl: "/product-placements/art-galleries.png",
+        },
+      ],
+    },
   },
   {
     id: "6a4cfaed4021f21026e477ef",
