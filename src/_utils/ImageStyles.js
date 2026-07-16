@@ -664,6 +664,68 @@ export const styles = [
     title: "Ghibli",
     image_url:
       "https://qrartimages.s3.us-west-1.amazonaws.com/6a4bbb07890b1939b5192cd8.png",
+    // Public-facing copy uses "Whimsical Anime," never "Ghibli"/"Studio
+    // Ghibli" — avoids implying official affiliation with the studio.
+    // The internal title/id stay "Ghibli" to match the Mongo style_title
+    // the generation pipeline and getImages() depend on.
+    landingPage: {
+      slug: "ghibli-qr-code",
+      metaTitle:
+        "Whimsical Anime QR Code Generator — Cozy Storybook QR Art | QR AI",
+      metaDescription:
+        "Create whimsical hand-painted anime QR codes featuring cozy fantasy worlds, nature, and everyday wonder with QR AI.",
+      badge: "Whimsical Anime Style",
+      headingLines: ["Whimsical Anime", "QR Codes"],
+      headingAccent: "QR",
+      intro:
+        "Warm light, storybook landscapes, and cozy everyday details turn your QR code into a scene filled with imagination and wonder.",
+      exampleCaption:
+        "Real, scannable whimsical anime QR code — made with QR AI",
+      features: [
+        { icon: "AutoStoriesOutlined", label: "Storybook atmosphere" },
+        { icon: "ForestOutlined", label: "Nature-rich worlds" },
+        { icon: "FavoriteBorderOutlined", label: "Warm emotional charm" },
+      ],
+      why: [
+        "Cozy environments and expressive natural details make the QR code feel like part of a larger story.",
+        "The style is ideal for family events, travel, cafés, creators, and imaginative brands.",
+        "Soft painted backgrounds and recognizable silhouettes create a warm, accessible result.",
+      ],
+      useCases: [
+        "Family and children's events",
+        "Cafés and bakeries",
+        "Travel and nature experiences",
+        "Creator and fan communities",
+      ],
+      promptIdeas: [
+        "cozy bakery at sunrise, bread baskets, flowers, warm painted light",
+        "small cottage in a lush forest, moss, lanterns, winding path",
+        "ceramic teapot, pastries, fresh flowers, lace tablecloth",
+        "mushrooms, pinecones, moss, fern leaves, acorns, magical forest table",
+        "train crossing a green valley beneath a bright summer sky",
+        "seaside town, bicycles, laundry lines, distant islands",
+      ],
+      perfectFor: [
+        {
+          title: "Family Events",
+          description: "Warm invitations, activities, and celebration material",
+          icon: "FamilyRestroomOutlined",
+          imageUrl: "/product-placements/weddings-stationery.png",
+        },
+        {
+          title: "Cafés & Bakeries",
+          description: "Cozy menus and packaging with storybook charm",
+          icon: "BakeryDiningOutlined",
+          imageUrl: "/product-placements/restaurants-food-trucks.png",
+        },
+        {
+          title: "Travel & Nature",
+          description: "Whimsical guides, maps, and destination content",
+          icon: "ForestOutlined",
+          imageUrl: "/product-placements/events-exhibitions.png",
+        },
+      ],
+    },
   },
   {
     id: "6a4cfaee4021f21026e477f8",

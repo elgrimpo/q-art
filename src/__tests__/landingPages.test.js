@@ -64,4 +64,21 @@ describe('rich style landing pages — shape invariants', () => {
       }
     }
   })
+
+  test('the Ghibli style landing page never mentions "Ghibli" or "Studio Ghibli" in rendered copy (trademark)', () => {
+    const ghibli = styles.find((s) => s.title === 'Ghibli')
+    const lp = ghibli.landingPage
+    const rendered = JSON.stringify([
+      lp.badge,
+      lp.headingLines,
+      lp.intro,
+      lp.metaTitle,
+      lp.metaDescription,
+      lp.exampleCaption,
+      lp.features,
+      lp.why,
+      lp.useCases,
+    ]).toLowerCase()
+    expect(rendered).not.toContain('ghibli')
+  })
 })
