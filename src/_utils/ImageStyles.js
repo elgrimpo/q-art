@@ -794,6 +794,63 @@ export const styles = [
     title: "Illustration",
     image_url:
       "https://qrartimages.s3.us-west-1.amazonaws.com/6a4bb59e2cfa329e8d58854c.png",
+    landingPage: {
+      slug: "illustration-qr-code",
+      metaTitle:
+        "Illustration QR Code Generator — Custom Illustrated QR Art | QR AI",
+      metaDescription:
+        "Create custom illustrated QR codes with expressive characters, scenes, and colorful graphic storytelling using QR AI.",
+      badge: "Illustration Style",
+      headingLines: ["Illustrated", "QR Codes"],
+      headingAccent: "QR",
+      intro:
+        "Expressive characters, polished scenes, and flexible visual storytelling make illustration one of the most versatile ways to transform a QR code.",
+      exampleCaption: "Real, scannable Illustration QR code — made with QR AI",
+      features: [
+        { icon: "DrawOutlined", label: "Flexible visual storytelling" },
+        { icon: "AutoAwesomeOutlined", label: "Distinctive custom scenes" },
+        { icon: "InterestsOutlined", label: "Works across industries" },
+      ],
+      why: [
+        "Illustration can adapt to nearly any subject, audience, or brand personality.",
+        "The style balances clarity and creativity, making it useful for both marketing and personal projects.",
+        "Characters, objects, and environments can be composed around QR structure in a deliberate way.",
+      ],
+      useCases: [
+        "Brand campaigns",
+        "Editorial and social content",
+        "Events and invitations",
+        "Packaging and merchandise",
+      ],
+      promptIdeas: [
+        "garden picnic, fruit, flowers, patterned blanket, sunny afternoon",
+        "roasted coffee beans, espresso cup, vintage grinder, burlap sack",
+        "porcelain teacups, macarons, fresh flowers, lace tablecloth",
+        "coconuts, mangoes, dragon fruit, monstera leaves",
+        "busy neighborhood food market, colorful signs, friendly vendors",
+        "creative desk, sketchbook, pencils, plants, coffee cup",
+      ],
+      perfectFor: [
+        {
+          title: "Brand Campaigns",
+          description: "Custom artwork for launches and social storytelling",
+          icon: "CampaignOutlined",
+          imageUrl: "/product-placements/business-branding.png",
+        },
+        {
+          title: "Events & Invitations",
+          description: "Memorable visuals for celebrations and gatherings",
+          icon: "CelebrationOutlined",
+          imageUrl: "/product-placements/weddings-stationery.png",
+        },
+        {
+          title: "Packaging & Merch",
+          description: "Flexible illustrated QR codes for physical products",
+          icon: "Inventory2Outlined",
+          imageUrl: "/product-placements/apparel-merch.png",
+        },
+      ],
+    },
   },
 ];
 
