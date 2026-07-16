@@ -32,7 +32,7 @@ const ICONS = {
 
 // Different portrait ratios per column so the Perfect For cards stagger
 // like a Pinterest board instead of lining up as uniform squares.
-const PERFECT_FOR_RATIOS = ["3 / 4", "1 / 1", "4 / 5"];
+const PERFECT_FOR_RATIO = "4 / 5";
 
 export function generateStaticParams() {
   return stylesWithLandingPage().map((s) => ({ slug: s.landingPage.slug }));
@@ -428,13 +428,13 @@ function RichStyleLayout({ style, lp, examples }) {
             gap: 2,
           }}
         >
-          {lp.perfectFor.slice(0, 3).map((card, i) => {
+          {lp.perfectFor.slice(0, 3).map((card) => {
             const Icon = ICONS[card.icon];
             return (
               <Box
                 key={card.title}
                 sx={{
-                  aspectRatio: PERFECT_FOR_RATIOS[i % PERFECT_FOR_RATIOS.length],
+                  aspectRatio: PERFECT_FOR_RATIO,
                   position: "relative",
                   overflow: "hidden",
                   borderRadius: 2,
