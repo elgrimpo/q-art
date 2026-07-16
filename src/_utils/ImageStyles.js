@@ -514,6 +514,63 @@ export const styles = [
     title: "Chinese art",
     image_url:
       "https://qrartimages.s3.us-west-1.amazonaws.com/65e243349c04d23c99e86494.png",
+    landingPage: {
+      slug: "chinese-art-qr-code",
+      metaTitle:
+        "Chinese Art QR Code Generator — Traditional Brush QR Art | QR AI",
+      metaDescription:
+        "Create Chinese-art-inspired QR codes with elegant brushwork, natural motifs, and traditional visual character using QR AI.",
+      badge: "Chinese Art Style",
+      headingLines: ["Chinese Art", "QR Codes"],
+      headingAccent: "QR",
+      intro:
+        "Graceful brushwork, poetic landscapes, and symbolic natural motifs give your QR code a calm, culturally distinctive character.",
+      exampleCaption: "Real, scannable Chinese Art QR code — made with QR AI",
+      features: [
+        { icon: "LandscapeOutlined", label: "Poetic natural scenes" },
+        { icon: "GestureOutlined", label: "Traditional brush character" },
+        { icon: "SpaOutlined", label: "Elegant & harmonious" },
+      ],
+      why: [
+        "Traditional brushwork and generous negative space pair naturally with QR geometry.",
+        "The style is especially suitable for tea, hospitality, culture, wellness, and premium food brands.",
+        "Mountains, bamboo, cranes, blossoms, and calligraphic forms create compositions with a calm visual rhythm.",
+      ],
+      useCases: [
+        "Tea and food packaging",
+        "Cultural events",
+        "Hospitality and wellness",
+        "Galleries and museums",
+      ],
+      promptIdeas: [
+        "misty mountains, pine trees, pavilion, waterfall, traditional brush painting",
+        "red-crowned cranes among bamboo and plum blossoms",
+        "ceramic teapot, tea cups, bamboo tray, loose tea leaves",
+        "peaches, porcelain bowl, silk cloth, flowering branches",
+        "lotus flowers and koi fish in a quiet garden pond",
+        "moon gate, stone path, bamboo grove, distant mountains",
+      ],
+      perfectFor: [
+        {
+          title: "Tea & Culinary",
+          description: "Elegant packaging, menus, and tasting experiences",
+          icon: "EmojiFoodBeverageOutlined",
+          imageUrl: "/product-placements/restaurants-food-trucks.png",
+        },
+        {
+          title: "Cultural Events",
+          description: "Distinctive signage and printed event material",
+          icon: "FestivalOutlined",
+          imageUrl: "/product-placements/events-exhibitions.png",
+        },
+        {
+          title: "Wellness & Hospitality",
+          description: "Calm, premium visuals for guest experiences",
+          icon: "SpaOutlined",
+          imageUrl: "/product-placements/art-galleries.png",
+        },
+      ],
+    },
   },
   {
     id: "6a4cfaee4021f21026e477f6",
