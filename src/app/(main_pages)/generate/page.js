@@ -4,6 +4,7 @@ import { Box, Typography } from "@mui/material";
 import { palette } from "@/_styles/palette";
 import GenerateForm from "./GenerateForm";
 import UseCasesCarousel from "./UseCasesCarousel";
+import StylesShowcase from "./StylesShowcase";
 
 const softwareApplicationSchema = {
   "@context": "https://schema.org",
@@ -157,7 +158,8 @@ export default function GeneratePage() {
       {/* Use cases carousel — marketing section showing product placement examples */}
       <UseCasesCarousel />
 
-
-</Box>
+      {/* Styles showcase — links out to each style's /styles/[slug] landing page */}
+      <StylesShowcase />
+    </Box>
   );
 }
