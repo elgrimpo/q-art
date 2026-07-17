@@ -96,8 +96,19 @@ render it immediately after `<UseCasesCarousel />`, before the closing
 
 ## Testing
 
-No existing automated test coverage applies (this is a static marketing
-section with no business logic). Verification is manual: run the dev server,
+This is a static marketing section with no business logic, but the codebase
+already has render-test precedent for comparable sections (e.g.
+`UseCasesCarousel.test.js`), so the new component and the new `tagline` data
+get the same treatment:
+- `src/__tests__/landingPages.test.js` gains a shape-invariant test asserting
+  every `landingPage.tagline` is a non-empty string, and the existing Ghibli
+  trademark test is extended to cover `tagline`.
+- A new `src/__tests__/StylesShowcase.test.js` renders the component and
+  asserts: the heading text, exactly 13 cards, each card's href points at
+  the right `/styles/[slug]`, taglines render, and the Ghibli card shows
+  "Whimsical Anime" (never "Ghibli").
+
+On top of the automated tests, manual verification: run the dev server,
 load `/generate`, confirm:
 - 13 cards render, each linking to the correct `/styles/[slug]`.
 - The Ghibli card shows "Whimsical Anime", not "Ghibli".
