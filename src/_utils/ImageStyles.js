@@ -17,6 +17,7 @@ export const styles = [
     // generations, prompt-idea chips, "perfect for" cards).
     landingPage: {
       slug: "ukiyo-e-qr-code",
+      tagline: "Classic Japanese woodblock prints.",
       metaTitle:
         "Ukiyo-e QR Code Generator — Japanese Woodblock QR Art | QR AI",
       metaDescription:
@@ -80,6 +81,7 @@ export const styles = [
       "https://qrartimages.s3.us-west-1.amazonaws.com/6a498f50dbeee01fccc37bc6.png",
     landingPage: {
       slug: "expressionism-qr-code",
+      tagline: "Bold brushstrokes and emotional energy.",
       metaTitle:
         "Expressionist QR Code Generator — Bold Artistic QR Codes | QR AI",
       metaDescription:
@@ -143,6 +145,7 @@ export const styles = [
       "https://qrartimages.s3.us-west-1.amazonaws.com/65a167cad076ab86bf56ac89.png",
     landingPage: {
       slug: "low-poly-qr-code",
+      tagline: "Geometric shapes with modern depth.",
       metaTitle: "Low Poly QR Code Generator — Geometric 3D QR Art | QR AI",
       metaDescription:
         "Create geometric low-poly QR codes with faceted shapes and modern 3D character. Generate scannable QR art with QR AI.",
@@ -205,6 +208,7 @@ export const styles = [
       "https://qrartimages.s3.us-west-1.amazonaws.com/6a4abe9e2164b64ac00f0758.png",
     landingPage: {
       slug: "photography-qr-code",
+      tagline: "Realistic scenes with rich detail.",
       metaTitle: "Photorealistic QR Code Generator — AI Photo QR Codes | QR AI",
       metaDescription:
         "Blend your QR code into a photorealistic scene. Create detailed, scannable AI photo QR codes with QR AI.",
@@ -267,6 +271,7 @@ export const styles = [
       "https://qrartimages.s3.us-west-1.amazonaws.com/65cc123c7b729925fcced038.png",
     landingPage: {
       slug: "vector-art-qr-code",
+      tagline: "Clean lines, bold shapes, vibrant and scalable.",
       metaTitle:
         "Vector Art QR Code Generator — Clean Graphic QR Designs | QR AI",
       metaDescription:
@@ -330,6 +335,7 @@ export const styles = [
       "https://qrartimages.s3.us-west-1.amazonaws.com/65a19822d076ab86bf56acab.png",
     landingPage: {
       slug: "doodle-art-qr-code",
+      tagline: "Playful hand-drawn doodles and icons.",
       metaTitle: "Doodle QR Code Generator — Playful Hand-Drawn QR Art | QR AI",
       metaDescription:
         "Create playful doodle-style QR codes filled with hand-drawn charm. Generate fun, scannable QR art with QR AI.",
@@ -392,6 +398,7 @@ export const styles = [
       "https://qrartimages.s3.us-west-1.amazonaws.com/6595dd1fd3f4c7d50f757b65.png",
     landingPage: {
       slug: "ink-qr-code",
+      tagline: "Elegant ink wash and expressive linework.",
       metaTitle: "Ink QR Code Generator — Elegant Black Ink QR Art | QR AI",
       metaDescription:
         "Create elegant ink-style QR codes with expressive linework and high-contrast detail. Generate scannable ink QR art with QR AI.",
@@ -454,6 +461,7 @@ export const styles = [
       "https://qrartimages.s3.us-west-1.amazonaws.com/659801fb55848e0542b40cd0.png",
     landingPage: {
       slug: "oil-painting-qr-code",
+      tagline: "Rich textures and painterly strokes.",
       metaTitle: "Oil Painting QR Code Generator — Rich Painted QR Art | QR AI",
       metaDescription:
         "Create richly colored oil-painting QR codes with visible brushwork and gallery-like depth using QR AI.",
@@ -516,6 +524,7 @@ export const styles = [
       "https://qrartimages.s3.us-west-1.amazonaws.com/65e243349c04d23c99e86494.png",
     landingPage: {
       slug: "chinese-art-qr-code",
+      tagline: "Traditional brushwork and timeless beauty.",
       metaTitle:
         "Chinese Art QR Code Generator — Traditional Brush QR Art | QR AI",
       metaDescription:
@@ -582,6 +591,7 @@ export const styles = [
     // generations, prompt-idea chips, "perfect for" cards).
     landingPage: {
       slug: "watercolor-qr-code",
+      tagline: "Soft washes and delicate painterly blends.",
       metaTitle: "Watercolor QR Code Generator — Free AI Art QR Codes | QR AI",
       metaDescription:
         "Turn any link into a watercolor-style QR code that still scans. Free to try, no sign-up — pick the Watercolor style and generate in seconds.",
@@ -670,6 +680,7 @@ export const styles = [
     // the generation pipeline and getImages() depend on.
     landingPage: {
       slug: "ghibli-qr-code",
+      tagline: "Whimsical anime scenes full of charm.",
       // Name used in template-derived visible copy (Examples heading, CTAs,
       // alt text) in place of the internal title "Ghibli". See
       // styleDisplayName() and the /styles/[slug] page template.
@@ -738,6 +749,7 @@ export const styles = [
       "https://qrartimages.s3.us-west-1.amazonaws.com/6a4508cc3b23a83b1fa7b4c3.png",
     landingPage: {
       slug: "cyberpunk-qr-code",
+      tagline: "Neon lights and futuristic urban vibes.",
       metaTitle: "Cyberpunk QR Code Generator — Neon Futuristic QR Art | QR AI",
       metaDescription:
         "Create neon cyberpunk QR codes with futuristic cities, glowing signs, and high-tech atmosphere using QR AI.",
@@ -800,6 +812,7 @@ export const styles = [
       "https://qrartimages.s3.us-west-1.amazonaws.com/6a4bb59e2cfa329e8d58854c.png",
     landingPage: {
       slug: "illustration-qr-code",
+      tagline: "Creative illustrated scenes for any idea.",
       metaTitle:
         "Illustration QR Code Generator — Custom Illustrated QR Art | QR AI",
       metaDescription:

@@ -70,6 +70,15 @@ describe('rich style landing pages — shape invariants', () => {
     }
   })
 
+  test('every landingPage has a non-empty tagline', () => {
+    for (const s of styles) {
+      if (s.landingPage) {
+        expect(typeof s.landingPage.tagline).toBe('string')
+        expect(s.landingPage.tagline.length).toBeGreaterThan(0)
+      }
+    }
+  })
+
   test('the Ghibli style landing page never mentions "Ghibli" or "Studio Ghibli" in rendered copy (trademark)', () => {
     const ghibli = styles.find((s) => s.title === 'Ghibli')
     const lp = ghibli.landingPage
@@ -85,6 +94,7 @@ describe('rich style landing pages — shape invariants', () => {
       lp.useCases,
       lp.promptIdeas,
       lp.perfectFor,
+      lp.tagline,
     ]).toLowerCase()
     expect(rendered).not.toContain('ghibli')
   })
