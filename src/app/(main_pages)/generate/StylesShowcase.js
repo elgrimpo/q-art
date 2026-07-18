@@ -53,12 +53,12 @@ export default function StylesShowcase() {
                 sx={{
                   borderRadius: 2,
                   overflow: "hidden",
-                  border: "1px solid",
-                  borderColor: "divider",
+                  border: "0.5px solid",
+                  borderColor: "primary.main",
                   backgroundColor: "background.paper",
                   height: "100%",
-                  transition: "border-color 0.15s ease",
-                  "&:hover": { borderColor: "primary.main" },
+                  transition: "border-color 0.2s, transform 0.15s",
+                  "&:hover": { borderColor: "primary.light", transform: "translateY(-2px)" },
                 }}
               >
                 <Box sx={{ position: "relative", width: "100%", aspectRatio: "1/1" }}>
@@ -70,38 +70,40 @@ export default function StylesShowcase() {
                     style={{ objectFit: "cover" }}
                   />
                 </Box>
-                <Box sx={{ p: 2 }}>
-                  <Typography sx={{ fontWeight: 600, fontSize: "1rem", mb: 0.5 }}>
-                    {displayTitle}
-                  </Typography>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "flex-end",
-                      justifyContent: "space-between",
-                      gap: 1,
-                    }}
-                  >
+                <Box sx={{ p: 2, display: "flex", alignItems: "center", gap: 1 }}>
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Typography
+                      sx={{
+                        fontFamily: "Georgia, 'Times New Roman', serif",
+                        fontStyle: "italic",
+                        fontSize: "1.15rem",
+                        color: "primary.main",
+                        lineHeight: 1.2,
+                        mb: 1,
+                      }}
+                    >
+                      {displayTitle}
+                    </Typography>
                     <Typography
                       sx={{ fontSize: "0.85rem", color: "text.secondary", lineHeight: 1.4 }}
                     >
                       {tagline}
                     </Typography>
-                    <Box
-                      sx={{
-                        flexShrink: 0,
-                        width: 28,
-                        height: 28,
-                        borderRadius: "50%",
-                        border: "1px solid",
-                        borderColor: "divider",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <ArrowOutwardOutlined sx={{ fontSize: 14, color: "text.secondary" }} />
-                    </Box>
+                  </Box>
+                  <Box
+                    sx={{
+                      flexShrink: 0,
+                      width: 28,
+                      height: 28,
+                      borderRadius: "50%",
+                      border: "1px solid",
+                      borderColor: "primary.main",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <ArrowOutwardOutlined sx={{ fontSize: 14, color: "primary.main" }} />
                   </Box>
                 </Box>
               </Box>

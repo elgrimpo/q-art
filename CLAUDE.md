@@ -36,7 +36,8 @@ Required keys (see `.env` for values):
 - `NOVITA_KEY` — Novita AI API key
 - `S3_URL` — S3 base URL
 - `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY`
-- `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET`
+- `STRIPE_API_KEY` / `STRIPE_ENDPOINT_SECRET` — Stripe secret key + webhook signing secret
+- `STRIPE_UNLOCK_PRICE_ID` — Stripe Price ID charged by the pay-per-result unlock checkout (see Pricing model below)
 - `NEXTAUTH_SECRET` / `NEXTAUTH_URL`
 - `BACKEND_JWT_SECRET` — shared HS256 secret used to sign (Next.js) and verify (FastAPI) backend auth tokens. **Must be identical on both apps.** Next.js mints a short-lived JWT carrying the verified identity; FastAPI derives `user_id` from it instead of trusting query params (see `api/utils/auth.py`, `src/_utils/backendAuth.js`).
 - `ADMIN_EMAILS` — comma-separated list of email addresses granted admin privileges (QRAI-129). Read by FastAPI only; `get_current_user` sets `is_admin: true` for any verified email in this list. Not stored in MongoDB — derived at request time.
@@ -68,7 +69,7 @@ Email login (QRAI-82): `POST /api/user/request-code` + `POST /api/user/verify-co
 │   ├── controllers/            # generate, images, users, payment
 │   ├── schemas/schemas.py      # Pydantic models (ImageDoc, User, ControlNet, etc.)
 │   └── utils/
-│       ├── utils.py            # Credit calc, img2img request builder, watermark
+│       ├── utils.py            # img2img request builder, watermark (credit calc is dead code, see Pricing model)
 │       └── payload_config.py
 ├── public/                     # Static assets
 └── requirements.txt            # Python dependencies
@@ -85,18 +86,9 @@ Email login (QRAI-82): `POST /api/user/request-code` + `POST /api/user/verify-co
 5. Apply watermark, upload both versions to S3
 6. Write `ImageDoc` to MongoDB
 
-## Credit System
+## Pricing model: pay-per-result (QRAI-53)
 
-| Action | Cost |
-|---|---|
-| Generate image | 1 credit |
-| Download | 10 credits |
-| Upscale to 512 | 10 credits |
-| Upscale to 1024 | 15 credits |
-| Upscale to 2048 | 20 credits |
-| Upscale to 4096 | 25 credits |
-
-Guest users (`user_id` starts with `guest_`) bypass server-side credit checks — managed on the frontend.
+Generation is free — no credits, no server-side credit checks (the old credit-pack system was torn down in `5e05334c5`; `sufficient_credit()` in `api/utils/utils.py` is now dead code). Every generated image comes back watermarked at 768px. To get the clean, full-resolution version, the user pays once per image via Stripe Checkout (`POST /api/checkout/unlock` → `STRIPE_UNLOCK_PRICE_ID`) to unlock it — no tiered upscale sizes; `unlock_image()` always upscales the same 768px original to a fixed 2048px and overwrites it in place in S3 (`api/controllers/unlock_controller.py`).
 
 ## Conventions
 

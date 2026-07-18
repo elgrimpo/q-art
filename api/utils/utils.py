@@ -52,6 +52,49 @@ def parse_seed(metadata):
         return None
 
 # ---------------------------------------------------------------------------- #
+#                        FIT QR TO OUTPUT ASPECT RATIO                         #
+# ---------------------------------------------------------------------------- #
+
+
+def fit_qr_to_canvas(qr_base64: str, width: int, height: int) -> str:
+    """Place the square QR on a canvas that matches the OUTPUT aspect ratio.
+
+    The generated image is width x height (e.g. 768x1152), but the raw QR is
+    square. Feeding a square control image into a non-square generation lets
+    the API resize it however it likes — typically a stretch, which turns the
+    QR's white quiet-zone border into a blown-up bright frame and is the most
+    likely cause of the "edges brighter than the middle" look.
+
+    Instead we build the control image ourselves at exactly width x height:
+      * the QR is scaled (never stretched) to the shorter side so it stays
+        square and scannable,
+      * it's centered, and
+      * the padding is filled WHITE — the same tone as the QR's own quiet
+        zone — so the whole background reads as one uniform brightness with no
+        inside/outside step for the brightness ControlNet to amplify.
+
+    NEAREST resampling keeps the module edges hard (bilinear would soften them
+    and hurt scannability — same reason the QR is saved as PNG upstream).
+    """
+    try:
+        qr = Image.open(BytesIO(base64.b64decode(qr_base64))).convert("RGB")
+    except Exception:
+        # Non-image input (e.g. placeholder strings in unit tests). Nothing to
+        # fit, so hand back what we were given.
+        return qr_base64
+
+    side = min(width, height)
+    qr_square = qr.resize((side, side), Image.NEAREST)
+
+    canvas = Image.new("RGB", (width, height), (255, 255, 255))
+    canvas.paste(qr_square, ((width - side) // 2, (height - side) // 2))
+
+    buf = BytesIO()
+    canvas.save(buf, format="PNG")
+    return base64.b64encode(buf.getvalue()).decode("ascii")
+
+
+# ---------------------------------------------------------------------------- #
 #                            PREPARE IMG2IMG REQUEST                           #
 # ---------------------------------------------------------------------------- #
 
@@ -67,15 +110,27 @@ def prepare_img2img_request(
     loras=None,
     style_modifier: float = 0,
 ):
-    if len(prompt.split()) < SHORT_PROMPT_THRESHOLD:
-        prompt = prompt + ", " + QUALITY_SUFFIX
-    full_prompt = prompt + style_prompt
+    user_prompt = prompt.strip()
+    filler = f", {QUALITY_SUFFIX}" if len(user_prompt.split()) < SHORT_PROMPT_THRESHOLD else ""
+    full_prompt = f"{user_prompt}{filler}, {style_prompt}" if style_prompt else f"{user_prompt}{filler}"
 
-    side = 768
-    gray = Image.new("RGB", (side, side), (128, 128, 128))
+    # Output canvas dimensions — the single source of truth for this request.
+    # The init image and the QR control image are both built at this exact
+    # size so nothing gets stretched by the API's default resize. Change the
+    # ratio here and everything downstream follows.
+    width = 768
+    height = 768
+
+    # Neutral gray init, matched to the OUTPUT aspect ratio (was a fixed
+    # 768x768 square that the API then stretched to width x height).
+    gray = Image.new("RGB", (width, height), (128, 128, 128))
     _buf = BytesIO()
     gray.save(_buf, format="JPEG")
     gray_init_base64 = base64.b64encode(_buf.getvalue()).decode("ascii")
+
+    # Square QR fitted onto a width x height canvas so the ControlNet input
+    # shares the generation's aspect ratio and a single uniform background.
+    qr_control_base64 = fit_qr_to_canvas(image_base64_str, width, height)
 
     req = dict(
         model_name=sd_model,
@@ -83,8 +138,8 @@ def prepare_img2img_request(
         prompt=full_prompt,
         negative_prompt="blurry, low contrast, washed out, white margin, blank border, empty corners, negative space, vignette, unfinished edges, plain background, solid color frame, letterboxing, pillarboxing",
         sampler_name="DPM++ 2M Karras",
-        width=side,
-        height=side,
+        width=width,
+        height=height,
         steps=30,
         guidance_scale=7,
         seed=int(seed),
@@ -96,7 +151,7 @@ def prepare_img2img_request(
             # the art. The QR is fed directly: NO preprocessor.
             # strength = 0.4 (default) + (qr_weight + style_modifier) * 0.025; range 0.15..0.55 for combined -2..2
             Img2ImgV3ControlNetUnit(
-                image_base64=image_base64_str,
+                image_base64=qr_control_base64,
                 model_name="control_v1p_sd15_brightness",
                 strength=round(0.4 + (qr_weight + style_modifier) * 0.025,2),
                 preprocessor=None, # this needs to be None, otherwise API breaks
@@ -105,7 +160,7 @@ def prepare_img2img_request(
             ),
             # QR Code Monster v2 — enforces the scannable QR pattern.
             Img2ImgV3ControlNetUnit(
-                image_base64=image_base64_str,
+                image_base64=qr_control_base64,
                 model_name="control_v1p_sd15_qrcode_monster_v2",
                 strength=round(1.40 + (qr_weight + style_modifier) * 0.05,2),
                 preprocessor=None, # this needs to be None, otherwise API breaks

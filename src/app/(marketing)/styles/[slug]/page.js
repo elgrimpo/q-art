@@ -3,6 +3,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Box, Typography, Button } from "@mui/material";
 import ArrowOutwardOutlined from "@mui/icons-material/ArrowOutwardOutlined";
+import { palette } from "@/_styles/palette";
 import {
   stylesWithLandingPage,
   findStyleByLandingSlug,
@@ -12,6 +13,7 @@ import {
 import { getImages } from "@/_utils/ImagesUtils";
 import { STYLE_ICONS as ICONS } from "@/_utils/styleIcons";
 import ExamplesCarousel from "./ExamplesCarousel";
+import BackButton from "./BackButton";
 
 // Different portrait ratios per column so the Perfect For cards stagger
 // like a Pinterest board instead of lining up as uniform squares.
@@ -246,43 +248,79 @@ function RichStyleLayout({ style, lp, examples }) {
 
   return (
     <Box sx={{ maxWidth: "1120px", mx: "auto" }}>
-      {/* Hero */}
+      {/* Hero — style image on the right, faded into the page background by
+          a gradient. The image sits in a narrower column (not the full
+          panel width) so it stays closer to its native square aspect ratio
+          and needs far less cropping than a full-bleed treatment would. */}
       <Box
         sx={{
-          display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          alignItems: "center",
-          gap: { xs: 4, md: 6 },
+          position: "relative",
+          borderRadius: 3,
+          overflow: "hidden",
+          minHeight: { xs: 480, md: 400 },
           mb: 8,
+          backgroundColor: "background.default",
         }}
       >
-        <Box sx={{ flex: "1 1 420px", textAlign: { xs: "center", md: "left" } }}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+            bottom: 0,
+            width: { xs: "100%", md: "70%" },
+          }}
+        >
           <Box
+            component={Image}
+            src={style.image_url}
+            alt={`Example ${displayTitle} style AI-generated QR code`}
+            fill
+            priority
+            sizes="(max-width: 900px) 100vw, 650px"
             sx={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 0.75,
-              px: 1.5,
-              py: 0.5,
-              borderRadius: 999,
-              backgroundColor: "rgba(112, 225, 149, 0.08)",
-              border: "1px solid",
-              borderColor: "primary.main",
-              mb: 2,
+              objectFit: { xs: "contain", sm: "cover" },
+              objectPosition: "right top",
             }}
-          >
-            <Typography
-              sx={{
-                fontSize: "0.7rem",
-                fontWeight: 700,
-                letterSpacing: "0.06em",
-                color: "primary.main",
-                textTransform: "uppercase",
-              }}
-            >
-              {lp.badge}
-            </Typography>
-          </Box>
+          />
+        </Box>
+
+        {/* Gradient's fade zone must actually sit over the image (which
+            starts at left:42%, since the image column is 58% wide) — not
+            over the empty text area to its left, or the fade is invisible.
+            On mobile the image sits full-bleed at the TOP of the panel —
+            gradient direction is flipped (0deg) so it stays clear up top
+            and only turns solid low enough for the pushed-down text
+            (see the text Box's mobile `pt` below) to land on readable
+            background, matching the same top-image/text-below technique
+            used by the /generate page hero (BannerImage + GenerateForm). */}
+        <Box
+          sx={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 1,
+            width: {
+              xs: "100%",
+              md: "75%"
+            },
+            background: {
+              xs: `linear-gradient(0deg, ${palette.background.default} 46%, rgba(22,22,22,0) 82%)`,
+              md: `linear-gradient(90deg, ${palette.background.default} 50%, rgba(22,22,22,0) 100%)`,
+            },
+          }}
+        />
+
+        <Box
+          sx={{
+            position: "relative",
+            zIndex: 2,
+            maxWidth: { xs: "100%", md: "55%" },
+            p: { xs: 3, md: 6 },
+            pt: { xs: "270px", md: 6 },
+            textAlign: { xs: "center", md: "left" },
+          }}
+        >
+          <BackButton />
 
           <AccentHeading lines={lp.headingLines} accent={lp.headingAccent} />
 
@@ -324,28 +362,6 @@ function RichStyleLayout({ style, lp, examples }) {
               );
             })}
           </Box>
-        </Box>
-
-        <Box
-          sx={{
-            flex: "1 1 420px",
-            width: "100%",
-            maxWidth: 460,
-            borderRadius: 3,
-            overflow: "hidden",
-            border: "1px solid",
-            borderColor: "divider",
-          }}
-        >
-          <Image
-            src={style.image_url}
-            alt={`Example ${displayTitle} style AI-generated QR code`}
-            width={900}
-            height={900}
-            priority
-            sizes="(max-width: 460px) 100vw, 460px"
-            style={{ width: "100%", height: "auto", display: "block" }}
-          />
         </Box>
       </Box>
 
@@ -448,7 +464,7 @@ function RichStyleLayout({ style, lp, examples }) {
                     position: "absolute",
                     inset: 0,
                     background:
-                      "linear-gradient(0deg, rgba(0,0,0,0.8), rgba(0,0,0,0.25) 65%)",
+                      "linear-gradient(0deg, rgba(0,0,0,0.8), rgba(0,0,0,0) 30%)",
                   }}
                 />
                 <Box sx={{ position: "absolute", left: 0, right: 0, bottom: 0, p: 2.5 }}>

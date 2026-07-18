@@ -3,9 +3,13 @@ from io import BytesIO
 from unittest.mock import patch
 from PIL import Image
 
+import base64
+import qrcode as qrcode_lib
+
 from api.utils.utils import (
     parse_seed,
     prepare_img2img_request,
+    fit_qr_to_canvas,
     createImagesFilterQuery,
     create_watermark,
     badge_geometry,
@@ -13,6 +17,42 @@ from api.utils.utils import (
     SHORT_PROMPT_THRESHOLD,
     QUALITY_SUFFIX,
 )
+
+
+def _real_qr_base64() -> str:
+    """A genuine QR PNG (base64) so tests exercise the fit_qr_to_canvas path
+    rather than the non-image fallback."""
+    qr = qrcode_lib.QRCode(
+        error_correction=qrcode_lib.constants.ERROR_CORRECT_H, border=12
+    )
+    qr.add_data("https://example.com")
+    img = qr.make_image(fill_color="black", back_color="white").convert("RGB")
+    buf = BytesIO()
+    img.save(buf, format="PNG")
+    return base64.b64encode(buf.getvalue()).decode("ascii")
+
+
+# ---------------------------------------------------------------------------- #
+#                          FIT QR TO OUTPUT CANVAS                             #
+# ---------------------------------------------------------------------------- #
+
+class TestFitQrToCanvas:
+    def _decode(self, b64):
+        return Image.open(BytesIO(base64.b64decode(b64))).convert("RGB")
+
+    def test_control_image_matches_output_dimensions(self):
+        out = fit_qr_to_canvas(_real_qr_base64(), 768, 1152)
+        assert self._decode(out).size == (768, 1152)
+
+    def test_qr_stays_square_and_fills_shorter_side(self):
+        # The QR occupies a centered 768x768 square; rows above/below it are the
+        # white padding, so pixels at the vertical extremes are pure white.
+        img = self._decode(fit_qr_to_canvas(_real_qr_base64(), 768, 1152))
+        assert img.getpixel((384, 2)) == (255, 255, 255)
+        assert img.getpixel((384, 1149)) == (255, 255, 255)
+
+    def test_non_image_input_returned_unchanged(self):
+        assert fit_qr_to_canvas("base64string==", 768, 1152) == "base64string=="
 
 
 # ---------------------------------------------------------------------------- #

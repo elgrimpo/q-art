@@ -1,125 +1,88 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import Image from "next/image";
-import { useSwipeable } from "react-swipeable";
-import { Box, Typography, IconButton } from "@mui/material";
+import { Box, Typography, IconButton, Dialog } from "@mui/material";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import EventNoteOutlinedIcon from "@mui/icons-material/EventNoteOutlined";
-import CheckroomOutlinedIcon from "@mui/icons-material/CheckroomOutlined";
-import StorefrontOutlinedIcon from "@mui/icons-material/StorefrontOutlined";
-import MusicNoteOutlinedIcon from "@mui/icons-material/MusicNoteOutlined";
-import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
-import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
-import AccountBalanceOutlinedIcon from "@mui/icons-material/AccountBalanceOutlined";
+import CloseIcon from "@mui/icons-material/Close";
 import { palette } from "@/_styles/palette";
+import { stylesWithLandingPage } from "@/_utils/ImageStyles";
+import { STYLE_ICONS } from "@/_utils/styleIcons";
 
-const USE_CASES = [
-  {
-    id: "restaurants",
-    category: "Restaurants & Food Trucks",
-    description: "Share menus, stories, and more with a simple scan.",
-    image: "/product-placements/restaurants-food-trucks.png",
-    Icon: LocalShippingOutlinedIcon,
-  },
-  {
-    id: "music",
-    category: "Music & Nightlife",
-    description: "Light up the night. Put your brand center stage.",
-    image: "/product-placements/music-nightlife.png",
-    Icon: MusicNoteOutlinedIcon,
-  },
-  {
-    id: "events",
-    category: "Events & Exhibitions",
-    description: "From festivals to gallery openings — make every poster scannable.",
-    image: "/product-placements/events-exhibitions.png",
-    Icon: EventNoteOutlinedIcon,
-  },
-  {
-    id: "business",
-    category: "Business & Branding",
-    description: "Stand out. Get discovered. Grow your brand.",
-    image: "/product-placements/business-branding.png",
-    Icon: StorefrontOutlinedIcon,
-  },
-  {
-    id: "weddings",
-    category: "Weddings & Stationery",
-    description: "Add a personal, interactive touch to life's moments.",
-    image: "/product-placements/weddings-stationery.png",
-    Icon: FavoriteBorderIcon,
-  },
-  {
-    id: "art",
-    category: "Art Galleries & Museums",
-    description: "Bridge the physical and digital art experience.",
-    image: "/product-placements/art-galleries.png",
-    Icon: AccountBalanceOutlinedIcon,
-  },
-  {
-    id: "apparel",
-    category: "Apparel & Merch",
-    description: "Wear your art. Share your world.",
-    image: "/product-placements/apparel-merch.png",
-    Icon: CheckroomOutlinedIcon,
-  },
-];
+const USE_CASES = stylesWithLandingPage().flatMap((style) =>
+  (style.landingPage.perfectFor || []).map((card, i) => ({
+    id: `${style.landingPage.slug}-${i}`,
+    category: card.title,
+    description: card.description,
+    image: card.imageUrl,
+    Icon: STYLE_ICONS[card.icon],
+  }))
+);
 
-const CARD_POSITIONS = {
-  farLeft:  { left: "-60%",  opacity: 0,    zIndex: 1, transform: "translateX(-50%) scale(0.75)" },
-  left:     { left: "0%",    opacity: 0.55, zIndex: 2, transform: "translateX(-50%) scale(0.82)" },
-  center:   { left: "50%",   opacity: 1,    zIndex: 3, transform: "translateX(-50%) scale(1)" },
-  right:    { left: "100%",  opacity: 0.55, zIndex: 2, transform: "translateX(-50%) scale(0.82)" },
-  farRight: { left: "160%",  opacity: 0,    zIndex: 1, transform: "translateX(-50%) scale(0.75)" },
-};
-
-function getCardPosition(normalizedDelta) {
-  if (normalizedDelta === 0)  return CARD_POSITIONS.center;
-  if (normalizedDelta === -1) return CARD_POSITIONS.left;
-  if (normalizedDelta === 1)  return CARD_POSITIONS.right;
-  if (normalizedDelta < -1)   return CARD_POSITIONS.farLeft;
-  return CARD_POSITIONS.farRight;
+function shuffle(arr) {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
 }
 
 export default function UseCasesCarousel() {
-  const [current, setCurrent] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const [hasInteracted, setHasInteracted] = useState(false);
-  const total = USE_CASES.length;
+  const [items, setItems] = useState(USE_CASES);
+  const [modalIndex, setModalIndex] = useState(null);
+  const scrollRef = useRef(null);
+  const modalOpen = modalIndex !== null;
 
-  useEffect(() => {
-    if (paused || hasInteracted) return;
-    const t = setInterval(() => setCurrent((i) => (i + 1) % total), 4500);
-    return () => clearInterval(t);
-  }, [paused, hasInteracted, total]);
-
-  const navigate = useCallback(
-    (dir) => {
-      setHasInteracted(true);
-      setCurrent((i) => (i + dir + total) % total);
-    },
-    [total]
-  );
-
-  const goTo = useCallback((index) => {
-    setHasInteracted(true);
-    setCurrent(index);
+  // Shuffle only after mount so server- and client-rendered markup match on
+  // hydration; the randomized order then applies on top.
+  useLayoutEffect(() => {
+    setItems(shuffle(USE_CASES));
   }, []);
 
-  const swipeHandlers = useSwipeable({
-    onSwipedLeft: () => navigate(1),
-    onSwipedRight: () => navigate(-1),
-  });
+  // Reordering the DOM on shuffle can trigger the browser's scroll-anchoring
+  // and leave the row scrolled away from the start — force it back to 0.
+  useLayoutEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollLeft = 0;
+  }, [items]);
+
+  const scrollByAmount = (dir) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const maxScroll = el.scrollWidth - el.clientWidth;
+    const atEnd = el.scrollLeft >= maxScroll - 4;
+    const atStart = el.scrollLeft <= 4;
+
+    if (dir > 0 && atEnd) {
+      el.scrollTo({ left: 0, behavior: "smooth" });
+    } else if (dir < 0 && atStart) {
+      el.scrollTo({ left: maxScroll, behavior: "smooth" });
+    } else {
+      el.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: "smooth" });
+    }
+  };
+
+  const closeModal = () => setModalIndex(null);
+  const showNext = () => setModalIndex((i) => (i + 1) % items.length);
+  const showPrevious = () => setModalIndex((i) => (i - 1 + items.length) % items.length);
+
+  // Arrow-key / Escape navigation while the modal is open.
+  useEffect(() => {
+    if (!modalOpen) return;
+    const onKeyDown = (e) => {
+      if (e.key === "ArrowRight") showNext();
+      else if (e.key === "ArrowLeft") showPrevious();
+      else if (e.key === "Escape") closeModal();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [modalOpen, items.length]);
+
+  const activeItem = modalOpen ? items[modalIndex] : null;
 
   return (
-    <Box
-      component="section"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      sx={{ mt: { xs: 8, lg: 12 }, width: "100%" }}
-    >
+    <Box component="section" sx={{ mt: { xs: 8, lg: 12 }, width: "100%" }}>
       {/* Heading */}
       <Box sx={{ textAlign: "center", px: 2, mb: { xs: 5, lg: 6 } }}>
         <Typography
@@ -150,23 +113,14 @@ export default function UseCasesCarousel() {
         </Typography>
       </Box>
 
-      {/* Carousel container */}
-      <Box
-        {...swipeHandlers}
-        sx={{
-          position: "relative",
-          height: { xs: "60vw", sm: "50vw", md: "43vw" },
-          maxHeight: { md: "520px" },
-          overflow: "hidden",
-        }}
-      >
-        {/* Left arrow */}
+      {/* Scrollable row */}
+      <Box sx={{ position: "relative" }}>
         <IconButton
-          onClick={() => navigate(-1)}
+          onClick={() => scrollByAmount(-1)}
           aria-label="Previous"
           sx={{
             position: "absolute",
-            left: { xs: 8, md: 24 },
+            left: { xs: 4, md: 16 },
             top: "50%",
             transform: "translateY(-50%)",
             zIndex: 10,
@@ -181,13 +135,12 @@ export default function UseCasesCarousel() {
           <ChevronLeftIcon />
         </IconButton>
 
-        {/* Right arrow */}
         <IconButton
-          onClick={() => navigate(1)}
+          onClick={() => scrollByAmount(1)}
           aria-label="Next"
           sx={{
             position: "absolute",
-            right: { xs: 8, md: 24 },
+            right: { xs: 4, md: 16 },
             top: "50%",
             transform: "translateY(-50%)",
             zIndex: 10,
@@ -202,30 +155,32 @@ export default function UseCasesCarousel() {
           <ChevronRightIcon />
         </IconButton>
 
-        {/* Cards */}
-        {USE_CASES.map((useCase, i) => {
-          const delta = ((i - current) % total + total) % total;
-          const norm = delta <= Math.floor(total / 2) ? delta : delta - total;
-          const pos = getCardPosition(norm);
-          const isCenter = norm === 0;
-          const isAdjacent = Math.abs(norm) === 1;
-
-          return (
+        <Box
+          ref={scrollRef}
+          sx={{
+            display: "flex",
+            gap: 2,
+            overflowX: "auto",
+            overflowAnchor: "none",
+            scrollSnapType: "x mandatory",
+            px: { xs: 2, md: 6 },
+            scrollbarWidth: "none",
+            "&::-webkit-scrollbar": { display: "none" },
+          }}
+        >
+          {items.map((useCase, i) => (
             <Box
               key={useCase.id}
-              onClick={isAdjacent ? () => goTo(i) : undefined}
+              onClick={() => setModalIndex(i)}
               sx={{
-                position: "absolute",
-                top: 0,
-                bottom: 0,
-                width: { xs: "100%", md: "58%" },
-                borderRadius: { xs: 0, md: "12px" },
+                position: "relative",
+                flex: "0 0 auto",
+                width: { xs: "55%", sm: "40%", md: "24%" },
+                aspectRatio: "2/3",
+                borderRadius: "12px",
                 overflow: "hidden",
-                cursor: isAdjacent ? "pointer" : "default",
-                display: { xs: isCenter ? "block" : "none", md: "block" },
-                transition:
-                  "left 0.45s cubic-bezier(0.4,0,0.2,1), opacity 0.45s ease, transform 0.45s cubic-bezier(0.4,0,0.2,1)",
-                ...pos,
+                scrollSnapAlign: "start",
+                cursor: "pointer",
               }}
             >
               <Image
@@ -233,75 +188,166 @@ export default function UseCasesCarousel() {
                 alt={`${useCase.category} QR code example`}
                 fill
                 style={{ objectFit: "cover" }}
-                sizes="(max-width: 768px) 85vw, 60vw"
-                priority={i === 0}
+                sizes="(max-width: 768px) 55vw, 24vw"
               />
-
-              {/* Info overlay — center card only */}
-              {isCenter && (
-                <Box
-                  sx={{
-                    position: "absolute",
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    background:
-                      "linear-gradient(0deg, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.5) 55%, transparent 100%)",
-                    px: { xs: 2, md: 3 },
-                    pb: { xs: 2, md: 3 },
-                    pt: { xs: 5, md: 8 },
-                  }}
-                >
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, mb: 0.5 }}>
-                    <useCase.Icon sx={{ color: "primary.main", fontSize: { xs: 16, md: 18 } }} />
-                    <Typography
-                      variant="overline"
-                      sx={{
-                        color: "primary.main",
-                        fontSize: { xs: "0.65rem", md: "0.75rem" },
-                        letterSpacing: "0.08em",
-                        lineHeight: 1,
-                      }}
-                    >
-                      {useCase.category}
-                    </Typography>
-                  </Box>
+              <Box
+                sx={{
+                  position: "absolute",
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  background:
+                    "linear-gradient(0deg, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.5) 55%, transparent 100%)",
+                  px: 1.5,
+                  pb: 1.5,
+                  pt: 4,
+                }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 0.5 }}>
+                  {useCase.Icon && (
+                    <useCase.Icon sx={{ color: "primary.main", fontSize: 14 }} />
+                  )}
                   <Typography
-                    variant="body1"
+                    variant="overline"
                     sx={{
-                      color: "white",
-                      fontWeight: 500,
-                      fontSize: { xs: "0.875rem", md: "1rem" },
+                      color: "primary.main",
+                      fontSize: "0.6rem",
+                      letterSpacing: "0.08em",
+                      lineHeight: 1,
                     }}
                   >
-                    {useCase.description}
+                    {useCase.category}
                   </Typography>
                 </Box>
-              )}
+                <Typography
+                  variant="body2"
+                  sx={{ color: "white", fontWeight: 500, fontSize: "0.75rem" }}
+                >
+                  {useCase.description}
+                </Typography>
+              </Box>
             </Box>
-          );
-        })}
+          ))}
+        </Box>
       </Box>
 
-      {/* Dot indicators */}
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 1, mt: 3 }}>
-        {USE_CASES.map((useCase, i) => (
+      {/* Enlarged image modal */}
+      <Dialog
+        open={modalOpen}
+        onClose={closeModal}
+        maxWidth={false}
+        slotProps={{
+          backdrop: { sx: { backgroundColor: "rgba(0,0,0,0.85)" } },
+        }}
+        PaperProps={{
+          sx: {
+            bgcolor: "transparent",
+            backgroundImage: "none",
+            boxShadow: "none",
+            width: { xs: "100vw", md: "auto" },
+            m: { xs: 0, md: 2 },
+            "&.MuiDialog-paper": { maxWidth: "100vw", maxHeight: "100vh" },
+          },
+        }}
+      >
+        {activeItem && (
           <Box
-            key={i}
-            role="button"
-            aria-label={`Go to ${useCase.category}`}
-            onClick={() => goTo(i)}
             sx={{
-              width: i === current ? 24 : 8,
-              height: 8,
-              borderRadius: "4px",
-              bgcolor: i === current ? "primary.main" : "rgba(255,255,255,0.22)",
-              cursor: "pointer",
-              transition: "width 0.3s ease, background-color 0.3s ease",
+              position: "relative",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: { xs: "100vw", md: "min(90vw, 640px)" },
+              height: { xs: "100vh", md: "85vh" },
             }}
-          />
-        ))}
-      </Box>
+          >
+            <IconButton
+              onClick={closeModal}
+              aria-label="Close"
+              sx={{
+                position: "absolute",
+                top: 8,
+                right: 8,
+                zIndex: 10,
+                bgcolor: "rgba(0,0,0,0.45)",
+                color: "primary.main",
+                "&:hover": { bgcolor: "rgba(0,0,0,0.7)" },
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+
+            <IconButton
+              onClick={showPrevious}
+              aria-label="Previous"
+              sx={{
+                position: "absolute",
+                left: 8,
+                top: "50%",
+                transform: "translateY(-50%)",
+                zIndex: 10,
+                bgcolor: "rgba(0,0,0,0.45)",
+                color: "primary.main",
+                "&:hover": { bgcolor: "rgba(0,0,0,0.7)" },
+              }}
+            >
+              <ChevronLeftIcon />
+            </IconButton>
+
+            <IconButton
+              onClick={showNext}
+              aria-label="Next"
+              sx={{
+                position: "absolute",
+                right: 8,
+                top: "50%",
+                transform: "translateY(-50%)",
+                zIndex: 10,
+                bgcolor: "rgba(0,0,0,0.45)",
+                color: "primary.main",
+                "&:hover": { bgcolor: "rgba(0,0,0,0.7)" },
+              }}
+            >
+              <ChevronRightIcon />
+            </IconButton>
+
+            <Box sx={{ position: "relative", width: "100%", height: "100%" }}>
+              <Image
+                src={activeItem.image}
+                alt={`${activeItem.category} QR code example`}
+                fill
+                style={{ objectFit: "contain" }}
+                sizes="90vw"
+              />
+            </Box>
+
+            <Box
+              sx={{
+                position: "absolute",
+                bottom: 0,
+                left: 0,
+                right: 0,
+                background:
+                  "linear-gradient(0deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)",
+                px: 3,
+                pb: 3,
+                pt: 6,
+                textAlign: "center",
+              }}
+            >
+              <Typography
+                variant="overline"
+                sx={{ color: "primary.main", letterSpacing: "0.08em" }}
+              >
+                {activeItem.category}
+              </Typography>
+              <Typography variant="body1" sx={{ color: "white" }}>
+                {activeItem.description}
+              </Typography>
+            </Box>
+          </Box>
+        )}
+      </Dialog>
     </Box>
   );
 }
