@@ -22,6 +22,7 @@ import { signOut } from "next-auth/react";
 
 // App import
 import { useStore } from "@/store";
+import QrAiWordmark from "@/_components/QrAiWordmark";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
@@ -51,10 +52,10 @@ export default function AccountMenuMobile(props) {
         {/* ------------------------------ APP AND LOGO ------------------------------ */}
         <List>
           <ListItem sx={{ mb: "0.5rem" }}>
-            <Image src="/logo.png" alt="Logo" width={36} height={36} />
-            <Typography variant="h5" sx={{ ml: "1rem" }}>
-              QR AI
-            </Typography>
+            <Box sx={{ display: "flex", alignItems: "center", gap: "16px" }}>
+              <Image src="/logo.png" alt="Logo" width={32} height={32} />
+              <QrAiWordmark />
+            </Box>
           </ListItem>
 
           <Divider />

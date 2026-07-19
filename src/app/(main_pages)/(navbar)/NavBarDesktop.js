@@ -3,7 +3,7 @@
 // Libraries imports
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { AppBar, Stack, Tab, Paper } from "@mui/material";
+import { AppBar, Stack, Tab, Paper, Box } from "@mui/material";
 import Slide from "@mui/material/Slide";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Link from "next/link";
@@ -15,6 +15,7 @@ import "@/app/globals.css";
 import { useStore } from "@/store";
 import theme from "@/_styles/theme";
 import AccountMenuDesktop from "./AccountMenuDesktop";
+import QrAiWordmark from "@/_components/QrAiWordmark";
 
 /* -------------------------------------------------------------------------- */
 /*                               COMPONENT START                              */
@@ -72,7 +73,12 @@ export default function NavBarDesktop() {
               }}>
 
               {/* LOGO */}
-              <Image src="/logo_light.png" alt="Logo" width={40} height={40} />
+              <Link href="/generate" style={{ display: "flex", textDecoration: "none" }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                  <Image src="/logo_light.png" alt="Logo" width={32} height={32} />
+                  <QrAiWordmark />
+                </Box>
+              </Link>
 
               {/* ---------------------------------- TABS ---------------------------------- */}
               <Stack
