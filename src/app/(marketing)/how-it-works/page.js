@@ -70,6 +70,11 @@ function StepSection({ step }) {
         flexDirection: { xs: "column", md: "row" },
         alignItems: "center",
         gap: { xs: 4, md: 6 },
+        p: { xs: 3, md: 4 },
+        bgcolor: "background.paper",
+        borderRadius: "12px",
+        border: "0.5px solid",
+        borderColor: "primary.main",
       }}
     >
       <Box
@@ -92,8 +97,14 @@ function StepSection({ step }) {
       <Box sx={{ flex: 1, width: "100%" }}>
         <Typography
           component="h2"
-          variant="h2"
-          sx={{ fontSize: "1.8rem", fontWeight: 800, mb: 1 }}
+          sx={{
+            fontFamily: "var(--font-inter), Inter, sans-serif",
+            fontStyle: "normal",
+            fontSize: "1.8rem",
+            fontWeight: 800,
+            color: "text.primary",
+            mb: 1,
+          }}
         >
           <Box component="span" sx={{ color: "primary.main" }}>
             {step.number}.
