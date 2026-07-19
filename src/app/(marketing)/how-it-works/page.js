@@ -43,7 +43,7 @@ function StepBadgeStrip() {
             >
               {i + 1}
             </Box>
-            <Typography sx={{ fontWeight: 600 }}>{label}</Typography>
+            <Typography sx={{ fontWeight: 600, color: "text.primary" }}>{label}</Typography>
           </Box>
           {i < heroSteps.length - 1 && (
             <Box
@@ -139,7 +139,7 @@ export default function HowItWorksPage() {
             works
           </Box>
         </Typography>
-        <Typography component="p" sx={{ fontSize: "1.2rem", mb: 1 }}>
+        <Typography component="p" sx={{ fontSize: "1.2rem", mb: 1, color: "text.primary" }}>
           Create scannable QR artwork in a few simple steps.
         </Typography>
         <Typography component="p" sx={{ color: "text.secondary" }}>
