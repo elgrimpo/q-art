@@ -86,8 +86,7 @@ function StepSection({ step, reverse }) {
         flexDirection: { xs: "column", md: reverse ? "row-reverse" : "row" },
         alignItems: "center",
         gap: { xs: 4, md: 6 },
-        p: { xs: 3, md: 4 },
-        bgcolor: "background.paper",
+        p: { xs: 4, md: 6 },
         borderRadius: "12px",
         border: "0.5px solid",
         borderColor: "primary.main",
@@ -169,7 +168,7 @@ export default function HowItWorksPage() {
   return (
     <Box sx={{ maxWidth: "1120px", mx: "auto" }}>
       {/* Hero */}
-      <Box sx={{ maxWidth: "760px", mx: "auto", textAlign: "center", mb: 6 }}>
+      <Box sx={{ maxWidth: "760px", mx: "auto", textAlign: "center", mt: { xs: 3, md: 6 }, mb: 6 }}>
         <Typography
           component="h1"
           variant="h1"
