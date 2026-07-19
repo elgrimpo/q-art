@@ -79,10 +79,10 @@ test('shows scannability widget with score and label when score is present', () 
 
 test('shows correct label for each scannability tier', () => {
   const cases = [
-    [90, 'Excellent'],
-    [75, 'Good'],
-    [55, 'Fair'],
-    [30, 'Poor'],
+    [95, 'Excellent'],
+    [85, 'Good'],
+    [75, 'Fair'],
+    [50, 'Poor'],
     [10, 'Unscannable'],
   ]
   for (const [score, label] of cases) {

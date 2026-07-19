@@ -45,10 +45,10 @@ import * as amplitude from "@amplitude/analytics-browser";
 import { EVENTS, trackUnlockRevenue } from "@/_utils/analytics";
 
 const SCANNABILITY_LEVELS = [
-  { min: 85, label: "Excellent", color: "#4A8C5C" },
-  { min: 70, label: "Good",      color: "#8BC989" },
-  { min: 50, label: "Fair",      color: "#D4B44A" },
-  { min: 20, label: "Poor",      color: "#D97B7B" },
+  { min: 90, label: "Excellent", color: "#4A8C5C" },
+  { min: 80, label: "Good",      color: "#8BC989" },
+  { min: 70, label: "Fair",      color: "#D4B44A" },
+  { min: 40, label: "Poor",      color: "#D97B7B" },
   { min: 0,  label: "Unscannable", color: "#8B2020" },
 ];
 
