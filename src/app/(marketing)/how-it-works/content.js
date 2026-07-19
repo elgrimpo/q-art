@@ -7,6 +7,9 @@ import QrCodeScannerOutlined from "@mui/icons-material/QrCodeScannerOutlined";
 import ShuffleOutlined from "@mui/icons-material/ShuffleOutlined";
 import LockOutlined from "@mui/icons-material/LockOutlined";
 import TuneOutlined from "@mui/icons-material/TuneOutlined";
+import HdOutlined from "@mui/icons-material/HdOutlined";
+import PaidOutlined from "@mui/icons-material/PaidOutlined";
+import LocalPrintshopOutlined from "@mui/icons-material/LocalPrintshopOutlined";
 
 export const ICONS = {
   LinkOutlined,
@@ -18,6 +21,9 @@ export const ICONS = {
   ShuffleOutlined,
   LockOutlined,
   TuneOutlined,
+  HdOutlined,
+  PaidOutlined,
+  LocalPrintshopOutlined,
 };
 
 export const heroSteps = ["Describe", "Generate", "Refine", "Unlock"];
@@ -27,8 +33,8 @@ export const steps = [
     number: "1",
     title: "Describe your idea",
     image: "/how-it-works/describe-idea.png",
-    imageWidth: 1400,
-    imageHeight: 970,
+    imageWidth: 841,
+    imageHeight: 610,
     imageAlt:
       "QR AI generate form filled in with a website URL, an image description, and the Ukiyo-e style selected",
     description:
@@ -53,7 +59,6 @@ export const steps = [
     checklist: [
       { icon: "VerifiedUserOutlined", label: "Check scannability score" },
       { icon: "QrCodeScannerOutlined", label: "Verify by scanning yourself" },
-      { icon: "ShuffleOutlined", label: "Generate a new variation" },
       { icon: "LockOutlined", label: "Unlock if satisfied" },
       {
         icon: "AutoAwesomeOutlined",
@@ -68,16 +73,51 @@ export const steps = [
     imageWidth: 1256,
     imageHeight: 1402,
     imageAlt: "The iterate panel with prompt, style, and QR code weight slider",
-    description:
-      "Adjust the prompt, switch styles, or balance QR code weight to get the right mix of artistic freedom and scannability.",
-    checklist: [
-      { icon: "EditOutlined", label: "Edit prompt" },
-      { icon: "PaletteOutlined", label: "Change style" },
+    description: "Not happy yet? You've got two ways to get a better result:",
+    subsections: [
       {
-        icon: "TuneOutlined",
-        label: "Adjust QR code weight — more artistic ↔ more scannable",
+        title: "Create Variant",
+        description:
+          "Keep the same prompt, style, and QR weight — just generate a fresh take with a new random seed.",
+        checklist: [
+          { icon: "ShuffleOutlined", label: "Same settings" },
+          { icon: "AutoAwesomeOutlined", label: "New image generated" },
+        ],
       },
-      { icon: "AutoAwesomeOutlined", label: "Generate a new refined version." },
+      {
+        title: "Iterate",
+        description:
+          "Tweak the settings for a similar image — same content, refined.",
+        checklist: [
+          { icon: "EditOutlined", label: "Edit prompt" },
+          { icon: "PaletteOutlined", label: "Change style" },
+          {
+            icon: "TuneOutlined",
+            label: "Adjust QR code weight — more artistic ↔ more scannable",
+          },
+          { icon: "AutoAwesomeOutlined", label: "Generate a new refined version." },
+        ],
+      },
+    ],
+  },
+  {
+    number: "4",
+    title: "Unlock your image",
+    image:
+      "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/ukiyo-e-restaurant.png",
+    imageWidth: 1086,
+    imageHeight: 1448,
+    imageAlt:
+      "An unlocked, watermark-free AI QR code art print used as a restaurant menu cover",
+    description:
+      "Once you're happy with your art, unlock the full-resolution, watermark-free version — ready to print, share, or bring into the real world.",
+    checklist: [
+      { icon: "HdOutlined", label: "Watermark removed, full 2048px resolution" },
+      { icon: "PaidOutlined", label: "One-time unlock — no subscription" },
+      {
+        icon: "LocalPrintshopOutlined",
+        label: "Print-ready for menus, posters, packaging, and more",
+      },
     ],
   },
 ];

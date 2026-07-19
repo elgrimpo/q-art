@@ -62,6 +62,22 @@ function StepBadgeStrip() {
   );
 }
 
+function Checklist({ items }) {
+  return (
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+      {items.map((item) => {
+        const Icon = ICONS[item.icon];
+        return (
+          <Box key={item.label} sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+            <Icon sx={{ color: "primary.main", fontSize: 20, flexShrink: 0 }} />
+            <Typography sx={{ color: "text.secondary" }}>{item.label}</Typography>
+          </Box>
+        );
+      })}
+    </Box>
+  );
+}
+
 function StepSection({ step }) {
   return (
     <Box
@@ -114,17 +130,31 @@ function StepSection({ step }) {
         <Typography component="p" sx={{ color: "text.secondary", mb: 3, lineHeight: 1.7 }}>
           {step.description}
         </Typography>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-          {step.checklist.map((item) => {
-            const Icon = ICONS[item.icon];
-            return (
-              <Box key={item.label} sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                <Icon sx={{ color: "primary.main", fontSize: 20, flexShrink: 0 }} />
-                <Typography sx={{ color: "text.secondary" }}>{item.label}</Typography>
+        {step.subsections ? (
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+            {step.subsections.map((sub) => (
+              <Box key={sub.title}>
+                <Typography
+                  sx={{
+                    fontFamily: "var(--font-inter), Inter, sans-serif",
+                    fontStyle: "normal",
+                    fontWeight: 700,
+                    color: "primary.main",
+                    mb: 0.5,
+                  }}
+                >
+                  {sub.title}
+                </Typography>
+                <Typography component="p" sx={{ color: "text.secondary", mb: 1.5, lineHeight: 1.7 }}>
+                  {sub.description}
+                </Typography>
+                <Checklist items={sub.checklist} />
               </Box>
-            );
-          })}
-        </Box>
+            ))}
+          </Box>
+        ) : (
+          <Checklist items={step.checklist} />
+        )}
       </Box>
     </Box>
   );
