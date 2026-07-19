@@ -17,6 +17,7 @@ import HomeTwoToneIcon from "@mui/icons-material/HomeTwoTone";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import AutoFixHighTwoToneIcon from "@mui/icons-material/AutoFixHighTwoTone";
 import LoginTwoToneIcon from '@mui/icons-material/LoginTwoTone';
+import HelpOutlineTwoToneIcon from '@mui/icons-material/HelpOutlineTwoTone';
 import MenuTwoToneIcon from "@mui/icons-material/MenuTwoTone";
 import useScrollTrigger from "@mui/material/useScrollTrigger";
 import Slide from "@mui/material/Slide";
@@ -68,7 +69,7 @@ export default function NavBarMobile() {
 
   // Calculate button width based on number of visible items
   const getButtonWidth = () => {
-    const totalItems = user?.is_guest ? 3 : 4; // 4 items for both logged in and not logged in
+    const totalItems = 4; // 4 items for both logged in and not logged in
     return `${100 / totalItems}%`;
   };
 
@@ -197,6 +198,36 @@ export default function NavBarMobile() {
                   </Typography>
                 </ButtonBase>
               </Link>
+
+              {/* HOW IT WORKS */}
+              {user?.is_guest && (
+                <Link href="/how-it-works" passHref legacyBehavior>
+                  <ButtonBase
+                    label="How it Works"
+                    value="/how-it-works"
+                    sx={{
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      width: getButtonWidth(),
+                      height: "100%",
+                      color: getColor("/how-it-works"),
+                    }}
+                  >
+                    <IconButton
+                      aria-label="close"
+                      size="small"
+                      value="/how-it-works"
+                      sx={{ m: 0, padding: "0px", color: getColor("/how-it-works") }}
+                    >
+                      <HelpOutlineTwoToneIcon />
+                    </IconButton>
+                    <Typography variant="body2" sx={{ ...navLabelSx, mt: 0 }}>
+                      How it Works
+                    </Typography>
+                  </ButtonBase>
+                </Link>
+              )}
 
               {/* MORE */}
               {!user?.is_guest && (

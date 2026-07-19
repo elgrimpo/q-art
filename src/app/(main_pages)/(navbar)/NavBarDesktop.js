@@ -116,6 +116,16 @@ export default function NavBarDesktop() {
                     selected={tabValue === "/explore"}
                   />
                 </Link>
+
+                {user?.is_guest && (
+                  <Link href="/how-it-works" passHref legacyBehavior>
+                    <Tab
+                      label="How it Works"
+                      value="/how-it-works"
+                      selected={tabValue === "/how-it-works"}
+                    />
+                  </Link>
+                )}
               </Stack>
 
               {/* ACCOUNT */}
