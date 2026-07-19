@@ -33,8 +33,8 @@ export const steps = [
     number: "1",
     title: "Describe your idea",
     image: "/how-it-works/describe-idea.png",
-    imageWidth: 841,
-    imageHeight: 610,
+    imageWidth: 901,
+    imageHeight: 670,
     imageAlt:
       "QR AI generate form filled in with a website URL, an image description, and the Ukiyo-e style selected",
     description:
@@ -50,8 +50,8 @@ export const steps = [
     number: "2",
     title: "Review your result",
     image: "/how-it-works/review-result.png",
-    imageWidth: 1400,
-    imageHeight: 847,
+    imageWidth: 1285,
+    imageHeight: 857,
     imageAlt:
       "A generated koi fish QR code artwork with its scannability score and an unlock option",
     description:
@@ -70,8 +70,8 @@ export const steps = [
     number: "3",
     title: "Fine-tune your result",
     image: "/how-it-works/fine-tune.png",
-    imageWidth: 1256,
-    imageHeight: 1402,
+    imageWidth: 773,
+    imageHeight: 867,
     imageAlt: "The iterate panel with prompt, style, and QR code weight slider",
     description: "Not happy yet? You've got two ways to get a better result:",
     subsections: [
@@ -103,12 +103,11 @@ export const steps = [
   {
     number: "4",
     title: "Unlock your image",
-    image:
-      "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/ukiyo-e-restaurant.png",
-    imageWidth: 1086,
-    imageHeight: 1448,
+    image: "/how-it-works/unlock-image.png",
+    imageWidth: 1204,
+    imageHeight: 1545,
     imageAlt:
-      "An unlocked, watermark-free AI QR code art print used as a restaurant menu cover",
+      "An unlocked, watermark-free AI QR code art print displayed as a storefront window decal for a tattoo studio",
     description:
       "Once you're happy with your art, unlock the full-resolution, watermark-free version — ready to print, share, or bring into the real world.",
     checklist: [

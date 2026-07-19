@@ -97,8 +97,6 @@ function StepSection({ step }) {
         sx={{
           flex: { md: "0 0 55%" },
           width: "100%",
-          borderRadius: 3,
-          overflow: "hidden",
         }}
       >
         <Image

@@ -51,7 +51,9 @@ test('renders the 4 step images with their alt text', () => {
   ).toBeInTheDocument()
   expect(screen.getByAltText('The iterate panel with prompt, style, and QR code weight slider')).toBeInTheDocument()
   expect(
-    screen.getByAltText('An unlocked, watermark-free AI QR code art print used as a restaurant menu cover')
+    screen.getByAltText(
+      'An unlocked, watermark-free AI QR code art print displayed as a storefront window decal for a tattoo studio'
+    )
   ).toBeInTheDocument()
 })
 
