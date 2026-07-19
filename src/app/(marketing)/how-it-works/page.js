@@ -78,12 +78,12 @@ function Checklist({ items }) {
   );
 }
 
-function StepSection({ step }) {
+function StepSection({ step, reverse }) {
   return (
     <Box
       sx={{
         display: "flex",
-        flexDirection: { xs: "column", md: "row" },
+        flexDirection: { xs: "column", md: reverse ? "row-reverse" : "row" },
         alignItems: "center",
         gap: { xs: 4, md: 6 },
         p: { xs: 3, md: 4 },
@@ -104,7 +104,14 @@ function StepSection({ step }) {
           alt={step.imageAlt}
           width={step.imageWidth}
           height={step.imageHeight}
-          style={{ width: "100%", height: "auto", display: "block" }}
+          style={{
+            width: "100%",
+            height: "auto",
+            display: "block",
+            // Design-specified glow (x:0 y:0 blur:25 #A0DDA2 @75%) — not a
+            // palette token, one-off card treatment for this page.
+            boxShadow: "0px 0px 25px rgba(160, 221, 162, 0.75)",
+          }}
           sizes="(max-width: 900px) 100vw, 600px"
         />
       </Box>
@@ -190,8 +197,8 @@ export default function HowItWorksPage() {
 
       {/* Step sections */}
       <Box sx={{ display: "flex", flexDirection: "column", gap: 10, mb: 10 }}>
-        {steps.map((step) => (
-          <StepSection key={step.number} step={step} />
+        {steps.map((step, i) => (
+          <StepSection key={step.number} step={step} reverse={i % 2 === 1} />
         ))}
       </Box>
 

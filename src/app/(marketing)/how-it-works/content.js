@@ -33,8 +33,8 @@ export const steps = [
     number: "1",
     title: "Describe your idea",
     image: "/how-it-works/describe-idea.png",
-    imageWidth: 901,
-    imageHeight: 670,
+    imageWidth: 721,
+    imageHeight: 490,
     imageAlt:
       "QR AI generate form filled in with a website URL, an image description, and the Ukiyo-e style selected",
     description:
@@ -50,8 +50,8 @@ export const steps = [
     number: "2",
     title: "Review your result",
     image: "/how-it-works/review-result.png",
-    imageWidth: 1285,
-    imageHeight: 857,
+    imageWidth: 1105,
+    imageHeight: 677,
     imageAlt:
       "A generated koi fish QR code artwork with its scannability score and an unlock option",
     description:
@@ -70,8 +70,8 @@ export const steps = [
     number: "3",
     title: "Fine-tune your result",
     image: "/how-it-works/fine-tune.png",
-    imageWidth: 773,
-    imageHeight: 867,
+    imageWidth: 593,
+    imageHeight: 687,
     imageAlt: "The iterate panel with prompt, style, and QR code weight slider",
     description: "Not happy yet? You've got two ways to get a better result:",
     subsections: [
@@ -104,8 +104,8 @@ export const steps = [
     number: "4",
     title: "Unlock your image",
     image: "/how-it-works/unlock-image.png",
-    imageWidth: 1204,
-    imageHeight: 1545,
+    imageWidth: 1024,
+    imageHeight: 1365,
     imageAlt:
       "An unlocked, watermark-free AI QR code art print displayed as a storefront window decal for a tattoo studio",
     description:
