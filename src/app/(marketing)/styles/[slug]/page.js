@@ -14,6 +14,7 @@ import { getImages } from "@/_utils/ImagesUtils";
 import { STYLE_ICONS as ICONS } from "@/_utils/styleIcons";
 import ExamplesCarousel from "./ExamplesCarousel";
 import BackButton from "./BackButton";
+import BackLink from "./BackLink";
 
 // Different portrait ratios per column so the Perfect For cards stagger
 // like a Pinterest board instead of lining up as uniform squares.
@@ -260,8 +261,16 @@ function RichStyleLayout({ style, lp, examples }) {
           minHeight: { xs: 480, md: 400 },
           mb: 8,
           backgroundColor: "background.default",
+          // The page Container pads xs screens by 16px (spacing(2)) but the
+          // navbar only insets by 8px (0.5rem) below the sm breakpoint, so
+          // the hero reads narrower than the navbar above it. Bleed out by
+          // the 8px difference on each side until navbar padding grows to
+          // match the Container's at sm.
+          mx: { xs: -1, sm: 0 },
         }}
       >
+        <BackButton />
+
         <Box
           sx={{
             position: "absolute",
@@ -320,7 +329,7 @@ function RichStyleLayout({ style, lp, examples }) {
             textAlign: { xs: "center", md: "left" },
           }}
         >
-          <BackButton />
+          <BackLink />
 
           <AccentHeading lines={lp.headingLines} accent={lp.headingAccent} />
 
