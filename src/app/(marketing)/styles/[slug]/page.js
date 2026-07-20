@@ -455,6 +455,7 @@ function RichStyleLayout({ style, lp, examples }) {
                     src={card.imageUrl}
                     alt={card.title}
                     fill
+                    unoptimized
                     sizes="(max-width: 600px) 100vw, 33vw"
                     style={{ objectFit: "cover" }}
                   />

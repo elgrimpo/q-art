@@ -187,6 +187,7 @@ export default function UseCasesCarousel() {
                 src={useCase.image}
                 alt={`${useCase.category} QR code example`}
                 fill
+                unoptimized
                 style={{ objectFit: "cover" }}
                 sizes="(max-width: 768px) 55vw, 24vw"
               />
@@ -316,6 +317,7 @@ export default function UseCasesCarousel() {
                 src={activeItem.image}
                 alt={`${activeItem.category} QR code example`}
                 fill
+                unoptimized
                 style={{ objectFit: "contain" }}
                 sizes="90vw"
               />
