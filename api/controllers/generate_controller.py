@@ -93,6 +93,18 @@ STAGE_EXPECTED_SECONDS = {
     "upload": 5.6,
 }
 
+# Novita reports progress_percent=0 (not None) for the whole queued/warming-up
+# window — confirmed by direct testing against the live API: status went
+# QUEUED -> PROCESSING with progress_percent pinned at 0 for ~7s before jumping
+# straight to 16 -> 66 -> 100. Treating only `None` as "no signal yet" (the
+# first attempt at this fix) missed that entirely, since 0 is falsy but not
+# None — the bar stayed frozen. Ramp synthetically whenever progress_percent
+# is falsy (covers both None and 0), capped at this fraction of the "novita"
+# stage's percent budget so it doesn't run ahead of the real signal once
+# Novita starts reporting it. First-pass constants, not meant to be exact.
+NOVITA_QUEUE_RAMP_SECONDS = 7.0
+NOVITA_QUEUE_RAMP_CAP = 0.35
+
 
 def _stage_bounds(stage_name: str) -> tuple[int, int]:
     """Return (start_percent, end_percent) for a stage, based on cumulative
@@ -274,17 +286,25 @@ async def predict(
         t = mark("build_img2img_request", t)
         _update_job(job_id, stage="prep", percent=_stage_bounds("prep")[1])
 
+        novita_start = time.perf_counter()
+
         def _novita_progress_callback(progress):
             task = progress.task
-            if task.progress_percent is None:
-                return
             start, end = _stage_bounds("novita")
-            overall = start + (task.progress_percent / 100) * (end - start)
+            if not task.progress_percent:
+                elapsed = time.perf_counter() - novita_start
+                fraction = min(elapsed / NOVITA_QUEUE_RAMP_SECONDS, 1.0) * NOVITA_QUEUE_RAMP_CAP
+                overall = start + fraction * (end - start)
+            else:
+                overall = start + (task.progress_percent / 100) * (end - start)
+            # Never move the bar backward — a delayed real progress_percent
+            # could otherwise read lower than the synthetic ramp already shown.
+            current = _jobs.get(job_id, {}).get("percent", 0)
             _update_job(
                 job_id,
                 status="processing",
                 stage="novita",
-                percent=round(overall),
+                percent=max(current, round(overall)),
                 eta=task.eta,
             )
 
