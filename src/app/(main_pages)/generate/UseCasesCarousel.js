@@ -163,7 +163,7 @@ export default function UseCasesCarousel() {
             overflowX: "auto",
             overflowAnchor: "none",
             scrollSnapType: "x mandatory",
-            px: { xs: 2, md: 6 },
+            px: { xs: "15%", sm: 3, md: 6 },
             scrollbarWidth: "none",
             "&::-webkit-scrollbar": { display: "none" },
           }}
@@ -175,11 +175,11 @@ export default function UseCasesCarousel() {
               sx={{
                 position: "relative",
                 flex: "0 0 auto",
-                width: { xs: "55%", sm: "40%", md: "24%" },
+                width: { xs: "70%", sm: "50%", md: "30%" },
                 aspectRatio: "2/3",
                 borderRadius: "12px",
                 overflow: "hidden",
-                scrollSnapAlign: "start",
+                scrollSnapAlign: { xs: "center", sm: "start" },
                 cursor: "pointer",
               }}
             >
@@ -189,7 +189,7 @@ export default function UseCasesCarousel() {
                 fill
                 unoptimized
                 style={{ objectFit: "cover" }}
-                sizes="(max-width: 768px) 55vw, 24vw"
+                sizes="(max-width: 600px) 70vw, (max-width: 900px) 50vw, 30vw"
               />
               <Box
                 sx={{
