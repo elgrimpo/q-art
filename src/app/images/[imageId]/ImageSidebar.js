@@ -21,6 +21,7 @@ import dayjs from "dayjs";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useRouter } from "next/navigation";
 import theme from "@/_styles/theme";
+import { palette } from "@/_styles/palette";
 import DoneIcon from "@mui/icons-material/Done";
 import LinkIcon from "@mui/icons-material/Link";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
@@ -54,6 +55,58 @@ const SCANNABILITY_LEVELS = [
 
 function getScannability(score) {
   return SCANNABILITY_LEVELS.find((l) => score >= l.min) ?? SCANNABILITY_LEVELS[4];
+}
+
+/* Ring widget ported from mycodes/ImagesCard.js — larger, with the label set beside it instead of below */
+function ScannabilityRing({ score, diameter = 40 }) {
+  if (score == null) return null;
+  const pct = Math.round(score);
+  const { label, color } = getScannability(score);
+  const innerDiameter = diameter - Math.round(diameter / 6);
+  const scoreFontSize = 14;
+
+  return (
+    <Box sx={{ display: "flex", alignItems: "center", gap: "12px" }}>
+      <Box
+        sx={{
+          flexShrink: 0,
+          position: "relative",
+          width: diameter,
+          height: diameter,
+          borderRadius: "50%",
+          background: `conic-gradient(${color} 0% ${pct}%, ${palette.background.elevated} ${pct}% 100%)`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            width: innerDiameter,
+            height: innerDiameter,
+            borderRadius: "50%",
+            bgcolor: "background.default",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Typography sx={{ fontSize: `${scoreFontSize}px`, fontWeight: 800, color, lineHeight: 1 }}>
+            {pct}
+          </Typography>
+        </Box>
+      </Box>
+      <Box sx={{ lineHeight: 1.25 }}>
+        <Typography sx={{ display: "block", fontSize: "15px", fontWeight: 700, fontFamily: "Roboto Serif, Georgia, serif", color }}>
+          {label}
+        </Typography>
+        <Typography sx={{ display: "block", fontSize: "15px", fontWeight: 700, fontFamily: "Roboto Serif, Georgia, serif", color }}>
+          scannability
+        </Typography>
+      </Box>
+    </Box>
+  );
 }
 
 export default function ImageSidebar({
@@ -482,32 +535,10 @@ export default function ImageSidebar({
 
             {hasScore && (
               <Box sx={{ flex: 1, minWidth: 0 }}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "baseline",
-                    justifyContent: "space-between",
-                    mb: 1.375,
-                  }}
-                >
-                  <Typography variant="overline">Scannability</Typography>
-                  <Typography variant="h5" sx={{ fontSize: "16px", color: scannability.color }}>
-                    {scannability.label}
-                  </Typography>
-                </Box>
-                <Stack direction="row" spacing={0.75}>
-                  {Array.from({ length: 5 }, (_, i) => (
-                    <Box
-                      key={i}
-                      sx={{
-                        flex: 1,
-                        height: "16px",
-                        borderRadius: "4px",
-                        bgcolor: i < filledSegments ? scannability.color : "divider",
-                      }}
-                    />
-                  ))}
-                </Stack>
+                <Typography variant="overline" sx={{ display: "block", mb: 1.25 }}>
+                  Scannability
+                </Typography>
+                <ScannabilityRing score={score} diameter={40} />
               </Box>
             )}
           </Box>
