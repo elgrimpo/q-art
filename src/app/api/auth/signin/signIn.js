@@ -12,7 +12,9 @@ import {
   Divider,
   Link,
 } from "@mui/material";
+import Image from "next/image";
 import GoogleIcon from "@mui/icons-material/Google";
+import QrAiWordmark from "@/_components/QrAiWordmark";
 
 const ERROR_MESSAGES = {
   InvalidEmail:    "Please enter a valid email address.",
@@ -20,26 +22,6 @@ const ERROR_MESSAGES = {
   TooManyRequests: "Too many code requests. Try again later.",
   RequestFailed:   "Couldn't send the code. Please try again.",
 };
-
-// Brand mark — the app's favicon (byte-identical to src/app/icon.ico).
-function Wordmark({ color }) {
-  return (
-    <Stack direction="row" alignItems="center" spacing={1}>
-      <Box component="img" src="/favicon.ico" alt="QR AI" sx={{ width: 32, height: 32 }} />
-      <Typography
-        sx={{
-          fontFamily: "var(--font-instrument-serif), serif",
-          fontStyle: "italic",
-          fontWeight: 400,
-          fontSize: "1.4rem",
-          color,
-        }}
-      >
-        QR AI
-      </Typography>
-    </Stack>
-  );
-}
 
 export default function SignIn() {
   const searchParams = useSearchParams();
@@ -156,9 +138,6 @@ export default function SignIn() {
                 "linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.1) 40%, rgba(0,0,0,0.85) 100%)",
             }}
           />
-          <Box sx={{ position: "relative", zIndex: 1 }}>
-            <Wordmark color="primary.light" />
-          </Box>
           <Box sx={{ position: "relative", zIndex: 1, maxWidth: 460 }}>
             <Typography
               variant="h3"
@@ -189,9 +168,9 @@ export default function SignIn() {
         }}
       >
         <Box sx={{ width: "100%", maxWidth: 420 }}>
-          {/* Logo on mobile, where the showcase panel is hidden */}
-          <Box sx={{ display: { xs: "block", md: "none" }, mb: 4 }}>
-            <Wordmark color="primary.light" />
+          <Box sx={{ display: "flex", alignItems: "center", gap: "16px", mb: 4 }}>
+            <Image src="/logo_light.png" alt="Logo" width={32} height={32} />
+            <QrAiWordmark />
           </Box>
 
           <Typography
