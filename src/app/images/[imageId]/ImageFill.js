@@ -15,6 +15,25 @@ export default function ImageFill({ image, sx, onPrev, onNext, topOverlay, maxHe
   const aspectRatio =
     image?.width && image?.height ? `${image.width} / ${image.height}` : "1 / 1";
 
+  // maxHeight only ever carries an `md` breakpoint (modal/detail contexts
+  // clamp on md+, mobile stays full-bleed) — but `width: 100%` plus a
+  // clamped height stopped matching the image's real aspect ratio there:
+  // e.g. a square image in a tall column got squashed into a wide box, and
+  // objectFit:contain then pillarboxed it, exposing this Box's bgcolor as a
+  // visible band instead of blending into the page. On md, driving size off
+  // the definite height instead (auto width via aspect-ratio, shrink-wrapped
+  // + centered) keeps the box itself square, so any leftover space is the
+  // page's own background, not a mismatched inner one. xs is untouched.
+  const mediaSx = maxHeight
+    ? {
+        width: { xs: "100%", md: "auto" },
+        height: { md: maxHeight.md },
+        maxWidth: "100%",
+        aspectRatio,
+        mx: { md: "auto" },
+      }
+    : { width: "100%", aspectRatio };
+
   return (
     <Box
       sx={{
@@ -22,26 +41,25 @@ export default function ImageFill({ image, sx, onPrev, onNext, topOverlay, maxHe
         borderRadius: { xs: 0, md: "16px" },
         overflow: "hidden",
         bgcolor: "#0e0e0e",
+        ...(maxHeight && {
+          width: { md: "fit-content" },
+          maxWidth: "100%",
+          mx: { md: "auto" },
+        }),
         ...sx,
       }}
     >
       {!imageUrl ? (
-        <Skeleton
-          variant="rounded"
-          animation="wave"
-          sx={{ width: "100%", aspectRatio, ...(maxHeight && { maxHeight }) }}
-        />
+        <Skeleton variant="rounded" animation="wave" sx={mediaSx} />
       ) : (
         <CardMedia
           component="img"
           image={imageUrl}
           sx={{
             display: "block",
-            width: "100%",
-            aspectRatio,
             objectFit: "contain",
             pointerEvents: "none",
-            ...(maxHeight && { maxHeight }),
+            ...mediaSx,
           }}
         />
       )}
