@@ -57,19 +57,22 @@ export const styles = [
           title: "Japanese Restaurants",
           description: "Distinctive menus, table cards, and takeaway packaging",
           icon: "RestaurantOutlined",
-          imageUrl: "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/ukiyo-e-restaurant.webp",
+          imageUrl:
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/ukiyo-e-restaurant.webp",
         },
         {
           title: "Music & Nightlife",
           description: "High-energy posters, event screens, and venue signage",
           icon: "NightlifeOutlined",
-          imageUrl: "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/ukiyo-e-nightlife.webp",
+          imageUrl:
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/ukiyo-e-nightlife.webp",
         },
         {
           title: "Art & Culture",
           description: "Gallery signage, exhibitions, and cultural events",
           icon: "MuseumOutlined",
-          imageUrl: "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/ukiyo-e-festival.webp",
+          imageUrl:
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/ukiyo-e-festival.webp",
         },
       ],
     },
@@ -78,7 +81,7 @@ export const styles = [
     id: "6a4cfaed4021f21026e477ee",
     title: "Expressionism",
     image_url:
-      "https://qrartimages.s3.us-west-1.amazonaws.com/6a5bef7adc5e6b9f5d8dd988.png",
+      "https://qrartimages.s3.us-west-1.amazonaws.com/6a5e9b78443f68b0538839e6.png",
     landingPage: {
       slug: "expressionism-qr-code",
       tagline: "Bold brushstrokes and emotional energy.",
@@ -121,19 +124,22 @@ export const styles = [
           title: "Music & Nightlife",
           description: "High-impact posters, tickets, and venue graphics",
           icon: "MusicNoteOutlined",
-          imageUrl: "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/expressionism-music-nightlife.webp",
+          imageUrl:
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/expressionism-music-nightlife.webp",
         },
         {
           title: "Creative Campaigns",
           description: "Bold branding and identity work for creative studios",
           icon: "CampaignOutlined",
-          imageUrl: "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/expressionism-creative-campaigns.webp",
+          imageUrl:
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/expressionism-creative-campaigns.webp",
         },
         {
           title: "Retail & Fashion",
           description: "Vivid storefronts, pop-ups, and window displays",
           icon: "StorefrontOutlined",
-          imageUrl: "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/expressionism-retail-fashion.webp",
+          imageUrl:
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/expressionism-retail-fashion.webp",
         },
       ],
     },
@@ -184,19 +190,22 @@ export const styles = [
           title: "Gaming & Esports",
           description: "Distinctive graphics for communities and events",
           icon: "SportsEsportsOutlined",
-          imageUrl: "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/lowpoly-gaming-esports.webp",
+          imageUrl:
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/lowpoly-gaming-esports.webp",
         },
         {
           title: "Outdoor Advertising",
           description: "Bold billboards and campaign displays",
           icon: "CampaignOutlined",
-          imageUrl: "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/lowpoly-outdoor-advertising.webp",
+          imageUrl:
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/lowpoly-outdoor-advertising.webp",
         },
         {
           title: "Food & Beverage",
           description: "Eye-catching signage for food trucks and street food",
           icon: "RestaurantOutlined",
-          imageUrl: "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/lowpoly-food-beverage.webp",
+          imageUrl:
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/lowpoly-food-beverage.webp",
         },
       ],
     },
@@ -247,24 +256,27 @@ export const styles = [
           title: "Food & Beverage",
           description: "Realistic menus, campaigns, and product scenes",
           icon: "RestaurantOutlined",
-          imageUrl: "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/photography-food-beverage.webp",
+          imageUrl:
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/photography-food-beverage.webp",
         },
         {
           title: "Travel & Property",
           description: "Destination, hotel, and real-estate marketing",
           icon: "TravelExploreOutlined",
-          imageUrl: "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/photography-travel-property.webp",
+          imageUrl:
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/photography-travel-property.webp",
         },
         {
           title: "Product Advertising",
           description: "Lifestyle imagery that makes products feel tangible",
           icon: "ShoppingBagOutlined",
-          imageUrl: "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/photography-product-advertising.webp",
+          imageUrl:
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/photography-product-advertising.webp",
         },
       ],
     },
   },
-  
+
   {
     id: "6a4cfaee4021f21026e477f2",
     title: "Doodle Art",
@@ -284,7 +296,10 @@ export const styles = [
       exampleCaption: "Real, scannable Doodle Art QR code — made with QR AI",
       features: [
         { icon: "GestureOutlined", label: "Playful hand-drawn feel" },
-        { icon: "SentimentSatisfiedAltOutlined", label: "Friendly & approachable" },
+        {
+          icon: "SentimentSatisfiedAltOutlined",
+          label: "Friendly & approachable",
+        },
         { icon: "ChildCareOutlined", label: "Perfect for casual brands" },
       ],
       why: [
@@ -311,19 +326,22 @@ export const styles = [
           title: "Education",
           description: "Friendly QR codes for classes and learning materials",
           icon: "SchoolOutlined",
-          imageUrl: "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/doodle-education.webp",
+          imageUrl:
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/doodle-education.webp",
         },
         {
           title: "Creators",
           description: "Playful portfolio, profile, and social links",
           icon: "BrushOutlined",
-          imageUrl: "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/doodle-creators.webp",
+          imageUrl:
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/doodle-creators.webp",
         },
         {
           title: "Apparel & Merch",
           description: "Playful designs for t-shirts, stickers, and gear",
           icon: "CheckroomOutlined",
-          imageUrl: "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/doodle-apparel-merch.webp",
+          imageUrl:
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/doodle-apparel-merch.webp",
         },
       ],
     },
@@ -374,19 +392,22 @@ export const styles = [
           title: "Premium Hospitality",
           description: "Elegant menus, wine lists, and guest collateral",
           icon: "WineBarOutlined",
-          imageUrl: "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/ink-premium-hospitality.webp",
+          imageUrl:
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/ink-premium-hospitality.webp",
         },
         {
           title: "Editorial Design",
           description: "Refined QR art for books, magazines, and prints",
           icon: "MenuBookOutlined",
-          imageUrl: "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/ink-editorial-design.webp",
+          imageUrl:
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/ink-editorial-design.webp",
         },
         {
           title: "Art & Fashion",
           description: "Distinctive material for studios and exhibitions",
           icon: "DesignServicesOutlined",
-          imageUrl: "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/ink-art-fashion.webp",
+          imageUrl:
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/ink-art-fashion.webp",
         },
       ],
     },
@@ -395,7 +416,7 @@ export const styles = [
     id: "6a4cfaee4021f21026e477f4",
     title: "Oil Painting",
     image_url:
-      "https://qrartimages.s3.us-west-1.amazonaws.com/659801fb55848e0542b40cd0.png",
+      "https://qrartimages.s3.us-west-1.amazonaws.com/6a5ea19e4a20fe6fcb8257b4.png",
     landingPage: {
       slug: "oil-painting-qr-code",
       tagline: "Rich textures and painterly strokes.",
@@ -437,83 +458,89 @@ export const styles = [
           title: "Wine & Gourmet",
           description: "Rich artwork for labels, menus, and tastings",
           icon: "WineBarOutlined",
-          imageUrl: "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/oilpainting-wine-gourmet.webp",
+          imageUrl:
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/oilpainting-wine-gourmet.webp",
         },
         {
           title: "Luxury Hospitality",
           description: "Elegant guest material for hotels and restaurants",
           icon: "HotelOutlined",
-          imageUrl: "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/oilpainting-luxury-hospitality.webp",
+          imageUrl:
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/oilpainting-luxury-hospitality.webp",
         },
         {
           title: "Cafés & Bistros",
           description: "Warm painted artwork for menus and café signage",
           icon: "LocalCafeOutlined",
-          imageUrl: "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/oilpainting-cafes-bistros.webp",
+          imageUrl:
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/oilpainting-cafes-bistros.webp",
         },
       ],
     },
   },
   {
-    id: "6a4cfaee4021f21026e477f5",
-    title: "Chinese art",
+    id: "6a5eb077a3fee5360c2b8518",
+    title: "Papercut",
     image_url:
-      "https://qrartimages.s3.us-west-1.amazonaws.com/65e243349c04d23c99e86494.png",
+      "https://qrartimages.s3.us-west-1.amazonaws.com/6a5f28c5b8326dfe9a840dd5.png",
     landingPage: {
-      slug: "chinese-art-qr-code",
-      tagline: "Traditional brushwork and timeless beauty.",
+      slug: "papercut-art-qr-code",
+      tagline: "Layered cutouts and intricate silhouette art.",
       metaTitle:
-        "Chinese Art QR Code Generator — Traditional Brush QR Art | QR AI",
+        "Papercut QR Code Generator — Layered Cutout QR Art | QR AI",
       metaDescription:
-        "Create Chinese-art-inspired QR codes with elegant brushwork, natural motifs, and traditional visual character using QR AI.",
-      badge: "Chinese Art Style",
-      headingLines: ["Chinese Art", "QR Codes"],
+        "Create papercut-inspired QR codes with intricate layered silhouettes and vibrant cutout art using QR AI.",
+      badge: "Papercut Style",
+      headingLines: ["Papercut", "QR Codes"],
       headingAccent: "QR",
       intro:
-        "Graceful brushwork, poetic landscapes, and symbolic natural motifs give your QR code a calm, culturally distinctive character.",
-      exampleCaption: "Real, scannable Chinese Art QR code — made with QR AI",
+        "Delicate layered silhouettes and intricate cutout shapes give your QR code a handcrafted, dimensional character.",
+      exampleCaption: "Real, scannable Papercut QR code — made with QR AI",
       features: [
-        { icon: "LandscapeOutlined", label: "Poetic natural scenes" },
-        { icon: "GestureOutlined", label: "Traditional brush character" },
-        { icon: "SpaOutlined", label: "Elegant & harmonious" },
+        { icon: "TextureOutlined", label: "Intricate layered cutouts" },
+        { icon: "GestureOutlined", label: "Handcrafted silhouette look" },
+        { icon: "SpaOutlined", label: "Elegant & dimensional" },
       ],
       why: [
-        "Traditional brushwork and generous negative space pair naturally with QR geometry.",
-        "The style is especially suitable for tea, hospitality, culture, wellness, and premium food brands.",
-        "Mountains, bamboo, cranes, blossoms, and calligraphic forms create compositions with a calm visual rhythm.",
+        "Layered silhouettes and clean negative space pair naturally with QR geometry.",
+        "The style is especially suitable for stationery, gifting, nursery, and craft brands.",
+        "Florals, birds, mandalas, and folk motifs create compositions with tactile, handcrafted depth.",
       ],
       useCases: [
-        "Tea and food packaging",
-        "Cultural events",
-        "Hospitality and wellness",
-        "Galleries and museums",
+        "Greeting cards and stationery",
+        "Gift wrap and packaging",
+        "Nursery and home decor",
+        "Invitations and keepsakes",
       ],
       promptIdeas: [
-        "misty mountains, pine trees, pavilion, waterfall, traditional brush painting",
-        "red-crowned cranes among bamboo and plum blossoms",
-        "ceramic teapot, tea cups, bamboo tray, loose tea leaves",
-        "peaches, porcelain bowl, silk cloth, flowering branches",
-        "lotus flowers and koi fish in a quiet garden pond",
-        "moon gate, stone path, bamboo grove, distant mountains",
+        "layered paper cutout, floral silhouette, soft drop shadow",
+        "papercraft forest scene, layered depth, warm palette",
+        "kirigami birds and branches, delicate cutout linework",
+        "layered paper mandala, intricate symmetric pattern",
+        "papercut cityscape silhouette, warm sunset colors",
+        "layered paper flowers, pastel palette, soft shadows",
       ],
       perfectFor: [
         {
           title: "Tea & Culinary",
           description: "Elegant packaging, menus, and tasting experiences",
           icon: "EmojiFoodBeverageOutlined",
-          imageUrl: "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/chinese-art-tea-culinary.webp",
+          imageUrl:
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/chinese-art-tea-culinary.webp",
         },
         {
           title: "Cultural Events",
           description: "Distinctive signage and printed event material",
           icon: "FestivalOutlined",
-          imageUrl: "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/chinese-art-cultural-events.webp",
+          imageUrl:
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/chinese-art-cultural-events.webp",
         },
         {
           title: "Wellness & Hospitality",
           description: "Calm, premium visuals for guest experiences",
           icon: "SpaOutlined",
-          imageUrl: "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/chinese-art-wellness-hospitality.webp",
+          imageUrl:
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/chinese-art-wellness-hospitality.webp",
         },
       ],
     },
@@ -546,7 +573,10 @@ export const styles = [
       features: [
         { icon: "BrushOutlined", label: "Soft painterly aesthetic" },
         { icon: "QrCode2Outlined", label: "Scannable by design" },
-        { icon: "LocalPrintshopOutlined", label: "Perfect for print & invites" },
+        {
+          icon: "LocalPrintshopOutlined",
+          label: "Perfect for print & invites",
+        },
       ],
       why: [
         "Soft, blended color transitions read as elegant and personal rather than corporate.",
@@ -574,19 +604,22 @@ export const styles = [
           title: "Wedding Stationery",
           description: "Elegant saves, invites & thank you cards",
           icon: "FavoriteBorderOutlined",
-          imageUrl: "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/watercolor-wedding-stationery.webp",
+          imageUrl:
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/watercolor-wedding-stationery.webp",
         },
         {
           title: "Menus & Events",
           description: "Beautiful menus and event signage that guests love",
           icon: "LocalCafeOutlined",
-          imageUrl: "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/watercolor-menus-events.webp",
+          imageUrl:
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/watercolor-menus-events.webp",
         },
         {
           title: "Real Estate & Property",
           description: "Soft, artistic marketing for listings and developments",
           icon: "TravelExploreOutlined",
-          imageUrl: "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/watercolor-real-estate-property.webp",
+          imageUrl:
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/watercolor-real-estate-property.webp",
         },
       ],
     },
@@ -647,19 +680,22 @@ export const styles = [
           title: "Family Events",
           description: "Warm invitations, activities, and celebration material",
           icon: "FamilyRestroomOutlined",
-          imageUrl: "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/ghibli-family-events.webp",
+          imageUrl:
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/ghibli-family-events.webp",
         },
         {
           title: "Travel & Nature",
           description: "Whimsical guides, maps, and destination content",
           icon: "ForestOutlined",
-          imageUrl: "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/ghibli-travel-nature.webp",
+          imageUrl:
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/ghibli-travel-nature.webp",
         },
         {
           title: "Publishing & Media",
           description: "Cover art for travel magazines and guidebooks",
           icon: "AutoStoriesOutlined",
-          imageUrl: "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/ghibli-publishing-media.webp",
+          imageUrl:
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/ghibli-publishing-media.webp",
         },
       ],
     },
@@ -710,19 +746,22 @@ export const styles = [
           title: "Music & Nightlife",
           description: "High-energy posters, screens, and venue signage",
           icon: "NightlifeOutlined",
-          imageUrl: "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/cyberpunk-music-nightlife.webp",
+          imageUrl:
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/cyberpunk-music-nightlife.webp",
         },
         {
           title: "Events & Tickets",
           description: "Bold tickets and passes for races and live events",
           icon: "CelebrationOutlined",
-          imageUrl: "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/cyberpunk-events-tickets.webp",
+          imageUrl:
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/cyberpunk-events-tickets.webp",
         },
         {
           title: "Digital Art & NFTs",
           description: "Futuristic collections and gallery drops",
           icon: "MemoryOutlined",
-          imageUrl: "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/cyberpunk-digital-art-nfts.webp",
+          imageUrl:
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/cyberpunk-digital-art-nfts.webp",
         },
       ],
     },
@@ -774,19 +813,22 @@ export const styles = [
           title: "Brand Campaigns",
           description: "Custom artwork for launches and social storytelling",
           icon: "CampaignOutlined",
-          imageUrl: "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/illustration-brand-campaigns.webp",
+          imageUrl:
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/illustration-brand-campaigns.webp",
         },
         {
           title: "Events & Invitations",
           description: "Memorable visuals for celebrations and gatherings",
           icon: "CelebrationOutlined",
-          imageUrl: "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/illustration-events-invitations.webp",
+          imageUrl:
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/illustration-events-invitations.webp",
         },
         {
           title: "Packaging & Merch",
           description: "Flexible illustrated QR codes for physical products",
           icon: "Inventory2Outlined",
-          imageUrl: "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/illustration-packaging-merch.webp",
+          imageUrl:
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/illustration-packaging-merch.webp",
         },
       ],
     },
