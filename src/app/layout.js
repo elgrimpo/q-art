@@ -43,6 +43,21 @@ export const metadata = {
       "p:domain_verify": "2aac0e7e0d33418d2491f4cfcbc0d1f3",
     },
   },
+  // Two favicon variants swapped by the browser via prefers-color-scheme:
+  // the light-mode icon needs the black corner squares for contrast on a
+  // white tab; the dark-mode icon drops them since the pale tab background
+  // already gives the green swirl enough contrast on its own.
+  icons: {
+    icon: [
+      { url: "/favicon-light.ico", media: "(prefers-color-scheme: light)" },
+      { url: "/favicon-dark.ico", media: "(prefers-color-scheme: dark)" },
+    ],
+    // Must be declared explicitly: Next's static-metadata merge only keeps
+    // an explicit `icons.icon` array when `icons.apple` is also present —
+    // otherwise it silently falls back to the file-convention apple-icon.png
+    // AND wipes the icon array back to file-convention too.
+    apple: "/apple-icon.png",
+  },
 };
 
 const websiteSchema = {
