@@ -544,14 +544,15 @@ export default function ImageSidebar({
           </Box>
 
           {hasScore && score < 80 && (
-            <Box sx={{ mt: 2 }}>
-              <Typography variant="body2" sx={{ color: "text.secondary" }}>
+            <Box sx={{ mt: 2, display: "flex", alignItems: "flex-start", gap: 0.75 }}>
+              <InfoOutlinedIcon sx={{ color: "#FF8585", fontSize: 18, mt: "1px", flexShrink: 0 }} />
+              <Typography variant="body2" sx={{ color: "#FF8585" }}>
                 Scannability might be low.{" "}
                 <Box
                   component="span"
                   onClick={() => setIterateOpen(true)}
                   sx={{
-                    color: "primary.main",
+                    color: "#FF8585",
                     fontWeight: 700,
                     cursor: "pointer",
                     textDecoration: "underline",
