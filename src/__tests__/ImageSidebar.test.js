@@ -189,3 +189,44 @@ describe('showActions=false sidebar', () => {
   })
 })
 
+describe('low-scannability warning (showActions=false)', () => {
+  test('shows warning with working iterate link when score is Fair (70-79)', async () => {
+    setSearch('')
+    await renderNewSidebar({ scannability_score: 75 })
+    expect(screen.getByText(/Scannability might be low/)).toBeInTheDocument()
+    const link = screen.getByText('Increase QR Weight')
+    fireEvent.click(link)
+    expect(screen.getByTestId('iterate-panel')).toHaveAttribute('data-open', 'true')
+  })
+
+  test('shows warning when score is Poor (40-69)', async () => {
+    setSearch('')
+    await renderNewSidebar({ scannability_score: 55 })
+    expect(screen.getByText(/Scannability might be low/)).toBeInTheDocument()
+  })
+
+  test('shows warning when score is Unscannable (0-39)', async () => {
+    setSearch('')
+    await renderNewSidebar({ scannability_score: 20 })
+    expect(screen.getByText(/Scannability might be low/)).toBeInTheDocument()
+  })
+
+  test('hides warning when score is Good (80-89)', async () => {
+    setSearch('')
+    await renderNewSidebar({ scannability_score: 85 })
+    expect(screen.queryByText(/Scannability might be low/)).not.toBeInTheDocument()
+  })
+
+  test('hides warning when score is Excellent (90+)', async () => {
+    setSearch('')
+    await renderNewSidebar({ scannability_score: 95 })
+    expect(screen.queryByText(/Scannability might be low/)).not.toBeInTheDocument()
+  })
+
+  test('hides warning when there is no score', async () => {
+    setSearch('')
+    await renderNewSidebar()
+    expect(screen.queryByText(/Scannability might be low/)).not.toBeInTheDocument()
+  })
+})
+

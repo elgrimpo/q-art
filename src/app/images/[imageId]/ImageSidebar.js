@@ -543,6 +543,27 @@ export default function ImageSidebar({
             )}
           </Box>
 
+          {hasScore && score < 80 && (
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                Scannability might be low.{" "}
+                <Box
+                  component="span"
+                  onClick={() => setIterateOpen(true)}
+                  sx={{
+                    color: "primary.main",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    textDecoration: "underline",
+                  }}
+                >
+                  Increase QR Weight
+                </Box>{" "}
+                to improve it.
+              </Typography>
+            </Box>
+          )}
+
           {/* PROMPT */}
           {currentImage?.prompt && (
             <Box sx={{ mt: 3.25, pt: 3, borderTop: "1px solid", borderTopColor: "divider" }}>
