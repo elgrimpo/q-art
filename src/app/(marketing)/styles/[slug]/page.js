@@ -15,10 +15,7 @@ import { STYLE_ICONS as ICONS } from "@/_utils/styleIcons";
 import ExamplesCarousel from "./ExamplesCarousel";
 import BackButton from "./BackButton";
 import BackLink from "./BackLink";
-
-// Different portrait ratios per column so the Perfect For cards stagger
-// like a Pinterest board instead of lining up as uniform squares.
-const PERFECT_FOR_RATIO = "4 / 5";
+import PerfectForGrid from "./PerfectForGrid";
 
 export function generateStaticParams() {
   return stylesWithLandingPage().map((s) => ({ slug: s.landingPage.slug }));
@@ -436,60 +433,7 @@ function RichStyleLayout({ style, lp, examples }) {
         <Typography variant="h2" sx={{ fontSize: { xs: "1.3rem", md: "1.6rem" }, mb: 3 }}>
           Perfect For
         </Typography>
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: { xs: "1fr", sm: "repeat(3, 1fr)" },
-            alignItems: "start",
-            gap: 2,
-          }}
-        >
-          {lp.perfectFor.slice(0, 3).map((card) => {
-            const Icon = ICONS[card.icon];
-            return (
-              <Box
-                key={card.title}
-                sx={{
-                  aspectRatio: PERFECT_FOR_RATIO,
-                  position: "relative",
-                  overflow: "hidden",
-                  borderRadius: 2,
-                  border: "1px solid",
-                  borderColor: "divider",
-                  backgroundColor: "background.paper",
-                }}
-              >
-                {card.imageUrl && (
-                  <Image
-                    src={card.imageUrl}
-                    alt={card.title}
-                    fill
-                    unoptimized
-                    sizes="(max-width: 600px) 100vw, 33vw"
-                    style={{ objectFit: "cover" }}
-                  />
-                )}
-                <Box
-                  sx={{
-                    position: "absolute",
-                    inset: 0,
-                    background:
-                      "linear-gradient(0deg, rgba(0,0,0,0.8), rgba(0,0,0,0) 30%)",
-                  }}
-                />
-                <Box sx={{ position: "absolute", left: 0, right: 0, bottom: 0, p: 2.5 }}>
-                  {Icon && <Icon sx={{ color: "primary.main", fontSize: 26, mb: 1 }} />}
-                  <Typography sx={{ fontWeight: 600, fontSize: "1rem", mb: 0.5, color: "text.primary" }}>
-                    {card.title}
-                  </Typography>
-                  <Typography sx={{ fontSize: "0.85rem", color: "text.muted", lineHeight: 1.5 }}>
-                    {card.description}
-                  </Typography>
-                </Box>
-              </Box>
-            );
-          })}
-        </Box>
+        <PerfectForGrid perfectFor={lp.perfectFor} />
       </Box>
 
       {/* Bottom CTA */}
