@@ -522,25 +522,25 @@ export const styles = [
       ],
       perfectFor: [
         {
-          title: "Tea & Culinary",
-          description: "Elegant packaging, menus, and tasting experiences",
-          icon: "EmojiFoodBeverageOutlined",
+          title: "Architecture & Design",
+          description: "Bold layered art for design studios and print",
+          icon: "ApartmentOutlined",
           imageUrl:
-            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/chinese-art-tea-culinary.webp",
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/papercut-architecture-design.webp",
         },
         {
-          title: "Cultural Events",
-          description: "Distinctive signage and printed event material",
-          icon: "FestivalOutlined",
+          title: "Retail & Vendors",
+          description: "Eye-catching layered art for stalls, shops, and markets",
+          icon: "StorefrontOutlined",
           imageUrl:
-            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/chinese-art-cultural-events.webp",
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/papercut-retail-vendors.webp",
         },
         {
-          title: "Wellness & Hospitality",
-          description: "Calm, premium visuals for guest experiences",
-          icon: "SpaOutlined",
+          title: "Apparel & Fashion",
+          description: "Vibrant cutout designs for shirts and merch",
+          icon: "CheckroomOutlined",
           imageUrl:
-            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/chinese-art-wellness-hospitality.webp",
+            "https://qrartimages.s3.us-west-1.amazonaws.com/product-placements/papercut-apparel-fashion.webp",
         },
       ],
     },
